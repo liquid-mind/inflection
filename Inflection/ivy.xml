@@ -4,7 +4,7 @@
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:noNamespaceSchemaLocation="http://ant.apache.org/ivy/schemas/ivy.xsd">
 	
-	<info organisation="zhaw" module="inflection" status="integration"/>
+	<info organisation="liquidmind" module="inflection" status="integration"/>
 	
 	<dependencies>
 		<dependency org="junit" name="junit" rev="4.11" conf="default"/>

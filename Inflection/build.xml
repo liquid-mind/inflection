@@ -113,8 +113,8 @@
 			<classpath>
 				<pathelement location="${lib}/antlr-4.4-complete.jar"/>
 			</classpath>
-			<arg line="-o ${target.grammar}/ch/zhaw/inflection/grammar"/>
-			<arg line="${src.main.resources}/ch/zhaw/inflection/grammar/Inflection.g4"/>
+			<arg line="-o ${target.grammar}/ch/liquidmind/inflection/grammar"/>
+			<arg line="${src.main.resources}/ch/liquidmind/inflection/grammar/Inflection.g4"/>
 		</java>
 	</target>
 
@@ -147,15 +147,15 @@
 			debuglevel="lines,vars,source"
 			encoding="UTF8"/>
 		<java
-			classname="ch.zhaw.inflection.compiler.InflectionCompilerBootstrap"
+			classname="ch.liquidmind.inflection.compiler.InflectionCompilerBootstrap"
 			fork="true"
 			classpathref="libs.compile.views">
 			<jvmarg line="${debug.arg}"/>
 			<jvmarg value="-ea"/>
 			<arg line="${target.main}"/>
-			<arg line="${src.main.resources}/ch/zhaw/inflection/ChZhawInflection.inflect"/>
-			<arg line="${src.main.resources}/ch/zhaw/inflection/ChZhawInflectionOperation.inflect"/>
-			<arg line="${src.main.resources}/ch/zhaw/inflection/demo/Demo.inflect"/>
+			<arg line="${src.main.resources}/ch/liquidmind/inflection/Inflection.inflect"/>
+			<arg line="${src.main.resources}/ch/liquidmind/inflection/InflectionOperation.inflect"/>
+			<arg line="${src.main.resources}/ch/liquidmind/inflection/demo/Demo.inflect"/>
 		</java>
 	</target>
 
