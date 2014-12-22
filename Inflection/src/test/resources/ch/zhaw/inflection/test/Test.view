@@ -1,0 +1,24 @@
+package ch.zhaw.inflection.test;
+
+view FullClass1View of Class1
+{
+	field1;
+	field2;
+}
+
+view FullClass2View of Class2 extends FullClass1View
+{
+	field2;
+	field3;
+	FullClass3View compositeClass3s;
+	discrete FullClass3View referencedClass3s;
+	discrete FullClass3View bidirClass3s;
+	discrete FullClass2View nestedClass2s;
+}
+
+view FullClass3View of Class3 extends FullClass1View
+{
+	field4;
+	field5;
+	discrete FullClass2View bidirClass2s;
+}

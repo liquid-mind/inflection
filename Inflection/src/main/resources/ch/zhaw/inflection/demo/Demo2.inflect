@@ -1,0 +1,82 @@
+package ch.zhaw.inflection.demo2;
+
+import ch.zhaw.inflection.operation.*;
+import ch.zhaw.inflection.operation.basic.*;
+import ch.zhaw.inflection.operation.extended.*;
+
+view SimpleCustomerView of Customer
+{
+	StringView lastName;
+	StringView firstName;
+}
+
+view FullCustomerView of Customer extends SimpleCustomerView
+{
+	intView age;
+	GenderView gender;
+	AddressView addresses;
+	AccountView accounts;
+}
+
+view AddressView of Address
+{
+	StringView street;
+	StringView city;
+	StringView zip;
+	StringView country;
+}
+
+view AccountView of Account
+{
+	StringView number;
+	StringView IBAN;
+	StringView SWIFTCode;
+	AccountTypeView type;
+	StringView clearingNumber;
+}
+
+view GenderView of Gender
+{}
+
+view AccountTypeView of AccountType
+{}
+
+hgroup BasicTaxonomy
+{
+	AddressView,
+	AccountView,
+	GenderView,
+	AccountTypeView
+}
+
+hgroup SimpleTaxonomy extends BasicTaxonomy
+{
+	SimpleCustomerView
+}
+
+hgroup FullTaxonomy extends BasicTaxonomy
+{
+	FullCustomerView
+}
+
+vmap DemoToJsonMap extends JsonTraverserConfiguration
+{
+	GenderView, AccountTypeView : JsonQuotingVisitor;
+}
+
+vmap DemoToTextMap extends ToTextTraverserConfiguration
+{
+	GenderView, AccountTypeView : ToTextBasicTypeVisitor;
+}
+
+vmap DemoToTextWithAddressVisitorMap extends DemoToTextMap
+{
+	AddressView : ToTextAddressVisitor;
+}
+
+vmap DemoValidation extends ValidateTraverserConfiguration
+{
+	FullCustomerView->firstName, FullCustomerView->lastName :
+		ValidateAlphaNumericVisitor, ValidateNotNullVisitor;
+}
+

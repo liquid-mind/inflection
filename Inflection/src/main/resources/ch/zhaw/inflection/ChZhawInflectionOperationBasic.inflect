@@ -1,0 +1,44 @@
+package ch.zhaw.inflection.operation.basic;
+
+vmap MetaModelToTextTraverserConfiguration
+{
+	default MetaModelToTextVisitor;
+}
+
+vmap MultipleTraversalIdentifyingTraverserConfiguration
+{
+	default MultipleTraversalIdentifyingVisitor;
+}
+
+vmap ToTextTraverserConfiguration
+{
+	default ToTextDefaultVisitor;
+
+	byteView, shortView, intView, longView,
+	floatView, doubleView, charView, booleanView,
+	ByteView, ShortView, IntegerView, LongView,
+	FloatView, DoubleView, CharacterView, BooleanView,
+	StringView, DateView : ToTextBasicTypeVisitor;
+}
+
+vmap HashCodeTraverserConfiguration
+{
+	default HashCodeDefaultVisitor;
+
+	byteView, shortView, intView, longView,
+	floatView, doubleView, charView, booleanView,
+	ByteView, ShortView, IntegerView, LongView,
+	FloatView, DoubleView, CharacterView, BooleanView,
+	StringView, DateView : HashCodeBasicTypeVisitor;
+}
+
+vmap EqualsTraverserConfiguration
+{
+	default EqualsDefaultVisitor;
+
+	byteView, shortView, intView, longView,
+	floatView, doubleView, charView, booleanView,
+	ByteView, ShortView, IntegerView, LongView,
+	FloatView, DoubleView, CharacterView, BooleanView,
+	StringView, DateView : EqualsBasicTypeVisitor;
+}

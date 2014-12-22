@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<ivy-module version="2.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:noNamespaceSchemaLocation="http://ant.apache.org/ivy/schemas/ivy.xsd">
+	
+	<info organisation="zhaw" module="inflection" status="integration"/>
+	
+	<dependencies>
+		<dependency org="junit" name="junit" rev="4.11" conf="default"/>
+		<dependency org="commons-io" name="commons-io" rev="2.4" conf="default"/>
+		<dependency org="commons-collections" name="commons-collections" rev="3.2.1" conf="default"/>
+		<dependency org="org.hamcrest" name="hamcrest-all" rev="1.3" conf="default"/>
+	</dependencies>
+	
+</ivy-module>
