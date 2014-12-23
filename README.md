@@ -1,4 +1,4 @@
-INFLECTION
+Inflection
 ==========
 
 The Java Inflection API reduces the amount of boilerplate code by (virtually) extending the Java type system with so-called "class views".
