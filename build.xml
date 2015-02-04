@@ -158,6 +158,7 @@
             <arg line="${src.main.resources}/ch/liquidmind/inflection/InflectionOperationExtended.inflect"/>
 			<arg line="${src.main.resources}/ch/liquidmind/inflection/demo/Demo.inflect"/>
             <arg line="${src.main.resources}/ch/liquidmind/inflection/demo/Demo2.inflect"/>
+            <!-- Some comment -->
         </java>
 	</target>
 
