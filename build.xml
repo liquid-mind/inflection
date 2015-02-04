@@ -154,9 +154,11 @@
 			<jvmarg value="-ea"/>
 			<arg line="${target.main}"/>
 			<arg line="${src.main.resources}/ch/liquidmind/inflection/Inflection.inflect"/>
-			<arg line="${src.main.resources}/ch/liquidmind/inflection/InflectionOperation.inflect"/>
+            <arg line="${src.main.resources}/ch/liquidmind/inflection/InflectionOperationBasic.inflect"/>
+            <arg line="${src.main.resources}/ch/liquidmind/inflection/InflectionOperationExtended.inflect"/>
 			<arg line="${src.main.resources}/ch/liquidmind/inflection/demo/Demo.inflect"/>
-		</java>
+            <arg line="${src.main.resources}/ch/liquidmind/inflection/demo/Demo2.inflect"/>
+        </java>
 	</target>
 
 	<target name="package.main" depends="compile.grammar, compile.main">
