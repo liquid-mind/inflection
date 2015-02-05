@@ -32,6 +32,11 @@
 	<property name="test.scope" value="**/*Test.class"/>
 	<property name="debug" value="false"/>
 
+	<condition property="isWindows">
+		<os family="windows"/>
+	</condition>
+	
+
 	<taskdef resource="net/sf/antcontrib/antlib.xml"/>
 	<taskdef name="junit" classname="org.apache.tools.ant.taskdefs.optional.junit.JUnitTask" classpath="/opt/local/share/java/apache-ant/lib/ant-junit.jar"/>
 	
@@ -64,24 +69,62 @@
 				<touch file="${lib}/INIT-LIBS-FLAG"/>
 				<ivy:retrieve pattern="${lib}/[artifact].[ext]"/>
 				<get src="http://www.antlr.org/download/antlr-4.4-complete.jar" dest="${lib}/antlr-4.4-complete.jar" verbose="true" usetimestamp="true"/>
-				<exec executable="deflector">
-					<arg line="-jar ${java.home}/lib/rt.jar"/>
-					<arg line="-includes java\..* javax\..* org\.ietf\..* org\.omg\..* org\.w3c\..* org\.xml\..*"/>
-					<arg line="-excludes javax\.smartcardio\..* org\.omg\.stub\.javax\..* java\.awt\.peer\..*"/>
-					<arg line="-output ${lib}"/>
-				</exec>
-				<exec executable="deflector">
-					<arg line="-jar ${lib}/commons-io.jar"/>
-					<arg line="-classpath ${lib}/__rt.jar"/>
-					<arg line="-includes org\.apache\.commons\.io\..*"/>
-					<arg line="-output ${lib}"/>
-				</exec>
-				<exec executable="deflector">
-					<arg line="-jar ${lib}/antlr-4.4-complete.jar"/>
-					<arg line="-classpath ${lib}/__rt.jar"/>
-					<arg line="-includes org\.antlr\.v4\.runtime\..*"/>
-					<arg line="-output ${lib}"/>
-				</exec>
+
+				<if>
+					<equals arg1="${isWindows}" arg2="true"/>
+					<then>
+						<!-- WIN deflection -->
+						<exec executable="cmd">
+							<arg value="/c"/>
+							<arg value="deflector.bat"/>
+							<arg line="-jar &quot;${java.home}/lib/rt.jar&quot;"/>
+							<arg line="-includes java\..* javax\..* org\.ietf\..* org\.omg\..* org\.w3c\..* org\.xml\..*"/>
+							<arg line="-excludes javax\.smartcardio\..* org\.omg\.stub\.javax\..* java\.awt\.peer\..*"/>
+							<arg line="-output ${lib}"/>
+						</exec>
+
+						<exec executable="cmd">
+							<arg value="/c"/>
+							<arg value="deflector.bat"/>
+							<arg line="-jar ${lib}/commons-io.jar"/>
+							<arg line="-classpath ${lib}/__rt.jar"/>
+							<arg line="-includes org\.apache\.commons\.io\..*"/>
+							<arg line="-output ${lib}"/>
+						</exec>
+
+						<exec executable="cmd">
+							<arg value="/c"/>
+							<arg value="deflector.bat"/>
+							<arg line="-jar ${lib}/antlr-4.4-complete.jar"/>
+							<arg line="-classpath ${lib}/__rt.jar"/>
+							<arg line="-includes org\.antlr\.v4\.runtime\..*"/>
+							<arg line="-output ${lib}"/>
+						</exec>
+					</then>
+					<else>
+						<!-- UNIX deflection -->
+						<exec executable="deflector">
+							<arg line="-jar ${java.home}/lib/rt.jar"/>
+							<arg line="-includes java\..* javax\..* org\.ietf\..* org\.omg\..* org\.w3c\..* org\.xml\..*"/>
+							<arg line="-excludes javax\.smartcardio\..* org\.omg\.stub\.javax\..* java\.awt\.peer\..*"/>
+							<arg line="-output ${lib}"/>
+						</exec>
+						<exec executable="deflector">
+							<arg line="-jar ${lib}/commons-io.jar"/>
+							<arg line="-classpath ${lib}/__rt.jar"/>
+							<arg line="-includes org\.apache\.commons\.io\..*"/>
+							<arg line="-output ${lib}"/>
+						</exec>
+						<exec executable="deflector">
+							<arg line="-jar ${lib}/antlr-4.4-complete.jar"/>
+							<arg line="-classpath ${lib}/__rt.jar"/>
+							<arg line="-includes org\.antlr\.v4\.runtime\..*"/>
+							<arg line="-output ${lib}"/>
+						</exec>
+					</else>
+				</if>
+
+
 				<delete>
 					<zipfileset dir="${lib}">
 						<include name="hamcrest-core.jar"/>
@@ -158,7 +201,6 @@
             <arg line="${src.main.resources}/ch/liquidmind/inflection/InflectionOperationExtended.inflect"/>
 			<arg line="${src.main.resources}/ch/liquidmind/inflection/demo/Demo.inflect"/>
             <arg line="${src.main.resources}/ch/liquidmind/inflection/demo/Demo2.inflect"/>
-            <!-- test comment for workflow testing... -->
         </java>
 	</target>
 
