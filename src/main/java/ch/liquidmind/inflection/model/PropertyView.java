@@ -42,11 +42,14 @@ public class PropertyView extends MemberView
 	private Method getPropertyReadMethod( Class< ? > theClass )
 	{
 		Method foundMethod = null;
-		String getterName = "get" + getName().toLowerCase();
+		String getterName1 = "get" + getName().toLowerCase();
+		String getterName2 = "is" + getName().toLowerCase();
 		
 		for ( Method method : theClass.getMethods() )
 		{
-			if ( method.getName().toLowerCase().equals( getterName ) )
+			String methodName = method.getName().toLowerCase();
+			
+			if ( methodName.equals( getterName1 ) || methodName.equals( getterName2 ) )
 			{
 				foundMethod = method;
 				break;

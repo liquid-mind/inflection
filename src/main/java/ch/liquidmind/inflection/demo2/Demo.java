@@ -20,7 +20,18 @@ public class Demo
 {
 	public static void main( String[] args )
 	{
-		demo2();
+		demo4();
+		
+		// Ideas:
+		// Rename hgroup to taxonomy and vmap to visitors
+		// public class Inflection
+		// {
+		//     public static void addImport( String import );      Adds, removes and fetchs imports, which may be either single types or entire packages.
+		//     public static void removeImport( String import );
+		//     public static List< String > getImports();
+		//     public static void setDefaultTaxonomy( String taxonomy )   Sets the default taxonomy for this session/thread.
+		//     public static void setDefaultVisitors( String visitors )   Sets the default taxonomy for this session/thread.
+		// }
 	}
 
 	// Demonstrate multiple visitors and visitors on member views.

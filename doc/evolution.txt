@@ -1,0 +1,90 @@
+view BasePilotView
+{
+	class Person { *; }
+	class Address { *; }
+
+	...
+
+	class Employer { *; }
+	class JobProfile { *; }
+}
+
+view ConcatPersonNameView extends BasePilotView
+{
+	class Person
+	{
+		exclude firstName, lastName;
+		fullName;
+	}
+}
+
+view ConcatAddressView extends BasePilotView
+{
+	class Address
+	{
+		exclude street, zip, city, country;
+		fullAddress;
+	}
+}
+
+view ConcatAllView extends ConcatPersonNameView, ConcatAddressView
+{}
+
+view EmployerToJobProfileView extends BasePilotView
+{
+	class JobProfile
+	{
+		exclude Employer;
+	}
+}
+
+view UseCase1View extends ConcatAllView, EmployerToJobProfileView
+{}
+
+visitors AggregateScoreVisitors
+{
+	default AggregateScoreDefaultVisitor;
+	double, double : AggregateScoreVisitor;
+}
+
+
+
+
+// NOTES
+
+	class Person
+	{
+		property composite firstName;
+		property composite lastName;
+		property composite gender;
+		property composite birthday;
+		property composite address;
+	}
+
+	...same as...
+
+	class Person
+	{
+		firstName;
+		lastName;
+		gender;
+		birthday;
+		address;
+	}
+
+	...same as...
+
+	class Person
+	{
+		*Name;
+		gender;
+		birthday;
+		address;
+	}
+
+	...same as...
+
+	class Person
+	{
+		*;
+	}

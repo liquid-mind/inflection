@@ -22,7 +22,7 @@ public class JsonDefaultVisitor extends JsonAbstractVisitor
 		MemberViewFrame lastMemberViewFrame = getTraverser().getLastMemberViewFrame();
 		MemberView lastMemberView = ( lastMemberViewFrame == null ? null : lastMemberViewFrame.getMemberViewPair().getLeftMemberView() );
 		String memberViewName = getMemberViewName( lastMemberView );
-		memberViewName = ( memberViewName.isEmpty() ? "" : memberViewName + " " );
+		memberViewName = ( memberViewName.isEmpty() ? "" : memberViewName );
 
 		if ( frame.getVisitCount() == 0 )
 		{
@@ -39,11 +39,12 @@ public class JsonDefaultVisitor extends JsonAbstractVisitor
 			if ( lastMemberView == null )
 			{
 				println( "\"@version\" : \"" + VERSION + "\"," );
-				println( "\"@hgroup\" : \"" + getTraverser().getHGroup().getName() + "\"," );
+//				println( "\"@taxonomy\" : \"" + getTraverser().getHGroup().getName() + "\"," );
+				println( "\"@taxonomy\" : \"" + getTraverser().getHGroup().getName() + "\"," );
 			}
 			
-			print( "\"@class\" : \"" + pair.getLeftObject().getObject().getClass().getName() + "\"" );
-			printCommaIfNecessaryAfterMetaData();
+//			print( "\"@class\" : \"" + pair.getLeftObject().getObject().getClass().getName() + "\"" );
+//			printCommaIfNecessaryAfterMetaData();
 			getTraverser().continueTraversal();
 			closeCurlyBraces();
 		}
@@ -119,18 +120,18 @@ public class JsonDefaultVisitor extends JsonAbstractVisitor
 			println();
 	}
 	
-	private void printCommaIfNecessaryAfterMetaData()
-	{
-		InflectionViewFrame frame = getTraverser().getCurrentFrame();
-		
-		if ( frame instanceof ClassViewFrame )
-		{
-			ClassViewFrame classViewFrame = (ClassViewFrame)frame;
-
-			if ( classViewFrame.getClassViewPair().getLeftClassView().getMemberViews().size() > 0 )
-				println( "," );
-			else
-				println();
-		}
-	}
+//	private void printCommaIfNecessaryAfterMetaData()
+//	{
+//		InflectionViewFrame frame = getTraverser().getCurrentFrame();
+//		
+//		if ( frame instanceof ClassViewFrame )
+//		{
+//			ClassViewFrame classViewFrame = (ClassViewFrame)frame;
+//
+//			if ( classViewFrame.getClassViewPair().getLeftClassView().getMemberViews().size() > 0 )
+//				println( "," );
+//			else
+//				println();
+//		}
+//	}
 }

@@ -6,6 +6,6 @@ public class NoSuchPropertyException extends RuntimeException
 	
 	public NoSuchPropertyException( Class< ? > theClass, String memberName )
 	{
-		super( "Class " );
+		super( "Class: " + theClass.getName() + ", member: " + memberName );
 	}
 }

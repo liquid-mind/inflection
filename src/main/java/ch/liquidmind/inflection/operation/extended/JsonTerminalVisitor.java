@@ -14,8 +14,7 @@ public abstract class JsonTerminalVisitor extends JsonAbstractVisitor
 		MemberViewFrame lastMemberViewFrame = getTraverser().getLastMemberViewFrame();
 		MemberView lastMemberView = ( lastMemberViewFrame == null ? null : lastMemberViewFrame.getMemberViewPair().getLeftMemberView() );
 		String memberViewName = "\"" + getMemberViewName( lastMemberView ) + "\"";
-		String memberValueRaw = iObject.getObject().toString();
-		String memberValue = "\"" + memberValueRaw + "\"";
+		String memberValue = getMemberValue( iObject );
 		print( memberViewName + " : " + memberValue );
 		getTraverser().continueTraversal();
 	}
