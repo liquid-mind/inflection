@@ -1,0 +1,123 @@
+plugins {
+    id "java"
+    id "maven-publish"
+    id "eclipse"
+    id "idea"
+    id "com.jfrog.bintray" version "1.2"
+	id "ch.liquidmind.deflector" version "0.0.2"
+	id "me.champeau.gradle.antlr4" version "0.1"
+}
+
+
+group = "ch.liquidmind"
+version = "0.0.1"
+
+jar {
+    from ("./LICENSE") {
+        into "META-INF"
+    }
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+	compile deflected("commons-io:commons-io:2.4", {
+				includes ~/org\.apache\.commons\.io\..*/ })
+	compile deflected("org.antlr:antlr4:4.5", {
+				includes ~/org\.antlr\.v4\.runtime\..*/})
+	testCompile "junit:junit:4.12"
+}
+
+// Antlr Config
+antlr4 {
+	source=file("src/main/resources/ch/liquidmind/inflection/grammar")
+}
+compileJava.dependsOn antlr4
+sourceSets.main.java.srcDirs += "$buildDir/generated-src"
+
+// Inflect Task
+task(inflectBaseViews, dependsOn: classes, type: JavaExec) {
+	main = "ch.liquidmind.inflection.compiler.InflectionCompilerBootstrap"
+	classpath = sourceSets.main.runtimeClasspath
+	jvmArgs '-ea'
+	args "$buildDir/classes/main"
+	sourceSets.main.resources.each {
+		if ( it.name.endsWith('.inflect') )
+			args it
+	}
+}
+tasks.jar.dependsOn inflectBaseViews
+
+// Sources JAR
+task sourceJar(type: Jar, dependsOn: classes) {
+    from sourceSets.main.allSource
+}
+
+// Javadocs JAR
+task javadocJar(type: Jar, dependsOn: javadoc) {
+    classifier = 'javadoc'
+    from javadoc.destinationDir
+}
+
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            from components.java
+
+            artifact sourceJar {
+                classifier "sources"
+            }
+
+            artifact javadocJar {
+                classifier "javadoc"
+            }
+
+            pom.withXml {
+                def root = asNode()
+                root.appendNode('name',
+                                    'ch.liquidmind:inflection')
+                root.appendNode('description',
+                                    'Turns checked exceptions into runtime exceptions by generating wrapper classes for arbitrary APIs in Java.')
+                root.appendNode('url',
+                                    'http://www.liquidmind.ch/')
+
+                def license = root.appendNode('licenses').appendNode('license')
+                license.appendNode('name', 'The Apache License, Version 2.0')
+                license.appendNode('url', 'http://www.apache.org/licenses/LICENSE-2.0.txt')
+
+                def scm = root.appendNode('scm')
+                scm.appendNode('connection', 'scm:git:git@github.com:liquid-mind/inflection.git')
+                scm.appendNode('developerConnection', 'scm:git:git@github.com:liquid-mind/inflection.git')
+                scm.appendNode('url', 'git@github.com:liquid-mind/inflection.git')
+
+                def developer = root.appendNode('developers').appendNode('developer')
+                developer.appendNode('name', 'John Brush')
+                developer.appendNode('email', 'brsh@zhaw.ch')
+                developer.appendNode('organization', 'Liquidmind')
+                developer.appendNode('organizationUrl', 'http://www.liquidmind.ch')
+            }
+        }
+    }
+}
+
+bintray {
+        publications = ['mavenJava']
+        dryRun = false
+        publish = false
+        user=BINTRAY_USER
+        key=BINTRAY_API_KEY
+        print "User: " + BINTRAY_USER
+        pkg {
+            repo = 'maven'
+            name = 'inflection'
+            version {
+                gpg {
+                    sign = true
+                    passphrase=BINTRAY_GPG_PASS
+                }
+            }
+        }
+}
