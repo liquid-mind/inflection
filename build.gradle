@@ -113,6 +113,8 @@ bintray {
         pkg {
             repo = 'maven'
             name = 'inflection'
+			licenses = ['Apache-2.0']
+			vcsUrl = 'https://github.com/liquid-mind/inflection.git'
             version {
                 gpg {
                     sign = true
