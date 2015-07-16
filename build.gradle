@@ -80,7 +80,7 @@ publishing {
                 root.appendNode('name',
                                     'ch.liquidmind:inflection')
                 root.appendNode('description',
-                                    'Turns checked exceptions into runtime exceptions by generating wrapper classes for arbitrary APIs in Java.')
+                                    'The Java Inflection API reduces the amount of boilerplate code by (virtually) extending the Java type system with so-called "class views.')
                 root.appendNode('url',
                                     'http://www.liquidmind.ch/')
 
