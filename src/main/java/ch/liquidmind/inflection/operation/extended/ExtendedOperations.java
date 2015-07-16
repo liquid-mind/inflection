@@ -49,4 +49,26 @@ public class ExtendedOperations extends Operations
 		
 		return traverser.getValidationErrors();
 	}
+	
+	// Synchronize
+	
+	public static < T > T synchronize( Object leftRootObject, Object rightRootObject, String hGroup, String vmap )
+	{
+		return synchronize( leftRootObject, rightRootObject, getHGroup( hGroup ), getVMap( vmap ) );
+	}
+
+	public static < T > T synchronize( Object leftRootObject, Object rightRootObject, HGroup hGroup, VMap vmap )
+	{
+		return synchronize( leftRootObject, rightRootObject, DEFAULT_DEFAULT_ROOT_CLASS, hGroup, vmap );
+	}
+
+	@SuppressWarnings( "unchecked" )
+	public static < T > T synchronize( Object leftRootObject, Object rightRootObject, Class< ? > defaultRootClass, HGroup hGroup, VMap vmap )
+	{
+		SynchronizeTraverser traverser = new SynchronizeTraverser( hGroup, vmap.newInstance() );
+		ClassViewPair pair = traverser.createRootClassViewPair( leftRootObject, rightRootObject, defaultRootClass );
+		traverser.traverse( pair );
+		
+		return (T)pair.getRightObject().getObject();
+	}
 }

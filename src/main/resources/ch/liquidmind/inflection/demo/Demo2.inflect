@@ -12,6 +12,14 @@ view SimpleCustomerView of Customer
 
 view FullCustomerView of Customer extends SimpleCustomerView
 {
+	IntegerView age;
+	GenderView gender;
+	AddressView addresses;
+	AccountView accounts;
+}
+
+view FullCustomerView2 of Customer2 extends SimpleCustomerView
+{
 	intView age;
 	GenderView gender;
 	AddressView addresses;
@@ -57,6 +65,11 @@ hgroup SimpleTaxonomy extends BasicTaxonomy
 hgroup FullTaxonomy extends BasicTaxonomy
 {
 	FullCustomerView
+}
+
+hgroup FullTaxonomy2 extends BasicTaxonomy
+{
+	FullCustomerView2
 }
 
 vmap DemoToJsonMap extends JsonTraverserConfiguration

@@ -2,6 +2,7 @@ package ch.liquidmind.inflection.operation;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -157,22 +158,50 @@ public abstract class AbstractTraverser implements InflectionTraverser
 	protected abstract DimensionViewPair createInitialDimensionViewPair( MemberViewPair memberViewPair );
 	protected abstract List< IdentifiableObjectPair > createIdentifiableObjectPairs( DimensionViewPair dimensionViewPair );
 	
+	private static Set< Class< ? > > JAVA_BASIC_TYPES = new HashSet< Class< ? > >();
+	
+	static
+	{
+		JAVA_BASIC_TYPES.add( byte.class );
+		JAVA_BASIC_TYPES.add( short.class );
+		JAVA_BASIC_TYPES.add( int.class );
+		JAVA_BASIC_TYPES.add( long.class );
+		JAVA_BASIC_TYPES.add( float.class );
+		JAVA_BASIC_TYPES.add( double.class );
+		JAVA_BASIC_TYPES.add( char.class );
+		JAVA_BASIC_TYPES.add( boolean.class );
+	}
+	
 	protected InflectionView getActualInflectionView( InflectionView staticInflectionView, Object object )
 	{
 		InflectionView actualInflectionView;
 		
 		if ( staticInflectionView instanceof MemberView || staticInflectionView instanceof DimensionView || object == null )
+		{
 			actualInflectionView = staticInflectionView;
-		else if ( object instanceof List )
-			actualInflectionView = new DimensionView( true, false, true, Multiplicity.Many, object.getClass(), null );
-		else if ( object instanceof Map )
-			actualInflectionView = new DimensionView( false, true, true, Multiplicity.Many, object.getClass(), null );
-		else if ( object instanceof Set )
-			actualInflectionView = new DimensionView( false, false, true, Multiplicity.Many, object.getClass(), null );
-		else if ( object.getClass().isArray() )
-			actualInflectionView = new DimensionView( true, false, true, Multiplicity.Many, object.getClass(), null );
+		}
+		else if ( staticInflectionView instanceof ClassView )
+		{
+			ClassView< ? > staticClassView = (ClassView< ? >)staticInflectionView;
+			Class< ? > javaClass = staticClassView.getJavaClass();
+			
+			if ( JAVA_BASIC_TYPES.contains( javaClass ) )
+				actualInflectionView = staticInflectionView;
+			else if ( object instanceof List )
+				actualInflectionView = new DimensionView( true, false, true, Multiplicity.Many, object.getClass(), null );
+			else if ( object instanceof Map )
+				actualInflectionView = new DimensionView( false, true, true, Multiplicity.Many, object.getClass(), null );
+			else if ( object instanceof Set )
+				actualInflectionView = new DimensionView( false, false, true, Multiplicity.Many, object.getClass(), null );
+			else if ( object.getClass().isArray() )
+				actualInflectionView = new DimensionView( true, false, true, Multiplicity.Many, object.getClass(), null );
+			else
+				actualInflectionView = getHGroup().getClassView( object.getClass() );
+		}
 		else
-			actualInflectionView = getHGroup().getClassView( object.getClass() );
+		{
+			throw new IllegalStateException( "Unexpected type for staticInflectionView: " + staticInflectionView.getClass() );
+		}
 		
 		return actualInflectionView;
 	}

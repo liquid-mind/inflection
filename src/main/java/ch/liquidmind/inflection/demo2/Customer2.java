@@ -3,19 +3,19 @@ package ch.liquidmind.inflection.demo2;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Customer
+public class Customer2
 {
 	private String firstName;
 	private String lastName;
-	private Integer age;
+	private int age;
 	private Gender gender;
 	private List< Address > addresses = new ArrayList< Address >();
 	private List< Account > accounts = new ArrayList< Account >();
 	
-	public Customer()
+	public Customer2()
 	{}
 	
-	public Customer( String firstName, String lastName, Integer age, Gender gender, List< Address > addresses, List< Account > accounts )
+	public Customer2( String firstName, String lastName, int age, Gender gender, List< Address > addresses, List< Account > accounts )
 	{
 		super();
 		this.firstName = firstName;
@@ -46,12 +46,12 @@ public class Customer
 		this.lastName = lastName;
 	}
 
-	public Integer getAge()
+	public int getAge()
 	{
 		return age;
 	}
 
-	public void setAge( Integer age )
+	public void setAge( int age )
 	{
 		this.age = age;
 	}

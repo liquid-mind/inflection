@@ -13,7 +13,7 @@ public class ToTextDefaultVisitor extends ToTextAbstractVisitor
 	public void visit( ClassViewFrame frame )
 	{
 		IdentifiableObject< ?, ? > iObject = frame.getClassViewPair().getLeftObject();
-		Object objectId = iObject.getObjectId();
+		Object objectId = ( iObject == null ? null : iObject.getObjectId() );
 		MemberViewFrame lastMemberViewFrame = getTraverser().getLastMemberViewFrame();
 		MemberView lastMemberView = ( lastMemberViewFrame == null ? null : lastMemberViewFrame.getMemberViewPair().getLeftMemberView() );
 		String memberViewName = getMemberViewName( lastMemberView );

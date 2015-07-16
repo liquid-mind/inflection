@@ -20,7 +20,7 @@ public class Demo
 {
 	public static void main( String[] args )
 	{
-		demo4();
+		demo8();
 		
 		// Ideas:
 		// Rename hgroup to taxonomy and vmap to visitors
@@ -32,6 +32,15 @@ public class Demo
 		//     public static void setDefaultTaxonomy( String taxonomy )   Sets the default taxonomy for this session/thread.
 		//     public static void setDefaultVisitors( String visitors )   Sets the default taxonomy for this session/thread.
 		// }
+	}
+
+	// Demonstrate other algorithms with same views.
+	private static void demo8()
+	{
+		compile();
+		Customer2 customer = createCustomer2();
+		Customer2 customerSynched = ExtendedOperations.synchronize( customer, null, "ch.liquidmind.inflection.demo2.FullTaxonomy2", "ch.liquidmind.inflection.operation.extended.SynchronizeTraverserConfiguration" );
+		BasicOperations.toText( customerSynched, "ch.liquidmind.inflection.demo2.FullTaxonomy2", "ch.liquidmind.inflection.operation.basic.ToTextTraverserConfiguration" );
 	}
 
 	// Demonstrate multiple visitors and visitors on member views.
@@ -121,6 +130,23 @@ public class Demo
 		};
 		
 		Customer customer =  new Customer( "John", "Brush", 42, Gender.Male,
+			new ArrayList< Address >( Arrays.asList( addresses ) ), new ArrayList< Account >( Arrays.asList( accounts ) ) );
+		
+		return customer;
+	}
+	
+	private static Customer2 createCustomer2()
+	{
+		Address[] addresses = {
+			new Address( "Karl Stauffer-Strasse 3", "Zurich", "8008", "Switzerland" ),
+			new Address( "Dufourstr. 117", "Zurich", "8008", "Switzerland" )
+		};
+		
+		Account[] accounts = {
+			new Account( "402593-40", "CH87 0483 5040 2593 4000 0", "CRESCHZZ80A", AccountType.Checking, "4835" )
+		};
+		
+		Customer2 customer =  new Customer2( "John", "Brush", 42, Gender.Male,
 			new ArrayList< Address >( Arrays.asList( addresses ) ), new ArrayList< Account >( Arrays.asList( accounts ) ) );
 		
 		return customer;

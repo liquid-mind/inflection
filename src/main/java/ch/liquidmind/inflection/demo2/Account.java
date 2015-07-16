@@ -8,6 +8,9 @@ public class Account
 	private AccountType type;
 	private String clearingNumber;
 	
+	public Account()
+	{}
+	
 	public Account( String number, String iBAN, String sWIFTCode, AccountType type, String clearingNumber )
 	{
 		super();

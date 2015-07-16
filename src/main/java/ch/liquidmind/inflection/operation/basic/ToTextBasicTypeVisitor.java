@@ -14,6 +14,7 @@ public class ToTextBasicTypeVisitor extends ToTextAbstractVisitor
 		MemberViewFrame lastMemberViewFrame = getTraverser().getLastMemberViewFrame();
 		MemberView lastMemberView = ( lastMemberViewFrame == null ? null : lastMemberViewFrame.getMemberViewPair().getLeftMemberView() );
 		String memberViewName = getMemberViewName( lastMemberView );
-		println( memberViewName + ": " + iObject.getObject().toString() );
+		String value = ( iObject == null ? "null" : iObject.getObject().toString() );
+		println( memberViewName + ": " + value );
 	}
 }

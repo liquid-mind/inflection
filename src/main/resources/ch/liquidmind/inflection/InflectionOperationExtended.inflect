@@ -17,3 +17,14 @@ vmap ValidateTraverserConfiguration
 {
 	default ValidateDefaultVisitor;
 }
+
+vmap SynchronizeTraverserConfiguration
+{
+	default SynchronizeDefaultVisitor;
+	
+	byteView, shortView, intView, longView,
+	floatView, doubleView, charView, booleanView,
+	ByteView, ShortView, IntegerView, LongView,
+	FloatView, DoubleView, CharacterView, BooleanView,
+	StringView, DateView : SynchronizeBasicTypeVisitor;
+}
