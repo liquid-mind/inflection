@@ -61,4 +61,33 @@ public class PropertyView extends MemberView
 		
 		return foundMethod;
 	}
+	
+	private Method getPropertyWriteMethod( Class< ? > theClass )
+	{
+		Method foundMethod = null;
+		String setterName = "set" + getName().toLowerCase();
+		
+		for ( Method method : theClass.getMethods() )
+		{
+			String methodName = method.getName().toLowerCase();
+			
+			if ( methodName.equals( setterName ) )
+			{
+				foundMethod = method;
+				break;
+			}
+		}
+		
+		if ( foundMethod == null)
+			throw new NoSuchPropertyException( theClass, getName() );
+		
+		return foundMethod;
+	}
+
+	@Override
+	public void setMemberInstance( Object containingObject, Object value )
+	{
+		Method method = getPropertyWriteMethod( containingObject.getClass() );
+		__Method.invoke( method, containingObject, value );
+	}
 }

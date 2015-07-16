@@ -145,6 +145,7 @@ public abstract class MemberView extends InflectionView
 	
 	public abstract Type getRawMemberType();
 	public abstract < T > T getMemberInstance( Object containingObject );
+	public abstract void setMemberInstance( Object containingObject, Object value );
 
 	public ClassView< ? > getOwningClassView()
 	{

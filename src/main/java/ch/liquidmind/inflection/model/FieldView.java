@@ -43,4 +43,10 @@ public class FieldView extends MemberView
 	{
 		return (T)__Field.get( getField(), containingObject );
 	}
+
+	@Override
+	public void setMemberInstance( Object containingObject, Object value )
+	{
+		__Field.set( getField(), containingObject, value );
+	}
 }

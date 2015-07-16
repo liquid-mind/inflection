@@ -274,6 +274,25 @@ public abstract class AbstractTraverser implements InflectionTraverser
 		return memberViewFrame;
 	}
 	
+	@SuppressWarnings( "unchecked" )
+	public < T extends InflectionViewFrame > T getLastFrameOfType( Class< T > frameType, int offset )
+	{
+		T foundFrame = null;
+		
+		for ( int i = offset ; i < callStack.size() ; ++i )
+		{
+			InflectionViewFrame frame = callStack.get( callStack.size() - i - 1 );
+			
+			if ( frameType.isAssignableFrom( frame.getClass() ) )
+			{
+				foundFrame = (T)frame;
+				break;
+			}
+		}
+		
+		return foundFrame;
+	}
+	
 	private InflectionViewFrame createFrame( InflectionViewPair inflectionViewPair, int positionCurrent, int positionMax )
 	{
 		InflectionViewFrame frame;

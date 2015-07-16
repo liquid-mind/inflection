@@ -1,31 +1,22 @@
 package ch.liquidmind.inflection.operation.extended;
 
-import java.lang.reflect.Type;
-
 import __java.lang.__Class;
-import ch.liquidmind.inflection.operation.DimensionViewFrame;
 
 public class SynchronizeDefaultVisitor extends SynchronizeAbstractVisitor
 {
 	@Override
-	protected Object createRightObject( Class< ? > rightClass, Object leftObject )
+	protected Object synchronizeRightObject( Class< ? > rightClass, Object leftObject, Object rightObject )
 	{
-		Object rightObject;
+		Object rightObjectSynchronized;
 		
 		if ( rightClass.isEnum() )
-			rightObject = leftObject;
+			rightObjectSynchronized = leftObject;
+		else if ( rightObject == null )
+			rightObjectSynchronized = __Class.newInstance( rightClass );
 		else
-			rightObject = __Class.newInstance( rightClass );
+			rightObjectSynchronized = rightObject;
 		
-		return rightObject;
+		return rightObjectSynchronized;
 	}
 
-	@Override
-	public void visit( DimensionViewFrame frame )
-	{
-		Type type = frame.getDimensionViewPair().getRightDimensionView().getDimensionType();
-		Object rightObject = frame.getIdentifiableObjectPair().getRightObject().getObject();
-		
-		getTraverser().continueTraversal();
-	}
 }

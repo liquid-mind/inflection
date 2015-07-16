@@ -40,7 +40,7 @@ public class Demo
 		compile();
 		Customer2 customer = createCustomer2();
 		Customer2 customerSynched = ExtendedOperations.synchronize( customer, null, "ch.liquidmind.inflection.demo2.FullTaxonomy2", "ch.liquidmind.inflection.operation.extended.SynchronizeTraverserConfiguration" );
-		BasicOperations.toText( customerSynched, "ch.liquidmind.inflection.demo2.FullTaxonomy2", "ch.liquidmind.inflection.operation.basic.ToTextTraverserConfiguration" );
+		BasicOperations.toText( customerSynched, "ch.liquidmind.inflection.demo2.FullTaxonomy3", "ch.liquidmind.inflection.demo2.DemoToTextMap" );
 	}
 
 	// Demonstrate multiple visitors and visitors on member views.
