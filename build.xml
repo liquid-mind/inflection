@@ -24,6 +24,7 @@
 	<property name="target.views" location="${target}/views"/>
 
 	<property name="inflection.jar" value="${target}/inflection-${version}.jar"/>
+	<property name="inflection-src.jar" value="${target}/inflection-src-${version}.jar"/>
 	<property name="inflection-release.tar" value="${target}/inflection-${version}-release.tar"/>
 	<property name="inflection-release.tar.gz" value="${inflection-release.tar}.gz"/>
 	<property name="inflection-test.jar" value="${target}/inflection-test.jar"/>
@@ -169,6 +170,11 @@
 				<include name="**"/>
 			</zipfileset>
 			<zipfileset dir="${src.main.resources}">
+				<include name="**"/>
+			</zipfileset>
+		</jar>
+		<jar destfile="${inflection-src.jar}">
+			<zipfileset dir="${src.main.java}">
 				<include name="**"/>
 			</zipfileset>
 		</jar>

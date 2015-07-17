@@ -18,7 +18,7 @@ public class JsonDefaultVisitor extends JsonAbstractVisitor
 	{
 		ClassViewPair pair = frame.getClassViewPair();
 		IdentifiableObject< ?, ? > iObject = pair.getLeftObject();
-		Object objectId = iObject.getObjectId();
+		Object objectId = ( iObject == null ? null : iObject.getObjectId() );
 		MemberViewFrame lastMemberViewFrame = getTraverser().getLastMemberViewFrame();
 		MemberView lastMemberView = ( lastMemberViewFrame == null ? null : lastMemberViewFrame.getMemberViewPair().getLeftMemberView() );
 		String memberViewName = getMemberViewName( lastMemberView );
