@@ -9,7 +9,7 @@ import ch.liquidmind.inflection.operation.LeftGraphTraverser;
 
 public class HashCodeTraverser extends LeftGraphTraverser
 {
-	public static final String DEFAULT_CONFIGURATION = HashCodeTraverser.class.getName() + CONFIGURATION_SUFFIX;
+	public static final String DEFAULT_VISITORS = HashCodeTraverser.class.getName() + VISITORS_SUFFIX;
 	public static final int HASHCODING_PRIME = 31;
 	
 	private int compositeHashCode;
@@ -46,7 +46,7 @@ public class HashCodeTraverser extends LeftGraphTraverser
 	
 	public HashCodeTraverser( Taxonomy taxonomy )
 	{
-		this( taxonomy, getConfiguration( DEFAULT_CONFIGURATION ) );
+		this( taxonomy, getVisitors( DEFAULT_VISITORS ) );
 	}
 
 	public HashCodeTraverser( Taxonomy taxonomy, VisitorsInstance visitorsInstance )

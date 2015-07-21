@@ -8,11 +8,11 @@ import ch.liquidmind.inflection.operation.DefaultPairingTraverser;
 
 public class SynchronizeTraverser extends DefaultPairingTraverser
 {
-	public static final String DEFAULT_CONFIGURATION = SynchronizeTraverser.class.getName() + CONFIGURATION_SUFFIX;
+	public static final String DEFAULT_VISITORS = SynchronizeTraverser.class.getName() + VISITORS_SUFFIX;
 
 	public SynchronizeTraverser( Taxonomy taxonomy )
 	{
-		super( taxonomy, getConfiguration( DEFAULT_CONFIGURATION ) );
+		super( taxonomy, getVisitors( DEFAULT_VISITORS ) );
 	}
 
 	public SynchronizeTraverser( Taxonomy taxonomy, VisitorsInstance visitorsInstance )

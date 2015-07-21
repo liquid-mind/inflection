@@ -13,13 +13,13 @@ import ch.liquidmind.inflection.operation.basic.IndentingPrintWriterTraverser;
 
 public class JsonTraverser extends IndentingPrintWriterTraverser
 {
-	public static final String DEFAULT_CONFIGURATION = JsonTraverser.class.getName() + CONFIGURATION_SUFFIX;
+	public static final String DEFAULT_VISITORS = JsonTraverser.class.getName() + VISITORS_SUFFIX;
 	
 	private Set< IdentifiableObject< ?, ? > > multiplyTraversedObjects;
 
 	public JsonTraverser( Taxonomy taxonomy )
 	{
-		super( taxonomy, getConfiguration( DEFAULT_CONFIGURATION ) );
+		super( taxonomy, getVisitors( DEFAULT_VISITORS ) );
 	}
 
 	public JsonTraverser( Taxonomy taxonomy, VisitorsInstance visitorsInstance )

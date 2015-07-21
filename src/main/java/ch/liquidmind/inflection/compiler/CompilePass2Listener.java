@@ -56,7 +56,7 @@ import ch.liquidmind.inflection.model.Visitors;
 public class CompilePass2Listener extends AbstractInflectionListener
 {
 	public static final String OBJECT_VIEW = CH_LIQUIDMIND_INFLECTION_PACKAGE + ".ObjectView";
-	public static final String TAXONOMY = CH_LIQUIDMIND_INFLECTION_PACKAGE + ".Taxonomy";
+	public static final String ROOT_TAXONOMY = CH_LIQUIDMIND_INFLECTION_PACKAGE + ".RootTaxonomy";
 	public static final String PROPERTY = "property";
 	public static final String FIELD = "field";
 	public static final String DISCRETE = "discrete";
@@ -384,8 +384,8 @@ public class CompilePass2Listener extends AbstractInflectionListener
 	@Override
 	public void enterNoSuperTaxonomyDeclaration( NoSuperTaxonomyDeclarationContext ctx )
 	{
-		if ( !currentTaxonomyCompiled.getName().equals( TAXONOMY ) )
-			currentTaxonomyCompiled.setExtendedTaxonomyName( TAXONOMY );
+		if ( !currentTaxonomyCompiled.getName().equals( ROOT_TAXONOMY ) )
+			currentTaxonomyCompiled.setExtendedTaxonomyName( ROOT_TAXONOMY );
 	}
 
 	@Override

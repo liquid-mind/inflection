@@ -20,9 +20,9 @@ import ch.liquidmind.inflection.model.VisitorsInstance;
 
 public abstract class DefaultPairingTraverser extends ConfigurableVisitingTraverser
 {
-	public DefaultPairingTraverser( Taxonomy taxonomy, VisitorsInstance configurationInstance )
+	public DefaultPairingTraverser( Taxonomy taxonomy, VisitorsInstance visitorsInstance )
 	{
-		super( taxonomy, configurationInstance );
+		super( taxonomy, visitorsInstance );
 	}
 
 	@Override

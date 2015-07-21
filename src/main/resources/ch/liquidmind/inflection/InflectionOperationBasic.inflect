@@ -1,16 +1,16 @@
 package ch.liquidmind.inflection.operation.basic;
 
-visitors MetaModelToTextTraverserConfiguration
+visitors MetaModelToTextTraverserVisitors
 {
 	default MetaModelToTextVisitor;
 }
 
-visitors MultipleTraversalIdentifyingTraverserConfiguration
+visitors MultipleTraversalIdentifyingTraverserVisitors
 {
 	default MultipleTraversalIdentifyingVisitor;
 }
 
-visitors ToTextTraverserConfiguration
+visitors ToTextTraverserVisitors
 {
 	default ToTextDefaultVisitor;
 
@@ -21,7 +21,7 @@ visitors ToTextTraverserConfiguration
 	StringView, DateView : ToTextBasicTypeVisitor;
 }
 
-visitors HashCodeTraverserConfiguration
+visitors HashCodeTraverserVisitors
 {
 	default HashCodeDefaultVisitor;
 
@@ -32,7 +32,7 @@ visitors HashCodeTraverserConfiguration
 	StringView, DateView : HashCodeBasicTypeVisitor;
 }
 
-visitors EqualsTraverserConfiguration
+visitors EqualsTraverserVisitors
 {
 	default EqualsDefaultVisitor;
 

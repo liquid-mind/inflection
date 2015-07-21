@@ -10,13 +10,13 @@ import ch.liquidmind.inflection.operation.IdentifiableObjectPair;
 
 public class ToTextTraverser extends IndentingPrintWriterTraverser
 {
-	public static final String DEFAULT_CONFIGURATION = ToTextTraverser.class.getName() + CONFIGURATION_SUFFIX;
+	public static final String DEFAULT_VISITORS = ToTextTraverser.class.getName() + VISITORS_SUFFIX;
 	
 	private Set< IdentifiableObject< ?, ? > > multiplyTraversedObjects;
 
 	public ToTextTraverser( Taxonomy taxonomy )
 	{
-		this( taxonomy, getConfiguration( DEFAULT_CONFIGURATION ) );
+		this( taxonomy, getVisitors( DEFAULT_VISITORS ) );
 	}
 	
 	public ToTextTraverser( Taxonomy taxonomy, VisitorsInstance visitorsInstance )

@@ -89,12 +89,12 @@ taxonomy FullTaxonomy3 extends BasicTaxonomy
 	FullCustomerView3
 }
 
-visitors DemoToJsonMap extends JsonTraverserConfiguration
+visitors DemoToJsonMap extends JsonTraverserVisitors
 {
 	GenderView, AccountTypeView : JsonQuotingVisitor;
 }
 
-visitors DemoToTextMap extends ToTextTraverserConfiguration
+visitors DemoToTextMap extends ToTextTraverserVisitors
 {
 	GenderView, AccountTypeView : ToTextBasicTypeVisitor;
 }
@@ -104,7 +104,7 @@ visitors DemoToTextWithAddressVisitorMap extends DemoToTextMap
 	AddressView : ToTextAddressVisitor;
 }
 
-visitors DemoValidation extends ValidateTraverserConfiguration
+visitors DemoValidation extends ValidateTraverserVisitors
 {
 	FullCustomerView->firstName, FullCustomerView->lastName :
 		ValidateAlphaNumericVisitor, ValidateNotNullVisitor;

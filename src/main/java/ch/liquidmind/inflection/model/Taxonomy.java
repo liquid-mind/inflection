@@ -63,7 +63,7 @@ public class Taxonomy implements InflectionResource
 		if ( extendedTaxonomy != null )
 			allClassViews.addAll( extendedTaxonomy.getClassViews() );
 		
-		// mappings may override entries from super configuration.
+		// mappings may override entries from super-taxonomy.
 		allClassViews.removeAll( getDeclaredClassViews() );
 		allClassViews.addAll( getDeclaredClassViews() );
 		

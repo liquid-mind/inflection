@@ -9,13 +9,13 @@ import ch.liquidmind.inflection.operation.LeftGraphTraverser;
 
 public class MultipleTraversalIdentifyingTraverser extends LeftGraphTraverser
 {
-	public static final String CONFIGURATION = MultipleTraversalIdentifyingTraverser.class.getName() + CONFIGURATION_SUFFIX;
+	public static final String VISITORS = MultipleTraversalIdentifyingTraverser.class.getName() + VISITORS_SUFFIX;
 
 	private Set< IdentifiableObject< ?, ? > > multiplyTraversedObjects = new HashSet< IdentifiableObject< ?, ? > >();
 
 	public MultipleTraversalIdentifyingTraverser( Taxonomy taxonomy )
 	{
-		super( taxonomy, getConfiguration( CONFIGURATION ) );
+		super( taxonomy, getVisitors( VISITORS ) );
 	}
 	
 	public Set< IdentifiableObject< ?, ? > > getMultiplyTraversedObjects()

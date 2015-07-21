@@ -56,7 +56,7 @@ taxonomy ABGroup
 	AView, BView
 }
 
-visitors FullGroupValidation extends ValidateTraverserConfiguration
+visitors FullGroupValidation extends ValidateTraverserVisitors
 {
 	FullCustomerView->lastName : ValidateNotNullVisitor;
 }

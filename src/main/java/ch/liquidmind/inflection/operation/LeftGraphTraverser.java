@@ -13,9 +13,9 @@ import ch.liquidmind.inflection.model.VisitorsInstance;
 
 public class LeftGraphTraverser extends DefaultPairingTraverser
 {
-	public LeftGraphTraverser( Taxonomy taxonomy, VisitorsInstance configurationInstance )
+	public LeftGraphTraverser( Taxonomy taxonomy, VisitorsInstance visitorsInstance )
 	{
-		super( taxonomy, configurationInstance );
+		super( taxonomy, visitorsInstance );
 	}
 
 	@Override

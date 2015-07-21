@@ -6,11 +6,11 @@ import ch.liquidmind.inflection.model.VisitorsInstance;
 
 public class MetaModelToTextTraverser extends IndentingPrintWriterTraverser
 {
-	public static final String CONFIGURATION = MetaModelToTextTraverser.class.getName() + CONFIGURATION_SUFFIX;
+	public static final String VISITORS = MetaModelToTextTraverser.class.getName() + VISITORS_SUFFIX;
 
 	public MetaModelToTextTraverser( Taxonomy taxonomy )
 	{
-		this( taxonomy, getConfiguration( CONFIGURATION ) );
+		this( taxonomy, getVisitors( VISITORS ) );
 	}
 	
 	public MetaModelToTextTraverser( Taxonomy taxonomy, VisitorsInstance visitorsInstance )

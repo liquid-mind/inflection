@@ -9,8 +9,8 @@ import ch.liquidmind.inflection.model.Visitors;
 import ch.liquidmind.inflection.operation.ClassViewPair;
 import ch.liquidmind.inflection.operation.Operations;
 
-// TODO Add constructors on traversers that allow the default visitors (DEFAULT_CONFIGURATION)
-// to be overridden. Also, rename DEFAULT_CONFIGURATION to DEFAULT_VISITORS.
+// TODO Add constructors on traversers that allow the default visitors (DEFAULT_VISITORS)
+// to be overridden.
 public class BasicOperations extends Operations
 {
 	// META-MODEL TO TEXT

@@ -10,11 +10,11 @@ import ch.liquidmind.inflection.operation.InflectionViewPair;
 
 public class EqualsTraverser extends DefaultPairingTraverser
 {
-	public static final String DEFAULT_CONFIGURATION = EqualsTraverser.class.getName() + CONFIGURATION_SUFFIX;
+	public static final String DEFAULT_VISITORS = EqualsTraverser.class.getName() + VISITORS_SUFFIX;
 
 	public EqualsTraverser( Taxonomy taxonomy )
 	{
-		this( taxonomy, getConfiguration( DEFAULT_CONFIGURATION ) );
+		this( taxonomy, getVisitors( DEFAULT_VISITORS ) );
 	}
 
 	public EqualsTraverser( Taxonomy taxonomy, VisitorsInstance visitorsInstance )

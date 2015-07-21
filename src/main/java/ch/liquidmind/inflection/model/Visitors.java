@@ -92,7 +92,7 @@ public class Visitors implements InflectionResource
 		if ( extendedVisitors != null )
 			aggregateViews.addAll( extendedVisitors.getViews() );
 		
-		// mappings may override entries from super configuration.
+		// mappings may override entries from super-visitors.
 		aggregateViews.addAll( getDeclaredViews() );
 		
 		return aggregateViews;

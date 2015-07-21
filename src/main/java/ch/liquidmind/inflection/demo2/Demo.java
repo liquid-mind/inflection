@@ -39,7 +39,7 @@ public class Demo
 	{
 		compile();
 		Customer2 customer = createCustomer2();
-		Customer2 customerSynched = ExtendedOperations.synchronize( customer, null, "ch.liquidmind.inflection.demo2.FullTaxonomy2", "ch.liquidmind.inflection.operation.extended.SynchronizeTraverserConfiguration" );
+		Customer2 customerSynched = ExtendedOperations.synchronize( customer, null, "ch.liquidmind.inflection.demo2.FullTaxonomy2", "ch.liquidmind.inflection.operation.extended.SynchronizeTraverserVisitors" );
 		BasicOperations.toText( customerSynched, "ch.liquidmind.inflection.demo2.FullTaxonomy3", "ch.liquidmind.inflection.demo2.DemoToTextMap" );
 	}
 
@@ -69,7 +69,7 @@ public class Demo
 		compile();
 		Customer customer = createCustomer();
 		customer.getAddresses().get( 0 ).setCountry( "Iceland" );
-		int hashcode = BasicOperations.hashcode( customer, "ch.liquidmind.inflection.demo2.FullTaxonomy", "ch.liquidmind.inflection.operation.basic.HashCodeTraverserConfiguration" );
+		int hashcode = BasicOperations.hashcode( customer, "ch.liquidmind.inflection.demo2.FullTaxonomy", "ch.liquidmind.inflection.operation.basic.HashCodeTraverserVisitors" );
 		System.out.println( "hashcode=" + hashcode );
 	}
 

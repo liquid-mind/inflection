@@ -9,15 +9,14 @@ import ch.liquidmind.inflection.model.VisitorsInstance;
 
 public abstract class ConfigurableVisitingTraverser extends VisitingTraverser
 {
-	public static final String CONFIGURATION_SUFFIX = "Configuration";
+	public static final String VISITORS_SUFFIX = "Visitors";
 	
-	// TODO Visitors and VisitorsInstance are being refered to in many places as "configuration"; fix naming.
-	private VisitorsInstance configurationInstance;
+	private VisitorsInstance visitorsInstance;
 	
-	public ConfigurableVisitingTraverser( Taxonomy taxonomy, VisitorsInstance configurationInstance )
+	public ConfigurableVisitingTraverser( Taxonomy taxonomy, VisitorsInstance visitorsInstance )
 	{
 		super( taxonomy, null );
-		this.configurationInstance = configurationInstance;
+		this.visitorsInstance = visitorsInstance;
 	}
 
 	@Override
@@ -49,7 +48,7 @@ public abstract class ConfigurableVisitingTraverser extends VisitingTraverser
 		InflectionVisitor< VisitingTraverser > visitor = null;
 		
 		if ( memberView != null )
-			visitor = (InflectionVisitor< VisitingTraverser >)configurationInstance.getVisitor( memberView );
+			visitor = (InflectionVisitor< VisitingTraverser >)visitorsInstance.getVisitor( memberView );
 		
 		if ( visitor == null )
 		{
@@ -58,7 +57,7 @@ public abstract class ConfigurableVisitingTraverser extends VisitingTraverser
 		}
 		
 		if ( visitor == null )
-			visitor = (InflectionVisitor< VisitingTraverser >)configurationInstance.getDefaultVisitor();
+			visitor = (InflectionVisitor< VisitingTraverser >)visitorsInstance.getDefaultVisitor();
 		
 		super.setVisitor( visitor );
 	}
@@ -66,29 +65,29 @@ public abstract class ConfigurableVisitingTraverser extends VisitingTraverser
 	@SuppressWarnings( "unchecked" )
 	private void setDefaultVisitor()
 	{
-		super.setVisitor( (InflectionVisitor< VisitingTraverser > )configurationInstance.getDefaultVisitor() );
+		super.setVisitor( (InflectionVisitor< VisitingTraverser > )visitorsInstance.getDefaultVisitor() );
 	}
 
 	@SuppressWarnings( "unchecked" )
 	private InflectionVisitor< VisitingTraverser > getVisitor( ClassView< ? > classView )
 	{
-		InflectionVisitor< VisitingTraverser > visitor = (InflectionVisitor< VisitingTraverser >)configurationInstance.getVisitor( classView );
+		InflectionVisitor< VisitingTraverser > visitor = (InflectionVisitor< VisitingTraverser >)visitorsInstance.getVisitor( classView );
 		ClassView< ? > superClassView = classView.getExtendedClassView();
 		
 		if ( visitor == null && superClassView != null )
-			visitor = (InflectionVisitor< VisitingTraverser >)configurationInstance.getVisitor( superClassView );
+			visitor = (InflectionVisitor< VisitingTraverser >)visitorsInstance.getVisitor( superClassView );
 		
 		return visitor;
 	}
 	
-	protected static VisitorsInstance getConfiguration( String configurationName )
+	protected static VisitorsInstance getVisitors( String visitorsName )
 	{
-		Visitors visitors = InflectionResourceLoader.getContextInflectionResourceLoader().loadVisitors( configurationName );
+		Visitors visitors = InflectionResourceLoader.getContextInflectionResourceLoader().loadVisitors( visitorsName );
 		return visitors.newInstance();
 	}
 	
 	protected VisitorsInstance getVisitorsInstance()
 	{
-		return configurationInstance;
+		return visitorsInstance;
 	}
 }

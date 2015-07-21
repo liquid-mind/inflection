@@ -16,7 +16,7 @@ view BooleanView of Boolean {}
 view StringView of String {}
 view DateView of Date {}
 
-taxonomy Taxonomy
+taxonomy RootTaxonomy
 {
 	ObjectView,
 	

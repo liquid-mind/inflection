@@ -12,9 +12,9 @@ public class IndentingPrintWriterTraverser extends LeftGraphTraverser
 	private OutputStream outputStream;
 	private IndentingPrintWriter printWriter;
 	
-	public IndentingPrintWriterTraverser( Taxonomy taxonomy, VisitorsInstance configurationInstance )
+	public IndentingPrintWriterTraverser( Taxonomy taxonomy, VisitorsInstance visitorsInstance )
 	{
-		super( taxonomy, configurationInstance );
+		super( taxonomy, visitorsInstance );
 	}
 
 	@Override
