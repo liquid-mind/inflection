@@ -1,6 +1,6 @@
 package ch.liquidmind.inflection.operation.extended;
 
-vmap JsonTraverserConfiguration
+visitors JsonTraverserConfiguration
 {
 	default JsonDefaultVisitor;
 
@@ -13,12 +13,12 @@ vmap JsonTraverserConfiguration
 	charView, StringView, DateView : JsonQuotingVisitor;
 }
 
-vmap ValidateTraverserConfiguration
+visitors ValidateTraverserConfiguration
 {
 	default ValidateDefaultVisitor;
 }
 
-vmap SynchronizeTraverserConfiguration
+visitors SynchronizeTraverserConfiguration
 {
 	default SynchronizeDefaultVisitor;
 	

@@ -9,7 +9,7 @@ import org.antlr.v4.runtime.CommonTokenStream;
 import ch.liquidmind.inflection.grammar.InflectionParser.ClassViewDeclarationContext;
 import ch.liquidmind.inflection.grammar.InflectionParser.TaxonomyDeclarationContext;
 import ch.liquidmind.inflection.grammar.InflectionParser.IdentifierContext;
-import ch.liquidmind.inflection.grammar.InflectionParser.VmapDeclarationContext;
+import ch.liquidmind.inflection.grammar.InflectionParser.VisitorsDeclarationContext;
 
 public class CompilePass1Listener extends AbstractInflectionListener
 {
@@ -27,11 +27,11 @@ public class CompilePass1Listener extends AbstractInflectionListener
 	}
 
 	@Override
-	public void enterVmapDeclaration( VmapDeclarationContext vmapDeclarationContext )
+	public void enterVisitorsDeclaration( VisitorsDeclarationContext visitorsDeclarationContext )
 	{
-		IdentifierContext identifierContext = (IdentifierContext)vmapDeclarationContext.getChild( 1 );
-		String vmapName = getIdentifierFQName( identifierContext );
-		addInflectionResourcesCompiled( identifierContext, new VmapCompiled( vmapName ) );
+		IdentifierContext identifierContext = (IdentifierContext)visitorsDeclarationContext.getChild( 1 );
+		String visitorsName = getIdentifierFQName( identifierContext );
+		addInflectionResourcesCompiled( identifierContext, new VisitorsCompiled( visitorsName ) );
 	}
 	
 	@Override

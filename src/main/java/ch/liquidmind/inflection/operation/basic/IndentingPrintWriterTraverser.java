@@ -3,7 +3,7 @@ package ch.liquidmind.inflection.operation.basic;
 import java.io.OutputStream;
 
 import ch.liquidmind.inflection.model.Taxonomy;
-import ch.liquidmind.inflection.model.VmapInstance;
+import ch.liquidmind.inflection.model.VisitorsInstance;
 import ch.liquidmind.inflection.operation.IdentifiableObjectPair;
 import ch.liquidmind.inflection.operation.LeftGraphTraverser;
 
@@ -12,7 +12,7 @@ public class IndentingPrintWriterTraverser extends LeftGraphTraverser
 	private OutputStream outputStream;
 	private IndentingPrintWriter printWriter;
 	
-	public IndentingPrintWriterTraverser( Taxonomy taxonomy, VmapInstance configurationInstance )
+	public IndentingPrintWriterTraverser( Taxonomy taxonomy, VisitorsInstance configurationInstance )
 	{
 		super( taxonomy, configurationInstance );
 	}

@@ -4,17 +4,17 @@ import ch.liquidmind.inflection.InflectionResourceLoader;
 import ch.liquidmind.inflection.model.ClassView;
 import ch.liquidmind.inflection.model.Taxonomy;
 import ch.liquidmind.inflection.model.MemberView;
-import ch.liquidmind.inflection.model.VMap;
-import ch.liquidmind.inflection.model.VmapInstance;
+import ch.liquidmind.inflection.model.Visitors;
+import ch.liquidmind.inflection.model.VisitorsInstance;
 
 public abstract class ConfigurableVisitingTraverser extends VisitingTraverser
 {
 	public static final String CONFIGURATION_SUFFIX = "Configuration";
 	
-	// TODO Vmap and VmapInstance are being refered to in many places as "configuration"; fix naming.
-	private VmapInstance configurationInstance;
+	// TODO Visitors and VisitorsInstance are being refered to in many places as "configuration"; fix naming.
+	private VisitorsInstance configurationInstance;
 	
-	public ConfigurableVisitingTraverser( Taxonomy taxonomy, VmapInstance configurationInstance )
+	public ConfigurableVisitingTraverser( Taxonomy taxonomy, VisitorsInstance configurationInstance )
 	{
 		super( taxonomy, null );
 		this.configurationInstance = configurationInstance;
@@ -81,13 +81,13 @@ public abstract class ConfigurableVisitingTraverser extends VisitingTraverser
 		return visitor;
 	}
 	
-	protected static VmapInstance getConfiguration( String configurationName )
+	protected static VisitorsInstance getConfiguration( String configurationName )
 	{
-		VMap vmap = InflectionResourceLoader.getContextInflectionResourceLoader().loadVmap( configurationName );
-		return vmap.newInstance();
+		Visitors visitors = InflectionResourceLoader.getContextInflectionResourceLoader().loadVisitors( configurationName );
+		return visitors.newInstance();
 	}
 	
-	protected VmapInstance getVmapInstance()
+	protected VisitorsInstance getVisitorsInstance()
 	{
 		return configurationInstance;
 	}

@@ -40,7 +40,7 @@ declarations
 	
 declaration
 	:	classViewDeclaration
-	|	vmapDeclaration
+	|	visitorsDeclaration
 	|	taxonomyDeclaration
 	;
 
@@ -96,21 +96,21 @@ memberViewName
 	:	identifier
 	;
 
-// VMAP
+// VISITORS
 
-vmapDeclaration
-	:	VMAP identifier ( superVmapDeclaration | noSuperVmapDeclaration ) vmapBody
+visitorsDeclaration
+	:	VISITORS identifier ( superVisitorsDeclaration | noSuperVisitorsDeclaration ) visitorsBody
 	;
 
-noSuperVmapDeclaration
+noSuperVisitorsDeclaration
 	:
 	;
 
-superVmapDeclaration
-	:	EXTENDS vmap
+superVisitorsDeclaration
+	:	EXTENDS visitors
 	;
 
-vmapBody
+visitorsBody
 	:	CURLY_BRACKET_OPEN mappingDeclaration* CURLY_BRACKET_CLOSE
 	;
 	
@@ -152,7 +152,7 @@ mappedVisitor
 	:	aClass
 	;
 	
-vmap
+visitors
 	:	type
 	;
 	
@@ -227,7 +227,7 @@ ASTERISK			: '*';
 POINTER				: '->';
 
 DEFAULT		: 'default';
-VMAP		: 'vmap';
+VISITORS		: 'visitors';
 TAXONOMY		: 'taxonomy';
 PACKAGE		: 'package';
 IMPORT		: 'import';

@@ -23,7 +23,7 @@ public class Demo
 		demo8();
 		
 		// Ideas:
-		// Rename taxonomy to taxonomy and vmap to visitors
+		// Rename taxonomy to taxonomy and visitors to visitors
 		// public class Inflection
 		// {
 		//     public static void addImport( String import );      Adds, removes and fetchs imports, which may be either single types or entire packages.

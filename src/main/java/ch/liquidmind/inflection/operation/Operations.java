@@ -4,7 +4,7 @@ import java.io.OutputStream;
 
 import ch.liquidmind.inflection.InflectionResourceLoader;
 import ch.liquidmind.inflection.model.Taxonomy;
-import ch.liquidmind.inflection.model.VMap;
+import ch.liquidmind.inflection.model.Visitors;
 
 public abstract class Operations
 {
@@ -21,8 +21,8 @@ public abstract class Operations
 		return getDefaultInflectionResourceLoader().loadTaxonomy( taxonomy );
 	}
 	
-	protected static VMap getVMap( String vmap )
+	protected static Visitors getVisitors( String visitors )
 	{
-		return getDefaultInflectionResourceLoader().loadVmap( vmap );
+		return getDefaultInflectionResourceLoader().loadVisitors( visitors );
 	}
 }

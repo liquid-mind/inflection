@@ -16,11 +16,11 @@ import ch.liquidmind.inflection.model.Taxonomy;
 import ch.liquidmind.inflection.model.InflectionView;
 import ch.liquidmind.inflection.model.MemberView;
 import ch.liquidmind.inflection.model.Multiplicity;
-import ch.liquidmind.inflection.model.VmapInstance;
+import ch.liquidmind.inflection.model.VisitorsInstance;
 
 public abstract class DefaultPairingTraverser extends ConfigurableVisitingTraverser
 {
-	public DefaultPairingTraverser( Taxonomy taxonomy, VmapInstance configurationInstance )
+	public DefaultPairingTraverser( Taxonomy taxonomy, VisitorsInstance configurationInstance )
 	{
 		super( taxonomy, configurationInstance );
 	}

@@ -9,11 +9,11 @@ import java.util.Set;
 import ch.liquidmind.inflection.IdentifiableObject;
 import ch.liquidmind.inflection.model.Taxonomy;
 import ch.liquidmind.inflection.model.InflectionView;
-import ch.liquidmind.inflection.model.VmapInstance;
+import ch.liquidmind.inflection.model.VisitorsInstance;
 
 public class LeftGraphTraverser extends DefaultPairingTraverser
 {
-	public LeftGraphTraverser( Taxonomy taxonomy, VmapInstance configurationInstance )
+	public LeftGraphTraverser( Taxonomy taxonomy, VisitorsInstance configurationInstance )
 	{
 		super( taxonomy, configurationInstance );
 	}

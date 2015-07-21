@@ -1,7 +1,7 @@
 package ch.liquidmind.inflection.operation.basic;
 
 import ch.liquidmind.inflection.model.Taxonomy;
-import ch.liquidmind.inflection.model.VmapInstance;
+import ch.liquidmind.inflection.model.VisitorsInstance;
 
 
 public class MetaModelToTextTraverser extends IndentingPrintWriterTraverser
@@ -13,8 +13,8 @@ public class MetaModelToTextTraverser extends IndentingPrintWriterTraverser
 		this( taxonomy, getConfiguration( CONFIGURATION ) );
 	}
 	
-	public MetaModelToTextTraverser( Taxonomy taxonomy, VmapInstance vmapInstance )
+	public MetaModelToTextTraverser( Taxonomy taxonomy, VisitorsInstance visitorsInstance )
 	{
-		super( taxonomy, vmapInstance );
+		super( taxonomy, visitorsInstance );
 	}
 }

@@ -9,9 +9,9 @@ import __java.lang.reflect.__Constructor;
 import ch.liquidmind.inflection.compiler.ClassViewCompiled;
 import ch.liquidmind.inflection.compiler.TaxonomyCompiled;
 import ch.liquidmind.inflection.compiler.InflectionResourceCompiled;
-import ch.liquidmind.inflection.compiler.VmapCompiled;
+import ch.liquidmind.inflection.compiler.VisitorsCompiled;
 import ch.liquidmind.inflection.compiler.ClassViewCompiled.MemberViewCompiled;
-import ch.liquidmind.inflection.compiler.VmapCompiled.MappingCompiled;
+import ch.liquidmind.inflection.compiler.VisitorsCompiled.MappingCompiled;
 import ch.liquidmind.inflection.model.ClassView;
 import ch.liquidmind.inflection.model.FieldView;
 import ch.liquidmind.inflection.model.Taxonomy;
@@ -19,7 +19,7 @@ import ch.liquidmind.inflection.model.InflectionResource;
 import ch.liquidmind.inflection.model.InflectionView;
 import ch.liquidmind.inflection.model.MemberView;
 import ch.liquidmind.inflection.model.PropertyView;
-import ch.liquidmind.inflection.model.VMap;
+import ch.liquidmind.inflection.model.Visitors;
 import ch.liquidmind.inflection.operation.InflectionVisitor;
 
 public abstract class InflectionResourceLoader
@@ -121,9 +121,9 @@ public abstract class InflectionResourceLoader
 		return (ClassView< ObjectType >)loadInflectionResource( name );
 	}
 	
-	public VMap loadVmap( String name )
+	public Visitors loadVisitors( String name )
 	{
-		return (VMap)loadInflectionResource( name );
+		return (Visitors)loadInflectionResource( name );
 	}
 	
 	public Taxonomy loadTaxonomy( String name )
@@ -204,8 +204,8 @@ public abstract class InflectionResourceLoader
 		
 		if ( inflectionResourceCompiled instanceof ClassViewCompiled )
 			resource = defineClassView( (ClassViewCompiled)inflectionResourceCompiled );
-		else if ( inflectionResourceCompiled instanceof VmapCompiled )
-			resource = defineVmap( (VmapCompiled)inflectionResourceCompiled );
+		else if ( inflectionResourceCompiled instanceof VisitorsCompiled )
+			resource = defineVisitors( (VisitorsCompiled)inflectionResourceCompiled );
 		else if ( inflectionResourceCompiled instanceof TaxonomyCompiled )
 			resource = defineTaxonomy( (TaxonomyCompiled)inflectionResourceCompiled );
 		else
@@ -247,15 +247,15 @@ public abstract class InflectionResourceLoader
 	}
 	
 	@SuppressWarnings( "unchecked" )
-	private VMap defineVmap( VmapCompiled vmapCompiled )
+	private Visitors defineVisitors( VisitorsCompiled visitorsCompiled )
 	{
-		VMap vmap = new VMap( vmapCompiled.getName() );
-		inflectionResourceMap.put( vmap.getName(), vmap );
+		Visitors visitors = new Visitors( visitorsCompiled.getName() );
+		inflectionResourceMap.put( visitors.getName(), visitors );
 		
-		if ( vmapCompiled.getExtendedVmapName() != null )
-			vmap.setExtendedVMap( loadVmap( vmapCompiled.getExtendedVmapName() ) );
+		if ( visitorsCompiled.getExtendedVisitorsName() != null )
+			visitors.setExtendedVisitors( loadVisitors( visitorsCompiled.getExtendedVisitorsName() ) );
 		
-		for ( MappingCompiled mappingCompiled : vmapCompiled.getClassViewToVisitorMappings() )
+		for ( MappingCompiled mappingCompiled : visitorsCompiled.getClassViewToVisitorMappings() )
 		{
 			InflectionView inflectionView;
 			String inflectionViewName = mappingCompiled.getInflectionViewName();
@@ -273,16 +273,16 @@ public abstract class InflectionResourceLoader
 			}
 			
 			Class< ? > visitorClass = findClassWithExceptionHandling( mappingCompiled.getVisitorClassName() );
-			vmap.addViewToVisitorClassMapping( inflectionView, visitorClass );
+			visitors.addViewToVisitorClassMapping( inflectionView, visitorClass );
 		}
 		
-		if ( vmapCompiled.getDefaultVisitorClassName() != null )
+		if ( visitorsCompiled.getDefaultVisitorClassName() != null )
 		{
-			Class< InflectionVisitor< ? > > defaultVisitorClass = (Class< InflectionVisitor< ? > >)findClassWithExceptionHandling( vmapCompiled.getDefaultVisitorClassName() );
-			vmap.setDefaultVisitorClass( defaultVisitorClass );
+			Class< InflectionVisitor< ? > > defaultVisitorClass = (Class< InflectionVisitor< ? > >)findClassWithExceptionHandling( visitorsCompiled.getDefaultVisitorClassName() );
+			visitors.setDefaultVisitorClass( defaultVisitorClass );
 		}
 		
-		return vmap;
+		return visitors;
 	}
 	
 	private Taxonomy defineTaxonomy( TaxonomyCompiled taxonomyCompiled )

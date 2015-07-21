@@ -13,7 +13,7 @@ import ch.liquidmind.inflection.ClassViewNotFoundException;
 import ch.liquidmind.inflection.DelegatingInflectionResourceLoader;
 import ch.liquidmind.inflection.InflectionResourceLoader;
 import ch.liquidmind.inflection.compiler.ClassViewCompiled.MemberViewCompiled;
-import ch.liquidmind.inflection.compiler.VmapCompiled.MappingCompiled;
+import ch.liquidmind.inflection.compiler.VisitorsCompiled.MappingCompiled;
 import ch.liquidmind.inflection.grammar.InflectionParser.APackageContext;
 import ch.liquidmind.inflection.grammar.InflectionParser.AggregationModifierContext;
 import ch.liquidmind.inflection.grammar.InflectionParser.ClassViewDeclarationContext;
@@ -38,13 +38,13 @@ import ch.liquidmind.inflection.grammar.InflectionParser.NoSuperTaxonomyDeclarat
 import ch.liquidmind.inflection.grammar.InflectionParser.SimpleTypeContext;
 import ch.liquidmind.inflection.grammar.InflectionParser.SuperDeclarationContext;
 import ch.liquidmind.inflection.grammar.InflectionParser.SuperTaxonomyDeclarationContext;
-import ch.liquidmind.inflection.grammar.InflectionParser.SuperVmapDeclarationContext;
+import ch.liquidmind.inflection.grammar.InflectionParser.SuperVisitorsDeclarationContext;
 import ch.liquidmind.inflection.grammar.InflectionParser.TypeContext;
 import ch.liquidmind.inflection.grammar.InflectionParser.ViewofDeclarationContext;
-import ch.liquidmind.inflection.grammar.InflectionParser.VmapDeclarationContext;
+import ch.liquidmind.inflection.grammar.InflectionParser.VisitorsDeclarationContext;
 import ch.liquidmind.inflection.model.Aggregation;
 import ch.liquidmind.inflection.model.InflectionResource;
-import ch.liquidmind.inflection.model.VMap;
+import ch.liquidmind.inflection.model.Visitors;
 
 
 /*
@@ -83,7 +83,7 @@ public class CompilePass2Listener extends AbstractInflectionListener
 	private Map< String, String > importedTypes;
 	private ClassViewCompiled currentClassViewCompiled;
 	private MemberViewCompiled currentMemberViewCompiled;
-	private VmapCompiled currentVmapCompiled;
+	private VisitorsCompiled currentVisitorsCompiled;
 	private List< String > currentMappingInflectionViews;
 	private List< String > currentMappedVisitors;
 	private TaxonomyCompiled currentTaxonomyCompiled;
@@ -151,7 +151,7 @@ public class CompilePass2Listener extends AbstractInflectionListener
 		
 		if ( getInflectionResourcesCompiled().get( typeName ) != null ||
 			inflectionResourceLoader.loadClassView( typeName ) != null ||
-			inflectionResourceLoader.loadVmap( typeName ) != null ||
+			inflectionResourceLoader.loadVisitors( typeName ) != null ||
 			loadClass( typeName ) != null )
 			typeExists = true;
 
@@ -288,22 +288,22 @@ public class CompilePass2Listener extends AbstractInflectionListener
 		currentMemberViewCompiled.setName( memberViewName );
 	}
 
-	// VMAP
+	// VISITORS
 	
 	@Override
-	public void enterVmapDeclaration( VmapDeclarationContext vmapDeclarationContext )
+	public void enterVisitorsDeclaration( VisitorsDeclarationContext visitorsDeclarationContext )
 	{
-		IdentifierContext identifierContext = (IdentifierContext)vmapDeclarationContext.getChild( 1 );
-		String vmapName = getIdentifierFQName( identifierContext );
-		currentVmapCompiled = (VmapCompiled)getInflectionResourcesCompiled().get( vmapName );
+		IdentifierContext identifierContext = (IdentifierContext)visitorsDeclarationContext.getChild( 1 );
+		String visitorsName = getIdentifierFQName( identifierContext );
+		currentVisitorsCompiled = (VisitorsCompiled)getInflectionResourcesCompiled().get( visitorsName );
 	}
 
 	@Override
-	public void enterSuperVmapDeclaration( SuperVmapDeclarationContext superVmapDeclarationContext )
+	public void enterSuperVisitorsDeclaration( SuperVisitorsDeclarationContext superVisitorsDeclarationContext )
 	{
-		TypeContext typeContext = (TypeContext)superVmapDeclarationContext.getChild( 1 ).getChild( 0 );
-		String extendedVMapName = getInflectionResourceName( typeContext );
-		currentVmapCompiled.setExtendedVmapName( extendedVMapName );
+		TypeContext typeContext = (TypeContext)superVisitorsDeclarationContext.getChild( 1 ).getChild( 0 );
+		String extendedVisitorsName = getInflectionResourceName( typeContext );
+		currentVisitorsCompiled.setExtendedVisitorsName( extendedVisitorsName );
 	}
 
 	@Override
@@ -311,7 +311,7 @@ public class CompilePass2Listener extends AbstractInflectionListener
 	{
 		if ( currentMappingInflectionViews.contains( DEFAULT_VISITOR ) )
 		{
-			currentVmapCompiled.setDefaultVisitorClassName( currentMappedVisitors.get( 0 ) );
+			currentVisitorsCompiled.setDefaultVisitorClassName( currentMappedVisitors.get( 0 ) );
 		}
 		else
 		{
@@ -319,10 +319,10 @@ public class CompilePass2Listener extends AbstractInflectionListener
 			{
 				for ( String currentMappedVisitor : currentMappedVisitors )
 				{
-					MappingCompiled mappingCompiled = new MappingCompiled( currentVmapCompiled );
+					MappingCompiled mappingCompiled = new MappingCompiled( currentVisitorsCompiled );
 					mappingCompiled.setInflectionViewName( mappingInflectionView );
 					mappingCompiled.setVisitorClassName( currentMappedVisitor );
-					currentVmapCompiled.getClassViewToVisitorMappings().add( mappingCompiled );
+					currentVisitorsCompiled.getClassViewToVisitorMappings().add( mappingCompiled );
 				}
 			}
 		}
@@ -442,7 +442,7 @@ public class CompilePass2Listener extends AbstractInflectionListener
 					type = loadInflectionResource( typeName );
 				
 				if ( type == null )
-					type = loadVmap( typeName );
+					type = loadVisitors( typeName );
 				
 				return type;
 			}
@@ -466,19 +466,19 @@ public class CompilePass2Listener extends AbstractInflectionListener
 		return inflectionResource;
 	}
 	
-	private VMap loadVmap( String vmapName )
+	private Visitors loadVisitors( String visitorsName )
 	{
-		VMap vmap = null;
+		Visitors visitors = null;
 		
 		try
 		{
-			vmap = inflectionResourceLoader.loadVmap( vmapName );
+			visitors = inflectionResourceLoader.loadVisitors( visitorsName );
 		}
 		catch ( ClassViewNotFoundException e )
 		{
 		}
 		
-		return vmap;
+		return visitors;
 	}
 	
 	private static interface ResolverCallback< T >

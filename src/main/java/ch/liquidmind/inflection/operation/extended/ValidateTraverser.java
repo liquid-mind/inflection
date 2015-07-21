@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import ch.liquidmind.inflection.model.Taxonomy;
-import ch.liquidmind.inflection.model.VmapInstance;
+import ch.liquidmind.inflection.model.VisitorsInstance;
 import ch.liquidmind.inflection.operation.LeftGraphTraverser;
 
 public class ValidateTraverser extends LeftGraphTraverser
@@ -18,7 +18,7 @@ public class ValidateTraverser extends LeftGraphTraverser
 		this( taxonomy, getConfiguration( DEFAULT_CONFIGURATION ) );
 	}
 	
-	public ValidateTraverser( Taxonomy taxonomy, VmapInstance configurationInstance )
+	public ValidateTraverser( Taxonomy taxonomy, VisitorsInstance configurationInstance )
 	{
 		super( taxonomy, configurationInstance );
 	}

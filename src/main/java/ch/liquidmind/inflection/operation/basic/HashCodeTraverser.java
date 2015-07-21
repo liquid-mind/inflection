@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import ch.liquidmind.inflection.model.Taxonomy;
-import ch.liquidmind.inflection.model.VmapInstance;
+import ch.liquidmind.inflection.model.VisitorsInstance;
 import ch.liquidmind.inflection.operation.LeftGraphTraverser;
 
 public class HashCodeTraverser extends LeftGraphTraverser
@@ -49,9 +49,9 @@ public class HashCodeTraverser extends LeftGraphTraverser
 		this( taxonomy, getConfiguration( DEFAULT_CONFIGURATION ) );
 	}
 
-	public HashCodeTraverser( Taxonomy taxonomy, VmapInstance vmapInstance )
+	public HashCodeTraverser( Taxonomy taxonomy, VisitorsInstance visitorsInstance )
 	{
-		super( taxonomy, vmapInstance );
+		super( taxonomy, visitorsInstance );
 	}
 
 	@Override

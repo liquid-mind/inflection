@@ -10,30 +10,30 @@ import ch.liquidmind.inflection.operation.InflectionVisitor;
 
 // TODO Refactor mappings as List to preserve order of key/value pairs.
 // TODO Refactor to reflect the many to many relationship between views
-//      and visitors as defined in the grammar (VMapInstance can stay as
+//      and visitors as defined in the grammar (VisitorsInstance can stay as
 //      it is, since there speed is more important than clarity).
-public class VMap implements InflectionResource
+public class Visitors implements InflectionResource
 {
 	private String name;
-	private VMap extendedVMap;
+	private Visitors extendedVisitors;
 	private Map< InflectionView, Class< InflectionVisitor< ? > > > mappings = new HashMap< InflectionView, Class< InflectionVisitor< ? > > >();
 	private Class< InflectionVisitor< ? > > defaultVisitorClass;
 	
-	public VMap()
+	public Visitors()
 	{
 		this( null );
 	}
 
-	public VMap( String name )
+	public Visitors( String name )
 	{
 		this( name, null, null );
 	}
 
-	public VMap( String name, VMap extendedVMap, Class< InflectionVisitor< ? > > defaultVisitorClass )
+	public Visitors( String name, Visitors extendedVisitors, Class< InflectionVisitor< ? > > defaultVisitorClass )
 	{
 		super();
 		this.name = name;
-		this.extendedVMap = extendedVMap;
+		this.extendedVisitors = extendedVisitors;
 		this.defaultVisitorClass = defaultVisitorClass;
 	}
 
@@ -49,14 +49,14 @@ public class VMap implements InflectionResource
 		this.name = name;
 	}
 	
-	public VMap getExtendedVMap()
+	public Visitors getExtendedVisitors()
 	{
-		return extendedVMap;
+		return extendedVisitors;
 	}
 
-	public void setExtendedVMap( VMap extendedVMap )
+	public void setExtendedVisitors( Visitors extendedVisitors )
 	{
-		this.extendedVMap = extendedVMap;
+		this.extendedVisitors = extendedVisitors;
 	}
 	
 	@SuppressWarnings( "unchecked" )
@@ -74,8 +74,8 @@ public class VMap implements InflectionResource
 	{
 		Class< InflectionVisitor< ? > > visitorClass = getDeclaredVisitorClass( view );
 		
-		if ( visitorClass == null && extendedVMap != null)
-			visitorClass = extendedVMap.getVisitorClass( view );
+		if ( visitorClass == null && extendedVisitors != null)
+			visitorClass = extendedVisitors.getVisitorClass( view );
 		
 		return visitorClass;
 	}
@@ -89,8 +89,8 @@ public class VMap implements InflectionResource
 	{
 		Set< InflectionView > aggregateViews = new HashSet< InflectionView >();
 		
-		if ( extendedVMap != null )
-			aggregateViews.addAll( extendedVMap.getViews() );
+		if ( extendedVisitors != null )
+			aggregateViews.addAll( extendedVisitors.getViews() );
 		
 		// mappings may override entries from super configuration.
 		aggregateViews.addAll( getDeclaredViews() );
@@ -102,8 +102,8 @@ public class VMap implements InflectionResource
 	{
 		Class< InflectionVisitor< ? > > resultingClass = defaultVisitorClass;
 		
-		if ( resultingClass == null && extendedVMap != null )
-			resultingClass = extendedVMap.getDefaultVisitorClass();
+		if ( resultingClass == null && extendedVisitors != null )
+			resultingClass = extendedVisitors.getDefaultVisitorClass();
 
 		return resultingClass;
 	}
@@ -113,9 +113,9 @@ public class VMap implements InflectionResource
 		this.defaultVisitorClass = defaultVisitorClass;
 	}
 
-	public VmapInstance newInstance()
+	public VisitorsInstance newInstance()
 	{
-		VmapInstance configInstance = new VmapInstance( this );
+		VisitorsInstance configInstance = new VisitorsInstance( this );
 		
 		for ( InflectionView view : getViews() )
 		{
@@ -133,24 +133,24 @@ public class VMap implements InflectionResource
 	@Override
 	public String toString()
 	{
-		String vmapName = name;
-		String extendsClause = ( extendedVMap == null ? "" : TAB + "extends " + extendedVMap.name + CARRIAGE_RETURN );
+		String visitorsName = name;
+		String extendsClause = ( extendedVisitors == null ? "" : TAB + "extends " + extendedVisitors.name + CARRIAGE_RETURN );
 
-		String vmapHeader = "vmap " + vmapName + CARRIAGE_RETURN;
-		vmapHeader += extendsClause;
+		String visitorsHeader = "visitors " + visitorsName + CARRIAGE_RETURN;
+		visitorsHeader += extendsClause;
 		
-		String vmapBody = "{" + CARRIAGE_RETURN;
-		vmapBody += vmapBodyToString();
-		vmapBody += "}" + CARRIAGE_RETURN;
+		String visitorsBody = "{" + CARRIAGE_RETURN;
+		visitorsBody += visitorsBodyToString();
+		visitorsBody += "}" + CARRIAGE_RETURN;
 		
-		String fullString = vmapHeader + vmapBody;
+		String fullString = visitorsHeader + visitorsBody;
 
 		return fullString;
 	}
 
-	private String vmapBodyToString()
+	private String visitorsBodyToString()
 	{
-		String vmapBody = "";
+		String visitorsBody = "";
 		
 		for ( InflectionView view : getViews() )
 		{
@@ -172,9 +172,9 @@ public class VMap implements InflectionResource
 			
 			String visitorName = getVisitorClass( view ).getName();
 			
-			vmapBody += TAB + viewName + " " + COLON + " " + visitorName + SEMICOLON + CARRIAGE_RETURN;
+			visitorsBody += TAB + viewName + " " + COLON + " " + visitorName + SEMICOLON + CARRIAGE_RETURN;
 		}
 		
-		return vmapBody;
+		return visitorsBody;
 	}
 }

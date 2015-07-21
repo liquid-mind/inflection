@@ -5,21 +5,21 @@ import java.util.Map;
 
 import ch.liquidmind.inflection.operation.InflectionVisitor;
 
-public class VmapInstance
+public class VisitorsInstance
 {
-	private VMap vmap;
+	private Visitors visitors;
 	private Map< InflectionView, InflectionVisitor< ? > > mappings = new HashMap< InflectionView, InflectionVisitor< ? > >();
 	private InflectionVisitor< ? > defaultVisitor;
 
-	public VmapInstance( VMap vmap )
+	public VisitorsInstance( Visitors visitors )
 	{
 		super();
-		this.vmap = vmap;
+		this.visitors = visitors;
 	}
 
-	public VMap getVmap()
+	public Visitors getVisitors()
 	{
-		return vmap;
+		return visitors;
 	}
 	
 	public void addViewToVisitorMapping( InflectionView view, InflectionVisitor< ? > visitor )

@@ -4,7 +4,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-public class VmapCompiled extends InflectionResourceCompiled
+public class VisitorsCompiled extends InflectionResourceCompiled
 {
 	private static final long serialVersionUID = 1L;
 	
@@ -12,24 +12,24 @@ public class VmapCompiled extends InflectionResourceCompiled
 	{
 		private static final long serialVersionUID = 1L;
 		
-		private VmapCompiled vmapCompiled;
+		private VisitorsCompiled visitorsCompiled;
 		private String inflectionViewName;
 		private String visitorClassName;
 		
-		public MappingCompiled( VmapCompiled vmapCompiled )
+		public MappingCompiled( VisitorsCompiled visitorsCompiled )
 		{
 			super();
-			this.vmapCompiled = vmapCompiled;
+			this.visitorsCompiled = visitorsCompiled;
 		}
 
-		public VmapCompiled getVmapCompiled()
+		public VisitorsCompiled getVisitorsCompiled()
 		{
-			return vmapCompiled;
+			return visitorsCompiled;
 		}
 
-		public void setVmapCompiled( VmapCompiled vmapCompiled )
+		public void setVisitorsCompiled( VisitorsCompiled visitorsCompiled )
 		{
-			this.vmapCompiled = vmapCompiled;
+			this.visitorsCompiled = visitorsCompiled;
 		}
 
 		public String getInflectionViewName()
@@ -53,23 +53,23 @@ public class VmapCompiled extends InflectionResourceCompiled
 		}
 	}
 
-	public VmapCompiled( String name )
+	public VisitorsCompiled( String name )
 	{
 		super( name );
 	}
 	
-	private String extendedVmapName;
+	private String extendedVisitorsName;
 	private List< MappingCompiled > classViewToVisitorMappings = new ArrayList< MappingCompiled >();
 	private String defaultVisitorClassName;
 
-	public String getExtendedVmapName()
+	public String getExtendedVisitorsName()
 	{
-		return extendedVmapName;
+		return extendedVisitorsName;
 	}
 
-	public void setExtendedVmapName( String extendedVmapName )
+	public void setExtendedVisitorsName( String extendedVisitorsName )
 	{
-		this.extendedVmapName = extendedVmapName;
+		this.extendedVisitorsName = extendedVisitorsName;
 	}
 
 	public void setClassViewToVisitorMappings( List< MappingCompiled > classViewToVisitorMappings )
