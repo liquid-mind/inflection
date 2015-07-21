@@ -4,7 +4,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import ch.liquidmind.inflection.IdentifiableObject;
-import ch.liquidmind.inflection.model.HGroup;
+import ch.liquidmind.inflection.model.Taxonomy;
 import ch.liquidmind.inflection.operation.LeftGraphTraverser;
 
 public class MultipleTraversalIdentifyingTraverser extends LeftGraphTraverser
@@ -13,9 +13,9 @@ public class MultipleTraversalIdentifyingTraverser extends LeftGraphTraverser
 
 	private Set< IdentifiableObject< ?, ? > > multiplyTraversedObjects = new HashSet< IdentifiableObject< ?, ? > >();
 
-	public MultipleTraversalIdentifyingTraverser( HGroup hGroup )
+	public MultipleTraversalIdentifyingTraverser( Taxonomy taxonomy )
 	{
-		super( hGroup, getConfiguration( CONFIGURATION ) );
+		super( taxonomy, getConfiguration( CONFIGURATION ) );
 	}
 	
 	public Set< IdentifiableObject< ?, ? > > getMultiplyTraversedObjects()

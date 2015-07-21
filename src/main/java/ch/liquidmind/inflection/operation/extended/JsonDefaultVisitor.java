@@ -39,8 +39,8 @@ public class JsonDefaultVisitor extends JsonAbstractVisitor
 			if ( lastMemberView == null )
 			{
 				println( "\"@version\" : \"" + VERSION + "\"," );
-//				println( "\"@taxonomy\" : \"" + getTraverser().getHGroup().getName() + "\"," );
-				println( "\"@taxonomy\" : \"" + getTraverser().getHGroup().getName() + "\"," );
+//				println( "\"@taxonomy\" : \"" + getTraverser().getTaxonomy().getName() + "\"," );
+				println( "\"@taxonomy\" : \"" + getTraverser().getTaxonomy().getName() + "\"," );
 			}
 			
 //			print( "\"@class\" : \"" + pair.getLeftObject().getObject().getClass().getName() + "\"" );

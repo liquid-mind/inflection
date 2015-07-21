@@ -7,14 +7,14 @@ import java.util.Map;
 import __java.lang.__Class;
 import __java.lang.reflect.__Constructor;
 import ch.liquidmind.inflection.compiler.ClassViewCompiled;
-import ch.liquidmind.inflection.compiler.HgroupCompiled;
+import ch.liquidmind.inflection.compiler.TaxonomyCompiled;
 import ch.liquidmind.inflection.compiler.InflectionResourceCompiled;
 import ch.liquidmind.inflection.compiler.VmapCompiled;
 import ch.liquidmind.inflection.compiler.ClassViewCompiled.MemberViewCompiled;
 import ch.liquidmind.inflection.compiler.VmapCompiled.MappingCompiled;
 import ch.liquidmind.inflection.model.ClassView;
 import ch.liquidmind.inflection.model.FieldView;
-import ch.liquidmind.inflection.model.HGroup;
+import ch.liquidmind.inflection.model.Taxonomy;
 import ch.liquidmind.inflection.model.InflectionResource;
 import ch.liquidmind.inflection.model.InflectionView;
 import ch.liquidmind.inflection.model.MemberView;
@@ -126,9 +126,9 @@ public abstract class InflectionResourceLoader
 		return (VMap)loadInflectionResource( name );
 	}
 	
-	public HGroup loadHGroup( String name )
+	public Taxonomy loadTaxonomy( String name )
 	{
-		return (HGroup)loadInflectionResource( name );
+		return (Taxonomy)loadInflectionResource( name );
 	}
 	
 	// TODO Use type parameters for all loader methods, or use
@@ -206,8 +206,8 @@ public abstract class InflectionResourceLoader
 			resource = defineClassView( (ClassViewCompiled)inflectionResourceCompiled );
 		else if ( inflectionResourceCompiled instanceof VmapCompiled )
 			resource = defineVmap( (VmapCompiled)inflectionResourceCompiled );
-		else if ( inflectionResourceCompiled instanceof HgroupCompiled )
-			resource = defineHGroup( (HgroupCompiled)inflectionResourceCompiled );
+		else if ( inflectionResourceCompiled instanceof TaxonomyCompiled )
+			resource = defineTaxonomy( (TaxonomyCompiled)inflectionResourceCompiled );
 		else
 			throw new IllegalStateException( "Unexpected type for inflectionResourceCompiled: " + inflectionResourceCompiled.getClass().getName() );
 
@@ -285,17 +285,17 @@ public abstract class InflectionResourceLoader
 		return vmap;
 	}
 	
-	private HGroup defineHGroup( HgroupCompiled hgroupCompiled )
+	private Taxonomy defineTaxonomy( TaxonomyCompiled taxonomyCompiled )
 	{
-		HGroup hGroup = new HGroup( hgroupCompiled.getName() );
-		inflectionResourceMap.put( hGroup.getName(), hGroup );
+		Taxonomy taxonomy = new Taxonomy( taxonomyCompiled.getName() );
+		inflectionResourceMap.put( taxonomy.getName(), taxonomy );
 		
-		if ( hgroupCompiled.getExtendedHgroupName() != null )
-			hGroup.setExtendedHGroup( loadHGroup( hgroupCompiled.getExtendedHgroupName() ) );
+		if ( taxonomyCompiled.getExtendedTaxonomyName() != null )
+			taxonomy.setExtendedTaxonomy( loadTaxonomy( taxonomyCompiled.getExtendedTaxonomyName() ) );
 		
-		for ( String classViewName : hgroupCompiled.getClassViewNames() )
-			hGroup.getDeclaredClassViews().add( loadClassView( classViewName ) );
+		for ( String classViewName : taxonomyCompiled.getClassViewNames() )
+			taxonomy.getDeclaredClassViews().add( loadClassView( classViewName ) );
 		
-		return hGroup;
+		return taxonomy;
 	}
 }

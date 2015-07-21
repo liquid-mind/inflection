@@ -1,14 +1,14 @@
 package ch.liquidmind.inflection.operation;
 
-import ch.liquidmind.inflection.model.HGroup;
+import ch.liquidmind.inflection.model.Taxonomy;
 
 public abstract class VisitingTraverser extends AbstractTraverser
 {
 	private InflectionVisitor< VisitingTraverser > visitor;
 	
-	public VisitingTraverser( HGroup hGroup, InflectionVisitor< VisitingTraverser > visitor )
+	public VisitingTraverser( Taxonomy taxonomy, InflectionVisitor< VisitingTraverser > visitor )
 	{
-		super( hGroup );
+		super( taxonomy );
 		this.visitor = visitor;
 	}
 

@@ -3,7 +3,7 @@ package ch.liquidmind.inflection.operation.extended;
 import java.util.Set;
 
 import ch.liquidmind.inflection.IdentifiableObject;
-import ch.liquidmind.inflection.model.HGroup;
+import ch.liquidmind.inflection.model.Taxonomy;
 import ch.liquidmind.inflection.model.VmapInstance;
 import ch.liquidmind.inflection.operation.IdentifiableObjectPair;
 import ch.liquidmind.inflection.operation.basic.BasicOperations;
@@ -17,20 +17,20 @@ public class JsonTraverser extends IndentingPrintWriterTraverser
 	
 	private Set< IdentifiableObject< ?, ? > > multiplyTraversedObjects;
 
-	public JsonTraverser( HGroup hGroup )
+	public JsonTraverser( Taxonomy taxonomy )
 	{
-		super( hGroup, getConfiguration( DEFAULT_CONFIGURATION ) );
+		super( taxonomy, getConfiguration( DEFAULT_CONFIGURATION ) );
 	}
 
-	public JsonTraverser( HGroup hGroup, VmapInstance vmapInstance )
+	public JsonTraverser( Taxonomy taxonomy, VmapInstance vmapInstance )
 	{
-		super( hGroup, vmapInstance );
+		super( taxonomy, vmapInstance );
 	}
 	
 	@Override
 	public void traverse( IdentifiableObjectPair identifiableObjectPair )
 	{
-		multiplyTraversedObjects = BasicOperations.identifyMultiplyTraversedObjects( identifiableObjectPair.getLeftObject().getObject(), getHGroup() );
+		multiplyTraversedObjects = BasicOperations.identifyMultiplyTraversedObjects( identifiableObjectPair.getLeftObject().getObject(), getTaxonomy() );
 		super.traverse( identifiableObjectPair );
 	}
 

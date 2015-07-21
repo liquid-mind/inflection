@@ -7,15 +7,15 @@ import java.util.List;
 import java.util.Set;
 
 import ch.liquidmind.inflection.IdentifiableObject;
-import ch.liquidmind.inflection.model.HGroup;
+import ch.liquidmind.inflection.model.Taxonomy;
 import ch.liquidmind.inflection.model.InflectionView;
 import ch.liquidmind.inflection.model.VmapInstance;
 
 public class LeftGraphTraverser extends DefaultPairingTraverser
 {
-	public LeftGraphTraverser( HGroup hGroup, VmapInstance configurationInstance )
+	public LeftGraphTraverser( Taxonomy taxonomy, VmapInstance configurationInstance )
 	{
-		super( hGroup, configurationInstance );
+		super( taxonomy, configurationInstance );
 	}
 
 	@Override

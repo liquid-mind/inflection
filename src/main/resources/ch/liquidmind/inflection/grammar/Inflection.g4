@@ -41,7 +41,7 @@ declarations
 declaration
 	:	classViewDeclaration
 	|	vmapDeclaration
-	|	hgroupDeclaration
+	|	taxonomyDeclaration
 	;
 
 // VIEW
@@ -156,21 +156,21 @@ vmap
 	:	type
 	;
 	
-// HGROUP
+// TAXONOMY
 
-hgroupDeclaration
-	:	HGROUP identifier ( superHgroupDeclaration | noSuperHgroupDeclaration) hgroupBody
+taxonomyDeclaration
+	:	TAXONOMY identifier ( superTaxonomyDeclaration | noSuperTaxonomyDeclaration) taxonomyBody
 	;
 	
-noSuperHgroupDeclaration
+noSuperTaxonomyDeclaration
 	:
 	;
 	
-superHgroupDeclaration
-	:	EXTENDS hgroup
+superTaxonomyDeclaration
+	:	EXTENDS taxonomy
 	;
 	
-hgroupBody
+taxonomyBody
 	:	CURLY_BRACKET_OPEN groupedClassView ( COMMA groupedClassView )* CURLY_BRACKET_CLOSE
 	;
 	
@@ -178,7 +178,7 @@ groupedClassView
 	:	classView
 	;
 	
-hgroup
+taxonomy
 	:	type
 	;
 	
@@ -228,7 +228,7 @@ POINTER				: '->';
 
 DEFAULT		: 'default';
 VMAP		: 'vmap';
-HGROUP		: 'hgroup';
+TAXONOMY		: 'taxonomy';
 PACKAGE		: 'package';
 IMPORT		: 'import';
 VIEW		: 'view';

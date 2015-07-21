@@ -5,28 +5,28 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-// TODO Rename HGroup to VGroup or VContext (or Taxonomy)
-public class HGroup implements InflectionResource
+// TODO Rename Taxonomy to VGroup or VContext (or Taxonomy)
+public class Taxonomy implements InflectionResource
 {
 	private String name;
-	private HGroup extendedHGroup;
+	private Taxonomy extendedTaxonomy;
 	private List< ClassView< ? > > classViews = new ArrayList< ClassView< ? > >();
 	
-	public HGroup()
+	public Taxonomy()
 	{
 		this( null );
 	}
 
-	public HGroup( String name )
+	public Taxonomy( String name )
 	{
 		this( name, null );
 	}
 
-	public HGroup( String name, HGroup extendedHGroup )
+	public Taxonomy( String name, Taxonomy extendedTaxonomy )
 	{
 		super();
 		this.name = name;
-		this.extendedHGroup = extendedHGroup;
+		this.extendedTaxonomy = extendedTaxonomy;
 	}
 	
 	@Override
@@ -41,14 +41,14 @@ public class HGroup implements InflectionResource
 		this.name = name;
 	}
 
-	public HGroup getExtendedHGroup()
+	public Taxonomy getExtendedTaxonomy()
 	{
-		return extendedHGroup;
+		return extendedTaxonomy;
 	}
 
-	public void setExtendedHGroup( HGroup extendedHGroup )
+	public void setExtendedTaxonomy( Taxonomy extendedTaxonomy )
 	{
-		this.extendedHGroup = extendedHGroup;
+		this.extendedTaxonomy = extendedTaxonomy;
 	}
 
 	public List< ClassView< ? > > getDeclaredClassViews()
@@ -60,8 +60,8 @@ public class HGroup implements InflectionResource
 	{
 		List< ClassView< ? > > allClassViews = new ArrayList< ClassView< ? > >();
 		
-		if ( extendedHGroup != null )
-			allClassViews.addAll( extendedHGroup.getClassViews() );
+		if ( extendedTaxonomy != null )
+			allClassViews.addAll( extendedTaxonomy.getClassViews() );
 		
 		// mappings may override entries from super configuration.
 		allClassViews.removeAll( getDeclaredClassViews() );
@@ -98,36 +98,36 @@ public class HGroup implements InflectionResource
 	@Override
 	public String toString()
 	{
-		String hgroupName = name;
-		String extendsClause = ( extendedHGroup == null ? "" : TAB + "extends " + extendedHGroup.name + CARRIAGE_RETURN );
+		String taxonomyName = name;
+		String extendsClause = ( extendedTaxonomy == null ? "" : TAB + "extends " + extendedTaxonomy.name + CARRIAGE_RETURN );
 		
-		String hgroupHeader = "hgroup " + hgroupName + CARRIAGE_RETURN;
-		hgroupHeader += extendsClause;
+		String taxonomyHeader = "taxonomy " + taxonomyName + CARRIAGE_RETURN;
+		taxonomyHeader += extendsClause;
 		
-		String hgroupBody = "{" + CARRIAGE_RETURN;
-		hgroupBody += hgroupBodyToString();
-		hgroupBody += "}" + CARRIAGE_RETURN;
+		String taxonomyBody = "{" + CARRIAGE_RETURN;
+		taxonomyBody += taxonomyBodyToString();
+		taxonomyBody += "}" + CARRIAGE_RETURN;
 		
-		String fullString = hgroupHeader + hgroupBody;
+		String fullString = taxonomyHeader + taxonomyBody;
 		
 		return fullString;
 	}
 	
-	private String hgroupBodyToString()
+	private String taxonomyBodyToString()
 	{
-		String hgroupBody = "";
+		String taxonomyBody = "";
 		List< ClassView< ? > > classViews = getClassViews();
 		
 		for ( int i = 0 ; i < classViews.size() ; ++i )
 		{
-			hgroupBody += TAB + classViews.get( i ).getName();
+			taxonomyBody += TAB + classViews.get( i ).getName();
 			
 			if ( i + 1 < classViews.size() )
-				hgroupBody += COMMA;
+				taxonomyBody += COMMA;
 			
-			hgroupBody += CARRIAGE_RETURN;
+			taxonomyBody += CARRIAGE_RETURN;
 		}
 		
-		return hgroupBody;
+		return taxonomyBody;
 	}
 }

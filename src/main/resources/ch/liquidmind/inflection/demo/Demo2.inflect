@@ -61,7 +61,7 @@ view GenderView of Gender
 view AccountTypeView of AccountType
 {}
 
-hgroup BasicTaxonomy
+taxonomy BasicTaxonomy
 {
 	AddressView,
 	AccountView,
@@ -69,22 +69,22 @@ hgroup BasicTaxonomy
 	AccountTypeView
 }
 
-hgroup SimpleTaxonomy extends BasicTaxonomy
+taxonomy SimpleTaxonomy extends BasicTaxonomy
 {
 	SimpleCustomerView
 }
 
-hgroup FullTaxonomy extends BasicTaxonomy
+taxonomy FullTaxonomy extends BasicTaxonomy
 {
 	FullCustomerView
 }
 
-hgroup FullTaxonomy2 extends BasicTaxonomy
+taxonomy FullTaxonomy2 extends BasicTaxonomy
 {
 	FullCustomerView2
 }
 
-hgroup FullTaxonomy3 extends BasicTaxonomy
+taxonomy FullTaxonomy3 extends BasicTaxonomy
 {
 	FullCustomerView3
 }

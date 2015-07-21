@@ -3,7 +3,7 @@ package ch.liquidmind.inflection.operation.extended;
 import java.io.OutputStream;
 import java.util.List;
 
-import ch.liquidmind.inflection.model.HGroup;
+import ch.liquidmind.inflection.model.Taxonomy;
 import ch.liquidmind.inflection.model.VMap;
 import ch.liquidmind.inflection.operation.ClassViewPair;
 import ch.liquidmind.inflection.operation.Operations;
@@ -11,19 +11,19 @@ import ch.liquidmind.inflection.operation.Operations;
 public class ExtendedOperations extends Operations
 {
 	// TO JSON
-	public static void toJson( Object object, String hGroup, String vmap )
+	public static void toJson( Object object, String taxonomy, String vmap )
 	{
-		toJson( object, getHGroup( hGroup ), getVMap( vmap ) );
+		toJson( object, getTaxonomy( taxonomy ), getVMap( vmap ) );
 	}
 	
-	public static void toJson( Object object, HGroup hGroup, VMap vmap )
+	public static void toJson( Object object, Taxonomy taxonomy, VMap vmap )
 	{
-		toJson( object, DEFAULT_DEFAULT_ROOT_CLASS, DEFAULT_OUTPUT_STREAM, hGroup, vmap );
+		toJson( object, DEFAULT_DEFAULT_ROOT_CLASS, DEFAULT_OUTPUT_STREAM, taxonomy, vmap );
 	}
 
-	public static void toJson( Object rootObject, Class< ? > defaultRootClass, OutputStream outputStream, HGroup hGroup, VMap vmap )
+	public static void toJson( Object rootObject, Class< ? > defaultRootClass, OutputStream outputStream, Taxonomy taxonomy, VMap vmap )
 	{
-		JsonTraverser traverser = new JsonTraverser( hGroup, vmap.newInstance() );
+		JsonTraverser traverser = new JsonTraverser( taxonomy, vmap.newInstance() );
 		traverser.setOutputStream( outputStream );
 		ClassViewPair pair = traverser.createRootClassViewPair( rootObject, null, defaultRootClass );
 		traverser.traverse( pair );
@@ -31,19 +31,19 @@ public class ExtendedOperations extends Operations
 	
 	// VALIDATE
 
-	public static List< ValidationError > validate( Object object, String hGroup, String vmap )
+	public static List< ValidationError > validate( Object object, String taxonomy, String vmap )
 	{
-		return validate( object, getHGroup( hGroup ), getVMap( vmap ) );
+		return validate( object, getTaxonomy( taxonomy ), getVMap( vmap ) );
 	}
 	
-	public static List< ValidationError > validate( Object object, HGroup hGroup, VMap vmap )
+	public static List< ValidationError > validate( Object object, Taxonomy taxonomy, VMap vmap )
 	{
-		return validate( object, DEFAULT_DEFAULT_ROOT_CLASS, DEFAULT_OUTPUT_STREAM, hGroup, vmap );
+		return validate( object, DEFAULT_DEFAULT_ROOT_CLASS, DEFAULT_OUTPUT_STREAM, taxonomy, vmap );
 	}
 
-	public static List< ValidationError > validate( Object rootObject, Class< ? > defaultRootClass, OutputStream outputStream, HGroup hGroup, VMap vmap )
+	public static List< ValidationError > validate( Object rootObject, Class< ? > defaultRootClass, OutputStream outputStream, Taxonomy taxonomy, VMap vmap )
 	{
-		ValidateTraverser traverser = new ValidateTraverser( hGroup, vmap.newInstance() );
+		ValidateTraverser traverser = new ValidateTraverser( taxonomy, vmap.newInstance() );
 		ClassViewPair pair = traverser.createRootClassViewPair( rootObject, null, defaultRootClass );
 		traverser.traverse( pair );
 		
@@ -52,20 +52,20 @@ public class ExtendedOperations extends Operations
 	
 	// Synchronize
 	
-	public static < T > T synchronize( Object leftRootObject, Object rightRootObject, String hGroup, String vmap )
+	public static < T > T synchronize( Object leftRootObject, Object rightRootObject, String taxonomy, String vmap )
 	{
-		return synchronize( leftRootObject, rightRootObject, getHGroup( hGroup ), getVMap( vmap ) );
+		return synchronize( leftRootObject, rightRootObject, getTaxonomy( taxonomy ), getVMap( vmap ) );
 	}
 
-	public static < T > T synchronize( Object leftRootObject, Object rightRootObject, HGroup hGroup, VMap vmap )
+	public static < T > T synchronize( Object leftRootObject, Object rightRootObject, Taxonomy taxonomy, VMap vmap )
 	{
-		return synchronize( leftRootObject, rightRootObject, DEFAULT_DEFAULT_ROOT_CLASS, hGroup, vmap );
+		return synchronize( leftRootObject, rightRootObject, DEFAULT_DEFAULT_ROOT_CLASS, taxonomy, vmap );
 	}
 
 	@SuppressWarnings( "unchecked" )
-	public static < T > T synchronize( Object leftRootObject, Object rightRootObject, Class< ? > defaultRootClass, HGroup hGroup, VMap vmap )
+	public static < T > T synchronize( Object leftRootObject, Object rightRootObject, Class< ? > defaultRootClass, Taxonomy taxonomy, VMap vmap )
 	{
-		SynchronizeTraverser traverser = new SynchronizeTraverser( hGroup, vmap.newInstance() );
+		SynchronizeTraverser traverser = new SynchronizeTraverser( taxonomy, vmap.newInstance() );
 		ClassViewPair pair = traverser.createRootClassViewPair( leftRootObject, rightRootObject, defaultRootClass );
 		traverser.traverse( pair );
 		

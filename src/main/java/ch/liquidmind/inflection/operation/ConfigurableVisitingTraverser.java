@@ -2,7 +2,7 @@ package ch.liquidmind.inflection.operation;
 
 import ch.liquidmind.inflection.InflectionResourceLoader;
 import ch.liquidmind.inflection.model.ClassView;
-import ch.liquidmind.inflection.model.HGroup;
+import ch.liquidmind.inflection.model.Taxonomy;
 import ch.liquidmind.inflection.model.MemberView;
 import ch.liquidmind.inflection.model.VMap;
 import ch.liquidmind.inflection.model.VmapInstance;
@@ -14,9 +14,9 @@ public abstract class ConfigurableVisitingTraverser extends VisitingTraverser
 	// TODO Vmap and VmapInstance are being refered to in many places as "configuration"; fix naming.
 	private VmapInstance configurationInstance;
 	
-	public ConfigurableVisitingTraverser( HGroup hGroup, VmapInstance configurationInstance )
+	public ConfigurableVisitingTraverser( Taxonomy taxonomy, VmapInstance configurationInstance )
 	{
-		super( hGroup, null );
+		super( taxonomy, null );
 		this.configurationInstance = configurationInstance;
 	}
 

@@ -7,7 +7,7 @@ import java.util.Set;
 import org.antlr.v4.runtime.CommonTokenStream;
 
 import ch.liquidmind.inflection.grammar.InflectionParser.ClassViewDeclarationContext;
-import ch.liquidmind.inflection.grammar.InflectionParser.HgroupDeclarationContext;
+import ch.liquidmind.inflection.grammar.InflectionParser.TaxonomyDeclarationContext;
 import ch.liquidmind.inflection.grammar.InflectionParser.IdentifierContext;
 import ch.liquidmind.inflection.grammar.InflectionParser.VmapDeclarationContext;
 
@@ -35,11 +35,11 @@ public class CompilePass1Listener extends AbstractInflectionListener
 	}
 	
 	@Override
-	public void enterHgroupDeclaration( HgroupDeclarationContext hgroupDeclarationContext )
+	public void enterTaxonomyDeclaration( TaxonomyDeclarationContext taxonomyDeclarationContext )
 	{
-		IdentifierContext identifierContext = (IdentifierContext)hgroupDeclarationContext.getChild( 1 );
-		String hgroupName = getIdentifierFQName( identifierContext );
-		addInflectionResourcesCompiled( identifierContext, new HgroupCompiled( hgroupName ) );
+		IdentifierContext identifierContext = (IdentifierContext)taxonomyDeclarationContext.getChild( 1 );
+		String taxonomyName = getIdentifierFQName( identifierContext );
+		addInflectionResourcesCompiled( identifierContext, new TaxonomyCompiled( taxonomyName ) );
 	}
 
 	private void addInflectionResourcesCompiled( IdentifierContext identifierContext, InflectionResourceCompiled inflectionResourceCompiled )

@@ -3,7 +3,7 @@ package ch.liquidmind.inflection.operation.basic;
 import java.util.Set;
 
 import ch.liquidmind.inflection.IdentifiableObject;
-import ch.liquidmind.inflection.model.HGroup;
+import ch.liquidmind.inflection.model.Taxonomy;
 import ch.liquidmind.inflection.model.VmapInstance;
 import ch.liquidmind.inflection.operation.IdentifiableObjectPair;
 
@@ -14,20 +14,20 @@ public class ToTextTraverser extends IndentingPrintWriterTraverser
 	
 	private Set< IdentifiableObject< ?, ? > > multiplyTraversedObjects;
 
-	public ToTextTraverser( HGroup hGroup )
+	public ToTextTraverser( Taxonomy taxonomy )
 	{
-		this( hGroup, getConfiguration( DEFAULT_CONFIGURATION ) );
+		this( taxonomy, getConfiguration( DEFAULT_CONFIGURATION ) );
 	}
 	
-	public ToTextTraverser( HGroup hGroup, VmapInstance vmapInstance )
+	public ToTextTraverser( Taxonomy taxonomy, VmapInstance vmapInstance )
 	{
-		super( hGroup, vmapInstance );
+		super( taxonomy, vmapInstance );
 	}
 	
 	@Override
 	public void traverse( IdentifiableObjectPair identifiableObjectPair )
 	{
-		multiplyTraversedObjects = BasicOperations.identifyMultiplyTraversedObjects( identifiableObjectPair.getLeftObject().getObject(), getHGroup() );
+		multiplyTraversedObjects = BasicOperations.identifyMultiplyTraversedObjects( identifiableObjectPair.getLeftObject().getObject(), getTaxonomy() );
 		super.traverse( identifiableObjectPair );
 	}
 

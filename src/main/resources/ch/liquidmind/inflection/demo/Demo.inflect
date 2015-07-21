@@ -39,19 +39,19 @@ view BView of B
 	field StringView value;
 }
 
-hgroup SimpleGroup
+taxonomy SimpleGroup
 {
 	SimpleCustomerView,
 	SimpleAddressView
 }
 
-hgroup FullGroup
+taxonomy FullGroup
 {
 	FullCustomerView,
 	FullAddressView
 }
 
-hgroup ABGroup
+taxonomy ABGroup
 {
 	AView, BView
 }

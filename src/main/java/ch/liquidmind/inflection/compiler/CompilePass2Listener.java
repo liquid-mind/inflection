@@ -22,7 +22,7 @@ import ch.liquidmind.inflection.grammar.InflectionParser.DefaultMappingDeclarati
 import ch.liquidmind.inflection.grammar.InflectionParser.DefaultMemberTypeModifierContext;
 import ch.liquidmind.inflection.grammar.InflectionParser.DefaultSuperDeclarationContext;
 import ch.liquidmind.inflection.grammar.InflectionParser.GroupedClassViewContext;
-import ch.liquidmind.inflection.grammar.InflectionParser.HgroupDeclarationContext;
+import ch.liquidmind.inflection.grammar.InflectionParser.TaxonomyDeclarationContext;
 import ch.liquidmind.inflection.grammar.InflectionParser.IdentifierContext;
 import ch.liquidmind.inflection.grammar.InflectionParser.ImportPackageSymbolContext;
 import ch.liquidmind.inflection.grammar.InflectionParser.ImportTypeSymbolContext;
@@ -34,10 +34,10 @@ import ch.liquidmind.inflection.grammar.InflectionParser.MemberTypeModifierConte
 import ch.liquidmind.inflection.grammar.InflectionParser.MemberViewContext;
 import ch.liquidmind.inflection.grammar.InflectionParser.MemberViewDeclarationContext;
 import ch.liquidmind.inflection.grammar.InflectionParser.MemberViewNameContext;
-import ch.liquidmind.inflection.grammar.InflectionParser.NoSuperHgroupDeclarationContext;
+import ch.liquidmind.inflection.grammar.InflectionParser.NoSuperTaxonomyDeclarationContext;
 import ch.liquidmind.inflection.grammar.InflectionParser.SimpleTypeContext;
 import ch.liquidmind.inflection.grammar.InflectionParser.SuperDeclarationContext;
-import ch.liquidmind.inflection.grammar.InflectionParser.SuperHgroupDeclarationContext;
+import ch.liquidmind.inflection.grammar.InflectionParser.SuperTaxonomyDeclarationContext;
 import ch.liquidmind.inflection.grammar.InflectionParser.SuperVmapDeclarationContext;
 import ch.liquidmind.inflection.grammar.InflectionParser.TypeContext;
 import ch.liquidmind.inflection.grammar.InflectionParser.ViewofDeclarationContext;
@@ -56,7 +56,7 @@ import ch.liquidmind.inflection.model.VMap;
 public class CompilePass2Listener extends AbstractInflectionListener
 {
 	public static final String OBJECT_VIEW = CH_LIQUIDMIND_INFLECTION_PACKAGE + ".ObjectView";
-	public static final String HGROUP = CH_LIQUIDMIND_INFLECTION_PACKAGE + ".HGroup";
+	public static final String TAXONOMY = CH_LIQUIDMIND_INFLECTION_PACKAGE + ".Taxonomy";
 	public static final String PROPERTY = "property";
 	public static final String FIELD = "field";
 	public static final String DISCRETE = "discrete";
@@ -86,7 +86,7 @@ public class CompilePass2Listener extends AbstractInflectionListener
 	private VmapCompiled currentVmapCompiled;
 	private List< String > currentMappingInflectionViews;
 	private List< String > currentMappedVisitors;
-	private HgroupCompiled currentHgroupCompiled;
+	private TaxonomyCompiled currentTaxonomyCompiled;
 	
 	public CompilePass2Listener( File compilationUnit, CommonTokenStream commonTokenStream, String packageName, Map< String, InflectionResourceCompiled > inflectionResourcesCompiled, InflectionResourceLoader inflectionResourceLoader, boolean bootstrap )
 	{
@@ -363,29 +363,29 @@ public class CompilePass2Listener extends AbstractInflectionListener
 		currentMappedVisitors.add( visitorClass.getName() );
 	}
 	
-	// HGROUP
+	// TAXONOMY
 	
 	@Override
-	public void enterHgroupDeclaration( HgroupDeclarationContext hgroupDeclarationContext )
+	public void enterTaxonomyDeclaration( TaxonomyDeclarationContext taxonomyDeclarationContext )
 	{
-		IdentifierContext identifierContext = (IdentifierContext)hgroupDeclarationContext.getChild( 1 );
-		String hgroupName = getIdentifierFQName( identifierContext );
-		currentHgroupCompiled = (HgroupCompiled)getInflectionResourcesCompiled().get( hgroupName );
+		IdentifierContext identifierContext = (IdentifierContext)taxonomyDeclarationContext.getChild( 1 );
+		String taxonomyName = getIdentifierFQName( identifierContext );
+		currentTaxonomyCompiled = (TaxonomyCompiled)getInflectionResourcesCompiled().get( taxonomyName );
 	}
 
 	@Override
-	public void enterSuperHgroupDeclaration( SuperHgroupDeclarationContext superHgroupDeclarationContext )
+	public void enterSuperTaxonomyDeclaration( SuperTaxonomyDeclarationContext superTaxonomyDeclarationContext )
 	{
-		TypeContext typeContext = (TypeContext)superHgroupDeclarationContext.getChild( 1 ).getChild( 0 );
-		String extendedHgroupName = getInflectionResourceName( typeContext );
-		currentHgroupCompiled.setExtendedHgroupName( extendedHgroupName );
+		TypeContext typeContext = (TypeContext)superTaxonomyDeclarationContext.getChild( 1 ).getChild( 0 );
+		String extendedTaxonomyName = getInflectionResourceName( typeContext );
+		currentTaxonomyCompiled.setExtendedTaxonomyName( extendedTaxonomyName );
 	}
 	
 	@Override
-	public void enterNoSuperHgroupDeclaration( NoSuperHgroupDeclarationContext ctx )
+	public void enterNoSuperTaxonomyDeclaration( NoSuperTaxonomyDeclarationContext ctx )
 	{
-		if ( !currentHgroupCompiled.getName().equals( HGROUP ) )
-			currentHgroupCompiled.setExtendedHgroupName( HGROUP );
+		if ( !currentTaxonomyCompiled.getName().equals( TAXONOMY ) )
+			currentTaxonomyCompiled.setExtendedTaxonomyName( TAXONOMY );
 	}
 
 	@Override
@@ -393,7 +393,7 @@ public class CompilePass2Listener extends AbstractInflectionListener
 	{
 		TypeContext typeContext = (TypeContext)groupedClassViewContext.getChild( 0 ).getChild( 0 );
 		String groupedClassViewName = getInflectionResourceName( typeContext );
-		currentHgroupCompiled.getClassViewNames().add( groupedClassViewName );
+		currentTaxonomyCompiled.getClassViewNames().add( groupedClassViewName );
 	}
 
 	// SUPPORT

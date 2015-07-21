@@ -11,7 +11,7 @@ import ch.liquidmind.inflection.IdentifiableObject;
 import ch.liquidmind.inflection.IdentifiableObjectPool;
 import ch.liquidmind.inflection.model.ClassView;
 import ch.liquidmind.inflection.model.DimensionView;
-import ch.liquidmind.inflection.model.HGroup;
+import ch.liquidmind.inflection.model.Taxonomy;
 import ch.liquidmind.inflection.model.InflectionView;
 import ch.liquidmind.inflection.model.MemberView;
 import ch.liquidmind.inflection.model.Multiplicity;
@@ -21,17 +21,17 @@ public abstract class AbstractTraverser implements InflectionTraverser
 {
 	private Map< VisitedObjectPair, VisitedObjectPair > visitedObjectPairs = new HashMap< VisitedObjectPair, VisitedObjectPair >();
 	private CallStack callStack = new CallStack();
-	private HGroup hGroup;
+	private Taxonomy taxonomy;
 
-	public AbstractTraverser( HGroup hGroup )
+	public AbstractTraverser( Taxonomy taxonomy )
 	{
-		this.hGroup = hGroup;
+		this.taxonomy = taxonomy;
 	}
 	
 	public ClassViewPair createRootClassViewPair( Object leftRootObject, Object rightRootObject, Class< ? > defaultRootClass )
 	{
-		ClassView< ? > leftClassView = hGroup.getClassView( getRootClass( leftRootObject, defaultRootClass ) );
-		ClassView< ? > rightClassView = hGroup.getClassView( getRootClass( rightRootObject, defaultRootClass ) );
+		ClassView< ? > leftClassView = taxonomy.getClassView( getRootClass( leftRootObject, defaultRootClass ) );
+		ClassView< ? > rightClassView = taxonomy.getClassView( getRootClass( rightRootObject, defaultRootClass ) );
 		IdentifiableObject< ?, ? > leftObject = getIdentifiableObjectPool().getIdentifiableObject( leftRootObject );
 		IdentifiableObject< ?, ? > rightObject = getIdentifiableObjectPool().getIdentifiableObject( rightRootObject );
 		ClassViewPair classViewPair = new ClassViewPair( leftClassView, rightClassView, 1, 1, 0, 0, null, null, leftObject, rightObject );
@@ -196,7 +196,7 @@ public abstract class AbstractTraverser implements InflectionTraverser
 			else if ( object.getClass().isArray() )
 				actualInflectionView = new DimensionView( true, false, true, Multiplicity.Many, object.getClass(), null );
 			else
-				actualInflectionView = getHGroup().getClassView( object.getClass() );
+				actualInflectionView = getTaxonomy().getClassView( object.getClass() );
 		}
 		else
 		{
@@ -341,8 +341,8 @@ public abstract class AbstractTraverser implements InflectionTraverser
 		return IdentifiableObjectPool.getIdentifiableObjectPool();
 	}
 
-	public HGroup getHGroup()
+	public Taxonomy getTaxonomy()
 	{
-		return hGroup;
+		return taxonomy;
 	}
 }

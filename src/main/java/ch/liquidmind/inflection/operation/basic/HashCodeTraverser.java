@@ -3,7 +3,7 @@ package ch.liquidmind.inflection.operation.basic;
 import java.util.ArrayList;
 import java.util.List;
 
-import ch.liquidmind.inflection.model.HGroup;
+import ch.liquidmind.inflection.model.Taxonomy;
 import ch.liquidmind.inflection.model.VmapInstance;
 import ch.liquidmind.inflection.operation.LeftGraphTraverser;
 
@@ -44,14 +44,14 @@ public class HashCodeTraverser extends LeftGraphTraverser
 		}
 	}
 	
-	public HashCodeTraverser( HGroup hGroup )
+	public HashCodeTraverser( Taxonomy taxonomy )
 	{
-		this( hGroup, getConfiguration( DEFAULT_CONFIGURATION ) );
+		this( taxonomy, getConfiguration( DEFAULT_CONFIGURATION ) );
 	}
 
-	public HashCodeTraverser( HGroup hGroup, VmapInstance vmapInstance )
+	public HashCodeTraverser( Taxonomy taxonomy, VmapInstance vmapInstance )
 	{
-		super( hGroup, vmapInstance );
+		super( taxonomy, vmapInstance );
 	}
 
 	@Override

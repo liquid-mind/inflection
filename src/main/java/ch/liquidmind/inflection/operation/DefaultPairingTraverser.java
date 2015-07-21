@@ -12,7 +12,7 @@ import java.util.Set;
 import ch.liquidmind.inflection.IdentifiableObject;
 import ch.liquidmind.inflection.model.ClassView;
 import ch.liquidmind.inflection.model.DimensionView;
-import ch.liquidmind.inflection.model.HGroup;
+import ch.liquidmind.inflection.model.Taxonomy;
 import ch.liquidmind.inflection.model.InflectionView;
 import ch.liquidmind.inflection.model.MemberView;
 import ch.liquidmind.inflection.model.Multiplicity;
@@ -20,9 +20,9 @@ import ch.liquidmind.inflection.model.VmapInstance;
 
 public abstract class DefaultPairingTraverser extends ConfigurableVisitingTraverser
 {
-	public DefaultPairingTraverser( HGroup hGroup, VmapInstance configurationInstance )
+	public DefaultPairingTraverser( Taxonomy taxonomy, VmapInstance configurationInstance )
 	{
-		super( hGroup, configurationInstance );
+		super( taxonomy, configurationInstance );
 	}
 
 	@Override

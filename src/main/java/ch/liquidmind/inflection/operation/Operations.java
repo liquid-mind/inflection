@@ -3,7 +3,7 @@ package ch.liquidmind.inflection.operation;
 import java.io.OutputStream;
 
 import ch.liquidmind.inflection.InflectionResourceLoader;
-import ch.liquidmind.inflection.model.HGroup;
+import ch.liquidmind.inflection.model.Taxonomy;
 import ch.liquidmind.inflection.model.VMap;
 
 public abstract class Operations
@@ -16,9 +16,9 @@ public abstract class Operations
 		return InflectionResourceLoader.getContextInflectionResourceLoader();
 	}
 	
-	protected static HGroup getHGroup( String hgroup )
+	protected static Taxonomy getTaxonomy( String taxonomy )
 	{
-		return getDefaultInflectionResourceLoader().loadHGroup( hgroup );
+		return getDefaultInflectionResourceLoader().loadTaxonomy( taxonomy );
 	}
 	
 	protected static VMap getVMap( String vmap )
