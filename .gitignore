@@ -7,6 +7,7 @@ Inflection.iml
 ### Gradle ###
 /build
 /.gradle
+gradle.properties
 
 ### OSX ###
 .DS_Store

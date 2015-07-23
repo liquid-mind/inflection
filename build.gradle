@@ -103,14 +103,12 @@ publishing {
     }
 }
 
-/*
 bintray {
         publications = ['mavenJava']
         dryRun = false
         publish = false
         user=BINTRAY_USER
         key=BINTRAY_API_KEY
-        print "User: " + BINTRAY_USER
         pkg {
             repo = 'maven'
             name = 'inflection'
@@ -124,4 +122,3 @@ bintray {
             }
         }
 }
-*/
