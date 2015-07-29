@@ -4,7 +4,6 @@ plugins {
     id "eclipse"
     id "idea"
     id "com.jfrog.bintray" version "1.2"
-	id "ch.liquidmind.deflector" version "0.0.2"
 	id "me.champeau.gradle.antlr4" version "0.1"
 }
 
@@ -20,13 +19,14 @@ jar {
 
 repositories {
     mavenCentral()
+	maven {
+		url "http://dl.bintray.com/deflector/maven"
+	}
 }
 
 dependencies {
-	compile deflected("commons-io:commons-io:2.4", {
-				includes ~/org\.apache\.commons\.io\..*/ })
-	compile deflected("org.antlr:antlr4:4.5", {
-				includes ~/org\.antlr\.v4\.runtime\..*/})
+	compile "__commons-io:commons-io:2.4"
+	compile "__org.antlr:antlr4:4.5"
 	testCompile "junit:junit:4.12"
 }
 
@@ -103,14 +103,12 @@ publishing {
     }
 }
 
-/*
 bintray {
         publications = ['mavenJava']
         dryRun = false
         publish = false
         user=BINTRAY_USER
         key=BINTRAY_API_KEY
-        print "User: " + BINTRAY_USER
         pkg {
             repo = 'maven'
             name = 'inflection'
@@ -124,4 +122,3 @@ bintray {
             }
         }
 }
-*/
