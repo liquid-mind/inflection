@@ -94,10 +94,14 @@ public abstract class SynchronizeAbstractVisitor extends AbstractVisitor< Synchr
 			return;
 		
 		IdentifiableObjectFrame currentFrame = getTraverser().getCurrentFrame();
+		IdentifiableObject< ?, ? > rightIdentifiableObject = currentFrame.getIdentifiableObjectPair().getRightObject();
+				
+		if ( rightIdentifiableObject == null )
+			return;
+
 		DimensionViewFrame dimensionViewFrame = (DimensionViewFrame)previousFrame;
 		DimensionView rightDimensionView = dimensionViewFrame.getDimensionViewPair().getRightDimensionView();
-		
-		Object rightObject = currentFrame.getIdentifiableObjectPair().getRightObject().getObject();
+		Object rightObject = rightIdentifiableObject.getObject();
 		
 		if ( rightDimensionView.getMultiplicity().equals( Multiplicity.One ) )
 		{
