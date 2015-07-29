@@ -9,7 +9,7 @@ plugins {
 
 
 group = "ch.liquidmind"
-version = "0.0.3"
+version = "0.0.4"
 
 jar {
     from ("./LICENSE") {
