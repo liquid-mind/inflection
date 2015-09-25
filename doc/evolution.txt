@@ -16,6 +16,7 @@ BASICS
 	
 	Inflection views:
 	
+	// Preamble (package, import) same as Java (as well as syntax for blocks & statements).
 	package myinflectpackage;
 	
 	import myjavapackage.MyClass1;
@@ -23,20 +24,21 @@ BASICS
 	
 	taxonomy MyTaxonomy
 	{
-		default property, composite;
+		default property;
 	
+		// Annotation of views and fields analogous to Java
 		@MyClassAnnotation
 		view MyClass1
 		{
-			@MyAttributeAnnotation( name = "a'" )
+			@MyAttributeAnnotation( name = "a" )
 			a;
-			field discrete b;
+			field b;	// overrides "default property"
 			c, d;
 		}
 		
 		view MyClass2
 		{
-			field d;
+			field d;	// overrides "property" modifier in MyClass1
 			e;
 		}
 	}
@@ -62,12 +64,8 @@ ATTRIBUTES
 2. Attributes may specify a field/property modifier to indicate whether the attribute refers to a field or property
    in the referenced class. The default is property, thus MyClass1.a refers to a property and MyClass1.b to a field.
    The field/property modifier affects how the attribute is accessed when running an inflection algorithm.
-3. Attributes may specify a composite/discrete modifier to indicate whether the referenced object should be regarded
-   as a composite part or as a discrete entity in relation to the view. The default is composite, and thus MyClass1.a
-   is seen as a composite part of MyClass1 while MyClass1.b is seen as distinct from MyClass1. This modifier affects
-   whether inflection algorithms traverse the whole object (composite) or merely the relationship to the object (discrete).
-4. Taxonomies may override the default modifiers by declaring specific defaults; e.g., MyTaxonomy declares the specific
-   defaults property and composite. Default modifiers are inherited by any extending taxonomies.
+4. Taxonomies may override the default modifier by declaring specific defaults; e.g., MyTaxonomy declares the specific
+   default property. Default modifiers are inherited by any extending taxonomies.
 5. Attributes are automatically typed by views that are derived from the referenced fields/properties; e.g., MyClass1.a
    is automatically assigned the view type java.lang.String (not to be confused with the Java class java.lang.String).
 6. Multiple attributes may be listed in one declaration; e.g., c and d in MyClass1 are listed together. In this case,
@@ -184,59 +182,252 @@ doesn't know the location of the actual method to invoke until runtime (when the
 
 EXAMPLE
 
-taxonomy BaseTaxonomy
-{
-	view Person
+	taxonomy BaseTaxonomy
 	{
-		firstName, lastName;
+		view Person
+		{
+			firstName, lastName;
+		}
+	
+		view Address
+		{
+			street, zip, city, country;
+		}
+	
+		view Employer
+		{
+			jobProfile;
+		}
+	
+		view JobProfile
+		{
+			passionSkills;
+		}
+	
+		view PassionSkills
+		{}
 	}
-
-	view Address
+	
+	taxonomy ConcatPersonTaxonomy extends BaseTaxonomy
 	{
-		street, zip, city, country;
+		view Person
+		{
+			fullName;
+		}
 	}
-
-	view Employer
+	
+	taxonomy ConcatAddressTaxonomy extends BaseTaxonomy
 	{
-		jobProfile;
+		view Address
+		{
+			fullAddress;
+		}
 	}
-
-	view JobProfile
-	{
-		passionSkills;
-	}
-
-	view PassionSkills
+	
+	taxonomy ConcatAllTaxonomy extends ConcatPersonTaxonomy, ConcatAddressTaxonomy
 	{}
-}
-
-taxonomy ConcatPersonTaxonomy extends BaseTaxonomy
-{
-	view Person
+	
+	taxonomy MatchingTaxonomy extends BaseTaxonomy
 	{
-		fullName;
+		view Employer
+		{}
+	
+		view JobProfile
+		{
+			employer, passionSkills;
+		}
 	}
-}
 
-taxonomy ConcatAddressTaxonomy extends BaseTaxonomy
-{
-	view Address
+ALIASES
+
+	view Customer as Client
 	{
-		fullAddress;
+		firstName as givenName;
+		lastName as surname;
 	}
-}
-
-taxonomy ConcatAllTaxonomy extends ConcatPersonTaxonomy, ConcatAddressTaxonomy
-{}
-
-taxonomy MatchingTaxonomy extends BaseTaxonomy
-{
-	view Employer
-	{}
-
-	view JobProfile
+	
+NON-COMPOSITE RELATIONSHIPS
+	
+	class Customer
 	{
-		employer, passionSkills;
+		String firstName, lastName;
+		List< Address > addresses;
+		...
 	}
-}
+	
+	class Address
+	{
+		String street, city, zip, country;
+	}
+	
+	taxonomy DiscreteTaxonomy
+	{
+		view Customer
+		{
+			firstName, lastName, addresses;
+		}
+		
+		view Address
+		{}
+	}
+
+	The relationship represented by addresses is part of the Customer view, whereas no attributes of Address are included.
+
+TAXONOMY VERSUS VIEW INHERITENCE, DEF/UNDEF
+
+	class MyClass1
+	{
+		String a, b, c, d;
+	}
+	
+	taxonomy MyTaxonomy1
+	{
+		view MyClass1
+		{
+			def a, b, c, d;
+		}
+	}
+	
+	taxonomy MyTaxonomy2
+	{
+		view MyClass1
+		{
+			def a, b;
+			undef c;
+		}
+	}
+	
+In this version of taxonomy inheritence, views make the following distinctions:
+
+	Declared Attibutes   Attributes declared directly in the view rather than inherited from
+	   the taxonomy or view hierarchy.
+	Taxonomy Inheritence   Attributes may be inherited from views referring to the same class
+	   in an extended taxonomy.
+	View Inheritence   Attributes may be inherited from other views according to the inheritence
+	   hierarchy of the referenced classes.
+	 
+It is possible to specify whether an attribute should be included (def) in or excluded (undef)
+from the view. If no modifier is specified then the default is def. Technically, even undef
+declarations define attributes in a view---analogous to the getDeclaredFields() and getFields()
+methods in java.lang.Class, views distingish between methods for fetching only attributes
+with the def modifier or all attributes.
+
+To better understand the motivation behind hiding attributes with undef, consider the following:
+
+	// Classes define bi-directional relationship between each other.
+	class MyClass1
+	{
+		String a, b, c, d, e, f;
+		MyClass2 myClass2;
+	}
+	
+	class MyClass2
+	{
+		String g, h, i, j, k, l;
+		MyClass1 myClass1;
+	}
+
+	// MyTaxonomy1 views the bi-directional relationship as uni-directional 
+	// by omitting MyClass2.myClass1.
+	taxonomy MyTaxonomy1
+	{
+		view MyClass1
+		{
+			a, b, c, d, e, f, myClass2;
+		}
+		
+		view MyClass2
+		{
+			g, h, i, j, k, l;
+		}
+	}
+	
+	// MyTaxonomy2 reverses the directionality by removing MyClass1.myClass2
+	// and adding MyClass2.myClass1.
+	taxonomy MyTaxonomy2 extends MyTaxonomy1
+	{
+		view MyClass1
+		{
+			undef myClass2;
+		}
+		
+		view MyClass2
+		{
+			myClass1;
+		}
+	}
+	
+Note that MyTaxonomy2 only needs to define the *difference* to MyTaxonomy1; it does not need to
+reiterate the inclusion of the fields a to l. Thus, without attribute based taxonomy inheritance,
+MyTaxonomy2 would need to be specified as:
+
+	taxonomy MyTaxonomy2 extends MyTaxonomy1
+	{
+		view MyClass1
+		{
+			a, b, c, d, e, f;
+		}
+		
+		view MyClass2
+		{
+			g, h, i, j, k, l, myClass1;
+		}
+	}
+
+
+CALCULATED FIELDS
+
+	class Customer
+	{
+		String firstName, lastName;
+		...
+	}
+	
+	class CustomerCalcFields
+	{
+		static String getFullName( Customer customer )
+		{
+			return customer.getFirstName() + " " + customer.getLastName();
+		}
+		
+		static void setFullName( Customer customer, String fullName )
+		{
+			String[] fullNameSplit = fullName.split( " " );
+			customer.setFirstName( fullNameSplit[ 0 ] );
+			customer.setLastName( fullNameSplit[ 1 ] );
+		}
+	}
+	
+	taxonomy CalculatedTaxonomy
+	{
+		view Customer use CustomerCalcFields
+		{
+			fullName;
+		}
+	}
+
+WILDCARDS
+
+	taxonomy MyTaxonomy
+	{
+		view ch.liquidmind.test.* 
+		{
+			field *;
+		}
+	}
+
+
+RELATED WORK
+
+Database views (do a comparison between these two).
+
+
+
+
+
+
+
+
+
+
 
