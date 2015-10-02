@@ -7,11 +7,16 @@ grammar Inflection;
 
 /*
  * Notes:
- * 1. Includes are evaluated before excludes.
- * 2. Wildcards are resolved at runtime.
- * 3. Two representations of taxonomies:
- *    3.1. Raw: output of compilation; includes symbols with wildcards
- *    3.2.. 
+ * - Includes are evaluated before excludes.
+ * - Wildcards are resolved at runtime.
+ * - Name selectors effect only the class they are declared in; it is not possible, e.g.,
+ *   to override the definition of a super class member, unless that definition also occurs
+ *   in the sub class (this is NOT the way the mechanism is described in evolution.txt, but
+ *   I think it makes sense and is more consistent: views don't actually add or subtract, they
+ *   merely filter (or re-route, in the case of the "use" clause) ).
+ * - Two representations of taxonomies:
+ *   - Compiled: symbols as String; name selectors unresolved
+ *   - Linked: symbols as object references; name selectors resolved 
  */
 
 
@@ -43,7 +48,7 @@ importSymbol
 // TAXONOMY
 
 taxonomyDeclaration
-	:	TAXONOMY taxonomy ( EXTENDS taxonomy ( COMMA taxonomy )* )? taxonomyBody
+	:	annotation* TAXONOMY taxonomy ( EXTENDS taxonomy ( COMMA taxonomy )* )? taxonomyBody
 	;
 
 taxonomyBody
@@ -65,7 +70,7 @@ viewDeclaration
 // 2. Aliases always take on the package name of the aliased class.
 // 3. Aliases cannot conflict with class names or other class aliases.
 aliasableView
-	:	aClass ( AS identifier )?		// Should class aliases be able to specify a different package?
+	:	aClass ( AS alias )?		// Should class aliases be able to specify a different package?
 	;
 	
 nonAliasableView
@@ -92,7 +97,7 @@ accessMethodModifier
 // 1. Aliases only legal when no wildcard is used.
 // 2. Aliases cannot conflict with member names or other member aliases.
 aliasableMember
-	:	member ( AS identifier )?	// Note that AS is only legal if member contains no wildcards
+	:	member ( AS alias )?	// Note that AS is only legal if member contains no wildcards
 	;
 
 nonAliasableMember
@@ -105,7 +110,7 @@ annotation
 	:	ANNOTATION
 	;
 
-taxonomy		// taxonomy cannot have wildcards
+taxonomy	// taxonomy cannot have wildcards
 	:	type
 	;
 
@@ -126,6 +131,10 @@ aPackage
 	;
 	
 simpleType
+	:	identifier
+	;
+	
+alias		// aliases cannot have wildcards
 	:	identifier
 	;
 	
