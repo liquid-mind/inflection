@@ -7,7 +7,6 @@ plugins {
 	id "me.champeau.gradle.antlr4" version "0.1"
 }
 
-
 group = "ch.liquidmind"
 version = "0.0.4"
 
@@ -34,6 +33,7 @@ dependencies {
 // Antlr Config
 antlr4 {
 	source=file("src/main/resources/ch/liquidmind/inflection/grammar")
+	output=file("$buildDir/generated-src/ch/liquidmind/inflection/grammar")
 }
 compileJava.dependsOn antlr4
 sourceSets.main.java.srcDirs += "$buildDir/generated-src"

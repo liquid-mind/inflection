@@ -5,12 +5,31 @@ grammar Inflection;
 	package ch.liquidmind.inflection.grammar;
 }
 
+/*
+ * Notes:
+ * - Includes are evaluated before excludes.
+ * - Wildcards are resolved at runtime.
+ * - Name selectors effect only the class they are declared in; it is not possible, e.g.,
+ *   to override the definition of a super class member, unless that definition also occurs
+ *   in the sub class (this is NOT the way the mechanism is described in evolution.txt, but
+ *   I think it makes sense and is more consistent: views don't actually add or subtract, they
+ *   merely filter (or re-route, in the case of the "use" clause) ).
+ * - Two representations of taxonomies:
+ *   - Compiled: symbols as String; name selectors unresolved
+ *   - Linked: symbols as object references; name selectors resolved 
+ */
+
+
+
+// COMPILATION UNIT
+
 compilationUnit
-	:	packageDeclaration? importDeclarations declarations
+	:	packageDeclaration importDeclarations taxonomyDeclaration*
 	;
 
 packageDeclaration
-	:	PACKAGE aPackage SEMICOLON
+	:	PACKAGE aPackage SEMICOLON		// Package names cannot have wildcards.
+	|	// default package
 	;
 
 importDeclarations
@@ -18,180 +37,91 @@ importDeclarations
 	;
 
 importDeclaration
-	:	IMPORT importSymbol SEMICOLON
+	:	IMPORT importSymbol SEMICOLON		// Import symbol can only have wildcard at end (Java-style).
 	;
 
 importSymbol
-	:	importPackageSymbol
-	|	importTypeSymbol
+	:	aPackage
+	|	type
 	;
-	
-importPackageSymbol
-	:	aPackage DOT ASTERISK
+
+// TAXONOMY
+
+taxonomyDeclaration
+	:	annotation* TAXONOMY taxonomy ( EXTENDS taxonomy ( COMMA taxonomy )* )? taxonomyBody
 	;
-	
-importTypeSymbol
-	:	type
+
+taxonomyBody
+	:	CURLY_BRACKET_OPEN defaultAccessMethodModifier? viewDeclaration* CURLY_BRACKET_CLOSE
 	;
-	
-declarations
-	:	declaration*
-	;
-	
-declaration
-	:	classViewDeclaration
-	|	visitorsDeclaration
-	|	taxonomyDeclaration
+
+defaultAccessMethodModifier
+	:	DEFAULT accessMethodModifier SEMICOLON
 	;
 
 // VIEW
 
-classViewDeclaration
-	:	VIEW identifier viewofDeclaration ( superDeclaration | defaultSuperDeclaration ) viewBody
+viewDeclaration
+	:	annotation* INCLUDE? VIEW aliasableView ( COMMA aliasableView )* ( USE classSelector ( COMMA classSelector )* )? viewBody
+	|	EXCLUDE VIEW nonAliasableView ( COMMA nonAliasableView )* SEMICOLON
 	;
 
-viewofDeclaration
-	:	OF aClass
+// 1. Aliases only legal when no wildcard is used.
+// 2. Aliases always take on the package name of the aliased class.
+// 3. Aliases cannot conflict with class names or other class aliases.
+aliasableView
+	:	classSelector ( AS alias )?		// Should class aliases be able to specify a different package?
 	;
-
-defaultSuperDeclaration
-	:
+	
+nonAliasableView
+	:	classSelector
 	;
-
-superDeclaration
-	:	EXTENDS classView
-	;
-
+	
 viewBody
-	:	CURLY_BRACKET_OPEN memberViewDeclaration* CURLY_BRACKET_CLOSE
+	:	CURLY_BRACKET_OPEN memberDeclaration* CURLY_BRACKET_CLOSE
+	;
+
+// MEMBER
+
+memberDeclaration
+	:	annotation* INCLUDE? accessMethodModifier aliasableMember  ( COMMA aliasableMember )* SEMICOLON
+	|	EXCLUDE accessMethodModifier nonAliasableMember ( COMMA nonAliasableMember )* SEMICOLON
 	;
 	
-memberViewDeclaration
-	:	( memberTypeModifier | defaultMemberTypeModifier ) ( aggregationModifier | defaultAggregationModifier ) memberView memberViewName SEMICOLON
-	;
-	
-defaultMemberTypeModifier
-	:
-	;
-	
-memberTypeModifier
+accessMethodModifier
 	:	PROPERTY
 	|	FIELD
+	|	// default modifier (from taxonomy)
+	;
+	
+// 1. Aliases only legal when no wildcard is used.
+// 2. Aliases cannot conflict with member names or other member aliases.
+aliasableMember
+	:	memberSelector ( AS alias )?	// Note that AS is only legal if member contains no wildcards
 	;
 
-defaultAggregationModifier
-	:
-	;
-	
-aggregationModifier
-	:	DISCRETE
-	|	COMPOSITE
-	;
-
-memberView
-	:	classView
-	;
-	
-memberViewName
-	:	identifier
-	;
-
-// VISITORS
-
-visitorsDeclaration
-	:	VISITORS identifier ( superVisitorsDeclaration | noSuperVisitorsDeclaration ) visitorsBody
-	;
-
-noSuperVisitorsDeclaration
-	:
-	;
-
-superVisitorsDeclaration
-	:	EXTENDS visitors
-	;
-
-visitorsBody
-	:	CURLY_BRACKET_OPEN mappingDeclaration* CURLY_BRACKET_CLOSE
-	;
-	
-mappingDeclaration
-	:	defaultMappingDeclaration
-	|	standardMappingDeclaration
-	;
-	
-defaultMappingDeclaration
-	:	DEFAULT mappedVisitor SEMICOLON
-	;
-	
-standardMappingDeclaration
-	:	mappingInflectionViews COLON mappedVisitors SEMICOLON
-	;
-	
-mappingInflectionViews
-	:	mappingInflectionView ( COMMA mappingInflectionView )*
-	;
-	
-mappingInflectionView
-	:	mappingMemberView
-	|	mappingClassView
-	;
-	
-mappingClassView
-	:	classView
-	;
-	
-mappingMemberView
-	:	classView POINTER identifier
-	;
-	
-mappedVisitors
-	:	mappedVisitor ( COMMA mappedVisitor )*
-	;
-	
-mappedVisitor
-	:	aClass
-	;
-	
-visitors
-	:	type
-	;
-	
-// TAXONOMY
-
-taxonomyDeclaration
-	:	TAXONOMY identifier ( superTaxonomyDeclaration | noSuperTaxonomyDeclaration) taxonomyBody
-	;
-	
-noSuperTaxonomyDeclaration
-	:
-	;
-	
-superTaxonomyDeclaration
-	:	EXTENDS taxonomy
-	;
-	
-taxonomyBody
-	:	CURLY_BRACKET_OPEN groupedClassView ( COMMA groupedClassView )* CURLY_BRACKET_CLOSE
-	;
-	
-groupedClassView
-	:	classView
-	;
-	
-taxonomy
-	:	type
+nonAliasableMember
+	:	memberSelector
 	;
 	
 // COMMON
+
+annotation
+	:	ANNOTATION
+	;
+
+taxonomy	// taxonomy cannot have wildcards
+	:	type
+	;
+
+classSelector
+	:	type
+	;
 	
-aClass
-	:	type
+memberSelector
+	:	identifier
 	;
-
-classView
-	:	type
-	;
-
+	
 type
 	:	( aPackage DOT )? simpleType
 	;
@@ -204,9 +134,16 @@ simpleType
 	:	identifier
 	;
 	
+alias		// aliases cannot have wildcards
+	:	identifier
+	;
+	
 identifier
 	:	IDENTIFIER
-	|	BASIC_TYPE
+	;
+
+ANNOTATION
+	:	'@' IDENTIFIER ( '(' .*? ')' )?
 	;
 	
 MULTI_LINE_COMMENT
@@ -217,27 +154,18 @@ SINGLE_LINE_COMMENT
 	:	'//' .*? '\r'? '\n' -> skip
 	;
 	
-SEMICOLON			: ';';
-COLON				: ':';
-DOT					: '.';
-COMMA				: ',';
-CURLY_BRACKET_OPEN	: '{';
-CURLY_BRACKET_CLOSE	: '}';
-ASTERISK			: '*';
-POINTER				: '->';
-
-DEFAULT		: 'default';
-VISITORS		: 'visitors';
-TAXONOMY		: 'taxonomy';
 PACKAGE		: 'package';
 IMPORT		: 'import';
-VIEW		: 'view';
-OF			: 'of';
+DEFAULT		: 'default';
+TAXONOMY	: 'taxonomy';
 EXTENDS		: 'extends';
+VIEW		: 'view';
+USE			: 'use';
 PROPERTY	: 'property';
 FIELD		: 'field';
-DISCRETE	: 'discrete';
-COMPOSITE	: 'composite';
+INCLUDE		: 'include';
+EXCLUDE		: 'exclude';
+AS			: 'as';
 BASIC_TYPE	: 'byte' | 'short' | 'int' | 'long' | 'float' | 'double' | 'boolean' | 'char';
 
 // Note that while most of these keywords are not used in the
@@ -255,10 +183,18 @@ JAVA_KEYWORD
 	|	'class' | 'finally' | 'long' | 'strictfp' | 'volatile'
 	|	'const' | 'float' | 'native' | 'super' | 'while'
 	;
-
+	
 IDENTIFIER
-	:	[a-zA-Z_$] [a-zA-Z0-9]*
+	:	[a-zA-Z_$*] [a-zA-Z0-9*]*
 	;
+
+SEMICOLON			: ';';
+COLON				: ':';
+DOT					: '.';
+COMMA				: ',';
+CURLY_BRACKET_OPEN	: '{';
+CURLY_BRACKET_CLOSE	: '}';
+ASTERISK			: '*';
 
 WS	:	[ \r\t\n]+ -> skip;
 
