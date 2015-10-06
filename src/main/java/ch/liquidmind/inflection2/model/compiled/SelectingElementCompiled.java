@@ -34,9 +34,4 @@ public abstract class SelectingElementCompiled extends AnnotatableElementCompile
 	{
 		return nameSelectors;
 	}
-
-	public void setNameSelectors( List< NameSelector > nameSelectors )
-	{
-		this.nameSelectors = nameSelectors;
-	}
 }

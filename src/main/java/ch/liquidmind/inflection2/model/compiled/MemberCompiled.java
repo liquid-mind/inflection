@@ -20,7 +20,7 @@ public class MemberCompiled extends AliasableElementCompiled
 	{
 		super( annotationsCompiled, selectionType, nameSelectors, alias );
 		this.accessType = accessType;
-		setMemberSelectors( memberSelectors );
+		getMemberSelectors().addAll( nameSelectors );
 		this.parentViewCompiled = parentViewCompiled;
 	}
 
@@ -37,11 +37,6 @@ public class MemberCompiled extends AliasableElementCompiled
 	public List< NameSelector > getMemberSelectors()
 	{
 		return getNameSelectors();
-	}
-
-	public void setMemberSelectors( List< NameSelector > memberSelectors )
-	{
-		setNameSelectors( memberSelectors );
 	}
 
 	public ViewCompiled getParentViewCompiled()

@@ -27,6 +27,7 @@ repositories {
 dependencies {
 	compile "__commons-io:commons-io:2.4"
 	compile "__org.antlr:antlr4:4.5"
+	compile "com.google.guava:guava:19.0-rc2"
 	testCompile "junit:junit:4.12"
 }
 

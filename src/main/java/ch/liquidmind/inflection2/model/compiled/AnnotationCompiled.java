@@ -1,7 +1,11 @@
 package ch.liquidmind.inflection2.model.compiled;
 
-public class AnnotationCompiled
+import java.io.Serializable;
+
+public class AnnotationCompiled implements Serializable
 {
+	private static final long serialVersionUID = 1L;
+
 	// Note that this is a placeholder for what should eventually be a
 	// fully parsed Java annotation. Will take some work to adapt the
 	// Java grammar, so I'm taking this short-cut for now. Note that it

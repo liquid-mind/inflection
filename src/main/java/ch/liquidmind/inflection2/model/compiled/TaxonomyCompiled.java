@@ -43,11 +43,6 @@ public class TaxonomyCompiled extends AnnotatableElementCompiled
 		return extendedTaxonomies;
 	}
 
-	public void setExtendedTaxonomies( List< String > extendedTaxonomies )
-	{
-		this.extendedTaxonomies = extendedTaxonomies;
-	}
-
 	public AccessType getDefaultAccessType()
 	{
 		return defaultAccessType;
@@ -61,10 +56,5 @@ public class TaxonomyCompiled extends AnnotatableElementCompiled
 	public List< ViewCompiled > getViewsCompiled()
 	{
 		return viewsCompiled;
-	}
-
-	public void setViewsCompiled( List< ViewCompiled > viewsCompiled )
-	{
-		this.viewsCompiled = viewsCompiled;
 	}
 }

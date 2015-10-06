@@ -20,9 +20,4 @@ public abstract class AnnotatableElementCompiled implements Serializable
 	{
 		return annotationsCompiled;
 	}
-
-	public void setAnnotationsCompiled( List< AnnotationCompiled > annotationsCompiled )
-	{
-		this.annotationsCompiled = annotationsCompiled;
-	}
 }

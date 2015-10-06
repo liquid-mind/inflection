@@ -22,7 +22,7 @@ public class ViewCompiled extends AliasableElementCompiled
 			TaxonomyCompiled parentTaxonomyCompiled )
 	{
 		super( annotationsCompiled, selectionType, nameSelectors, alias );
-		setNameSelectors( classesSelectors );
+		getNameSelectors().addAll( nameSelectors );
 		this.usedClassesSelectors = usedClassesSelectors;
 		this.membersCompiled = membersCompiled;
 		this.parentTaxonomyCompiled = parentTaxonomyCompiled;
@@ -33,29 +33,14 @@ public class ViewCompiled extends AliasableElementCompiled
 		return getNameSelectors();
 	}
 
-	public void setClassesSelectors( List< NameSelector > classesSelectors )
-	{
-		setNameSelectors( classesSelectors );
-	}
-
 	public List< NameSelector > getUsedClassesSelectors()
 	{
 		return usedClassesSelectors;
 	}
 
-	public void setUsedClassesSelectors( List< NameSelector > usedClassesSelectors )
-	{
-		this.usedClassesSelectors = usedClassesSelectors;
-	}
-
 	public List< MemberCompiled > getMembersCompiled()
 	{
 		return membersCompiled;
-	}
-
-	public void setMembersCompiled( List< MemberCompiled > membersCompiled )
-	{
-		this.membersCompiled = membersCompiled;
 	}
 
 	public TaxonomyCompiled getParentTaxonomyCompiled()
