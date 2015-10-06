@@ -62,19 +62,19 @@ defaultAccessMethodModifier
 // VIEW
 
 viewDeclaration
-	:	annotation* INCLUDE? VIEW aliasableView ( USE aClass ( COMMA aClass )* )? viewBody
-	|	EXCLUDE VIEW nonAliasableView SEMICOLON
+	:	annotation* INCLUDE? VIEW aliasableView ( COMMA aliasableView )* ( USE classSelector ( COMMA classSelector )* )? viewBody
+	|	EXCLUDE VIEW nonAliasableView ( COMMA nonAliasableView )* SEMICOLON
 	;
 
 // 1. Aliases only legal when no wildcard is used.
 // 2. Aliases always take on the package name of the aliased class.
 // 3. Aliases cannot conflict with class names or other class aliases.
 aliasableView
-	:	aClass ( AS alias )?		// Should class aliases be able to specify a different package?
+	:	classSelector ( AS alias )?		// Should class aliases be able to specify a different package?
 	;
 	
 nonAliasableView
-	:	aClass
+	:	classSelector
 	;
 	
 viewBody
@@ -97,11 +97,11 @@ accessMethodModifier
 // 1. Aliases only legal when no wildcard is used.
 // 2. Aliases cannot conflict with member names or other member aliases.
 aliasableMember
-	:	member ( AS alias )?	// Note that AS is only legal if member contains no wildcards
+	:	memberSelector ( AS alias )?	// Note that AS is only legal if member contains no wildcards
 	;
 
 nonAliasableMember
-	:	member
+	:	memberSelector
 	;
 	
 // COMMON
@@ -114,11 +114,11 @@ taxonomy	// taxonomy cannot have wildcards
 	:	type
 	;
 
-aClass
+classSelector
 	:	type
 	;
 	
-member
+memberSelector
 	:	identifier
 	;
 	
