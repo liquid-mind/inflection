@@ -4,11 +4,11 @@ public class TaxonomyLoader
 {
 	public static TaxonomyLoader getContextTaxonomyLoader()
 	{
-		throw new UnsupportedOperationException();
+		return null;
 	}
 	
 	public static TaxonomyLoader getSystemTaxonomyLoader()
 	{
-		throw new UnsupportedOperationException();
+		return null;
 	}
 }

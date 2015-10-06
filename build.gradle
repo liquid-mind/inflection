@@ -27,7 +27,7 @@ dependencies {
 	compile "__commons-io:commons-io:2.4"
 	compile "__org.antlr:antlr4:4.5"
 	compile "com.google.guava:guava:19.0-rc2"
-	testCompile "junit:junit:4.12"
+	compile "junit:junit:4.12"
 }
 
 // Antlr Config
@@ -37,19 +37,6 @@ antlr4 {
 }
 compileJava.dependsOn antlr4
 sourceSets.main.java.srcDirs += "$buildDir/generated-src"
-
-// Inflect Task
-task(inflectBaseViews, dependsOn: classes, type: JavaExec) {
-	main = "ch.liquidmind.inflection.compiler.InflectionCompilerBootstrap"
-	classpath = sourceSets.main.runtimeClasspath
-	jvmArgs '-ea'
-	args "$buildDir/classes/main"
-	sourceSets.main.resources.each {
-		if ( it.name.endsWith('.inflect') )
-			args it
-	}
-}
-tasks.jar.dependsOn inflectBaseViews
 
 // Sources JAR
 task sourceJar(type: Jar, dependsOn: classes) {
