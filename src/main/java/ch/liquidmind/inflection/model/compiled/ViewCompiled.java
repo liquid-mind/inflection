@@ -7,35 +7,40 @@ public class ViewCompiled extends AliasableElementCompiled
 {
 	private static final long serialVersionUID = 1L;
 	
-	private List< NameSelector > usedClassesSelectors = new ArrayList< NameSelector >();
+	private String viewedClass;
+	private List< String > usedClasses = new ArrayList< String >();
 	private List< MemberCompiled > membersCompiled = new ArrayList< MemberCompiled >();
 	private TaxonomyCompiled parentTaxonomyCompiled;
-
+	
 	public ViewCompiled(
 			List< AnnotationCompiled > annotationsCompiled,
 			SelectionType selectionType,
-			List< NameSelector > nameSelectors,
 			String alias,
-			List< NameSelector > classesSelectors,
-			List< NameSelector > usedClassesSelectors,
+			String viewedClass,
+			List< String > usedClasses,
 			List< MemberCompiled > membersCompiled,
 			TaxonomyCompiled parentTaxonomyCompiled )
 	{
-		super( annotationsCompiled, selectionType, nameSelectors, alias );
-		getNameSelectors().addAll( nameSelectors );
-		this.usedClassesSelectors = usedClassesSelectors;
+		super( annotationsCompiled, selectionType, alias );
+		this.viewedClass = viewedClass;
+		this.usedClasses = usedClasses;
 		this.membersCompiled = membersCompiled;
 		this.parentTaxonomyCompiled = parentTaxonomyCompiled;
 	}
 
-	public List< NameSelector > getClassesSelectors()
+	public String getViewedClass()
 	{
-		return getNameSelectors();
+		return viewedClass;
 	}
 
-	public List< NameSelector > getUsedClassesSelectors()
+	public void setViewedClass( String viewedClass )
 	{
-		return usedClassesSelectors;
+		this.viewedClass = viewedClass;
+	}
+
+	public List< String > getUsedClasses()
+	{
+		return usedClasses;
 	}
 
 	public List< MemberCompiled > getMembersCompiled()

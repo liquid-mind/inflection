@@ -11,10 +11,9 @@ public abstract class AliasableElementCompiled extends SelectingElementCompiled
 	public AliasableElementCompiled(
 			List< AnnotationCompiled > annotationsCompiled,
 			SelectionType selectionType,
-			List< NameSelector > nameSelectors,
 			String alias )
 	{
-		super( annotationsCompiled, selectionType, nameSelectors );
+		super( annotationsCompiled, selectionType );
 		this.alias = alias;
 	}
 
