@@ -9,16 +9,9 @@ grammar Inflection;
  * Notes:
  * - Includes are evaluated before excludes.
  * - Wildcards are resolved at runtime.
- * - Name selectors effect only the class they are declared in; it is not possible, e.g.,
- *   to override the definition of a super class member, unless that definition also occurs
- *   in the sub class (this is NOT the way the mechanism is described in evolution.txt, but
- *   I think it makes sense and is more consistent: views don't actually add or subtract, they
- *   merely filter (or re-route, in the case of the "use" clause) ).
- * - Two representations of taxonomies:
- *   - Compiled: symbols as String; name selectors unresolved
- *   - Linked: symbols as object references; name selectors resolved 
+ * - Members referred to by member references must be declared in the class; they cannot be
+ *   inherited from a super class.
  */
-
 
 
 // COMPILATION UNIT
@@ -28,7 +21,7 @@ compilationUnit
 	;
 
 packageDeclaration
-	:	PACKAGE aPackage SEMICOLON		// Package names cannot have wildcards.
+	:	PACKAGE aPackage SEMICOLON
 	|	// default package
 	;
 
@@ -37,7 +30,7 @@ importDeclarations
 	;
 
 importDeclaration
-	:	IMPORT importSymbol SEMICOLON		// Import symbol can only have wildcard at end (Java-style).
+	:	IMPORT importSymbol SEMICOLON
 	;
 
 importSymbol
@@ -62,19 +55,12 @@ defaultAccessMethodModifier
 // VIEW
 
 viewDeclaration
-	:	annotation* INCLUDE? VIEW aliasableView ( COMMA aliasableView )* ( USE classSelector ( COMMA classSelector )* )? viewBody
-	|	EXCLUDE VIEW nonAliasableView ( COMMA nonAliasableView )* SEMICOLON
+	:	annotation* INCLUDE? VIEW aliasableView ( COMMA aliasableView )* ( USE classRef ( COMMA classRef )* )? viewBody
 	;
 
-// 1. Aliases only legal when no wildcard is used.
-// 2. Aliases always take on the package name of the aliased class.
-// 3. Aliases cannot conflict with class names or other class aliases.
+// Aliases cannot conflict with class names or other class aliases.
 aliasableView
-	:	classSelector ( AS alias )?		// Should class aliases be able to specify a different package?
-	;
-	
-nonAliasableView
-	:	classSelector
+	:	classRef ( AS alias )?
 	;
 	
 viewBody
@@ -84,24 +70,24 @@ viewBody
 // MEMBER
 
 memberDeclaration
-	:	annotation* INCLUDE? accessMethodModifier aliasableMember  ( COMMA aliasableMember )* SEMICOLON
-	|	EXCLUDE accessMethodModifier nonAliasableMember ( COMMA nonAliasableMember )* SEMICOLON
+	:	annotation* selectionTypeModifier accessMethodModifier aliasableMember ( COMMA aliasableMember )* SEMICOLON
 	;
+	
+selectionTypeModifier
+	:	INCLUDE
+	|	EXCLUDE
+	|	// default is INCLUDE
+	;	
 	
 accessMethodModifier
 	:	PROPERTY
 	|	FIELD
-	|	// default modifier (from taxonomy)
+	|	// default is from taxonomy
 	;
 	
-// 1. Aliases only legal when no wildcard is used.
-// 2. Aliases cannot conflict with member names or other member aliases.
+// Aliases cannot conflict with member names or other member aliases.
 aliasableMember
-	:	memberSelector ( AS alias )?	// Note that AS is only legal if member contains no wildcards
-	;
-
-nonAliasableMember
-	:	memberSelector
+	:	memberRef ( AS alias )?
 	;
 	
 // COMMON
@@ -110,15 +96,15 @@ annotation
 	:	ANNOTATION
 	;
 
-taxonomy	// taxonomy cannot have wildcards
+taxonomy
 	:	type
 	;
 
-classSelector
+classRef
 	:	type
 	;
 	
-memberSelector
+memberRef
 	:	identifier
 	;
 	
@@ -185,7 +171,7 @@ JAVA_KEYWORD
 	;
 	
 IDENTIFIER
-	:	[a-zA-Z_$*] [a-zA-Z0-9*]*
+	:	[a-zA-Z_$] [a-zA-Z0-9]*
 	;
 
 SEMICOLON			: ';';
