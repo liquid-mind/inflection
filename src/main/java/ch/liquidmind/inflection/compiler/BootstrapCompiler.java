@@ -1,11 +1,16 @@
 package ch.liquidmind.inflection.compiler;
 
-import java.io.File;
+import ch.liquidmind.inflection.loader.TaxonomyLoader;
 
 public class BootstrapCompiler extends InflectionCompiler
 {
-	public BootstrapCompiler( File[] compilationUnits, File targetLocation )
+	public BootstrapCompiler( String[] compilationUnitNames, String targetLocation )
 	{
-		super( compilationUnits, targetLocation );
+		super( compilationUnitNames, targetLocation );
+	}
+
+	public BootstrapCompiler( String[] compilationUnitNames, String targetLocation, TaxonomyLoader taxonomyLoader )
+	{
+		super( compilationUnitNames, targetLocation, taxonomyLoader );
 	}
 }

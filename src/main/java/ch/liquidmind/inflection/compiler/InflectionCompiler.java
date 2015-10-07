@@ -23,78 +23,75 @@ import ch.liquidmind.inflection.model.compiled.TaxonomyCompiled;
 
 public class InflectionCompiler
 {
-	private File[] compilationUnits;
+	private List< CompilationUnit > compilationUnits = new ArrayList< CompilationUnit >();
+	@SuppressWarnings( "unused" )
 	private File targetLocation;
 	private TaxonomyLoader taxonomyLoader;
-	private Map< String, TaxonomyCompiled > taxonomiesCompiled;
-	private List< ParsedCompilationUnit > parsedCompilationUnits;
+	private Map< String, TaxonomyCompiled > taxonomiesCompiled = new HashMap< String, TaxonomyCompiled >();
 	
-	public InflectionCompiler( File[] compilationUnits, File targetLocation )
+	public InflectionCompiler( String[] compilationUnitNames, String targetLocation )
 	{
-		this( compilationUnits, targetLocation, TaxonomyLoader.getContextTaxonomyLoader() );
+		this( compilationUnitNames, targetLocation, TaxonomyLoader.getContextTaxonomyLoader() );
 	}
 	
-	public InflectionCompiler( File[] compilationUnits, File targetLocation, TaxonomyLoader taxonomyLoader )
+	public InflectionCompiler( String[] compilationUnitNames, String targetLocation, TaxonomyLoader taxonomyLoader )
 	{
 		super();
-		this.compilationUnits = compilationUnits;
-		this.targetLocation = targetLocation;
+		
+		for ( String compilationUnitName : compilationUnitNames )
+			compilationUnits.add( new CompilationUnit( new File( compilationUnitName ) ) );
+
+		this.targetLocation = new File( targetLocation );
 		this.taxonomyLoader = taxonomyLoader;
 	}
 	
 	@SuppressWarnings( "unused" )
 	public void compile()
 	{
-		taxonomiesCompiled = new HashMap< String, TaxonomyCompiled >();
-		parsedCompilationUnits = new ArrayList< ParsedCompilationUnit >();
+		parse();
 		
-		parse( compilationUnits );
+		for ( CompilationUnit compilationUnit : compilationUnits )
+			compilePass1( compilationUnit );
 		
-		for ( ParsedCompilationUnit parsedCompilationUnit : parsedCompilationUnits )
-			compilePass1( parsedCompilationUnit );
-		
-		for ( ParsedCompilationUnit parsedCompilationUnit : parsedCompilationUnits )
-			compilePass2( parsedCompilationUnit, taxonomyLoader );
+		for ( CompilationUnit compilationUnit : compilationUnits )
+			compilePass2( compilationUnit, taxonomyLoader );
 		
 		for ( TaxonomyCompiled taxonomyCompiled : taxonomiesCompiled.values() )
 			;	// TODO save taxonomyCompiled
 	}
 	
-	private void compilePass1( ParsedCompilationUnit parsedCompilationUnit )
+	private void compilePass1( CompilationUnit compilationUnit )
 	{
 		ParseTreeWalker walker = new ParseTreeWalker();
-		CompilePass1Listener listener = new CompilePass1Listener( parsedCompilationUnit.getCompilationUnit(), parsedCompilationUnit.getTokens(), parsedCompilationUnit.getPackageName(), taxonomiesCompiled, getBootstrap() );
-		walker.walk( listener, parsedCompilationUnit.getTree() );
+		CompilePass1Listener listener = new CompilePass1Listener( compilationUnit, taxonomiesCompiled, getBootstrap() );
+		walker.walk( listener, compilationUnit.getTree() );
 	}
 	
-	private void compilePass2( ParsedCompilationUnit parsedCompilationUnit, TaxonomyLoader taxonomyLoader )
+	private void compilePass2( CompilationUnit compilationUnit, TaxonomyLoader taxonomyLoader )
 	{
 		ParseTreeWalker walker = new ParseTreeWalker();
-		CompilePass2Listener listener = new CompilePass2Listener( parsedCompilationUnit.getCompilationUnit(), parsedCompilationUnit.getTokens(), parsedCompilationUnit.getPackageName(), taxonomiesCompiled, taxonomyLoader, getBootstrap() );
-		walker.walk( listener, parsedCompilationUnit.getTree() );
+		CompilePass2Listener listener = new CompilePass2Listener( compilationUnit, taxonomiesCompiled, getBootstrap(), taxonomyLoader );
+		walker.walk( listener, compilationUnit.getTree() );
 	}
 	
-	private void parse( File[] compilationUnits )
+	private void parse()
 	{
-		for ( File compilationUnit : compilationUnits )
+		for ( CompilationUnit compilationUnit : compilationUnits )
 		{
-			FileInputStream compilationUnitIs = __FileInputStream.__new( compilationUnit );
-			
-			ParsedCompilationUnit parsedCompilationUnit = new ParsedCompilationUnit();
-			parsedCompilationUnits.add( parsedCompilationUnit );
+			FileInputStream inputStream = __FileInputStream.__new( compilationUnit.getFile() );
 			
 			try
 			{
-				parse( compilationUnit, compilationUnitIs, parsedCompilationUnit );
+				parse( compilationUnit, inputStream );
 			}
 			finally
 			{
-				__Closeable.close( compilationUnitIs );
+				__Closeable.close( inputStream );
 			}
 		}
 	}
 	
-	private void parse( File compilationUnit, InputStream inputStream, ParsedCompilationUnit parsedCompilationUnit )
+	private void parse( CompilationUnit compilationUnit, InputStream inputStream )
 	{
 		ANTLRInputStream antlrInputStream = __ANTLRInputStream.__new( inputStream );
 
@@ -102,21 +99,18 @@ public class InflectionCompiler
 		CommonTokenStream tokens = new CommonTokenStream( lexer );
 		InflectionParser parser = new InflectionParser( tokens );
 		parser.removeErrorListeners();
-		InflectionErrorListener errorListener = new InflectionErrorListener( compilationUnit );
+		InflectionErrorListener errorListener = new InflectionErrorListener( compilationUnit.getFile() );
 		parser.addErrorListener( errorListener );
 		ParseTree tree = parser.compilationUnit();
 		
 		if ( errorListener.syntaxErrorOccured() )
 			throw new RuntimeException( "Syntax error in input stream: cannot parse view definitions." );
 		
+		compilationUnit.setTokens( tokens );
+		compilationUnit.setTree( tree );
 		ParseTreeWalker walker = new ParseTreeWalker();
-		PackageListener packageListener = new PackageListener( compilationUnit, tokens, getBootstrap() );
+		PackageListener packageListener = new PackageListener( compilationUnit, getBootstrap() );
 		walker.walk( packageListener, tree );
-		
-		parsedCompilationUnit.setCompilationUnit( compilationUnit );
-		parsedCompilationUnit.setTokens( tokens );
-		parsedCompilationUnit.setTree( tree );
-		parsedCompilationUnit.setPackageName( packageListener.getPackageName() );
 	}
 	
 	private boolean getBootstrap()

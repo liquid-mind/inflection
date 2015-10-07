@@ -1,29 +1,17 @@
 package ch.liquidmind.inflection.compiler;
 
-import java.io.File;
 import java.util.Map;
 
-import org.antlr.v4.runtime.CommonTokenStream;
-
-import ch.liquidmind.inflection.grammar.InflectionBaseListener;
-import ch.liquidmind.inflection.grammar.InflectionParser.TaxonomyContext;
 import ch.liquidmind.inflection.model.compiled.TaxonomyCompiled;
 
-public class CompilePass1Listener extends InflectionBaseListener
+public class CompilePass1Listener extends AbstractInflectionListener
 {
 	public CompilePass1Listener(
-			File compilationUnit,
-			CommonTokenStream tokens,
-			String packageName,
+			CompilationUnit compilationUnit,
 			Map< String, TaxonomyCompiled > taxonomiesCompiled,
 			boolean bootstrap )
 	{
-		// TODO Auto-generated constructor stub
+		super( compilationUnit, taxonomiesCompiled, bootstrap );
 	}
-
-	@Override
-	public void enterTaxonomy( TaxonomyContext ctx )
-	{
-		super.enterTaxonomy( ctx );
-	}
+	
 }

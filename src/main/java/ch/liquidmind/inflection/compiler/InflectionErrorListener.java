@@ -10,8 +10,8 @@ import org.antlr.v4.runtime.Token;
 
 public class InflectionErrorListener extends BaseErrorListener
 {
-	private File compilationUnit;
 	private boolean syntaxErrorOccured = false;
+	private File compilationUnit;
 	
 	public InflectionErrorListener( File compilationUnit )
 	{
@@ -28,17 +28,17 @@ public class InflectionErrorListener extends BaseErrorListener
 
 	public static void displayError( File compilationUnit, CommonTokenStream tokens, Token offendingTokenStart, Token offendingTokenEnd, String msg )
 	{
-		displayErrorOrWarning( "ERROR: ", compilationUnit, tokens, offendingTokenStart, offendingTokenEnd, msg );
+		displayErrorOrWarning( compilationUnit, "ERROR: ", tokens, offendingTokenStart, offendingTokenEnd, msg );
 	}
 	
 	public static void displayWarning( File compilationUnit, CommonTokenStream tokens, Token offendingTokenStart, Token offendingTokenEnd, String msg )
 	{
-		displayErrorOrWarning( "WARNING: ", compilationUnit, tokens, offendingTokenStart, offendingTokenEnd, msg );
+		displayErrorOrWarning( compilationUnit, "WARNING: ", tokens, offendingTokenStart, offendingTokenEnd, msg );
 	}
 	
-	public static void displayErrorOrWarning( String errorOrWarning, File compilationUnit, CommonTokenStream tokens, Token offendingTokenStart, Token offendingTokenEnd, String msg )
+	public static void displayErrorOrWarning( File compilationUnit, String errorOrWarning, CommonTokenStream tokens, Token offendingTokenStart, Token offendingTokenEnd, String msg )
 	{
-		System.err.println( errorOrWarning + compilationUnit.getName() + ", line " + offendingTokenStart.getLine() + ":" + offendingTokenStart.getCharPositionInLine() + " " + msg );
+		System.err.println( errorOrWarning + compilationUnit.getAbsolutePath() +  ", line " + offendingTokenStart.getLine() + ":" + offendingTokenStart.getCharPositionInLine() + "   "+ msg  );
 
 		String input = tokens.getTokenSource().getInputStream().toString();
 		String[] lines = input.split( "\n" );

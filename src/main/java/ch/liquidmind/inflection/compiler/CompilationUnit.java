@@ -5,21 +5,27 @@ import java.io.File;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.tree.ParseTree;
 
-public class ParsedCompilationUnit
+public class CompilationUnit
 {
-	private File compilationUnit;
+	private File file;
 	private CommonTokenStream tokens;
 	private ParseTree tree;
 	private String packageName;
 	
-	public File getCompilationUnit()
+	public CompilationUnit( File file )
 	{
-		return compilationUnit;
+		super();
+		this.file = file;
 	}
 
-	public void setCompilationUnit( File compilationUnit )
+	public File getFile()
 	{
-		this.compilationUnit = compilationUnit;
+		return file;
+	}
+
+	public void setFile( File file )
+	{
+		this.file = file;
 	}
 
 	public CommonTokenStream getTokens()
