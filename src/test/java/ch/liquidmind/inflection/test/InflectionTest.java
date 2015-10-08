@@ -1,0 +1,50 @@
+package ch.liquidmind.inflection.test;
+
+import java.io.File;
+import java.net.URL;
+import java.net.URLClassLoader;
+
+import org.junit.Test;
+
+import __java.net.__URI;
+import __org.apache.commons.io.__FileUtils;
+import ch.liquidmind.inflection.loader.TaxonomyLoader;
+import ch.liquidmind.inflection.model.SelectionType;
+import ch.liquidmind.inflection.model.compiled.MemberCompiled;
+import ch.liquidmind.inflection.model.compiled.TaxonomyCompiled;
+import ch.liquidmind.inflection.model.compiled.ViewCompiled;
+
+public class InflectionTest
+{
+	@Test
+	public void testTaxonomyLoader()
+	{
+		TaxonomyCompiled myTaxonomy = new TaxonomyCompiled( "com.mypackage" );
+		
+		ViewCompiled myClass1 = new ViewCompiled( "ch.liquidmind.inflection.test.MyClass1" );
+		myClass1.setParentTaxonomyCompiled( myTaxonomy );
+		myClass1.setSelectionType( SelectionType.Include );
+		
+		MemberCompiled a = new MemberCompiled( "a" );
+		a.setParentViewCompiled( myClass1 );
+		
+		myClass1.getMembersCompiled().add( a );
+		myTaxonomy.getViewsCompiled().add( myClass1 );
+		
+		File inflectionTest = new File( "/Users/john/Documents/workspace-liquid-mind/inflection/build/inflection-test" );
+		File bin = new File( "/Users/john/Documents/workspace-liquid-mind/inflection/bin" );
+		__FileUtils.forceMkdir( null, inflectionTest );
+		myTaxonomy.save( inflectionTest );
+		
+		URLClassLoader currentClassLoader = (URLClassLoader)InflectionTest.class.getClassLoader();
+		URL[] currentUrls = currentClassLoader.getURLs();
+		URL[] urls = new URL[ currentUrls.length + 2 ];
+		System.arraycopy( currentUrls, 0, urls, 0, currentUrls.length );
+		urls[ urls.length - 2 ] = __URI.toURL( inflectionTest.toURI() );
+		urls[ urls.length - 1 ] = __URI.toURL( bin.toURI() );
+		URLClassLoader newClassLoader = new URLClassLoader( urls );
+		
+		TaxonomyLoader taxonomyLoader = new TaxonomyLoader( TaxonomyLoader.getSystemTaxonomyLoader(), newClassLoader );
+		taxonomyLoader.loadTaxonomy( myTaxonomy.getName() );
+	}
+}

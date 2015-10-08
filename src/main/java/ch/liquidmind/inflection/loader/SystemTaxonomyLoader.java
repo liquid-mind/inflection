@@ -4,6 +4,7 @@ import java.util.Date;
 import java.util.List;
 
 import ch.liquidmind.inflection.model.AccessType;
+import ch.liquidmind.inflection.model.SelectionType;
 import ch.liquidmind.inflection.model.external.Taxonomy;
 import ch.liquidmind.inflection.model.linked.TaxonomyLinked;
 import ch.liquidmind.inflection.model.linked.ViewLinked;
@@ -43,6 +44,7 @@ public class SystemTaxonomyLoader extends TaxonomyLoader
 		ViewLinked viewLinked = new ViewLinked( viewedClass.getName() );
 		viewLinked.setViewedClass( viewedClass );
 		viewLinked.setParentTaxonomyLinked( parentTaxonomyLinked );
+		viewLinked.setSelectionType( SelectionType.Include );
 		
 		return viewLinked;
 	}

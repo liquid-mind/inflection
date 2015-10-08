@@ -23,7 +23,7 @@ import ch.liquidmind.inflection.model.linked.TaxonomyLinked;
 import ch.liquidmind.inflection.model.linked.UnparsedAnnotation;
 import ch.liquidmind.inflection.model.linked.ViewLinked;
 
-public abstract class TaxonomyLoader
+public class TaxonomyLoader
 {
 	private static TaxonomyLoader systemTaxonomyLoader;
 	private static ThreadLocal< TaxonomyLoader > contextTaxonomyLoader = new ThreadLocal< TaxonomyLoader >();
