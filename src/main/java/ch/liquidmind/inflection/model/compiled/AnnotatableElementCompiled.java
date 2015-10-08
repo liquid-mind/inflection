@@ -1,19 +1,17 @@
 package ch.liquidmind.inflection.model.compiled;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-public abstract class AnnotatableElementCompiled implements Serializable
+public abstract class AnnotatableElementCompiled extends NamedElementCompiled
 {
 	private static final long serialVersionUID = 1L;
 	
 	private List< AnnotationCompiled > annotationsCompiled = new ArrayList< AnnotationCompiled >();
 
-	public AnnotatableElementCompiled( List< AnnotationCompiled > annotationsCompiled )
+	public AnnotatableElementCompiled( String name )
 	{
-		super();
-		this.annotationsCompiled = annotationsCompiled;
+		super( name );
 	}
 
 	public List< AnnotationCompiled > getAnnotationsCompiled()

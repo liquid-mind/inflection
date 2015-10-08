@@ -1,6 +1,5 @@
 package ch.liquidmind.inflection.model.linked;
 
-import java.lang.annotation.Annotation;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -11,33 +10,13 @@ import ch.liquidmind.inflection.model.external.View;
 
 public class TaxonomyLinked extends AnnotatableElementLinked implements Taxonomy
 {
-	private String name;
 	private List< TaxonomyLinked > extendedTaxonomiesLinked = new ArrayList< TaxonomyLinked >();
 	private List< TaxonomyLinked > extendingTaxonomiesLinked = new ArrayList< TaxonomyLinked >();
 	private List< ViewLinked > viewsLinked = new ArrayList< ViewLinked >();
-	
-	public TaxonomyLinked(
-			List< Annotation > annotations,
-			String name,
-			List< TaxonomyLinked > extendedTaxonomiesLinked,
-			List< TaxonomyLinked > extendingTaxonomiesLinked,
-			List< ViewLinked > viewsLinked )
-	{
-		super( annotations );
-		this.name = name;
-		this.extendedTaxonomiesLinked = extendedTaxonomiesLinked;
-		this.extendingTaxonomiesLinked = extendingTaxonomiesLinked;
-		this.viewsLinked = viewsLinked;
-	}
 
-	public String getName()
+	public TaxonomyLinked( String name )
 	{
-		return name;
-	}
-
-	public void setName( String name )
-	{
-		this.name = name;
+		super( name );
 	}
 
 	public List< TaxonomyLinked > getExtendedTaxonomiesLinked()

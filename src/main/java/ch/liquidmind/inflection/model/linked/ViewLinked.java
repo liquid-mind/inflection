@@ -1,6 +1,5 @@
 package ch.liquidmind.inflection.model.linked;
 
-import java.lang.annotation.Annotation;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -16,20 +15,10 @@ public class ViewLinked extends AliasableElementLinked implements View
 	private List< Class< ? > > usedClasses = new ArrayList< Class< ? > >();
 	private TaxonomyLinked parentTaxonomyLinked;
 	private List< MemberLinked > membersLinked = new ArrayList< MemberLinked >();
-	
-	public ViewLinked(
-			List< Annotation > annotations,
-			String alias,
-			Class< ? > viewedClass,
-			List< Class< ? > > usedClasses,
-			TaxonomyLinked parentTaxonomyLinked,
-			List< MemberLinked > membersLinked )
+
+	public ViewLinked( String name )
 	{
-		super( annotations, alias );
-		this.viewedClass = viewedClass;
-		this.usedClasses = usedClasses;
-		this.parentTaxonomyLinked = parentTaxonomyLinked;
-		this.membersLinked = membersLinked;
+		super( name );
 	}
 
 	public Class< ? > getViewedClass()

@@ -1,20 +1,14 @@
 package ch.liquidmind.inflection.model.compiled;
 
-import java.util.List;
-
 public abstract class AliasableElementCompiled extends SelectingElementCompiled
 {
 	private static final long serialVersionUID = 1L;
 
 	private String alias;
 
-	public AliasableElementCompiled(
-			List< AnnotationCompiled > annotationsCompiled,
-			SelectionType selectionType,
-			String alias )
+	public AliasableElementCompiled( String name )
 	{
-		super( annotationsCompiled, selectionType );
-		this.alias = alias;
+		super( name );
 	}
 
 	public String getAlias()

@@ -41,7 +41,15 @@ importSymbol
 // TAXONOMY
 
 taxonomyDeclaration
-	:	annotation* TAXONOMY taxonomy ( EXTENDS taxonomy ( COMMA taxonomy )* )? taxonomyBody
+	:	annotation* TAXONOMY taxonomyName ( EXTENDS taxonomyRef ( COMMA taxonomyRef )* )? taxonomyBody
+	;
+	
+taxonomyName
+	:	identifier
+	;
+	
+taxonomyRef
+	:	type
 	;
 
 taxonomyBody
@@ -94,10 +102,6 @@ aliasableMember
 
 annotation
 	:	ANNOTATION
-	;
-
-taxonomy
-	:	type
 	;
 
 classRef

@@ -1,8 +1,5 @@
 package ch.liquidmind.inflection.model.linked;
 
-import java.lang.annotation.Annotation;
-import java.util.List;
-
 import ch.liquidmind.inflection.model.external.Member;
 import ch.liquidmind.inflection.model.external.View;
 
@@ -10,10 +7,9 @@ public abstract class MemberLinked extends AliasableElementLinked implements Mem
 {
 	private ViewLinked parentViewLinked;
 
-	public MemberLinked( List< Annotation > annotations, String alias, ViewLinked parentViewLinked )
+	public MemberLinked( String name )
 	{
-		super( annotations, alias );
-		this.parentViewLinked = parentViewLinked;
+		super( name );
 	}
 
 	public ViewLinked getParentViewLinked()

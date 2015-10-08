@@ -1,5 +1,6 @@
 package ch.liquidmind.inflection.compiler;
 
+import java.util.HashMap;
 import java.util.Map;
 
 import org.antlr.v4.runtime.tree.ParseTree;
@@ -7,9 +8,10 @@ import org.antlr.v4.runtime.tree.ParseTree;
 import ch.liquidmind.inflection.grammar.InflectionBaseListener;
 import ch.liquidmind.inflection.grammar.InflectionParser.APackageContext;
 import ch.liquidmind.inflection.grammar.InflectionParser.IdentifierContext;
+import ch.liquidmind.inflection.model.compiled.AnnotatableElementCompiled;
 import ch.liquidmind.inflection.model.compiled.TaxonomyCompiled;
 
-public class AbstractInflectionListener extends InflectionBaseListener
+public abstract class AbstractInflectionListener extends InflectionBaseListener
 {
 	public static final String JAVA_PACKAGE = "java";
 	public static final String JAVA_LANG_PACKAGE = JAVA_PACKAGE + ".lang";
@@ -17,13 +19,11 @@ public class AbstractInflectionListener extends InflectionBaseListener
 	
 	private boolean bootstrap;
 	private CompilationUnit compilationUnit;
-	private Map< String, TaxonomyCompiled > taxonomiesCompiled;
 	
-	public AbstractInflectionListener( CompilationUnit compilationUnit, Map< String, TaxonomyCompiled > taxonomiesCompiled, boolean bootstrap )
+	public AbstractInflectionListener( CompilationUnit compilationUnit, boolean bootstrap )
 	{
 		super();
 		this.compilationUnit = compilationUnit;
-		this.taxonomiesCompiled = taxonomiesCompiled;
 		this.bootstrap = bootstrap;
 	}
 	
@@ -70,11 +70,6 @@ public class AbstractInflectionListener extends InflectionBaseListener
 	public CompilationUnit getCompilationUnit()
 	{
 		return compilationUnit;
-	}
-
-	public Map< String, TaxonomyCompiled > getTaxonomiesCompiled()
-	{
-		return taxonomiesCompiled;
 	}
 
 	public boolean getBootstrap()

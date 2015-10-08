@@ -1,24 +1,15 @@
 package ch.liquidmind.inflection.model.linked;
 
-import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
-import java.util.List;
 
 public class MethodLinked extends MemberLinked
 {
 	private Method readMethod;
 	private Method writeMethod;
 
-	public MethodLinked(
-			List< Annotation > annotations,
-			String alias,
-			ViewLinked parentViewLinked,
-			Method readMethod,
-			Method writeMethod )
+	public MethodLinked( String name )
 	{
-		super( annotations, alias, parentViewLinked );
-		this.readMethod = readMethod;
-		this.writeMethod = writeMethod;
+		super( name );
 	}
 
 	public Method getReadMethod()

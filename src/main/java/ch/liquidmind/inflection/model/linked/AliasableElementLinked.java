@@ -1,18 +1,14 @@
 package ch.liquidmind.inflection.model.linked;
 
-import java.lang.annotation.Annotation;
-import java.util.List;
-
 import ch.liquidmind.inflection.model.external.AliasableElement;
 
 public abstract class AliasableElementLinked extends AnnotatableElementLinked implements AliasableElement
 {
 	private String alias;
 
-	public AliasableElementLinked( List< Annotation > annotations, String alias )
+	public AliasableElementLinked( String name )
 	{
-		super( annotations );
-		this.alias = alias;
+		super( name );
 	}
 
 	public String getAlias()

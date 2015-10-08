@@ -1,17 +1,14 @@
 package ch.liquidmind.inflection.model.linked;
 
-import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
-import java.util.List;
 
 public class FieldLinked extends MemberLinked
 {
 	private Field field;
 
-	public FieldLinked( List< Annotation > annotations, String alias, ViewLinked parentViewLinked, Field field )
+	public FieldLinked( String name )
 	{
-		super( annotations, alias, parentViewLinked );
-		this.field = field;
+		super( name );
 	}
 
 	public Field getField()

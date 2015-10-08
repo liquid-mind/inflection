@@ -8,14 +8,13 @@ import com.google.common.collect.ImmutableList;
 
 import ch.liquidmind.inflection.model.external.AnnotatableElement;
 
-public abstract class AnnotatableElementLinked implements AnnotatableElement
+public abstract class AnnotatableElementLinked extends NamedElementLinked implements AnnotatableElement
 {
 	private List< Annotation > annotations = new ArrayList< Annotation >();
-
-	public AnnotatableElementLinked( List< Annotation > annotations )
+	
+	public AnnotatableElementLinked( String name )
 	{
-		super();
-		this.annotations = annotations;
+		super( name );
 	}
 
 	public List< Annotation > getAnnotationsInternal()
