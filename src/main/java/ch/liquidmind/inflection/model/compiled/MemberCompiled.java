@@ -1,5 +1,7 @@
 package ch.liquidmind.inflection.model.compiled;
 
+import ch.liquidmind.inflection.model.AccessType;
+
 public class MemberCompiled extends AliasableElementCompiled
 {
 	private static final long serialVersionUID = 1L;

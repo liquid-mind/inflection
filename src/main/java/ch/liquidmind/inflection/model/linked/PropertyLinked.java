@@ -2,12 +2,12 @@ package ch.liquidmind.inflection.model.linked;
 
 import java.lang.reflect.Method;
 
-public class MethodLinked extends MemberLinked
+public class PropertyLinked extends MemberLinked
 {
 	private Method readMethod;
 	private Method writeMethod;
 
-	public MethodLinked( String name )
+	public PropertyLinked( String name )
 	{
 		super( name );
 	}

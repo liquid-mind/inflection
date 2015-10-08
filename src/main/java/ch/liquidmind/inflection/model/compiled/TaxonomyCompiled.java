@@ -1,7 +1,10 @@
 package ch.liquidmind.inflection.model.compiled;
 
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
+
+import ch.liquidmind.inflection.model.AccessType;
 
 public class TaxonomyCompiled extends AnnotatableElementCompiled
 {
@@ -36,5 +39,11 @@ public class TaxonomyCompiled extends AnnotatableElementCompiled
 	public List< ViewCompiled > getViewsCompiled()
 	{
 		return viewsCompiled;
+	}
+
+	public static TaxonomyCompiled load( InputStream inputStream )
+	{
+		// TODO Auto-generated method stub
+		return null;
 	}
 }

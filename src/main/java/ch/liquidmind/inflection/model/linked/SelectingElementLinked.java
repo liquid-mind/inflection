@@ -1,14 +1,12 @@
-package ch.liquidmind.inflection.model.compiled;
+package ch.liquidmind.inflection.model.linked;
 
 import ch.liquidmind.inflection.model.SelectionType;
 
-public abstract class SelectingElementCompiled extends AnnotatableElementCompiled
+public class SelectingElementLinked extends AnnotatableElementLinked
 {
-	private static final long serialVersionUID = 1L;
-
 	private SelectionType selectionType;
-
-	public SelectingElementCompiled( String name )
+	
+	public SelectingElementLinked( String name )
 	{
 		super( name );
 	}

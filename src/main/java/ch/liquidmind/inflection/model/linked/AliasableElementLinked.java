@@ -2,7 +2,7 @@ package ch.liquidmind.inflection.model.linked;
 
 import ch.liquidmind.inflection.model.external.AliasableElement;
 
-public abstract class AliasableElementLinked extends AnnotatableElementLinked implements AliasableElement
+public abstract class AliasableElementLinked extends SelectingElementLinked implements AliasableElement
 {
 	private String alias;
 

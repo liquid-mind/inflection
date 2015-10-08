@@ -1,4 +1,4 @@
-package ch.liquidmind.inflection.model.compiled;
+package ch.liquidmind.inflection.model;
 
 public enum SelectionType
 {
