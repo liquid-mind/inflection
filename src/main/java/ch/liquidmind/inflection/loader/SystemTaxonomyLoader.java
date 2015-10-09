@@ -5,9 +5,9 @@ import java.util.List;
 
 import ch.liquidmind.inflection.model.AccessType;
 import ch.liquidmind.inflection.model.SelectionType;
+import ch.liquidmind.inflection.model.compiled.TaxonomyCompiled;
+import ch.liquidmind.inflection.model.compiled.ViewCompiled;
 import ch.liquidmind.inflection.model.external.Taxonomy;
-import ch.liquidmind.inflection.model.linked.TaxonomyLinked;
-import ch.liquidmind.inflection.model.linked.ViewLinked;
 
 public class SystemTaxonomyLoader extends TaxonomyLoader
 {
@@ -15,28 +15,37 @@ public class SystemTaxonomyLoader extends TaxonomyLoader
 	public static final String  CH_LIQUIDMIND_INFLECTION = "ch.liquidmind.inflection";
 	public static final String BASETAXONOMY = CH_LIQUIDMIND_INFLECTION + ".BaseTaxonomy";
 	
-	private static TaxonomyLinked baseTaxonomy;
+	private static TaxonomyCompiled baseTaxonomy;
 	
 	static
 	{
-		baseTaxonomy = new TaxonomyLinked( BASETAXONOMY );
+		baseTaxonomy = new TaxonomyCompiled( BASETAXONOMY );
 		baseTaxonomy.setDefaultAccessType( AccessType.Property );
 		
-		List< ViewLinked > viewsLinked = baseTaxonomy.getViewsLinked();
+		List< ViewCompiled > viewsCompiled = baseTaxonomy.getViewsCompiled();
 		
 		// Basic types
-		viewsLinked.add( createViewLinked( byte.class, baseTaxonomy ) );
-		viewsLinked.add( createViewLinked( short.class, baseTaxonomy ) );
-		viewsLinked.add( createViewLinked( int.class, baseTaxonomy ) );
-		viewsLinked.add( createViewLinked( long.class, baseTaxonomy ) );
-		viewsLinked.add( createViewLinked( float.class, baseTaxonomy ) );
-		viewsLinked.add( createViewLinked( double.class, baseTaxonomy ) );
-		viewsLinked.add( createViewLinked( boolean.class, baseTaxonomy ) );
-		viewsLinked.add( createViewLinked( char.class, baseTaxonomy ) );
-		
+		viewsCompiled.add( createViewCompiled( byte.class.getName(), baseTaxonomy ) );
+		viewsCompiled.add( createViewCompiled( short.class.getName(), baseTaxonomy ) );
+		viewsCompiled.add( createViewCompiled( int.class.getName(), baseTaxonomy ) );
+		viewsCompiled.add( createViewCompiled( long.class.getName(), baseTaxonomy ) );
+		viewsCompiled.add( createViewCompiled( float.class.getName(), baseTaxonomy ) );
+		viewsCompiled.add( createViewCompiled( double.class.getName(), baseTaxonomy ) );
+		viewsCompiled.add( createViewCompiled( boolean.class.getName(), baseTaxonomy ) );
+		viewsCompiled.add( createViewCompiled( char.class.getName(), baseTaxonomy ) );
+
 		// Other common (terminal) types
-		viewsLinked.add( createViewLinked( String.class, baseTaxonomy ) );
-		viewsLinked.add( createViewLinked( Date.class, baseTaxonomy ) );
+		viewsCompiled.add( createViewCompiled( String.class.getName(), baseTaxonomy ) );
+		viewsCompiled.add( createViewCompiled( Date.class.getName(), baseTaxonomy ) );
+	}
+	
+	private static ViewCompiled createViewCompiled( String name, TaxonomyCompiled parentTaxonomyCompiled )
+	{
+		ViewCompiled viewCompiled = new ViewCompiled( name );
+		viewCompiled.setSelectionType( SelectionType.Include );
+		viewCompiled.setParentTaxonomyCompiled( parentTaxonomyCompiled );
+		
+		return viewCompiled;
 	}
 	
 	public SystemTaxonomyLoader()
@@ -48,16 +57,6 @@ public class SystemTaxonomyLoader extends TaxonomyLoader
 	{
 		super( parentTaxonomyLoader, classLoader );
 	}
-
-	private static ViewLinked createViewLinked( Class< ? > viewedClass, TaxonomyLinked parentTaxonomyLinked )
-	{
-		ViewLinked viewLinked = new ViewLinked( viewedClass.getName() );
-		viewLinked.setViewedClass( viewedClass );
-		viewLinked.setParentTaxonomyLinked( parentTaxonomyLinked );
-		viewLinked.setSelectionType( SelectionType.Include );
-		
-		return viewLinked;
-	}
 	
 	@Override
 	public Taxonomy findTaxonomy( String name )
@@ -65,7 +64,7 @@ public class SystemTaxonomyLoader extends TaxonomyLoader
 		Taxonomy foundTaxonomy = null;
 		
 		if ( name.equals( BASETAXONOMY ) )
-			foundTaxonomy = baseTaxonomy;
+			foundTaxonomy = defineTaxonomy( baseTaxonomy );
 		
 		return foundTaxonomy;
 	}
