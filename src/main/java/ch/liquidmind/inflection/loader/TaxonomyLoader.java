@@ -54,7 +54,7 @@ public class TaxonomyLoader
 	
 	public TaxonomyLoader( TaxonomyLoader parentTaxonomyLoader, ClassLoader classLoader )
 	{
-		if ( parentTaxonomyLoader == null )
+		if ( parentTaxonomyLoader == null && !( this instanceof SystemTaxonomyLoader ) )
 			throw new IllegalArgumentException( "Parent taxonomy loader cannot be null." );
 		
 		if ( classLoader == null )
@@ -176,7 +176,7 @@ public class TaxonomyLoader
 		viewLinked.setAlias( viewCompiled.getAlias() );
 		
 		for ( MemberCompiled memberCompiled : viewCompiled.getMembersCompiled() )
-			defineMember( viewLinked, memberCompiled, defaultAccessType );
+			viewLinked.getMembersLinked().add( defineMember( viewLinked, memberCompiled, defaultAccessType ) );
 		
 		return viewLinked;
 	}
@@ -226,6 +226,7 @@ public class TaxonomyLoader
 		
 		memberLinked.setParentViewLinked( parentViewLinked );
 		memberLinked.setAlias( memberCompiled.getAlias() );
+		memberLinked.setSelectionType( memberCompiled.getSelectionType() );
 		
 		return memberLinked;
 	}

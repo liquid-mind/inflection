@@ -8,6 +8,7 @@ import org.junit.Test;
 
 import __java.net.__URI;
 import __org.apache.commons.io.__FileUtils;
+import ch.liquidmind.inflection.loader.SystemTaxonomyLoader;
 import ch.liquidmind.inflection.loader.TaxonomyLoader;
 import ch.liquidmind.inflection.model.SelectionType;
 import ch.liquidmind.inflection.model.compiled.MemberCompiled;
@@ -19,7 +20,7 @@ public class InflectionTest
 	@Test
 	public void testTaxonomyLoader()
 	{
-		TaxonomyCompiled myTaxonomy = new TaxonomyCompiled( "com.mypackage" );
+		TaxonomyCompiled myTaxonomy = new TaxonomyCompiled( "com.mypackage.MyTaxonomy" );
 		
 		ViewCompiled myClass1 = new ViewCompiled( "ch.liquidmind.inflection.test.MyClass1" );
 		myClass1.setParentTaxonomyCompiled( myTaxonomy );
@@ -27,9 +28,11 @@ public class InflectionTest
 		
 		MemberCompiled a = new MemberCompiled( "a" );
 		a.setParentViewCompiled( myClass1 );
+		a.setSelectionType( SelectionType.Include );
 		
 		myClass1.getMembersCompiled().add( a );
 		myTaxonomy.getViewsCompiled().add( myClass1 );
+		myTaxonomy.getExtendedTaxonomies().add( SystemTaxonomyLoader.BASETAXONOMY );
 		
 		File inflectionTest = new File( "/Users/john/Documents/workspace-liquid-mind/inflection/build/inflection-test" );
 		File bin = new File( "/Users/john/Documents/workspace-liquid-mind/inflection/bin" );

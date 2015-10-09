@@ -39,6 +39,16 @@ public class SystemTaxonomyLoader extends TaxonomyLoader
 		viewsLinked.add( createViewLinked( Date.class, baseTaxonomy ) );
 	}
 	
+	public SystemTaxonomyLoader()
+	{
+		super( null, Thread.currentThread().getContextClassLoader() );
+	}
+
+	public SystemTaxonomyLoader( TaxonomyLoader parentTaxonomyLoader, ClassLoader classLoader )
+	{
+		super( parentTaxonomyLoader, classLoader );
+	}
+
 	private static ViewLinked createViewLinked( Class< ? > viewedClass, TaxonomyLinked parentTaxonomyLinked )
 	{
 		ViewLinked viewLinked = new ViewLinked( viewedClass.getName() );
@@ -52,6 +62,11 @@ public class SystemTaxonomyLoader extends TaxonomyLoader
 	@Override
 	public Taxonomy findTaxonomy( String name )
 	{
-		return baseTaxonomy;
+		Taxonomy foundTaxonomy = null;
+		
+		if ( name.equals( BASETAXONOMY ) )
+			foundTaxonomy = baseTaxonomy;
+		
+		return foundTaxonomy;
 	}
 }
