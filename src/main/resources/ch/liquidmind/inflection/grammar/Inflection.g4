@@ -13,7 +13,6 @@ grammar Inflection;
  *   inherited from a super class.
  */
 
-
 // COMPILATION UNIT
 
 compilationUnit
@@ -34,7 +33,7 @@ importDeclaration
 	;
 
 importSymbol
-	:	aPackage
+	:	aPackage ( DOT wildcardIdentifier )?	// wildcardIdentifier must be exactly '*'
 	|	type
 	;
 
@@ -63,39 +62,69 @@ defaultAccessMethodModifier
 // VIEW
 
 viewDeclaration
-	:	annotation* INCLUDE? VIEW aliasableView ( COMMA aliasableView )* ( USE classRef ( COMMA classRef )* )? viewBody
+	:	annotation* INCLUDE? VIEW includableClassSelector ( COMMA includableClassSelector )* ( USE classSelector ( COMMA classSelector )* )? viewBody
+	|	annotation* EXCLUDE VIEW excludableClassSelector ( COMMA excludableClassSelector )* SEMICOLON
 	;
 
-// Aliases cannot conflict with class names or other class aliases.
-aliasableView
-	:	classRef ( AS alias )?
-	;
-	
 viewBody
 	:	CURLY_BRACKET_OPEN memberDeclaration* CURLY_BRACKET_CLOSE
+	;
+
+includableClassSelector
+	:	aliasableClassSelector
+	|	wildcardClassSelector
+	;
+	
+excludableClassSelector
+	:	wildcardClassSelector
+	;
+
+aliasableClassSelector
+	:	classSelector AS alias
+	;
+
+classSelector
+	:	type
+	;
+
+wildcardClassSelector
+	:	type
+	|	wildcardType
 	;
 
 // MEMBER
 
 memberDeclaration
-	:	annotation* selectionTypeModifier accessMethodModifier aliasableMember ( COMMA aliasableMember )* SEMICOLON
+	:	annotation* INCLUDE? accessMethodModifier includableMemberSelector ( COMMA includableMemberSelector )* SEMICOLON
+	|	annotation* EXCLUDE accessMethodModifier excludableMemberSelector ( COMMA excludableMemberSelector )* SEMICOLON
 	;
-	
-selectionTypeModifier
-	:	INCLUDE
-	|	EXCLUDE
-	|	// default is INCLUDE
-	;	
 	
 accessMethodModifier
 	:	PROPERTY
 	|	FIELD
 	|	// default is from taxonomy
 	;
+
+includableMemberSelector
+	:	aliasableMemberSelector
+	|	wildcardMemberSelector
+	;
+
+excludableMemberSelector
+	:	wildcardMemberSelector
+	;
+
+aliasableMemberSelector
+	:	memberSelector ( AS alias )?		// Aliases cannot conflict with member names or other member aliases.
+	;
+
+memberSelector
+	:	identifier
+	;
 	
-// Aliases cannot conflict with member names or other member aliases.
-aliasableMember
-	:	memberRef ( AS alias )?
+wildcardMemberSelector
+	:	identifier
+	|	wildcardIdentifier
 	;
 	
 // COMMON
@@ -103,17 +132,13 @@ aliasableMember
 annotation
 	:	ANNOTATION
 	;
-
-classRef
-	:	type
-	;
-	
-memberRef
-	:	identifier
-	;
 	
 type
 	:	( aPackage DOT )? simpleType
+	;
+	
+wildcardType
+	:	( aPackage DOT )? wildcardSimpleType
 	;
 	
 aPackage
@@ -124,6 +149,10 @@ simpleType
 	:	identifier
 	;
 	
+wildcardSimpleType
+	:	wildcardIdentifier
+	;
+	
 alias		// aliases cannot have wildcards
 	:	identifier
 	;
@@ -131,6 +160,12 @@ alias		// aliases cannot have wildcards
 identifier
 	:	IDENTIFIER
 	;
+
+wildcardIdentifier
+	:	WILDCARD_IDENTIFIER
+	;
+	
+// TOKENS
 
 ANNOTATION
 	:	'@' IDENTIFIER ( '(' .*? ')' )?
@@ -178,13 +213,16 @@ IDENTIFIER
 	:	[a-zA-Z_$] [a-zA-Z0-9]*
 	;
 
+WILDCARD_IDENTIFIER
+	:	[a-zA-Z_$*] [a-zA-Z0-9*]*
+	;
+
 SEMICOLON			: ';';
 COLON				: ':';
 DOT					: '.';
 COMMA				: ',';
 CURLY_BRACKET_OPEN	: '{';
 CURLY_BRACKET_CLOSE	: '}';
-ASTERISK			: '*';
 
 WS	:	[ \r\t\n]+ -> skip;
 
