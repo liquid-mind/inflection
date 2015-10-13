@@ -20,8 +20,16 @@ compilationUnit
 	;
 
 packageDeclaration
+	:	specificPackage
+	|	defaultPackage
+	;
+	
+specificPackage
 	:	PACKAGE aPackage SEMICOLON
-	|	// default package
+	;
+	
+defaultPackage
+	:
 	;
 
 importDeclarations
@@ -33,8 +41,16 @@ importDeclaration
 	;
 
 importSymbol
+	:	packageImport
+	|	typeImport
+	;
+	
+typeImport
+	:	type
+	;
+	
+packageImport
 	:	aPackage ( DOT wildcardIdentifier )?	// wildcardIdentifier must be exactly '*'
-	|	type
 	;
 
 // TAXONOMY
@@ -102,7 +118,11 @@ memberDeclaration
 accessMethodModifier
 	:	PROPERTY
 	|	FIELD
-	|	// default is from taxonomy
+	|	defaultLocalAccessMethodModifier
+	;
+	
+defaultLocalAccessMethodModifier
+	:
 	;
 
 includableMemberSelector

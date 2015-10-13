@@ -16,8 +16,8 @@ public class CompilationJob
 {
 	public enum CompilationMode
 	{
-		Normal,
-		Boostrap
+		NORMAL,
+		BOOTSTRAP
 	}
 	
 	private TaxonomyLoader taxonomyLoader;
@@ -34,7 +34,7 @@ public class CompilationJob
 		this.compilationMode = compilationMode;
 		
 		for ( File sourceFile : sourceFiles )
-			compilationUnits.add( new CompilationUnit( sourceFile ) );
+			compilationUnits.add( new CompilationUnit( sourceFile, this ) );
 	}
 
 	public TaxonomyLoader getTaxonomyLoader()

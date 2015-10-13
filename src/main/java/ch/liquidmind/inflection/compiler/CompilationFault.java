@@ -5,6 +5,7 @@ import java.io.OutputStreamWriter;
 
 import org.antlr.v4.runtime.Token;
 
+import __java.io.__OutputStream;
 import __java.io.__Writer;
 
 public class CompilationFault
@@ -58,7 +59,7 @@ public class CompilationFault
 	{
 		OutputStreamWriter writer = new OutputStreamWriter( os );
 		__Writer.write( writer, createFaultMessage() );
-		__Writer.close( writer );
+		__Writer.flush( writer );
 	}
 	
 	protected String createFaultMessage()

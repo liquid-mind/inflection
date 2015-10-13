@@ -79,6 +79,33 @@ public class CompilationUnit
 	
 	public static class CompilationUnitCompiled
 	{
+		public static class ImportedSymbol
+		{
+			private String name;
+			private boolean wasReferenced = false;
+			
+			public ImportedSymbol( String name )
+			{
+				super();
+				this.name = name;
+			}
+
+			public boolean getWasReferenced()
+			{
+				return wasReferenced;
+			}
+
+			public void setWasReferenced( boolean wasReferenced )
+			{
+				this.wasReferenced = wasReferenced;
+			}
+
+			public String getName()
+			{
+				return name;
+			}
+		}
+		
 		public static class ClassesWithCommonSimpleName
 		{
 			private List< String > classes = new ArrayList< String >();
@@ -90,6 +117,8 @@ public class CompilationUnit
 		}
 		
 		private String packageName;
+		private Map< String, ImportedSymbol > importedPackages = new HashMap< String, ImportedSymbol >();
+		private Map< String, ImportedSymbol > importedTypes = new HashMap< String, ImportedSymbol >();
 		private Map< String, ClassesWithCommonSimpleName > importedClasses = new HashMap< String, ClassesWithCommonSimpleName >();
 		private List< TaxonomyCompiled > taxonomiesCompiled = new ArrayList< TaxonomyCompiled >();
 		
@@ -108,6 +137,16 @@ public class CompilationUnit
 			this.packageName = packageName;
 		}
 		
+		public Map< String, ImportedSymbol > getImportedPackages()
+		{
+			return importedPackages;
+		}
+
+		public Map< String, ImportedSymbol > getImportedTypes()
+		{
+			return importedTypes;
+		}
+
 		public Map< String, ClassesWithCommonSimpleName > getImportedClasses()
 		{
 			return importedClasses;
@@ -128,13 +167,16 @@ public class CompilationUnit
 	// is why compilationFaults belong here rather than in CompilationUnitParsed
 	// or CompilationUnitCompiled.
 	private List< CompilationFault > compilationFaults = new ArrayList< CompilationFault >();
+	private InflectionErrorListener errorListener = new InflectionErrorListener( this );
+	private CompilationJob parentCompilationJob;
 	
-	public CompilationUnit( File sourceFile )
+	public CompilationUnit( File sourceFile, CompilationJob parentCompilationJob )
 	{
 		super();
 		compilationUnitRaw = new CompilationUnitRaw( sourceFile );
 		compilationUnitParsed = new CompilationUnitParsed();
 		compilationUnitCompiled = new CompilationUnitCompiled();
+		this.parentCompilationJob = parentCompilationJob;
 	}
 
 	public CompilationUnitRaw getCompilationUnitRaw()
@@ -157,6 +199,16 @@ public class CompilationUnit
 		return compilationFaults;
 	}
 	
+	public InflectionErrorListener getErrorListener()
+	{
+		return errorListener;
+	}
+
+	public CompilationJob getParentCompilationJob()
+	{
+		return parentCompilationJob;
+	}
+
 	public boolean hasCompilationErrors()
 	{
 		return containsCompilationErrors( compilationFaults );

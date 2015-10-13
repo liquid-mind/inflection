@@ -1,6 +1,6 @@
-package ch.liquidmind.infletion.test;
+package ch.liquidmind.inflection.test;
 
-taxonomy2 MyTaxonomy
+taxonomy MyTaxonomy
 {
 	view MyClass1
 	{

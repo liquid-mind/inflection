@@ -62,7 +62,7 @@ public class InflectionTest
 		CompilationJob job = new CompilationJob(
 			TaxonomyLoader.getSystemTaxonomyLoader(),
 			new File( "/Users/john/Documents/workspace-liquid-mind/inflection/build/inflection-test" ),
-			CompilationMode.Normal, 
+			CompilationMode.BOOTSTRAP, 
 			new File( "/Users/john/Documents/workspace-liquid-mind/inflection/src/test/resources/ch/liquidmind/inflection/test/test.inflect" ) );
 		InflectionCompiler.compile( job );
 		job.printFaults();
