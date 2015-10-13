@@ -1,0 +1,86 @@
+PARSING
+
+Parse the source files and set the values for CompilationUnitParsed accordingly. Store any error or warnings
+in CompilationUnit.compilationFaults.
+
+1. For each CompilationUnit in CompilationJob:
+	1.1. Create a parse tree for the compilation unit located under CompilationUnitRaw.sourceFileName using
+		 the antlr generated lexer and parser. Store the tree and tokens in CompilationUnitParsed.
+	1.2. Any errors or warnings generated during step 1.1. are stored in CompilationUnit.compilationFaults.
+2. Output any errors or warnings.
+3. If any errors occurred then skip the second pass.
+
+
+PASS 1
+
+Processing:
+
+Identify the package name and the imports for the compilation unit. Resolve any wildcard imports to the set
+of all classes in that package. Create a lookup table associating simple names with (possibly multiple, i.e.
+ambiguous) fully qualified names. Created taxonomies (name only) and enter them into the symbol table.
+
+1. For each CompilationUnit in CompilationJob, walking the parse tree:
+	1.2. Set CompilationUnitCompiled.packageName.
+	1.3. For each imported class --> enter class into CompilationUnitCompiled.importedClasses.
+	1.4. For each imported package:
+		1.4.1. Determine the set of imported classes using the reflections API.
+		1.4.2. Process classes as described in 1.3.
+	1.5. For each taxonomy --> enter taxonomy into CompilationUnitCompiled.taxonomiesCompiled and
+	     CompilationUnit.knownTaxonomiesCompiled
+	     
+Errors:
+
+-The package name does not correspond with the source file name.
+-Classes specified in imports cannot be located (i.e., loaded through the class loader).
+-Two taxonomies have the same name.
+
+Warnings:
+
+-Duplicate imports.
+-Unused imports.
+
+
+PASS 2
+
+Processing:
+
+Add views and members to the taxonomies; define all attributes, including annotations, selection types,
+aliases, access types, default access types and used classes. Also, define generalization relationships
+between taxonomies.
+
+[TODO: Describe individual steps as well as error handling]
+
+1. For each CompilationUnit in CompilationJob:
+	1.1. For each Taxonomy in CompilationUnit:
+		1.1.1. For the following items, simply transfer their values to the appropriate locations
+		       in the compiled class hierarchy:
+			1.1.1.1. Extended taxonomies.
+			1.1.1.2. Annotations.
+			1.1.1.3. Aliases.
+			1.1.1.4. Default access type.
+			1.1.1.5. Access type.
+		1.1.2. Class selectors: resolve any wildcards by matching the selector against all imported
+			   classes --> selected classes.
+		1.1.3. For each selected class:
+			1.1.3.1. Let the set of potential members be the set of declared members (i.e., fields
+					 or methods, whatever the case may be) plus the set of members (getters and setters)
+					 defined by the used classes (note that the access type is ignored for members
+					 stemming from used classes).
+			1.1.4.1. Resolve the actual members by comparing each member selector with the set of
+					 potential members.
+
+Errors:
+
+-Generalization relationship graph contains cycles.
+-Super taxonomy does not exist (should be located in symbol table or through class loader).
+-Used class does not exist.
+-Two aliases have the same name.
+-Names of members defined by used classes are ambiguous.
+
+Warnings:
+
+-Class or method selector matches nothing.
+
+SAVING
+
+Save the taxonomies to the target directory.
