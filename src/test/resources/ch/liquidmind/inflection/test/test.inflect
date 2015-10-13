@@ -1,0 +1,9 @@
+package ch.liquidmind.infletion.test;
+
+taxonomy2 MyTaxonomy
+{
+	view MyClass1
+	{
+		a;
+	}
+}

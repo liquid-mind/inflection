@@ -4,10 +4,14 @@ import java.io.File;
 import java.net.URL;
 import java.net.URLClassLoader;
 
+import org.junit.Ignore;
 import org.junit.Test;
 
 import __java.net.__URI;
 import __org.apache.commons.io.__FileUtils;
+import ch.liquidmind.inflection.compiler.CompilationJob;
+import ch.liquidmind.inflection.compiler.CompilationJob.CompilationMode;
+import ch.liquidmind.inflection.compiler.InflectionCompiler;
 import ch.liquidmind.inflection.loader.SystemTaxonomyLoader;
 import ch.liquidmind.inflection.loader.TaxonomyLoader;
 import ch.liquidmind.inflection.model.SelectionType;
@@ -17,6 +21,7 @@ import ch.liquidmind.inflection.model.compiled.ViewCompiled;
 
 public class InflectionTest
 {
+	@Ignore
 	@Test
 	public void testTaxonomyLoader()
 	{
@@ -49,5 +54,17 @@ public class InflectionTest
 		
 		TaxonomyLoader taxonomyLoader = new TaxonomyLoader( TaxonomyLoader.getSystemTaxonomyLoader(), newClassLoader );
 		taxonomyLoader.loadTaxonomy( myTaxonomy.getName() );
+	}
+	
+	@Test
+	public void testCompiler()
+	{
+		CompilationJob job = new CompilationJob(
+			TaxonomyLoader.getSystemTaxonomyLoader(),
+			new File( "/Users/john/Documents/workspace-liquid-mind/inflection/build/inflection-test" ),
+			CompilationMode.Normal, 
+			new File( "/Users/john/Documents/workspace-liquid-mind/inflection/src/test/resources/ch/liquidmind/inflection/test/test.inflect" ) );
+		InflectionCompiler.compile( job );
+		job.printFaults();
 	}
 }

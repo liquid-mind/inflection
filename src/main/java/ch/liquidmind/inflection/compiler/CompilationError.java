@@ -16,6 +16,6 @@ public class CompilationError extends CompilationFault
 	@Override
 	protected String createFaultMessage()
 	{
-		return "ERROR" + super.createFaultMessage();
+		return "ERROR: " + super.createFaultMessage();
 	}
 }

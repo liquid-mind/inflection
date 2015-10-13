@@ -64,15 +64,16 @@ public class CompilationUnit
 		{
 			this.tokens = tokens;
 		}
-
+		
 		public String[] getSourceFileContent()
 		{
+			if ( sourceFileContent == null )
+			{
+				String sourceFileAsString = tokens.getTokenSource().getInputStream().toString();
+				sourceFileContent = sourceFileAsString.split( System.lineSeparator() );
+			}
+			
 			return sourceFileContent;
-		}
-
-		public void setSourceFileContent( String[] sourceFileContent )
-		{
-			this.sourceFileContent = sourceFileContent;
 		}
 	}
 	
@@ -154,5 +155,26 @@ public class CompilationUnit
 	public List< CompilationFault > getCompilationFaults()
 	{
 		return compilationFaults;
+	}
+	
+	public boolean hasCompilationErrors()
+	{
+		return containsCompilationErrors( compilationFaults );
+	}
+	
+	public static boolean containsCompilationErrors( List< CompilationFault > compilationFaults )
+	{
+		boolean hasCompilationErrors = false;
+		
+		for ( CompilationFault compilationFault : compilationFaults )
+		{
+			if ( compilationFault instanceof CompilationError )
+			{
+				hasCompilationErrors = true;
+				break;
+			}
+		}
+		
+		return hasCompilationErrors;
 	}
 }

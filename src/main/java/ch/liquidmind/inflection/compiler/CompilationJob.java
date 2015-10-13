@@ -1,6 +1,7 @@
 package ch.liquidmind.inflection.compiler;
 
 import java.io.File;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -59,5 +60,31 @@ public class CompilationJob
 	public List< CompilationUnit > getCompilationUnits()
 	{
 		return ImmutableList.copyOf( compilationUnits );
+	}
+	
+	public List< CompilationFault > getCompilationFaults()
+	{
+		List< CompilationFault > compilationFaults = new ArrayList< CompilationFault >();
+		
+		for ( CompilationUnit compilationUnit : compilationUnits )
+			compilationFaults.addAll( compilationUnit.getCompilationFaults() );
+		
+		return compilationFaults;
+	}
+	
+	public boolean hasCompilationErrors()
+	{
+		return CompilationUnit.containsCompilationErrors( getCompilationFaults() );
+	}
+	
+	public void printFaults()
+	{
+		printFaults( System.err );
+	}
+	
+	public void printFaults( OutputStream os )
+	{
+		for ( CompilationFault fault : getCompilationFaults() )
+			fault.print( os );
 	}
 }

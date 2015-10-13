@@ -16,6 +16,6 @@ public class CompilationWarning extends CompilationFault
 	@Override
 	protected String createFaultMessage()
 	{
-		return "WARNING" + super.createFaultMessage();
+		return "WARNING: " + super.createFaultMessage();
 	}
 }
