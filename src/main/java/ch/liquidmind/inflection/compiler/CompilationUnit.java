@@ -79,16 +79,9 @@ public class CompilationUnit
 	
 	public static class CompilationUnitCompiled
 	{
-		public static class ImportedSymbol
+		public static abstract class Import
 		{
-			private String name;
 			private boolean wasReferenced = false;
-			
-			public ImportedSymbol( String name )
-			{
-				super();
-				this.name = name;
-			}
 
 			public boolean getWasReferenced()
 			{
@@ -99,27 +92,89 @@ public class CompilationUnit
 			{
 				this.wasReferenced = wasReferenced;
 			}
+		}
+		
+		public static abstract class ImportedType extends Import
+		{}
+		
+		public static class ImportedClasses extends ImportedType
+		{
+			private List< ImportedClass > importedClasses = new ArrayList< ImportedClass >();
+
+			public List< ImportedClass > getImportedClasses()
+			{
+				return importedClasses;
+			}
+		}
+		
+		public static class ImportedClass
+		{
+			private String name;
+			private boolean wasExplicit = true;
+			
+			public ImportedClass( String name, boolean wasExplicit )
+			{
+				super();
+				this.name = name;
+				this.wasExplicit = wasExplicit;
+			}
+			
+			public String getName()
+			{
+				return name;
+			}
+
+			public boolean getWasExplicit()
+			{
+				return wasExplicit;
+			}
+		}
+		
+		public static class ImportedTaxonomy extends ImportedType
+		{
+			private String name;
+			
+			public ImportedTaxonomy( String name )
+			{
+				this.name = name;
+			}
 
 			public String getName()
 			{
 				return name;
 			}
-		}
-		
-		public static class ClassesWithCommonSimpleName
-		{
-			private List< String > classes = new ArrayList< String >();
 
-			public List< String > getClasses()
+			public void setName( String name )
 			{
-				return classes;
+				this.name = name;
 			}
 		}
 		
+		public static class ImportedPackage extends Import
+		{
+			private String name;
+			
+			public ImportedPackage( String name )
+			{
+				this.name = name;
+			}
+
+			public String getName()
+			{
+				return name;
+			}
+
+			public void setName( String name )
+			{
+				this.name = name;
+			}
+		}
+		
+		// Note that types and packages are stored in separate lookup tables to avoid naming
+		// conflicts; technically, it is possible to have a package and a class with the same name.
 		private String packageName;
-		private Map< String, ImportedSymbol > importedPackages = new HashMap< String, ImportedSymbol >();
-		private Map< String, ImportedSymbol > importedTypes = new HashMap< String, ImportedSymbol >();
-		private Map< String, ClassesWithCommonSimpleName > importedClasses = new HashMap< String, ClassesWithCommonSimpleName >();
+		private Map< String, ImportedType > importedTypes = new HashMap< String, ImportedType >();
+		private Map< String, ImportedPackage > importedPackages = new HashMap< String, ImportedPackage >();
 		private List< TaxonomyCompiled > taxonomiesCompiled = new ArrayList< TaxonomyCompiled >();
 		
 		public CompilationUnitCompiled()
@@ -136,20 +191,15 @@ public class CompilationUnit
 		{
 			this.packageName = packageName;
 		}
-		
-		public Map< String, ImportedSymbol > getImportedPackages()
-		{
-			return importedPackages;
-		}
 
-		public Map< String, ImportedSymbol > getImportedTypes()
+		public Map< String, ImportedType > getImportedTypes()
 		{
 			return importedTypes;
 		}
 
-		public Map< String, ClassesWithCommonSimpleName > getImportedClasses()
+		public Map< String, ImportedPackage > getImportedPackages()
 		{
-			return importedClasses;
+			return importedPackages;
 		}
 
 		public List< TaxonomyCompiled > getTaxonomiesCompiled()

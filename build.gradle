@@ -28,6 +28,7 @@ dependencies {
 	compile "__org.antlr:antlr4:4.5"
 	compile "com.google.guava:guava:19.0-rc2"
 	compile "junit:junit:4.12"
+	compile 'org.reflections:reflections:0.9.10'
 }
 
 // Antlr Config

@@ -1,5 +1,9 @@
 package ch.liquidmind.inflection.test;
 
+import ch.liquidmind.inflection.loader.*;
+import ch.liquidmind.inflection.model.AccessType;
+import ch.liquidmind.inflection.model.AccessType;
+
 taxonomy MyTaxonomy
 {
 	view MyClass1

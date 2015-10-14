@@ -41,8 +41,8 @@ importDeclaration
 	;
 
 importSymbol
-	:	packageImport
-	|	typeImport
+	:	typeImport
+	|	packageImport
 	;
 	
 typeImport

@@ -85,6 +85,11 @@ public class TaxonomyLoader
 		contextTaxonomyLoader.set( taxonomyLoader );
 	}
 	
+	public ClassLoader getClassLoader()
+	{
+		return classLoader;
+	}
+
 	public Taxonomy loadTaxonomy( String name )
 	{
 		Taxonomy taxonomy = findLoadedTaxonomy( name );

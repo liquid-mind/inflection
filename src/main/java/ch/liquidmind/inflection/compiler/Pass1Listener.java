@@ -1,6 +1,7 @@
 package ch.liquidmind.inflection.compiler;
 
 import ch.liquidmind.inflection.compiler.CompilationJob.CompilationMode;
+import ch.liquidmind.inflection.compiler.CompilationUnit.CompilationUnitCompiled.ImportedPackage;
 import ch.liquidmind.inflection.grammar.InflectionParser.APackageContext;
 import ch.liquidmind.inflection.grammar.InflectionParser.DefaultPackageContext;
 import ch.liquidmind.inflection.grammar.InflectionParser.SpecificPackageContext;
@@ -24,7 +25,8 @@ public class Pass1Listener extends AbstractInflectionListener
 	{
 		APackageContext aPackageContext = (APackageContext)specificPackageContext.getChild( 1 );
 		String packageName = getPackageName( aPackageContext );
-		getCompilationUnit().getCompilationUnitCompiled().setPackageName( packageName );
+		setPackageName( packageName );
+		getImportedPackages().put( packageName, new ImportedPackage( packageName ) );
 		
 		validateDoesntUseReservedNames( aPackageContext, packageName );
 		validateCorrespondsWithFileName( aPackageContext, packageName );
@@ -33,32 +35,31 @@ public class Pass1Listener extends AbstractInflectionListener
 	@Override
 	public void enterDefaultPackage( DefaultPackageContext defaultPackageContext )
 	{
-		getCompilationUnit().getCompilationUnitCompiled().setPackageName( DEFAULT_PACKAGE_NAME );
+		setPackageName( DEFAULT_PACKAGE_NAME );
+		getImportedPackages().put( DEFAULT_PACKAGE_NAME, new ImportedPackage( DEFAULT_PACKAGE_NAME ) );
 	}
 	
 	@Override
 	public void enterTaxonomyName( TaxonomyNameContext taxonomyNameContext )
 	{
 		String simpleTaxonomyName = taxonomyNameContext.getChild( 0 ).getText();
-		String taxonomyName = getCompilationUnit().getCompilationUnitCompiled().getPackageName() + "." + simpleTaxonomyName;
+		String taxonomyName = getPackageName() + "." + simpleTaxonomyName;
 		
 		validateTaxonomyNotRedundant( taxonomyNameContext, taxonomyName );
 		
 		TaxonomyCompiled taxonomyCompiled = new TaxonomyCompiled( taxonomyName );
-		getCompilationUnit().getParentCompilationJob().getKnownTaxonomiesCompiled().put( taxonomyName, taxonomyCompiled );
-		getCompilationUnit().getCompilationUnitCompiled().getTaxonomiesCompiled().add( taxonomyCompiled );
+		getKnownTaxonomiesCompiled().put( taxonomyName, taxonomyCompiled );
+		getTaxonomiesCompiled().add( taxonomyCompiled );
 	}
 
 	// VALIDATION
 	
 	private void validateTaxonomyNotRedundant( TaxonomyNameContext taxonomyNameContext, String taxonomyName )
 	{
-		CompilationJob job = getCompilationUnit().getParentCompilationJob();
-
-		if ( job.getKnownTaxonomiesCompiled().keySet().contains( taxonomyName ) )
+		if ( getKnownTaxonomiesCompiled().keySet().contains( taxonomyName ) )
 			reportError( taxonomyNameContext.start, taxonomyNameContext.stop, "Taxonomy '" + taxonomyName + "' already defined in compilation unit '" + getCompilationUnit().getCompilationUnitRaw().getSourceFile() + "'" );
 
-		if ( job.getTaxonomyLoader().loadTaxonomy( taxonomyName ) != null )
+		if ( getTaxonomyLoader().loadTaxonomy( taxonomyName ) != null )
 			reportError( taxonomyNameContext.start, taxonomyNameContext.stop, "Taxonomy '" + taxonomyName + "' already defined in previously compiled taxonomy." );
 	}
 	

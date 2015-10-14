@@ -5,7 +5,6 @@ import java.io.OutputStreamWriter;
 
 import org.antlr.v4.runtime.Token;
 
-import __java.io.__OutputStream;
 import __java.io.__Writer;
 
 public class CompilationFault
