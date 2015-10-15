@@ -50,7 +50,7 @@ typeImport
 	;
 	
 packageImport
-	:	aPackage ( DOT wildcardIdentifier )?	// wildcardIdentifier must be exactly '*'
+	:	aPackage DOT wildcardIdentifier	// wildcardIdentifier must be exactly '*'
 	;
 
 // TAXONOMY

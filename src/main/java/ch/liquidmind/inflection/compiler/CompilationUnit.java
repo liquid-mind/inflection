@@ -3,8 +3,10 @@ package ch.liquidmind.inflection.compiler;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.tree.ParseTree;
@@ -79,9 +81,22 @@ public class CompilationUnit
 	
 	public static class CompilationUnitCompiled
 	{
+		// Imports
 		public static abstract class Import
 		{
+			private String name;
 			private boolean wasReferenced = false;
+			
+			public Import( String name )
+			{
+				super();
+				this.name = name;
+			}
+
+			public String getName()
+			{
+				return name;
+			}
 
 			public boolean getWasReferenced()
 			{
@@ -92,89 +107,75 @@ public class CompilationUnit
 			{
 				this.wasReferenced = wasReferenced;
 			}
+
+			@Override
+			public int hashCode()
+			{
+				final int prime = 31;
+				int result = 1;
+				result = prime * result + ( ( name == null ) ? 0 : name.hashCode() );
+				return result;
+			}
+
+			@Override
+			public boolean equals( Object obj )
+			{
+				if ( this == obj )
+					return true;
+				if ( obj == null )
+					return false;
+				if ( getClass() != obj.getClass() )
+					return false;
+				Import other = (Import)obj;
+				if ( name == null )
+				{
+					if ( other.name != null )
+						return false;
+				}
+				else if ( !name.equals( other.name ) )
+					return false;
+				return true;
+			}
 		}
 		
-		public static abstract class ImportedType extends Import
-		{}
-		
-		public static class ImportedClasses extends ImportedType
+		public static class TypeImport extends Import
 		{
-			private List< ImportedClass > importedClasses = new ArrayList< ImportedClass >();
-
-			public List< ImportedClass > getImportedClasses()
+			public TypeImport( String name )
 			{
-				return importedClasses;
+				super( name );
 			}
 		}
 		
-		public static class ImportedClass
+		public static class PackageImport extends Import
 		{
-			private String name;
-			private boolean wasExplicit = true;
-			
-			public ImportedClass( String name, boolean wasExplicit )
+			public enum PackageImportType
 			{
-				super();
-				this.name = name;
-				this.wasExplicit = wasExplicit;
+				OWN_PACKAGE,
+				OTHER_PACKAGE
 			}
 			
-			public String getName()
+			private PackageImportType type;
+			
+			public PackageImport( String name )
 			{
-				return name;
+				super( name );
 			}
 
-			public boolean getWasExplicit()
+			public PackageImport( String name, PackageImportType type )
 			{
-				return wasExplicit;
+				super( name );
+				this.type = type;
+			}
+
+			public PackageImportType getType()
+			{
+				return type;
 			}
 		}
 		
-		public static class ImportedTaxonomy extends ImportedType
-		{
-			private String name;
-			
-			public ImportedTaxonomy( String name )
-			{
-				this.name = name;
-			}
-
-			public String getName()
-			{
-				return name;
-			}
-
-			public void setName( String name )
-			{
-				this.name = name;
-			}
-		}
-		
-		public static class ImportedPackage extends Import
-		{
-			private String name;
-			
-			public ImportedPackage( String name )
-			{
-				this.name = name;
-			}
-
-			public String getName()
-			{
-				return name;
-			}
-
-			public void setName( String name )
-			{
-				this.name = name;
-			}
-		}
-		
-		// Note that types and packages are stored in separate lookup tables to avoid naming
-		// conflicts; technically, it is possible to have a package and a class with the same name.
 		private String packageName;
-		private Map< String, ImportedType > importedTypes = new HashMap< String, ImportedType >();
-		private Map< String, ImportedPackage > importedPackages = new HashMap< String, ImportedPackage >();
+		private Map< String, TypeImport > typeImports = new HashMap< String, TypeImport >();
+		private Set< PackageImport > packageImports = new HashSet< PackageImport >();
 		private List< TaxonomyCompiled > taxonomiesCompiled = new ArrayList< TaxonomyCompiled >();
 		
 		public CompilationUnitCompiled()
@@ -192,14 +193,14 @@ public class CompilationUnit
 			this.packageName = packageName;
 		}
 
-		public Map< String, ImportedType > getImportedTypes()
+		public Map< String, TypeImport > getTypeImports()
 		{
-			return importedTypes;
+			return typeImports;
 		}
 
-		public Map< String, ImportedPackage > getImportedPackages()
+		public Set< PackageImport > getPackageImports()
 		{
-			return importedPackages;
+			return packageImports;
 		}
 
 		public List< TaxonomyCompiled > getTaxonomiesCompiled()

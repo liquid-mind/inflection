@@ -2,12 +2,13 @@ package ch.liquidmind.inflection.compiler;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.tree.ParseTree;
 
-import ch.liquidmind.inflection.compiler.CompilationUnit.CompilationUnitCompiled.ImportedPackage;
-import ch.liquidmind.inflection.compiler.CompilationUnit.CompilationUnitCompiled.ImportedType;
+import ch.liquidmind.inflection.compiler.CompilationUnit.CompilationUnitCompiled.PackageImport;
+import ch.liquidmind.inflection.compiler.CompilationUnit.CompilationUnitCompiled.TypeImport;
 import ch.liquidmind.inflection.grammar.InflectionBaseListener;
 import ch.liquidmind.inflection.grammar.InflectionParser.APackageContext;
 import ch.liquidmind.inflection.grammar.InflectionParser.IdentifierContext;
@@ -29,7 +30,6 @@ public class AbstractInflectionListener extends InflectionBaseListener
 	{
 		return compilationUnit;
 	}
-
 	
 	protected String getSimpleTypeName( TypeContext typeContext )
 	{
@@ -135,14 +135,14 @@ public class AbstractInflectionListener extends InflectionBaseListener
 			new CompilationWarning( getCompilationUnit(), offendingTokenStart, offendingTokenEnd, message ) );	
 	}
 	
-	protected Map< String, ImportedType > getImportedTypes()
+	protected Map< String, TypeImport > getTypeImports()
 	{
-		return getCompilationUnit().getCompilationUnitCompiled().getImportedTypes();
+		return getCompilationUnit().getCompilationUnitCompiled().getTypeImports();
 	}
 	
-	protected Map< String, ImportedPackage > getImportedPackages()
+	protected Set< PackageImport > getPackageImports()
 	{
-		return getCompilationUnit().getCompilationUnitCompiled().getImportedPackages();
+		return getCompilationUnit().getCompilationUnitCompiled().getPackageImports();
 	}
 	
 	protected Map< String, TaxonomyCompiled > getKnownTaxonomiesCompiled()

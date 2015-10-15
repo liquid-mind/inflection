@@ -59,4 +59,12 @@ COMPILATION PROCESS, IMPORTING
 			* If the corresponding value is a _CompositeInferedImport_ --> class reference is ambigous (error).
 		* Otherwise --> return null.
 
-	
+# CLASS SELECTOR CASES
+
+* wildcardSimpleType (e.g. MyClass*):
+	* For each package import:
+		* Use reflections to determine all classes in that package.
+		* Add the package name to the wildcardSimpleType and use the resulting string to determine matching classes
+* wildcardType (e.g. ch.liquidmind.test.MyClass*):
+	* Same as wildcardSimpleType, except the only package in question is the one specified (ch.liquidmind.test).
+		

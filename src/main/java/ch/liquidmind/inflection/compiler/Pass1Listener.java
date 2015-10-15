@@ -1,7 +1,8 @@
 package ch.liquidmind.inflection.compiler;
 
 import ch.liquidmind.inflection.compiler.CompilationJob.CompilationMode;
-import ch.liquidmind.inflection.compiler.CompilationUnit.CompilationUnitCompiled.ImportedPackage;
+import ch.liquidmind.inflection.compiler.CompilationUnit.CompilationUnitCompiled.PackageImport;
+import ch.liquidmind.inflection.compiler.CompilationUnit.CompilationUnitCompiled.PackageImport.PackageImportType;
 import ch.liquidmind.inflection.grammar.InflectionParser.APackageContext;
 import ch.liquidmind.inflection.grammar.InflectionParser.DefaultPackageContext;
 import ch.liquidmind.inflection.grammar.InflectionParser.SpecificPackageContext;
@@ -25,18 +26,17 @@ public class Pass1Listener extends AbstractInflectionListener
 	{
 		APackageContext aPackageContext = (APackageContext)specificPackageContext.getChild( 1 );
 		String packageName = getPackageName( aPackageContext );
-		setPackageName( packageName );
-		getImportedPackages().put( packageName, new ImportedPackage( packageName ) );
-		
 		validateDoesntUseReservedNames( aPackageContext, packageName );
 		validateCorrespondsWithFileName( aPackageContext, packageName );
+		setPackageName( packageName );
+		getPackageImports().add( new PackageImport( packageName, PackageImportType.OWN_PACKAGE ) );
 	}
 	
 	@Override
 	public void enterDefaultPackage( DefaultPackageContext defaultPackageContext )
 	{
 		setPackageName( DEFAULT_PACKAGE_NAME );
-		getImportedPackages().put( DEFAULT_PACKAGE_NAME, new ImportedPackage( DEFAULT_PACKAGE_NAME ) );
+		getPackageImports().add( new PackageImport( DEFAULT_PACKAGE_NAME, PackageImportType.OWN_PACKAGE ) );
 	}
 	
 	@Override
@@ -44,9 +44,7 @@ public class Pass1Listener extends AbstractInflectionListener
 	{
 		String simpleTaxonomyName = taxonomyNameContext.getChild( 0 ).getText();
 		String taxonomyName = getPackageName() + "." + simpleTaxonomyName;
-		
 		validateTaxonomyNotRedundant( taxonomyNameContext, taxonomyName );
-		
 		TaxonomyCompiled taxonomyCompiled = new TaxonomyCompiled( taxonomyName );
 		getKnownTaxonomiesCompiled().put( taxonomyName, taxonomyCompiled );
 		getTaxonomiesCompiled().add( taxonomyCompiled );
