@@ -11,11 +11,6 @@ import ch.liquidmind.inflection.model.compiled.TaxonomyCompiled;
 
 public class Pass1Listener extends AbstractInflectionListener
 {
-	public static final String JAVA_PACKAGE = "java";
-	public static final String JAVA_LANG_PACKAGE = JAVA_PACKAGE + ".lang";
-	public static final String CH_LIQUIDMIND_INFLECTION_PACKAGE = "ch.liquidmind.inflection";
-	public static final String DEFAULT_PACKAGE_NAME = "";
-
 	public Pass1Listener( CompilationUnit compilationUnit )
 	{
 		super( compilationUnit );
@@ -29,21 +24,23 @@ public class Pass1Listener extends AbstractInflectionListener
 		validateDoesntUseReservedNames( aPackageContext, packageName );
 		validateCorrespondsWithFileName( aPackageContext, packageName );
 		setPackageName( packageName );
-		getPackageImports().add( new PackageImport( packageName, PackageImportType.OWN_PACKAGE ) );
+		getPackageImports().add( new PackageImport( packageName, null, PackageImportType.OWN_PACKAGE ) );
+		
+		if ( !packageName.equals( DEFAULT_PACKAGE_NAME ) )
+			getPackageImports().add( new PackageImport( DEFAULT_PACKAGE_NAME, null, PackageImportType.OTHER_PACKAGE ) );
 	}
 	
 	@Override
 	public void enterDefaultPackage( DefaultPackageContext defaultPackageContext )
 	{
 		setPackageName( DEFAULT_PACKAGE_NAME );
-		getPackageImports().add( new PackageImport( DEFAULT_PACKAGE_NAME, PackageImportType.OWN_PACKAGE ) );
+		getPackageImports().add( new PackageImport( DEFAULT_PACKAGE_NAME, null, PackageImportType.OWN_PACKAGE ) );
 	}
 	
 	@Override
 	public void enterTaxonomyName( TaxonomyNameContext taxonomyNameContext )
 	{
-		String simpleTaxonomyName = taxonomyNameContext.getChild( 0 ).getText();
-		String taxonomyName = getPackageName() + "." + simpleTaxonomyName;
+		String taxonomyName = getTaxonomyName( taxonomyNameContext );
 		validateTaxonomyNotRedundant( taxonomyNameContext, taxonomyName );
 		TaxonomyCompiled taxonomyCompiled = new TaxonomyCompiled( taxonomyName );
 		getKnownTaxonomiesCompiled().put( taxonomyName, taxonomyCompiled );

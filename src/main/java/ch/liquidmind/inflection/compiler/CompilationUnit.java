@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.antlr.v4.runtime.CommonTokenStream;
+import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.tree.ParseTree;
 
 import ch.liquidmind.inflection.model.compiled.TaxonomyCompiled;
@@ -85,6 +86,7 @@ public class CompilationUnit
 		public static abstract class Import
 		{
 			private String name;
+			private ParserRuleContext parserRuleContext;
 			private boolean wasReferenced = false;
 			
 			public Import( String name )
@@ -92,10 +94,22 @@ public class CompilationUnit
 				super();
 				this.name = name;
 			}
+			
+			public Import( String name, ParserRuleContext parserRuleContext )
+			{
+				super();
+				this.name = name;
+				this.parserRuleContext = parserRuleContext;
+			}
 
 			public String getName()
 			{
 				return name;
+			}
+
+			public ParserRuleContext getParserRuleContext()
+			{
+				return parserRuleContext;
 			}
 
 			public boolean getWasReferenced()
@@ -144,6 +158,11 @@ public class CompilationUnit
 			{
 				super( name );
 			}
+
+			public TypeImport( String name, ParserRuleContext parserRuleContext )
+			{
+				super( name, parserRuleContext );
+			}
 		}
 		
 		public static class PackageImport extends Import
@@ -160,10 +179,15 @@ public class CompilationUnit
 			{
 				super( name );
 			}
-
-			public PackageImport( String name, PackageImportType type )
+			
+			public PackageImport( String name, ParserRuleContext parserRuleContext )
 			{
-				super( name );
+				super( name, parserRuleContext );
+			}
+
+			public PackageImport( String name, ParserRuleContext parserRuleContext, PackageImportType type )
+			{
+				super( name, parserRuleContext );
 				this.type = type;
 			}
 

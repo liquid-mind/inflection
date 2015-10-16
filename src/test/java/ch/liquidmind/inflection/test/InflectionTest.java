@@ -63,7 +63,8 @@ public class InflectionTest
 			TaxonomyLoader.getSystemTaxonomyLoader(),
 			new File( "/Users/john/Documents/workspace-liquid-mind/inflection/build/inflection-test" ),
 			CompilationMode.BOOTSTRAP, 
-			new File( "/Users/john/Documents/workspace-liquid-mind/inflection/src/test/resources/ch/liquidmind/inflection/test/test.inflect" ) );
+			new File( "/Users/john/Documents/workspace-liquid-mind/inflection/src/test/resources/ch/liquidmind/inflection/test/test.inflect" ), 
+			new File( "/Users/john/Documents/workspace-liquid-mind/inflection/src/test/resources/ch/liquidmind/inflection/test/otherpackage/test2.inflect" ) );
 		InflectionCompiler.compile( job );
 		job.printFaults();
 	}

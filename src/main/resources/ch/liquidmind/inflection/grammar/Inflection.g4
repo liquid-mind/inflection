@@ -56,14 +56,14 @@ packageImport
 // TAXONOMY
 
 taxonomyDeclaration
-	:	annotation* TAXONOMY taxonomyName ( EXTENDS taxonomyRef ( COMMA taxonomyRef )* )? taxonomyBody
+	:	annotation* TAXONOMY taxonomyName ( EXTENDS extendedTaxonomy ( COMMA extendedTaxonomy )* )? taxonomyBody
 	;
 	
 taxonomyName
 	:	identifier
 	;
 	
-taxonomyRef
+extendedTaxonomy
 	:	type
 	;
 

@@ -1,12 +1,15 @@
 package ch.liquidmind.inflection.test;
 
-import ch.liquidmind.inflection.loader.*;
-import ch.liquidmind.inflection.model.AccessType;
-
-taxonomy MyTaxonomy
+taxonomy MyTaxonomy1
 {
 	view MyClass1
 	{
 		a;
 	}
 }
+
+taxonomy MyTaxonomy2
+{}
+
+taxonomy MyExtendingTaxonomy extends MyTaxonomy1, MyTaxonomy2
+{}

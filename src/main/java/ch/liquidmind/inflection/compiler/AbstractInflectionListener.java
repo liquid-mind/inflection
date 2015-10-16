@@ -12,12 +12,18 @@ import ch.liquidmind.inflection.compiler.CompilationUnit.CompilationUnitCompiled
 import ch.liquidmind.inflection.grammar.InflectionBaseListener;
 import ch.liquidmind.inflection.grammar.InflectionParser.APackageContext;
 import ch.liquidmind.inflection.grammar.InflectionParser.IdentifierContext;
+import ch.liquidmind.inflection.grammar.InflectionParser.TaxonomyNameContext;
 import ch.liquidmind.inflection.grammar.InflectionParser.TypeContext;
 import ch.liquidmind.inflection.loader.TaxonomyLoader;
 import ch.liquidmind.inflection.model.compiled.TaxonomyCompiled;
 
 public class AbstractInflectionListener extends InflectionBaseListener
 {
+	public static final String JAVA_PACKAGE = "java";
+	public static final String JAVA_LANG_PACKAGE = JAVA_PACKAGE + ".lang";
+	public static final String CH_LIQUIDMIND_INFLECTION_PACKAGE = "ch.liquidmind.inflection";
+	public static final String DEFAULT_PACKAGE_NAME = "";
+
 	private CompilationUnit compilationUnit;
 
 	public AbstractInflectionListener( CompilationUnit compilationUnit )
@@ -168,5 +174,13 @@ public class AbstractInflectionListener extends InflectionBaseListener
 	protected List< TaxonomyCompiled > getTaxonomiesCompiled()
 	{
 		return getCompilationUnit().getCompilationUnitCompiled().getTaxonomiesCompiled();
+	}
+	
+	protected String getTaxonomyName( TaxonomyNameContext taxonomyNameContext )
+	{
+		String simpleTaxonomyName = taxonomyNameContext.getChild( 0 ).getText();
+		String taxonomyName = getPackageName() + "." + simpleTaxonomyName;
+		
+		return taxonomyName;
 	}
 }
