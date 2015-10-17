@@ -37,7 +37,7 @@ public class InflectionTest
 		
 		myClass1.getMembersCompiled().add( a );
 		myTaxonomy.getViewsCompiled().add( myClass1 );
-		myTaxonomy.getExtendedTaxonomies().add( SystemTaxonomyLoader.BASETAXONOMY );
+		myTaxonomy.getExtendedTaxonomies().add( SystemTaxonomyLoader.TAXONOMY );
 		
 		File inflectionTest = new File( "/Users/john/Documents/workspace-liquid-mind/inflection/build/inflection-test" );
 		File bin = new File( "/Users/john/Documents/workspace-liquid-mind/inflection/bin" );

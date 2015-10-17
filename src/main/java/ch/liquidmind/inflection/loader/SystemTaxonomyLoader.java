@@ -11,32 +11,32 @@ import ch.liquidmind.inflection.model.external.Taxonomy;
 
 public class SystemTaxonomyLoader extends TaxonomyLoader
 {
-	public static final String  JAVA_LANG = "java.lang";
-	public static final String  CH_LIQUIDMIND_INFLECTION = "ch.liquidmind.inflection";
-	public static final String BASETAXONOMY = CH_LIQUIDMIND_INFLECTION + ".BaseTaxonomy";
+	public static final String JAVA_LANG = "java.lang";
+	public static final String CH_LIQUIDMIND_INFLECTION = "ch.liquidmind.inflection";
+	public static final String TAXONOMY = CH_LIQUIDMIND_INFLECTION + ".Taxonomy";
 	
-	private static TaxonomyCompiled baseTaxonomy;
+	private static TaxonomyCompiled taxonomy;
 	
 	static
 	{
-		baseTaxonomy = new TaxonomyCompiled( BASETAXONOMY );
-		baseTaxonomy.setDefaultAccessType( AccessType.Property );
+		taxonomy = new TaxonomyCompiled( TAXONOMY );
+		taxonomy.setDefaultAccessType( AccessType.PROPERTY );
 		
-		List< ViewCompiled > viewsCompiled = baseTaxonomy.getViewsCompiled();
+		List< ViewCompiled > viewsCompiled = taxonomy.getViewsCompiled();
 		
 		// Basic types
-		viewsCompiled.add( createViewCompiled( byte.class.getName(), baseTaxonomy ) );
-		viewsCompiled.add( createViewCompiled( short.class.getName(), baseTaxonomy ) );
-		viewsCompiled.add( createViewCompiled( int.class.getName(), baseTaxonomy ) );
-		viewsCompiled.add( createViewCompiled( long.class.getName(), baseTaxonomy ) );
-		viewsCompiled.add( createViewCompiled( float.class.getName(), baseTaxonomy ) );
-		viewsCompiled.add( createViewCompiled( double.class.getName(), baseTaxonomy ) );
-		viewsCompiled.add( createViewCompiled( boolean.class.getName(), baseTaxonomy ) );
-		viewsCompiled.add( createViewCompiled( char.class.getName(), baseTaxonomy ) );
+		viewsCompiled.add( createViewCompiled( byte.class.getName(), taxonomy ) );
+		viewsCompiled.add( createViewCompiled( short.class.getName(), taxonomy ) );
+		viewsCompiled.add( createViewCompiled( int.class.getName(), taxonomy ) );
+		viewsCompiled.add( createViewCompiled( long.class.getName(), taxonomy ) );
+		viewsCompiled.add( createViewCompiled( float.class.getName(), taxonomy ) );
+		viewsCompiled.add( createViewCompiled( double.class.getName(), taxonomy ) );
+		viewsCompiled.add( createViewCompiled( boolean.class.getName(), taxonomy ) );
+		viewsCompiled.add( createViewCompiled( char.class.getName(), taxonomy ) );
 
 		// Other common (terminal) types
-		viewsCompiled.add( createViewCompiled( String.class.getName(), baseTaxonomy ) );
-		viewsCompiled.add( createViewCompiled( Date.class.getName(), baseTaxonomy ) );
+		viewsCompiled.add( createViewCompiled( String.class.getName(), taxonomy ) );
+		viewsCompiled.add( createViewCompiled( Date.class.getName(), taxonomy ) );
 	}
 	
 	private static ViewCompiled createViewCompiled( String name, TaxonomyCompiled parentTaxonomyCompiled )
@@ -63,8 +63,8 @@ public class SystemTaxonomyLoader extends TaxonomyLoader
 	{
 		Taxonomy foundTaxonomy = null;
 		
-		if ( name.equals( BASETAXONOMY ) )
-			foundTaxonomy = defineTaxonomy( baseTaxonomy );
+		if ( name.equals( TAXONOMY ) )
+			foundTaxonomy = defineTaxonomy( taxonomy );
 		
 		return foundTaxonomy;
 	}

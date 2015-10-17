@@ -56,11 +56,20 @@ packageImport
 // TAXONOMY
 
 taxonomyDeclaration
-	:	annotation* TAXONOMY taxonomyName ( EXTENDS extendedTaxonomy ( COMMA extendedTaxonomy )* )? taxonomyBody
+	:	taxonomyAnnotation* TAXONOMY taxonomyName taxonomyExtensions taxonomyBody
+	;
+	
+taxonomyAnnotation
+	:	annotation
 	;
 	
 taxonomyName
 	:	identifier
+	;
+	
+taxonomyExtensions
+	:	( EXTENDS extendedTaxonomy ( COMMA extendedTaxonomy )* )?
+	|	// default is Taxonomy
 	;
 	
 extendedTaxonomy
@@ -68,18 +77,23 @@ extendedTaxonomy
 	;
 
 taxonomyBody
-	:	CURLY_BRACKET_OPEN defaultAccessMethodModifier? viewDeclaration* CURLY_BRACKET_CLOSE
+	:	CURLY_BRACKET_OPEN defaultAccessMethodModifier viewDeclaration* CURLY_BRACKET_CLOSE
 	;
 
 defaultAccessMethodModifier
-	:	DEFAULT accessMethodModifier SEMICOLON
+	:	DEFAULT ( PROPERTY | FIELD | INHERITED ) SEMICOLON
+	|	// default is INHERITED
 	;
 
 // VIEW
 
 viewDeclaration
-	:	annotation* INCLUDE? VIEW includableClassSelector ( COMMA includableClassSelector )* ( USE classSelector ( COMMA classSelector )* )? viewBody
-	|	annotation* EXCLUDE VIEW excludableClassSelector ( COMMA excludableClassSelector )* SEMICOLON
+	:	viewAnnotation* INCLUDE? VIEW includableClassSelector ( COMMA includableClassSelector )* ( USE classSelector ( COMMA classSelector )* )? viewBody
+	|	viewAnnotation* EXCLUDE VIEW excludableClassSelector ( COMMA excludableClassSelector )* SEMICOLON
+	;
+	
+viewAnnotation
+	:	annotation
 	;
 
 viewBody
@@ -111,18 +125,19 @@ wildcardClassSelector
 // MEMBER
 
 memberDeclaration
-	:	annotation* INCLUDE? accessMethodModifier includableMemberSelector ( COMMA includableMemberSelector )* SEMICOLON
-	|	annotation* EXCLUDE accessMethodModifier excludableMemberSelector ( COMMA excludableMemberSelector )* SEMICOLON
+	:	memberAnnotation* INCLUDE? accessMethodModifier includableMemberSelector ( COMMA includableMemberSelector )* SEMICOLON
+	|	memberAnnotation* EXCLUDE accessMethodModifier excludableMemberSelector ( COMMA excludableMemberSelector )* SEMICOLON
+	;
+	
+memberAnnotation
+	:	annotation
 	;
 	
 accessMethodModifier
 	:	PROPERTY
 	|	FIELD
-	|	defaultLocalAccessMethodModifier
-	;
-	
-defaultLocalAccessMethodModifier
-	:
+	|	INHERITED
+	|
 	;
 
 includableMemberSelector
@@ -208,6 +223,7 @@ VIEW		: 'view';
 USE			: 'use';
 PROPERTY	: 'property';
 FIELD		: 'field';
+INHERITED	: 'inherited';
 INCLUDE		: 'include';
 EXCLUDE		: 'exclude';
 AS			: 'as';

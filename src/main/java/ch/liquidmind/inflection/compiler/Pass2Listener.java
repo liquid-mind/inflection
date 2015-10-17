@@ -8,15 +8,24 @@ import ch.liquidmind.inflection.compiler.CompilationUnit.CompilationUnitCompiled
 import ch.liquidmind.inflection.compiler.CompilationUnit.CompilationUnitCompiled.TypeImport;
 import ch.liquidmind.inflection.grammar.InflectionParser.APackageContext;
 import ch.liquidmind.inflection.grammar.InflectionParser.CompilationUnitContext;
+import ch.liquidmind.inflection.grammar.InflectionParser.DefaultAccessMethodModifierContext;
 import ch.liquidmind.inflection.grammar.InflectionParser.ExtendedTaxonomyContext;
 import ch.liquidmind.inflection.grammar.InflectionParser.PackageImportContext;
+import ch.liquidmind.inflection.grammar.InflectionParser.TaxonomyAnnotationContext;
+import ch.liquidmind.inflection.grammar.InflectionParser.TaxonomyDeclarationContext;
+import ch.liquidmind.inflection.grammar.InflectionParser.TaxonomyExtensionsContext;
 import ch.liquidmind.inflection.grammar.InflectionParser.TaxonomyNameContext;
 import ch.liquidmind.inflection.grammar.InflectionParser.TypeContext;
 import ch.liquidmind.inflection.grammar.InflectionParser.TypeImportContext;
+import ch.liquidmind.inflection.loader.SystemTaxonomyLoader;
+import ch.liquidmind.inflection.model.AccessType;
+import ch.liquidmind.inflection.model.compiled.AnnotationCompiled;
 import ch.liquidmind.inflection.model.compiled.TaxonomyCompiled;
 
 public class Pass2Listener extends AbstractInflectionListener
 {
+	private static final String TAXONOMY = "taxonomy";
+	
 	private TaxonomyCompiled currentTaxonomyCompiled;
 	
 	public Pass2Listener( CompilationUnit compilationUnit )
@@ -87,10 +96,24 @@ public class Pass2Listener extends AbstractInflectionListener
 		if ( getPackageImports().contains( new PackageImport( packageNameOfType ) ) )
 			reportWarning( typeContext.start, typeContext.stop, "Overlapping import: symbol already implicitly imported by 'import " + packageNameOfType + ".*;" );
 	}
-
+	
 	@Override
-	public void enterTaxonomyName( TaxonomyNameContext taxonomyNameContext )
+	public void enterTaxonomyDeclaration( TaxonomyDeclarationContext taxonomyDeclarationContext )
 	{
+		TaxonomyNameContext taxonomyNameContext = null;
+		
+		for ( int i = 0 ; i < taxonomyDeclarationContext.getChildCount() ; ++i )
+		{
+			if ( taxonomyDeclarationContext.getChild( i ).getText().equals( TAXONOMY ) )
+			{
+				taxonomyNameContext = (TaxonomyNameContext)taxonomyDeclarationContext.getChild( i + 1 );
+				break;
+			}
+		}
+		
+		if ( taxonomyNameContext == null )
+			throw new IllegalStateException( "Unexpected value for taxonomyNameContext." );
+		
 		currentTaxonomyCompiled = getTaxonomyCompiled( getTaxonomyName( taxonomyNameContext ) );
 	}
 	
@@ -112,6 +135,21 @@ public class Pass2Listener extends AbstractInflectionListener
 		return foundTaxonomyCompiled;
 	}
 	
+	@Override
+	public void enterTaxonomyAnnotation( TaxonomyAnnotationContext taxonomyAnnotationContext )
+	{
+		currentTaxonomyCompiled.getAnnotationsCompiled().add( new AnnotationCompiled( taxonomyAnnotationContext.getText() ) );
+	}
+
+	@Override
+	public void enterTaxonomyExtensions( TaxonomyExtensionsContext taxonomyExtensionsContext )
+	{
+		// Taxonomies that don't extend anything else extend ch.liquidmind.inflection.Taxonomy
+		// by default (analogous to java.lang.Object)
+		if ( taxonomyExtensionsContext.getChildCount() == 0 )
+			currentTaxonomyCompiled.getExtendedTaxonomies().add( SystemTaxonomyLoader.TAXONOMY );
+	}
+
 	@Override
 	public void enterExtendedTaxonomy( ExtendedTaxonomyContext extendedTaxonomyContext )
 	{
@@ -190,136 +228,18 @@ public class Pass2Listener extends AbstractInflectionListener
 		return taxonomyExists;
 	}
 
-//	private boolean validateExtendedTaxonomyExists( ExtendedTaxonomyContext extendedTaxonomyContext, String extendedTaxonomyName )
-//	{
-//		TaxonomyCompiled resolvedTaxonomyCompiled = getKnownTaxonomiesCompiled().get( extendedTaxonomyName );
-//		Taxonomy resolvedTaxonomy = getTaxonomyLoader().loadTaxonomy( extendedTaxonomyName );
-//		boolean extendedTaxonomyExists;
-//		
-//		if ( ( resolvedTaxonomyCompiled != null && resolvedTaxonomy == null ) ||
-//				( resolvedTaxonomyCompiled == null && resolvedTaxonomy != null ) )
-//		{
-//			extendedTaxonomyExists = true;
-//		}
-//		else if ( resolvedTaxonomyCompiled == null && resolvedTaxonomy == null )
-//		{
-//			extendedTaxonomyExists = false;
-//			reportError( extendedTaxonomyContext.start, extendedTaxonomyContext.stop, "Taxonomy not found (Did you misspell? Or forget import? Or forget to include jar?)." );
-//		}
-//		else
-//		{
-//			throw new IllegalStateException( "Unexpected values for resolvedTaxonomyCompiled and resolvedTaxonomy." );
-//		}
-//		
-//		return extendedTaxonomyExists;
-//	}
-	
-//	@Override
-//	public void enterTypeImport( TypeImportContext typeImportContext )
-//	{
-//		TypeContext typeContext = (TypeContext)typeImportContext.getChild( 0 );
-//		String typeName = getTypeName( typeContext );
-//		String simpleTypeName = getSimpleTypeName( typeContext );
-//		validateNoOverlapWithPackageImport( typeContext, simpleTypeName );
-//		
-//		// Register classs
-//		if ( getClass( typeName ) != null )
-//		{
-//			addImportedClass( typeName, true );
-//		}
-//		// Register taxonomy
-//		else
-//		{
-//			validateNoDuplicateTypeImport( typeContext, simpleTypeName );
-//			getImportedTypes().put( simpleTypeName, new ImportedTaxonomy( typeName ) );
-//		}
-//	}
-//	
-//	@Override
-//	public void enterPackageImport( PackageImportContext packageImportContext )
-//	{
-//		APackageContext aPackageContext = (APackageContext)packageImportContext.getChild( 0 );
-//		String packageName = getPackageName( aPackageContext );
-//		validateNoOverlapWithTypeImport( aPackageContext, packageName );
-//		validateNoDuplicatePackageImport( aPackageContext, packageName );
-//		
-//		// Register classes
-//		// TODO: exclude anonymous inner classes; possibly include exceptions
-//		Reflections reflections = new Reflections( ConfigurationBuilder.build( packageName, getTaxonomyLoader().getClassLoader(), new SubTypesScanner( false ) ) );
-//		Set< String > typesInPackage = reflections.getAllTypes();
-//		
-//		for ( String typeInPackage : typesInPackage )
-//			addImportedClass( typeInPackage, false );
-//		
-//		// Register import
-//		getImportedPackages().put( packageName, new ImportedPackage( packageName ) );
-//	}
-//	
-//	private void addImportedClass( String name, boolean wasExplicit )
-//	{
-//		ImportedClasses importedClasses = (ImportedClasses)getImportedTypes().get( name );
-//		
-//		if ( importedClasses == null )
-//		{
-//			String simpleName = getClass( name ).getSimpleName();
-//			importedClasses = new ImportedClasses();
-//			getImportedTypes().put( simpleName, importedClasses );
-//		}
-//
-//		importedClasses.getImportedClasses().add( new ImportedClass( name, wasExplicit ) );
-//	}
-//	
-//	// VALIDATION
-//	
-//	private void validateNoOverlapWithPackageImport( TypeContext typeContext, String simpleTypeName )
-//	{
-//		String packageNameOfType = getPackageName( typeContext );
-//		
-//		if ( getImportedPackages().keySet().contains( packageNameOfType ) )
-//			reportWarning( typeContext.start, typeContext.stop, "Overlapping import: symbol already implicitly imported by 'import " + packageNameOfType + ".*;" );
-//	}
-//	
-//	private void validateNoDuplicateTypeImport( TypeContext typeContext, String simpleTypeName )
-//	{
-//		if ( getImportedTypes().keySet().contains( simpleTypeName ) )
-//			reportWarning( typeContext.start, typeContext.stop, "Duplicate import." );
-//	}
-//
-//	private void validateNoOverlapWithTypeImport( APackageContext aPackageContext, String packageName )
-//	{
-//		for ( ImportedType importedType : getImportedTypes().values() )
-//		{
-//			if ( importedType instanceof ImportedClasses )
-//			{
-//				ImportedClasses importedClasses = (ImportedClasses)importedType;
-//				
-//				for ( ImportedClass importedClass : importedClasses.getImportedClasses() )
-//					if ( importedClass.getWasExplicit() )
-//						validateNoOverlapWithTypeImport( aPackageContext, packageName, importedClass.getName() );
-//			}
-//			else if ( importedType instanceof ImportedTaxonomy )
-//			{
-//				ImportedTaxonomy importedTaxonomy = (ImportedTaxonomy)importedType;
-//				validateNoOverlapWithTypeImport( aPackageContext, packageName, importedTaxonomy.getName() );
-//			}
-//			else
-//			{
-//				throw new IllegalStateException( "Unexpected type for importedType." );
-//			}
-//		}
-//	}
-//
-//	private void validateNoOverlapWithTypeImport( APackageContext aPackageContext, String packageName, String typeName )
-//	{
-//		String foundPackageName = getPackageName( typeName );
-//		
-//		if ( packageName.equals( foundPackageName ) )
-//			reportWarning( aPackageContext.start, aPackageContext.stop, "Overlapping import: symbol already implicitly imported by 'import " + typeName + ";" );
-//	}
-//	
-//	private void validateNoDuplicatePackageImport( APackageContext aPackageContext, String packageName )
-//	{
-//		if ( getImportedPackages().keySet().contains( packageName ) )
-//			reportWarning( aPackageContext.start, aPackageContext.stop, "Duplicate import." );
-//	}
+	@Override
+	public void enterDefaultAccessMethodModifier( DefaultAccessMethodModifierContext defaultAccessMethodModifierContext )
+	{
+		AccessType accessType;
+		
+		if ( defaultAccessMethodModifierContext.getChildCount() == 0 )
+			accessType = AccessType.INHERITED;
+		else if ( defaultAccessMethodModifierContext.getChildCount() == 3 )
+			accessType = AccessType.valueOf( defaultAccessMethodModifierContext.getChild( 1 ).getText().toUpperCase() );
+		else
+			throw new IllegalStateException( "Unexpected value for defaultAccessMethodModifierContext.getChildCount()." );
+		
+		currentTaxonomyCompiled.setDefaultAccessType( accessType );
+	}
 }

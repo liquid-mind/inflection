@@ -1,5 +1,6 @@
 package ch.liquidmind.inflection.test;
 
+@MyAnnotation( value = "testing" )
 taxonomy MyTaxonomy1
 {
 	view MyClass1

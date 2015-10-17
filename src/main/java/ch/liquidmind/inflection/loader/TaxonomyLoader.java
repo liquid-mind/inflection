@@ -192,7 +192,7 @@ public class TaxonomyLoader
 		AccessType effectiveAccessType = ( memberCompiled.getAccessType() == null ? defaultAccessType : memberCompiled.getAccessType() );
 		Class< ? > viewedClass = parentViewLinked.getViewedClass();
 		
-		if ( effectiveAccessType.equals( AccessType.Field ) )
+		if ( effectiveAccessType.equals( AccessType.FIELD ) )
 		{
 			FieldLinked fieldLinked = new FieldLinked( memberCompiled.getName() );
 			Field field = __Class.getDeclaredField( viewedClass, fieldLinked.getName() );
@@ -200,7 +200,7 @@ public class TaxonomyLoader
 			fieldLinked.setField( field );
 			memberLinked = fieldLinked;
 		}
-		else if ( effectiveAccessType.equals( AccessType.Property ) )
+		else if ( effectiveAccessType.equals( AccessType.PROPERTY ) )
 		{
 			PropertyLinked propertyLinked = new PropertyLinked( memberCompiled.getName() );
 			Map< String, Method > declaredMethods = new HashMap< String, Method >();
