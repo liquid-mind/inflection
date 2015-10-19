@@ -2,10 +2,8 @@ package ch.liquidmind.inflection.compiler;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import org.antlr.v4.runtime.ParserRuleContext;
@@ -19,8 +17,10 @@ import ch.liquidmind.inflection.grammar.InflectionParser.APackageContext;
 import ch.liquidmind.inflection.grammar.InflectionParser.CompilationUnitContext;
 import ch.liquidmind.inflection.grammar.InflectionParser.DefaultAccessMethodModifierContext;
 import ch.liquidmind.inflection.grammar.InflectionParser.ExcludableClassSelectorContext;
+import ch.liquidmind.inflection.grammar.InflectionParser.ExcludeViewModifierContext;
 import ch.liquidmind.inflection.grammar.InflectionParser.ExtendedTaxonomyContext;
 import ch.liquidmind.inflection.grammar.InflectionParser.IncludableClassSelectorContext;
+import ch.liquidmind.inflection.grammar.InflectionParser.IncludeViewModifierContext;
 import ch.liquidmind.inflection.grammar.InflectionParser.PackageImportContext;
 import ch.liquidmind.inflection.grammar.InflectionParser.SimpleTypeContext;
 import ch.liquidmind.inflection.grammar.InflectionParser.TaxonomyAnnotationContext;
@@ -29,10 +29,12 @@ import ch.liquidmind.inflection.grammar.InflectionParser.TaxonomyExtensionsConte
 import ch.liquidmind.inflection.grammar.InflectionParser.TaxonomyNameContext;
 import ch.liquidmind.inflection.grammar.InflectionParser.TypeContext;
 import ch.liquidmind.inflection.grammar.InflectionParser.TypeImportContext;
+import ch.liquidmind.inflection.grammar.InflectionParser.ViewAnnotationContext;
 import ch.liquidmind.inflection.grammar.InflectionParser.ViewDeclarationContext;
 import ch.liquidmind.inflection.grammar.InflectionParser.WildcardSimpleTypeContext;
 import ch.liquidmind.inflection.loader.SystemTaxonomyLoader;
 import ch.liquidmind.inflection.model.AccessType;
+import ch.liquidmind.inflection.model.SelectionType;
 import ch.liquidmind.inflection.model.compiled.AnnotationCompiled;
 import ch.liquidmind.inflection.model.compiled.TaxonomyCompiled;
 import ch.liquidmind.inflection.model.compiled.ViewCompiled;
@@ -40,7 +42,7 @@ import ch.liquidmind.inflection.model.compiled.ViewCompiled;
 public class Pass2Listener extends AbstractInflectionListener
 {
 	private TaxonomyCompiled currentTaxonomyCompiled;
-	private Map< String, ViewCompiled > currentViewsCompiled;
+	private Set< ViewCompiled > currentViewsCompiled;
 	
 	public Pass2Listener( CompilationUnit compilationUnit )
 	{
@@ -246,7 +248,7 @@ public class Pass2Listener extends AbstractInflectionListener
 	@Override
 	public void enterViewDeclaration( ViewDeclarationContext viewDeclarationContext )
 	{
-		currentViewsCompiled = new HashMap< String, ViewCompiled >();
+		currentViewsCompiled = new HashSet< ViewCompiled >();
 		Set< ParserRuleContext > classSelectorContexts = getClassSelectorContexts( viewDeclarationContext );
 		Set< String > matchingClasses = getMatchingClasses( classSelectorContexts );
 		setupViewsCompiled( matchingClasses );
@@ -398,7 +400,30 @@ public class Pass2Listener extends AbstractInflectionListener
 				currentTaxonomyCompiled.getViewsCompiled().add( viewCompiled );
 			}
 
-			currentViewsCompiled.put( viewCompiled.getName(), viewCompiled );
+			currentViewsCompiled.add( viewCompiled );
 		}
+	}
+
+	@Override
+	public void enterViewAnnotation( ViewAnnotationContext viewAnnotationContext )
+	{
+		for ( ViewCompiled currentViewCompiled : currentViewsCompiled )
+			currentViewCompiled.getAnnotationsCompiled().add( new AnnotationCompiled( viewAnnotationContext.getText() ) );
+	}
+
+	@Override
+	public void enterIncludeViewModifier( IncludeViewModifierContext includeViewModifierContext )
+	{
+		// Note: the predicate here ensures that SelectionType.Exclude has precedence.
+		for ( ViewCompiled currentViewCompiled : currentViewsCompiled )
+			if ( currentViewCompiled.getSelectionType() == null )
+				currentViewCompiled.setSelectionType( SelectionType.INCLUDE );
+	}
+
+	@Override
+	public void enterExcludeViewModifier( ExcludeViewModifierContext excludeViewModifierContext )
+	{
+		for ( ViewCompiled currentViewCompiled : currentViewsCompiled )
+			currentViewCompiled.setSelectionType( SelectionType.EXCLUDE );
 	}
 }

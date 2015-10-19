@@ -87,12 +87,20 @@ defaultAccessMethodModifier
 // VIEW
 
 viewDeclaration
-	:	viewAnnotation* INCLUDE? VIEW includableClassSelector ( COMMA includableClassSelector )* ( USE classSelector ( COMMA classSelector )* )? viewBody
-	|	viewAnnotation* EXCLUDE VIEW excludableClassSelector ( COMMA excludableClassSelector )* SEMICOLON
+	:	viewAnnotation* includeViewModifier VIEW includableClassSelector ( COMMA includableClassSelector )* ( USE classSelector ( COMMA classSelector )* )? viewBody
+	|	viewAnnotation* excludeViewModifier VIEW excludableClassSelector ( COMMA excludableClassSelector )* SEMICOLON
 	;
 	
 viewAnnotation
 	:	annotation
+	;
+	
+includeViewModifier
+	:	INCLUDE?
+	;
+
+excludeViewModifier
+	:	EXCLUDE
 	;
 
 viewBody

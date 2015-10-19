@@ -42,7 +42,7 @@ public class SystemTaxonomyLoader extends TaxonomyLoader
 	private static ViewCompiled createViewCompiled( String name, TaxonomyCompiled parentTaxonomyCompiled )
 	{
 		ViewCompiled viewCompiled = new ViewCompiled( name );
-		viewCompiled.setSelectionType( SelectionType.Include );
+		viewCompiled.setSelectionType( SelectionType.INCLUDE );
 		viewCompiled.setParentTaxonomyCompiled( parentTaxonomyCompiled );
 		
 		return viewCompiled;

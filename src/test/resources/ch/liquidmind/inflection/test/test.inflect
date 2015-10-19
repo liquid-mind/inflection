@@ -3,10 +3,13 @@ package ch.liquidmind.inflection.test;
 @MyAnnotation( value = "testing" )
 taxonomy MyTaxonomy1
 {
+	@MyViewAnnotation
 	view MyClass1, ch.liquidmind.inflection.model.compiled.*
 	{
 		a;
 	}
+	
+	exclude view ch.liquidmind.inflection.model.compiled.ViewCompiled;
 }
 
 taxonomy MyTaxonomy2

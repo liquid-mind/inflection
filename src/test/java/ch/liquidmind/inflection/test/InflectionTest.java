@@ -29,11 +29,11 @@ public class InflectionTest
 		
 		ViewCompiled myClass1 = new ViewCompiled( "ch.liquidmind.inflection.test.MyClass1" );
 		myClass1.setParentTaxonomyCompiled( myTaxonomy );
-		myClass1.setSelectionType( SelectionType.Include );
+		myClass1.setSelectionType( SelectionType.INCLUDE );
 		
 		MemberCompiled a = new MemberCompiled( "a" );
 		a.setParentViewCompiled( myClass1 );
-		a.setSelectionType( SelectionType.Include );
+		a.setSelectionType( SelectionType.INCLUDE );
 		
 		myClass1.getMembersCompiled().add( a );
 		myTaxonomy.getViewsCompiled().add( myClass1 );
