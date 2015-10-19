@@ -8,7 +8,6 @@ grammar Inflection;
 /*
  * Notes:
  * - Includes are evaluated before excludes.
- * - Wildcards are resolved at runtime.
  * - Members referred to by member references must be declared in the class; they cannot be
  *   inherited from a super class.
  */
@@ -202,6 +201,7 @@ wildcardIdentifier
 	
 // TOKENS
 
+// TODO: introduce support for nested annotations, or; introduce full support for annotations.
 ANNOTATION
 	:	'@' IDENTIFIER ( '(' .*? ')' )?
 	;

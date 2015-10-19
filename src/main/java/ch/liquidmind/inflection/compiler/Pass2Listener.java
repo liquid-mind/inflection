@@ -1,7 +1,16 @@
 package ch.liquidmind.inflection.compiler;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import org.antlr.v4.runtime.ParserRuleContext;
+import org.reflections.Reflections;
+import org.reflections.scanners.SubTypesScanner;
 
 import ch.liquidmind.inflection.compiler.CompilationUnit.CompilationUnitCompiled.PackageImport;
 import ch.liquidmind.inflection.compiler.CompilationUnit.CompilationUnitCompiled.PackageImport.PackageImportType;
@@ -9,24 +18,29 @@ import ch.liquidmind.inflection.compiler.CompilationUnit.CompilationUnitCompiled
 import ch.liquidmind.inflection.grammar.InflectionParser.APackageContext;
 import ch.liquidmind.inflection.grammar.InflectionParser.CompilationUnitContext;
 import ch.liquidmind.inflection.grammar.InflectionParser.DefaultAccessMethodModifierContext;
+import ch.liquidmind.inflection.grammar.InflectionParser.ExcludableClassSelectorContext;
 import ch.liquidmind.inflection.grammar.InflectionParser.ExtendedTaxonomyContext;
+import ch.liquidmind.inflection.grammar.InflectionParser.IncludableClassSelectorContext;
 import ch.liquidmind.inflection.grammar.InflectionParser.PackageImportContext;
+import ch.liquidmind.inflection.grammar.InflectionParser.SimpleTypeContext;
 import ch.liquidmind.inflection.grammar.InflectionParser.TaxonomyAnnotationContext;
 import ch.liquidmind.inflection.grammar.InflectionParser.TaxonomyDeclarationContext;
 import ch.liquidmind.inflection.grammar.InflectionParser.TaxonomyExtensionsContext;
 import ch.liquidmind.inflection.grammar.InflectionParser.TaxonomyNameContext;
 import ch.liquidmind.inflection.grammar.InflectionParser.TypeContext;
 import ch.liquidmind.inflection.grammar.InflectionParser.TypeImportContext;
+import ch.liquidmind.inflection.grammar.InflectionParser.ViewDeclarationContext;
+import ch.liquidmind.inflection.grammar.InflectionParser.WildcardSimpleTypeContext;
 import ch.liquidmind.inflection.loader.SystemTaxonomyLoader;
 import ch.liquidmind.inflection.model.AccessType;
 import ch.liquidmind.inflection.model.compiled.AnnotationCompiled;
 import ch.liquidmind.inflection.model.compiled.TaxonomyCompiled;
+import ch.liquidmind.inflection.model.compiled.ViewCompiled;
 
 public class Pass2Listener extends AbstractInflectionListener
 {
-	private static final String TAXONOMY = "taxonomy";
-	
 	private TaxonomyCompiled currentTaxonomyCompiled;
+	private Map< String, ViewCompiled > currentViewsCompiled;
 	
 	public Pass2Listener( CompilationUnit compilationUnit )
 	{
@@ -100,21 +114,7 @@ public class Pass2Listener extends AbstractInflectionListener
 	@Override
 	public void enterTaxonomyDeclaration( TaxonomyDeclarationContext taxonomyDeclarationContext )
 	{
-		TaxonomyNameContext taxonomyNameContext = null;
-		
-		for ( int i = 0 ; i < taxonomyDeclarationContext.getChildCount() ; ++i )
-		{
-			if ( taxonomyDeclarationContext.getChild( i ).getText().equals( TAXONOMY ) )
-			{
-				taxonomyNameContext = (TaxonomyNameContext)taxonomyDeclarationContext.getChild( i + 1 );
-				break;
-			}
-		}
-		
-		if ( taxonomyNameContext == null )
-			throw new IllegalStateException( "Unexpected value for taxonomyNameContext." );
-		
-		currentTaxonomyCompiled = getTaxonomyCompiled( getTaxonomyName( taxonomyNameContext ) );
+		currentTaxonomyCompiled = getTaxonomyCompiled( getTaxonomyName( getFirstMatchingParserRuleContext( taxonomyDeclarationContext, TaxonomyNameContext.class ) ) );
 	}
 	
 	// This method searches the taxonomies of the compilation unit rather than all known
@@ -241,5 +241,164 @@ public class Pass2Listener extends AbstractInflectionListener
 			throw new IllegalStateException( "Unexpected value for defaultAccessMethodModifierContext.getChildCount()." );
 		
 		currentTaxonomyCompiled.setDefaultAccessType( accessType );
+	}
+
+	@Override
+	public void enterViewDeclaration( ViewDeclarationContext viewDeclarationContext )
+	{
+		currentViewsCompiled = new HashMap< String, ViewCompiled >();
+		Set< ParserRuleContext > classSelectorContexts = getClassSelectorContexts( viewDeclarationContext );
+		Set< String > matchingClasses = getMatchingClasses( classSelectorContexts );
+		setupViewsCompiled( matchingClasses );
+	}
+	
+	public Set< ParserRuleContext > getClassSelectorContexts( ViewDeclarationContext viewDeclarationContext )
+	{
+		Set< ParserRuleContext > classSelectorContexts = new HashSet< ParserRuleContext >();
+		
+		for ( int i = 0 ; true ; ++i )
+		{
+			IncludableClassSelectorContext includableClassSelectorContext = viewDeclarationContext.getRuleContext( IncludableClassSelectorContext.class, i );
+			ExcludableClassSelectorContext excludableClassSelectorContext = viewDeclarationContext.getRuleContext( ExcludableClassSelectorContext.class, i );
+			ParserRuleContext classSelectorContext = ( includableClassSelectorContext == null ? excludableClassSelectorContext : includableClassSelectorContext );
+			
+			if ( classSelectorContext != null )
+				classSelectorContexts.add( classSelectorContext );
+			else
+				break;
+		}
+		
+		return classSelectorContexts;
+	}
+
+	private Set< String > getMatchingClasses( Set< ParserRuleContext > classSelectorContexts )
+	{
+		Set< String > matchingClasses = new HashSet< String >();
+		
+		for ( ParserRuleContext classSelectorContext : classSelectorContexts )
+			matchingClasses.addAll( getMatchingClasses( classSelectorContext ) );
+		
+		return matchingClasses;
+	}
+	
+	private Set< String > getMatchingClasses( ParserRuleContext classSelectorContext )
+	{
+		SimpleTypeContext simpleTypeContext = getRuleContextRecursive( classSelectorContext, SimpleTypeContext.class );
+		WildcardSimpleTypeContext wildcardSimpleTypeContext = getRuleContextRecursive( classSelectorContext, WildcardSimpleTypeContext.class );
+		ParserRuleContext simpleClassSelectorContext = ( simpleTypeContext == null ? wildcardSimpleTypeContext : simpleTypeContext );
+		APackageContext packageContext = getRuleContextRecursive( classSelectorContext, APackageContext.class );
+		String packagePrefix = ( packageContext == null ? DEFAULT_PACKAGE_NAME : packageContext.getText() + "." );
+		String packagePrefixRegEx = ( packagePrefix.equals( DEFAULT_PACKAGE_NAME ) ? "[a-zA-Z0-9_$.]*?" : packagePrefix.replace( ".", "\\." ) );
+		String classSelector = simpleClassSelectorContext.getText();
+		String classSelectorRegEx = packagePrefixRegEx + classSelector.replace( ".", "\\." ).replace( "*", "[a-zA-Z0-9_$]*?" );
+		
+		return getMatchingClasses( packageContext, classSelectorRegEx );
+	}
+	
+	// Note that the list of potentially matching classes could be cached
+	// to optimize performance.
+	private Set< String > getMatchingClasses( APackageContext packageContext, String classSelectorRegEx )
+	{
+		Set< String > matchingClasses = new HashSet< String >();
+
+		if ( packageContext == null )
+		{
+			matchingClasses.addAll( getMatchingClassesFromTypeImports( getTypeImports().values(), classSelectorRegEx ) );
+			matchingClasses.addAll( getMatchingClassesFromPackageImports( getPackageImports(), classSelectorRegEx ) );
+		}
+		else
+		{
+			Set< PackageImport > packageImports = new HashSet< PackageImport >();
+			packageImports.add( new PackageImport( packageContext.getText() ) );
+			matchingClasses.addAll( getMatchingClassesFromPackageImports( packageImports, classSelectorRegEx ) );
+		}
+		
+		return matchingClasses;
+	}
+	
+	private Set< String > getMatchingClassesFromTypeImports( Collection< TypeImport > typeImports, String classSelectorRegEx )
+	{
+		Set< String > matchingClasses = new HashSet< String >();
+
+		for ( TypeImport typeImport : typeImports )
+		{
+			String potentialMatch = typeImport.getName();
+			
+			if ( potentialMatch.matches( classSelectorRegEx ) && getClass( potentialMatch ) != null )
+			{
+				matchingClasses.add( potentialMatch );
+				typeImport.setWasReferenced( true );
+			}
+		}
+		
+		return matchingClasses;
+	}
+	
+	private Set< String > getMatchingClassesFromPackageImports( Set< PackageImport > packageImports, String classSelectorRegEx )
+	{
+		Set< String > matchingClasses = new HashSet< String >();
+
+		for ( PackageImport packageImport : packageImports )
+		{
+			String packageName = packageImport.getName();
+			String packgeRegEx;
+			
+			if ( packageName.equals( DEFAULT_PACKAGE_NAME ) )
+				packgeRegEx = "[a-zA-Z0-9_$]*";
+			else
+				packgeRegEx = packageName.replace( ".", "\\." ) + "\\.[a-zA-Z0-9_$]*";
+
+			Set< String > typesInPackage = getMatchingClasses( packgeRegEx );
+			
+			for ( String potentialMatch : typesInPackage )
+			{
+				if ( potentialMatch.matches( classSelectorRegEx ) )
+				{
+					matchingClasses.add( potentialMatch );
+					packageImport.setWasReferenced( true );
+				}
+			}
+		}
+		
+		return matchingClasses;
+	}
+	
+	private Set< String > getMatchingClasses( String packageRegEx )
+	{
+		Set< String > matchingClasses = new HashSet< String >();
+		
+		Reflections reflections = new Reflections( "", getTaxonomyLoader().getClassLoader(), new SubTypesScanner( false ) );
+		Set< String > typesInPackage = reflections.getAllTypes();
+		
+		for ( String typeInPackage : typesInPackage )
+			if ( typeInPackage.matches( packageRegEx ) )
+				matchingClasses.add( typeInPackage );
+		
+		return matchingClasses;
+	}
+	
+	private void setupViewsCompiled( Set< String > matchingClasses )
+	{
+		for ( String matchingClass : matchingClasses )
+		{
+			ViewCompiled viewCompiled = null;
+			
+			for ( ViewCompiled existingViewCompiled : currentTaxonomyCompiled.getViewsCompiled() )
+			{
+				if ( existingViewCompiled.getName().equals( matchingClass ) )
+				{
+					viewCompiled = existingViewCompiled;
+					break;
+				}
+			}
+			
+			if ( viewCompiled == null )
+			{
+				viewCompiled = new ViewCompiled( matchingClass );
+				currentTaxonomyCompiled.getViewsCompiled().add( viewCompiled );
+			}
+
+			currentViewsCompiled.put( viewCompiled.getName(), viewCompiled );
+		}
 	}
 }

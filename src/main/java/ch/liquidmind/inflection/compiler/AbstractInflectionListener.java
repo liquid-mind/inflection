@@ -1,11 +1,15 @@
 package ch.liquidmind.inflection.compiler;
 
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.tree.ParseTree;
+import org.antlr.v4.runtime.tree.TerminalNode;
 
 import ch.liquidmind.inflection.compiler.CompilationUnit.CompilationUnitCompiled.PackageImport;
 import ch.liquidmind.inflection.compiler.CompilationUnit.CompilationUnitCompiled.TypeImport;
@@ -182,5 +186,41 @@ public class AbstractInflectionListener extends InflectionBaseListener
 		String taxonomyName = getPackageName() + "." + simpleTaxonomyName;
 		
 		return taxonomyName;
+	}
+	
+	@SuppressWarnings( "unchecked" )
+	protected < T extends ParserRuleContext > T getFirstMatchingParserRuleContext( ParserRuleContext parentContext, Class< ? > ... parserRuleContextTypes )
+	{
+		T firstMatchingParserRuleContext = null;
+		Set< Class< ? > > parserRuleContextTypesAsSet = new HashSet< Class< ? > >( Arrays.asList( parserRuleContextTypes ) );
+		
+		for ( int i = 0 ; i < parentContext.getChildCount() ; ++i )
+		{
+			if ( parserRuleContextTypesAsSet.contains( parentContext.getChild( i ).getClass() ) )
+			{
+				firstMatchingParserRuleContext = (T)parentContext.getChild( i );
+				break;
+			}
+		}
+		
+		return firstMatchingParserRuleContext;
+	}
+	
+	protected < T extends ParserRuleContext > T getRuleContextRecursive( ParserRuleContext parentContext, Class<? extends T> parserRuleContextType )
+	{
+		T ruleContextRecursive = parentContext.getRuleContext( parserRuleContextType, 0 );
+
+		if ( ruleContextRecursive == null )
+		{
+			for ( int i = 0 ; i < parentContext.getChildCount() ; ++i )
+			{
+				if ( parentContext.getChild( i ) instanceof TerminalNode )
+					continue;
+				
+				ruleContextRecursive = getRuleContextRecursive( (ParserRuleContext)parentContext.getChild( i ), parserRuleContextType );
+			}
+		}
+		
+		return ruleContextRecursive;
 	}
 }
