@@ -218,6 +218,9 @@ public class AbstractInflectionListener extends InflectionBaseListener
 					continue;
 				
 				ruleContextRecursive = getRuleContextRecursive( (ParserRuleContext)parentContext.getChild( i ), parserRuleContextType );
+				
+				if ( ruleContextRecursive != null )
+					break;
 			}
 		}
 		

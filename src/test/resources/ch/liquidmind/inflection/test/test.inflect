@@ -4,7 +4,7 @@ package ch.liquidmind.inflection.test;
 taxonomy MyTaxonomy1
 {
 	@MyViewAnnotation
-	view MyClass1 use MyUsedClass1
+	view MyClass1 as MyClass2 use MyUsedClass1
 	{
 		a, e;
 	}

@@ -14,6 +14,9 @@ import ch.liquidmind.inflection.compiler.CompilationUnit.CompilationUnitCompiled
 import ch.liquidmind.inflection.compiler.CompilationUnit.CompilationUnitCompiled.PackageImport.PackageImportType;
 import ch.liquidmind.inflection.compiler.CompilationUnit.CompilationUnitCompiled.TypeImport;
 import ch.liquidmind.inflection.grammar.InflectionParser.APackageContext;
+import ch.liquidmind.inflection.grammar.InflectionParser.AliasContext;
+import ch.liquidmind.inflection.grammar.InflectionParser.AliasableClassSelectorContext;
+import ch.liquidmind.inflection.grammar.InflectionParser.ClassSelectorContext;
 import ch.liquidmind.inflection.grammar.InflectionParser.CompilationUnitContext;
 import ch.liquidmind.inflection.grammar.InflectionParser.DefaultAccessMethodModifierContext;
 import ch.liquidmind.inflection.grammar.InflectionParser.ExcludableClassSelectorContext;
@@ -44,6 +47,7 @@ public class Pass2Listener extends AbstractInflectionListener
 {
 	private TaxonomyCompiled currentTaxonomyCompiled;
 	private Set< ViewCompiled > currentViewsCompiled;
+	private Set< String > knownAliases;
 	
 	public Pass2Listener( CompilationUnit compilationUnit )
 	{
@@ -118,6 +122,7 @@ public class Pass2Listener extends AbstractInflectionListener
 	public void enterTaxonomyDeclaration( TaxonomyDeclarationContext taxonomyDeclarationContext )
 	{
 		currentTaxonomyCompiled = getTaxonomyCompiled( getTaxonomyName( getFirstMatchingParserRuleContext( taxonomyDeclarationContext, TaxonomyNameContext.class ) ) );
+		knownAliases = new HashSet< String >();
 	}
 	
 	// This method searches the taxonomies of the compilation unit rather than all known
@@ -306,7 +311,6 @@ public class Pass2Listener extends AbstractInflectionListener
 
 		if ( packageContext == null )
 		{
-			matchingClasses.addAll( getMatchingClassesFromTypeImports( getTypeImports().values(), classSelectorRegEx ) );
 			matchingClasses.addAll( getMatchingClassesFromPackageImports( getPackageImports(), classSelectorRegEx ) );
 		}
 		else
@@ -315,6 +319,8 @@ public class Pass2Listener extends AbstractInflectionListener
 			packageImports.add( new PackageImport( packageContext.getText() ) );
 			matchingClasses.addAll( getMatchingClassesFromPackageImports( packageImports, classSelectorRegEx ) );
 		}
+
+		matchingClasses.addAll( getMatchingClassesFromTypeImports( getTypeImports().values(), classSelectorRegEx ) );
 		
 		return matchingClasses;
 	}
@@ -466,5 +472,52 @@ public class Pass2Listener extends AbstractInflectionListener
 		String classSelectorRegEx = packagePrefixRegEx + classSelector.replace( ".", "\\." ).replace( "*", "[a-zA-Z0-9_$]*?" );
 		
 		return getMatchingClasses( packageContext, classSelectorRegEx );
+	}
+
+	@Override
+	public void enterAliasableClassSelector( AliasableClassSelectorContext aliasableClassSelectorContext )
+	{
+		// Note that I'm assuming that there is exactly one matching class and therefore
+		// invoking iterator().next() is safe; the checks should have already been performed
+		// in enterViewDeclaration().
+		ClassSelectorContext classSelectorContext = (ClassSelectorContext)aliasableClassSelectorContext.getChild( 0 );
+		AliasContext aliasContext = (AliasContext)aliasableClassSelectorContext.getChild( 2 );
+		String alias = aliasContext.getText();
+		String className = getMatchingClasses( classSelectorContext ).iterator().next();
+		String fqAlias = ( getPackageName().equals( DEFAULT_PACKAGE_NAME ) ? alias : getPackageName() + "." + alias );
+		validateAliasNameNotInConflict( aliasContext, fqAlias );
+		
+		for ( ViewCompiled viewCompiled : currentTaxonomyCompiled.getViewsCompiled() )
+		{
+			if ( viewCompiled.getName().equals( className ) )
+			{
+				viewCompiled.setAlias( alias );
+				break;
+			}
+		}
+	}
+	
+	// TODO: Currently, checks on conflicts with other alias are only performed within
+	// a given taxonomy. Need to think about how to deal with taxonomy inheritence
+	// (can aliases override other aliases? can they override views?). Also, should 
+	// views be referencable via their alias?
+	private void validateAliasNameNotInConflict( AliasContext aliasContext, String alias )
+	{
+		String fqAlias = ( getPackageName().equals( DEFAULT_PACKAGE_NAME ) ? alias : getPackageName() + "." + alias );
+		String classSelectorRegEx = fqAlias.replace( ".", "\\." );
+		Set< String > matchingTypes = new HashSet< String >();
+		Set< PackageImport > packageImports = new HashSet< PackageImport >();
+		packageImports.add( new PackageImport( getPackageName() ) );
+		matchingTypes.addAll( getMatchingClassesFromPackageImports( packageImports, classSelectorRegEx ) );
+		matchingTypes.addAll( getMatchingClassesFromTypeImports( getTypeImports().values(), classSelectorRegEx ) );
+		
+		if ( taxonomyExists( fqAlias ) )
+			matchingTypes.add( fqAlias );
+		
+		if ( knownAliases.contains( alias ) )
+			matchingTypes.add( fqAlias );
+		
+		if ( !matchingTypes.isEmpty() )
+			reportError( aliasContext.start, aliasContext.stop, "Alias name is in conflict with existing types: " + String.join( ", ", matchingTypes ) + "." );
 	}
 }
