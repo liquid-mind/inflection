@@ -61,11 +61,7 @@ packageImport
 // TAXONOMY
 
 taxonomyDeclaration
-	:	taxonomyAnnotation* TAXONOMY taxonomyName taxonomyExtensions taxonomyBody
-	;
-	
-taxonomyAnnotation
-	:	annotation
+	:	annotation* TAXONOMY taxonomyName taxonomyExtensions taxonomyBody
 	;
 	
 taxonomyName
@@ -93,12 +89,8 @@ defaultAccessMethodModifier
 // VIEW
 
 viewDeclaration
-	:	viewAnnotation* includeViewModifier VIEW includableClassSelector ( COMMA includableClassSelector )* ( USE usedClassSelector ( COMMA usedClassSelector )* )? viewBody
-	|	viewAnnotation* excludeViewModifier VIEW excludableClassSelector ( COMMA excludableClassSelector )* SEMICOLON
-	;
-	
-viewAnnotation
-	:	annotation
+	:	annotation* includeViewModifier VIEW includableClassSelector ( COMMA includableClassSelector )* ( USE usedClassSelector ( COMMA usedClassSelector )* )? viewBody
+	|	annotation* excludeViewModifier VIEW excludableClassSelector ( COMMA excludableClassSelector )* SEMICOLON
 	;
 	
 includeViewModifier

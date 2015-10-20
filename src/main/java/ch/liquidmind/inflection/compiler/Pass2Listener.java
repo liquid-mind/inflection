@@ -16,6 +16,7 @@ import ch.liquidmind.inflection.compiler.CompilationUnit.CompilationUnitCompiled
 import ch.liquidmind.inflection.grammar.InflectionParser.APackageContext;
 import ch.liquidmind.inflection.grammar.InflectionParser.AliasContext;
 import ch.liquidmind.inflection.grammar.InflectionParser.AliasableClassSelectorContext;
+import ch.liquidmind.inflection.grammar.InflectionParser.AnnotationContext;
 import ch.liquidmind.inflection.grammar.InflectionParser.ClassSelectorContext;
 import ch.liquidmind.inflection.grammar.InflectionParser.CompilationUnitContext;
 import ch.liquidmind.inflection.grammar.InflectionParser.DefaultAccessMethodModifierContext;
@@ -26,14 +27,12 @@ import ch.liquidmind.inflection.grammar.InflectionParser.IncludableClassSelector
 import ch.liquidmind.inflection.grammar.InflectionParser.IncludeViewModifierContext;
 import ch.liquidmind.inflection.grammar.InflectionParser.PackageImportContext;
 import ch.liquidmind.inflection.grammar.InflectionParser.SimpleTypeContext;
-import ch.liquidmind.inflection.grammar.InflectionParser.TaxonomyAnnotationContext;
 import ch.liquidmind.inflection.grammar.InflectionParser.TaxonomyDeclarationContext;
 import ch.liquidmind.inflection.grammar.InflectionParser.TaxonomyExtensionsContext;
 import ch.liquidmind.inflection.grammar.InflectionParser.TaxonomyNameContext;
 import ch.liquidmind.inflection.grammar.InflectionParser.TypeContext;
 import ch.liquidmind.inflection.grammar.InflectionParser.TypeImportContext;
 import ch.liquidmind.inflection.grammar.InflectionParser.UsedClassSelectorContext;
-import ch.liquidmind.inflection.grammar.InflectionParser.ViewAnnotationContext;
 import ch.liquidmind.inflection.grammar.InflectionParser.ViewDeclarationContext;
 import ch.liquidmind.inflection.grammar.InflectionParser.WildcardSimpleTypeContext;
 import ch.liquidmind.inflection.loader.SystemTaxonomyLoader;
@@ -47,7 +46,8 @@ public class Pass2Listener extends AbstractInflectionListener
 {
 	private TaxonomyCompiled currentTaxonomyCompiled;
 	private Set< ViewCompiled > currentViewsCompiled;
-	private Set< String > knownAliases;
+	private List< AnnotationCompiled > currentAnnotationsCompiled;
+	private SelectionType currentSelectionType;
 	
 	public Pass2Listener( CompilationUnit compilationUnit )
 	{
@@ -66,6 +66,8 @@ public class Pass2Listener extends AbstractInflectionListener
 				reportWarning( packageImport.getParserRuleContext().start, packageImport.getParserRuleContext().stop, "Unused import." );
 	}
 
+	// IMPORTS
+	
 	@Override
 	public void enterPackageImport( PackageImportContext packageImportContext )
 	{
@@ -118,13 +120,21 @@ public class Pass2Listener extends AbstractInflectionListener
 			reportWarning( typeContext.start, typeContext.stop, "Overlapping import: symbol already implicitly imported by 'import " + packageNameOfType + ".*;" );
 	}
 	
+	// TAXONOMIES
+	
 	@Override
 	public void enterTaxonomyDeclaration( TaxonomyDeclarationContext taxonomyDeclarationContext )
 	{
-		currentTaxonomyCompiled = getTaxonomyCompiled( getTaxonomyName( getFirstMatchingParserRuleContext( taxonomyDeclarationContext, TaxonomyNameContext.class ) ) );
-		knownAliases = new HashSet< String >();
+		currentAnnotationsCompiled = new ArrayList< AnnotationCompiled >();
 	}
 	
+	@Override
+	public void enterTaxonomyName( TaxonomyNameContext taxonomyNameContext )
+	{
+		currentTaxonomyCompiled = getTaxonomyCompiled( getTaxonomyName( taxonomyNameContext ) );
+		currentTaxonomyCompiled.getAnnotationsCompiled().addAll( currentAnnotationsCompiled );
+	}
+
 	// This method searches the taxonomies of the compilation unit rather than all known
 	// taxonomies within the compilation job.
 	private TaxonomyCompiled getTaxonomyCompiled( String taxonomyName )
@@ -141,12 +151,6 @@ public class Pass2Listener extends AbstractInflectionListener
 		}
 		
 		return foundTaxonomyCompiled;
-	}
-	
-	@Override
-	public void enterTaxonomyAnnotation( TaxonomyAnnotationContext taxonomyAnnotationContext )
-	{
-		currentTaxonomyCompiled.getAnnotationsCompiled().add( new AnnotationCompiled( taxonomyAnnotationContext.getText() ) );
 	}
 
 	@Override
@@ -250,43 +254,28 @@ public class Pass2Listener extends AbstractInflectionListener
 		
 		currentTaxonomyCompiled.setDefaultAccessType( accessType );
 	}
+	
+	// VIEWS
 
 	@Override
 	public void enterViewDeclaration( ViewDeclarationContext viewDeclarationContext )
 	{
+		currentAnnotationsCompiled = new ArrayList< AnnotationCompiled >();
 		currentViewsCompiled = new HashSet< ViewCompiled >();
-		Set< ParserRuleContext > classSelectorContexts = getClassSelectorContexts( viewDeclarationContext );
-		Set< String > matchingClasses = getMatchingClasses( classSelectorContexts );
-		setupViewsCompiled( matchingClasses );
 	}
 	
-	public Set< ParserRuleContext > getClassSelectorContexts( ViewDeclarationContext viewDeclarationContext )
+	@Override
+	public void enterIncludableClassSelector( IncludableClassSelectorContext includableClassSelectorContext )
 	{
-		Set< ParserRuleContext > classSelectorContexts = new HashSet< ParserRuleContext >();
-		
-		for ( int i = 0 ; true ; ++i )
-		{
-			IncludableClassSelectorContext includableClassSelectorContext = viewDeclarationContext.getRuleContext( IncludableClassSelectorContext.class, i );
-			ExcludableClassSelectorContext excludableClassSelectorContext = viewDeclarationContext.getRuleContext( ExcludableClassSelectorContext.class, i );
-			ParserRuleContext classSelectorContext = ( includableClassSelectorContext == null ? excludableClassSelectorContext : includableClassSelectorContext );
-			
-			if ( classSelectorContext != null )
-				classSelectorContexts.add( classSelectorContext );
-			else
-				break;
-		}
-		
-		return classSelectorContexts;
+		Set< String > matchingClasses = getMatchingClasses( includableClassSelectorContext );
+		setupViewsCompiled( matchingClasses );
 	}
 
-	private Set< String > getMatchingClasses( Set< ParserRuleContext > classSelectorContexts )
+	@Override
+	public void enterExcludableClassSelector( ExcludableClassSelectorContext excludableClassSelectorContext )
 	{
-		Set< String > matchingClasses = new HashSet< String >();
-		
-		for ( ParserRuleContext classSelectorContext : classSelectorContexts )
-			matchingClasses.addAll( getMatchingClasses( classSelectorContext ) );
-		
-		return matchingClasses;
+		Set< String > matchingClasses = getMatchingClasses( excludableClassSelectorContext );
+		setupViewsCompiled( matchingClasses );
 	}
 	
 	private Set< String > getMatchingClasses( ParserRuleContext classSelectorContext )
@@ -407,71 +396,11 @@ public class Pass2Listener extends AbstractInflectionListener
 				currentTaxonomyCompiled.getViewsCompiled().add( viewCompiled );
 			}
 
+			viewCompiled.getAnnotationsCompiled().addAll( currentAnnotationsCompiled );
+			viewCompiled.setSelectionType( currentSelectionType );
+			
 			currentViewsCompiled.add( viewCompiled );
 		}
-	}
-
-	@Override
-	public void enterViewAnnotation( ViewAnnotationContext viewAnnotationContext )
-	{
-		for ( ViewCompiled currentViewCompiled : currentViewsCompiled )
-			currentViewCompiled.getAnnotationsCompiled().add( new AnnotationCompiled( viewAnnotationContext.getText() ) );
-	}
-
-	@Override
-	public void enterIncludeViewModifier( IncludeViewModifierContext includeViewModifierContext )
-	{
-		// Note: the predicate here ensures that SelectionType.Exclude has precedence.
-		for ( ViewCompiled currentViewCompiled : currentViewsCompiled )
-			if ( currentViewCompiled.getSelectionType() == null )
-				currentViewCompiled.setSelectionType( SelectionType.INCLUDE );
-	}
-
-	@Override
-	public void enterExcludeViewModifier( ExcludeViewModifierContext excludeViewModifierContext )
-	{
-		for ( ViewCompiled currentViewCompiled : currentViewsCompiled )
-			currentViewCompiled.setSelectionType( SelectionType.EXCLUDE );
-	}
-
-	@Override
-	public void enterUsedClassSelector( UsedClassSelectorContext usedClassSelectorContext )
-	{
-		Set< String > matchingClasses = getMatchingClasses( usedClassSelectorContext );
-		validateUsedClasses( usedClassSelectorContext, matchingClasses );
-		String usedClassName = matchingClasses.iterator().next();
-
-		for ( ViewCompiled currentViewCompiled : currentViewsCompiled )
-			currentViewCompiled.getUsedClasses().add( usedClassName );
-	}
-	
-	private void validateUsedClasses( UsedClassSelectorContext usedClassSelectorContext, Set< String > matchingClasses )
-	{
-		if ( matchingClasses.size() == 0 )
-		{
-			reportError( usedClassSelectorContext.start, usedClassSelectorContext.stop, "Could not find referenced class (Did you misspell? Or forget an import?)." );
-		}
-		else if ( matchingClasses.size() == 1 )
-		{
-			if ( getClass( matchingClasses.iterator().next() ) == null )
-				reportError( usedClassSelectorContext.start, usedClassSelectorContext.stop, "Could not find referenced class (Did you misspell? Or forget an import? Or a jar?)." );
-		}
-		else if ( matchingClasses.size() > 1 )
-		{
-			reportError( usedClassSelectorContext.start, usedClassSelectorContext.stop, "Class reference is ambiguous; could refer to any of: " + String.join( ", ", matchingClasses ) );
-		}
-	}
-	
-	private Set< String > getMatchingClasses( UsedClassSelectorContext usedClassSelectorContext )
-	{
-		SimpleTypeContext simpleTypeContext = getRuleContextRecursive( usedClassSelectorContext, SimpleTypeContext.class );
-		APackageContext packageContext = getRuleContextRecursive( usedClassSelectorContext, APackageContext.class );
-		String packagePrefix = ( packageContext == null ? DEFAULT_PACKAGE_NAME : packageContext.getText() + "." );
-		String packagePrefixRegEx = ( packagePrefix.equals( DEFAULT_PACKAGE_NAME ) ? "[a-zA-Z0-9_$.]*?" : packagePrefix.replace( ".", "\\." ) );
-		String classSelector = simpleTypeContext.getText();
-		String classSelectorRegEx = packagePrefixRegEx + classSelector.replace( ".", "\\." ).replace( "*", "[a-zA-Z0-9_$]*?" );
-		
-		return getMatchingClasses( packageContext, classSelectorRegEx );
 	}
 
 	@Override
@@ -514,10 +443,83 @@ public class Pass2Listener extends AbstractInflectionListener
 		if ( taxonomyExists( fqAlias ) )
 			matchingTypes.add( fqAlias );
 		
-		if ( knownAliases.contains( alias ) )
+		if ( getKnownAliases().contains( alias ) )
 			matchingTypes.add( fqAlias );
 		
 		if ( !matchingTypes.isEmpty() )
 			reportError( aliasContext.start, aliasContext.stop, "Alias name is in conflict with existing types: " + String.join( ", ", matchingTypes ) + "." );
+	}
+	
+	private Set< String > getKnownAliases()
+	{
+		Set< String > knownAliases = new HashSet< String >();
+		
+		for ( ViewCompiled viewCompiled : currentTaxonomyCompiled.getViewsCompiled() )
+			if ( viewCompiled.getAlias() != null )
+				knownAliases.add( viewCompiled.getAlias() );
+		
+		return knownAliases;
+	}
+	
+	@Override
+	public void enterUsedClassSelector( UsedClassSelectorContext usedClassSelectorContext )
+	{
+		Set< String > matchingClasses = getMatchingClasses( usedClassSelectorContext );
+		validateUsedClasses( usedClassSelectorContext, matchingClasses );
+		String usedClassName = matchingClasses.iterator().next();
+
+		for ( ViewCompiled currentViewCompiled : currentViewsCompiled )
+			currentViewCompiled.getUsedClasses().add( usedClassName );
+	}
+	
+	private void validateUsedClasses( UsedClassSelectorContext usedClassSelectorContext, Set< String > matchingClasses )
+	{
+		if ( matchingClasses.size() == 0 )
+		{
+			reportError( usedClassSelectorContext.start, usedClassSelectorContext.stop, "Could not find referenced class (Did you misspell? Or forget an import?)." );
+		}
+		else if ( matchingClasses.size() == 1 )
+		{
+			if ( getClass( matchingClasses.iterator().next() ) == null )
+				reportError( usedClassSelectorContext.start, usedClassSelectorContext.stop, "Could not find referenced class (Did you misspell? Or forget an import? Or a jar?)." );
+		}
+		else if ( matchingClasses.size() > 1 )
+		{
+			reportError( usedClassSelectorContext.start, usedClassSelectorContext.stop, "Class reference is ambiguous; could refer to any of: " + String.join( ", ", matchingClasses ) );
+		}
+	}
+	
+	private Set< String > getMatchingClasses( UsedClassSelectorContext usedClassSelectorContext )
+	{
+		SimpleTypeContext simpleTypeContext = getRuleContextRecursive( usedClassSelectorContext, SimpleTypeContext.class );
+		APackageContext packageContext = getRuleContextRecursive( usedClassSelectorContext, APackageContext.class );
+		String packagePrefix = ( packageContext == null ? DEFAULT_PACKAGE_NAME : packageContext.getText() + "." );
+		String packagePrefixRegEx = ( packagePrefix.equals( DEFAULT_PACKAGE_NAME ) ? "[a-zA-Z0-9_$.]*?" : packagePrefix.replace( ".", "\\." ) );
+		String classSelector = simpleTypeContext.getText();
+		String classSelectorRegEx = packagePrefixRegEx + classSelector.replace( ".", "\\." ).replace( "*", "[a-zA-Z0-9_$]*?" );
+		
+		return getMatchingClasses( packageContext, classSelectorRegEx );
+	}
+
+	// MEMBERS
+	
+	// MISC
+
+	@Override
+	public void enterAnnotation( AnnotationContext annotationContext )
+	{
+		currentAnnotationsCompiled.add( new AnnotationCompiled( annotationContext.getText() ) );
+	}
+	
+	@Override
+	public void enterIncludeViewModifier( IncludeViewModifierContext includeViewModifierContext )
+	{
+		currentSelectionType = SelectionType.INCLUDE;
+	}
+
+	@Override
+	public void enterExcludeViewModifier( ExcludeViewModifierContext excludeViewModifierContext )
+	{
+		currentSelectionType = SelectionType.EXCLUDE;
 	}
 }
