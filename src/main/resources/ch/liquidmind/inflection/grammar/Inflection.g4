@@ -11,6 +11,12 @@ grammar Inflection;
  * - Members referred to by member references must be declared in the class; they cannot be
  *   inherited from a super class.
  */
+ 
+/*
+ * Ideas:
+ * - New modifier operation type which can be either read, write or readwrite. Can be
+ *   set at method or taxonomy level.
+ */
 
 // COMPILATION UNIT
 
@@ -87,7 +93,7 @@ defaultAccessMethodModifier
 // VIEW
 
 viewDeclaration
-	:	viewAnnotation* includeViewModifier VIEW includableClassSelector ( COMMA includableClassSelector )* ( USE classSelector ( COMMA classSelector )* )? viewBody
+	:	viewAnnotation* includeViewModifier VIEW includableClassSelector ( COMMA includableClassSelector )* ( USE usedClassSelector ( COMMA usedClassSelector )* )? viewBody
 	|	viewAnnotation* excludeViewModifier VIEW excludableClassSelector ( COMMA excludableClassSelector )* SEMICOLON
 	;
 	
@@ -118,6 +124,10 @@ excludableClassSelector
 
 aliasableClassSelector
 	:	classSelector AS alias
+	;
+	
+usedClassSelector
+	:	classSelector
 	;
 
 classSelector

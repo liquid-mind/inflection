@@ -29,6 +29,7 @@ import ch.liquidmind.inflection.grammar.InflectionParser.TaxonomyExtensionsConte
 import ch.liquidmind.inflection.grammar.InflectionParser.TaxonomyNameContext;
 import ch.liquidmind.inflection.grammar.InflectionParser.TypeContext;
 import ch.liquidmind.inflection.grammar.InflectionParser.TypeImportContext;
+import ch.liquidmind.inflection.grammar.InflectionParser.UsedClassSelectorContext;
 import ch.liquidmind.inflection.grammar.InflectionParser.ViewAnnotationContext;
 import ch.liquidmind.inflection.grammar.InflectionParser.ViewDeclarationContext;
 import ch.liquidmind.inflection.grammar.InflectionParser.WildcardSimpleTypeContext;
@@ -425,5 +426,45 @@ public class Pass2Listener extends AbstractInflectionListener
 	{
 		for ( ViewCompiled currentViewCompiled : currentViewsCompiled )
 			currentViewCompiled.setSelectionType( SelectionType.EXCLUDE );
+	}
+
+	@Override
+	public void enterUsedClassSelector( UsedClassSelectorContext usedClassSelectorContext )
+	{
+		Set< String > matchingClasses = getMatchingClasses( usedClassSelectorContext );
+		validateUsedClasses( usedClassSelectorContext, matchingClasses );
+		String usedClassName = matchingClasses.iterator().next();
+
+		for ( ViewCompiled currentViewCompiled : currentViewsCompiled )
+			currentViewCompiled.getUsedClasses().add( usedClassName );
+	}
+	
+	private void validateUsedClasses( UsedClassSelectorContext usedClassSelectorContext, Set< String > matchingClasses )
+	{
+		if ( matchingClasses.size() == 0 )
+		{
+			reportError( usedClassSelectorContext.start, usedClassSelectorContext.stop, "Could not find referenced class (Did you misspell? Or forget an import?)." );
+		}
+		else if ( matchingClasses.size() == 1 )
+		{
+			if ( getClass( matchingClasses.iterator().next() ) == null )
+				reportError( usedClassSelectorContext.start, usedClassSelectorContext.stop, "Could not find referenced class (Did you misspell? Or forget an import? Or a jar?)." );
+		}
+		else if ( matchingClasses.size() > 1 )
+		{
+			reportError( usedClassSelectorContext.start, usedClassSelectorContext.stop, "Class reference is ambiguous; could refer to any of: " + String.join( ", ", matchingClasses ) );
+		}
+	}
+	
+	private Set< String > getMatchingClasses( UsedClassSelectorContext usedClassSelectorContext )
+	{
+		SimpleTypeContext simpleTypeContext = getRuleContextRecursive( usedClassSelectorContext, SimpleTypeContext.class );
+		APackageContext packageContext = getRuleContextRecursive( usedClassSelectorContext, APackageContext.class );
+		String packagePrefix = ( packageContext == null ? DEFAULT_PACKAGE_NAME : packageContext.getText() + "." );
+		String packagePrefixRegEx = ( packagePrefix.equals( DEFAULT_PACKAGE_NAME ) ? "[a-zA-Z0-9_$.]*?" : packagePrefix.replace( ".", "\\." ) );
+		String classSelector = simpleTypeContext.getText();
+		String classSelectorRegEx = packagePrefixRegEx + classSelector.replace( ".", "\\." ).replace( "*", "[a-zA-Z0-9_$]*?" );
+		
+		return getMatchingClasses( packageContext, classSelectorRegEx );
 	}
 }

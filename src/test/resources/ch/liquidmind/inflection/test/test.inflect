@@ -4,12 +4,10 @@ package ch.liquidmind.inflection.test;
 taxonomy MyTaxonomy1
 {
 	@MyViewAnnotation
-	view MyClass1, ch.liquidmind.inflection.model.compiled.*
+	view MyClass1 use MyUsedClass1
 	{
-		a;
+		a, e;
 	}
-	
-	exclude view ch.liquidmind.inflection.model.compiled.ViewCompiled;
 }
 
 taxonomy MyTaxonomy2
