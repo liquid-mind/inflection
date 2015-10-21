@@ -1,5 +1,7 @@
 package ch.liquidmind.inflection.compiler;
 
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
@@ -14,17 +16,24 @@ import ch.liquidmind.inflection.compiler.CompilationUnit.CompilationUnitCompiled
 import ch.liquidmind.inflection.compiler.CompilationUnit.CompilationUnitCompiled.PackageImport.PackageImportType;
 import ch.liquidmind.inflection.compiler.CompilationUnit.CompilationUnitCompiled.TypeImport;
 import ch.liquidmind.inflection.grammar.InflectionParser.APackageContext;
+import ch.liquidmind.inflection.grammar.InflectionParser.AccessMethodModifierContext;
 import ch.liquidmind.inflection.grammar.InflectionParser.AliasContext;
 import ch.liquidmind.inflection.grammar.InflectionParser.AliasableClassSelectorContext;
+import ch.liquidmind.inflection.grammar.InflectionParser.AliasableMemberSelectorContext;
 import ch.liquidmind.inflection.grammar.InflectionParser.AnnotationContext;
 import ch.liquidmind.inflection.grammar.InflectionParser.ClassSelectorContext;
 import ch.liquidmind.inflection.grammar.InflectionParser.CompilationUnitContext;
 import ch.liquidmind.inflection.grammar.InflectionParser.DefaultAccessMethodModifierContext;
 import ch.liquidmind.inflection.grammar.InflectionParser.ExcludableClassSelectorContext;
+import ch.liquidmind.inflection.grammar.InflectionParser.ExcludableMemberSelectorContext;
 import ch.liquidmind.inflection.grammar.InflectionParser.ExcludeViewModifierContext;
 import ch.liquidmind.inflection.grammar.InflectionParser.ExtendedTaxonomyContext;
+import ch.liquidmind.inflection.grammar.InflectionParser.IdentifierContext;
 import ch.liquidmind.inflection.grammar.InflectionParser.IncludableClassSelectorContext;
+import ch.liquidmind.inflection.grammar.InflectionParser.IncludableMemberSelectorContext;
 import ch.liquidmind.inflection.grammar.InflectionParser.IncludeViewModifierContext;
+import ch.liquidmind.inflection.grammar.InflectionParser.MemberDeclarationContext;
+import ch.liquidmind.inflection.grammar.InflectionParser.MemberSelectorContext;
 import ch.liquidmind.inflection.grammar.InflectionParser.PackageImportContext;
 import ch.liquidmind.inflection.grammar.InflectionParser.SimpleTypeContext;
 import ch.liquidmind.inflection.grammar.InflectionParser.TaxonomyDeclarationContext;
@@ -34,20 +43,25 @@ import ch.liquidmind.inflection.grammar.InflectionParser.TypeContext;
 import ch.liquidmind.inflection.grammar.InflectionParser.TypeImportContext;
 import ch.liquidmind.inflection.grammar.InflectionParser.UsedClassSelectorContext;
 import ch.liquidmind.inflection.grammar.InflectionParser.ViewDeclarationContext;
+import ch.liquidmind.inflection.grammar.InflectionParser.WildcardIdentifierContext;
 import ch.liquidmind.inflection.grammar.InflectionParser.WildcardSimpleTypeContext;
 import ch.liquidmind.inflection.loader.SystemTaxonomyLoader;
 import ch.liquidmind.inflection.model.AccessType;
 import ch.liquidmind.inflection.model.SelectionType;
 import ch.liquidmind.inflection.model.compiled.AnnotationCompiled;
+import ch.liquidmind.inflection.model.compiled.MemberCompiled;
 import ch.liquidmind.inflection.model.compiled.TaxonomyCompiled;
 import ch.liquidmind.inflection.model.compiled.ViewCompiled;
+import ch.liquidmind.inflection.model.external.Taxonomy;
 
 public class Pass2Listener extends AbstractInflectionListener
 {
 	private TaxonomyCompiled currentTaxonomyCompiled;
 	private Set< ViewCompiled > currentViewsCompiled;
+	private Set< MemberCompiled > currentMembersCompiled;
 	private List< AnnotationCompiled > currentAnnotationsCompiled;
 	private SelectionType currentSelectionType;
+	private AccessType currentAccessType;
 	
 	public Pass2Listener( CompilationUnit compilationUnit )
 	{
@@ -128,11 +142,16 @@ public class Pass2Listener extends AbstractInflectionListener
 		currentAnnotationsCompiled = new ArrayList< AnnotationCompiled >();
 	}
 	
+	public void exitTaxonomyDeclaration( TaxonomyDeclarationContext taxonomyDeclarationContext )
+	{
+		currentTaxonomyCompiled.getAnnotationsCompiled().addAll( currentAnnotationsCompiled );
+		currentTaxonomyCompiled.setDefaultAccessType( currentAccessType );
+	}
+	
 	@Override
 	public void enterTaxonomyName( TaxonomyNameContext taxonomyNameContext )
 	{
 		currentTaxonomyCompiled = getTaxonomyCompiled( getTaxonomyName( taxonomyNameContext ) );
-		currentTaxonomyCompiled.getAnnotationsCompiled().addAll( currentAnnotationsCompiled );
 	}
 
 	// This method searches the taxonomies of the compilation unit rather than all known
@@ -241,18 +260,9 @@ public class Pass2Listener extends AbstractInflectionListener
 	}
 
 	@Override
-	public void enterDefaultAccessMethodModifier( DefaultAccessMethodModifierContext defaultAccessMethodModifierContext )
+	public void exitDefaultAccessMethodModifier( DefaultAccessMethodModifierContext defaultAccessMethodModifierContext )
 	{
-		AccessType accessType;
-		
-		if ( defaultAccessMethodModifierContext.getChildCount() == 0 )
-			accessType = AccessType.INHERITED;
-		else if ( defaultAccessMethodModifierContext.getChildCount() == 3 )
-			accessType = AccessType.valueOf( defaultAccessMethodModifierContext.getChild( 1 ).getText().toUpperCase() );
-		else
-			throw new IllegalStateException( "Unexpected value for defaultAccessMethodModifierContext.getChildCount()." );
-		
-		currentTaxonomyCompiled.setDefaultAccessType( accessType );
+		currentTaxonomyCompiled.setDefaultAccessType( currentAccessType );
 	}
 	
 	// VIEWS
@@ -262,6 +272,16 @@ public class Pass2Listener extends AbstractInflectionListener
 	{
 		currentAnnotationsCompiled = new ArrayList< AnnotationCompiled >();
 		currentViewsCompiled = new HashSet< ViewCompiled >();
+	}
+	
+	@Override
+	public void exitViewDeclaration( ViewDeclarationContext viewDeclarationContext )
+	{
+		for ( ViewCompiled currentViewCompiled : currentViewsCompiled )
+		{
+			currentViewCompiled.getAnnotationsCompiled().addAll( currentAnnotationsCompiled );
+			currentViewCompiled.setSelectionType( currentSelectionType );
+		}
 	}
 	
 	@Override
@@ -395,9 +415,6 @@ public class Pass2Listener extends AbstractInflectionListener
 				viewCompiled = new ViewCompiled( matchingClass );
 				currentTaxonomyCompiled.getViewsCompiled().add( viewCompiled );
 			}
-
-			viewCompiled.getAnnotationsCompiled().addAll( currentAnnotationsCompiled );
-			viewCompiled.setSelectionType( currentSelectionType );
 			
 			currentViewsCompiled.add( viewCompiled );
 		}
@@ -503,6 +520,232 @@ public class Pass2Listener extends AbstractInflectionListener
 
 	// MEMBERS
 	
+	@Override
+	public void enterMemberDeclaration( MemberDeclarationContext memberDeclarationContext )
+	{
+		currentMembersCompiled = new HashSet< MemberCompiled >();
+		currentAnnotationsCompiled = new ArrayList< AnnotationCompiled >();
+		currentAccessType = null;
+	}
+	
+	@Override
+	public void exitMemberDeclaration( MemberDeclarationContext memberDeclarationContext )
+	{
+		for ( MemberCompiled currentMemberCompiled : currentMembersCompiled )
+		{
+			currentMemberCompiled.getAnnotationsCompiled().addAll( currentAnnotationsCompiled );
+			currentMemberCompiled.setSelectionType( currentSelectionType );
+			currentMemberCompiled.setAccessType( currentAccessType );
+		}
+	}
+
+	@Override
+	public void enterIncludableMemberSelector( IncludableMemberSelectorContext includableMemberSelectorContext )
+	{
+		enterMemberSelector( includableMemberSelectorContext );
+	}
+
+	@Override
+	public void enterExcludableMemberSelector( ExcludableMemberSelectorContext excludableMemberSelectorContext )
+	{
+		enterMemberSelector( excludableMemberSelectorContext );
+	}
+	
+	private void enterMemberSelector( ParserRuleContext memberSelectorContext )
+	{
+		AccessType effectiveAccessType = getEffectiveAccessType();
+		
+		for ( ViewCompiled currentViewCompiled : currentViewsCompiled )
+		{
+			Set< String > matchingMembers = getMatchingMembers( currentViewCompiled, effectiveAccessType, memberSelectorContext );
+			Set< MemberCompiled > membersCompiled = getMembersCompiled( matchingMembers );
+			currentViewCompiled.getMembersCompiled().addAll( membersCompiled );
+			currentMembersCompiled.addAll( membersCompiled );
+		}
+	}
+	
+	private AccessType getEffectiveAccessType()
+	{
+		AccessType effectiveAccessType;
+		
+		if ( currentAccessType != null )
+			effectiveAccessType = currentAccessType;
+		else
+			effectiveAccessType = getDefaultAccessType( currentTaxonomyCompiled.getName() );
+		
+		return effectiveAccessType;
+	}
+
+	private AccessType getDefaultAccessType( String taxonomyName )
+	{
+		AccessType defaultAccessType = null;
+
+		defaultAccessType = getDeclaredDefaultAccessType( taxonomyName );
+		
+		// Note that we follow the left-most taxonomy in the inheritence hierarchy
+		// until we reach ch.liquidmind.inflection.Taxonomy.
+		if ( defaultAccessType == null )
+			defaultAccessType = getDefaultAccessType( getExtendedTaxonomies( taxonomyName ).get( 0 ) );
+		
+		return defaultAccessType;
+	}
+	
+	private AccessType getDeclaredDefaultAccessType( String taxonomyName )
+	{
+		TaxonomyCompiled taxonomyCompiled = getKnownTaxonomiesCompiled().get( taxonomyName );
+		Taxonomy taxonomy = getTaxonomyLoader().loadTaxonomy( taxonomyName );
+		
+		// Since we've already validated the taxonomy this condition should never occur,
+		// but just in case...
+		if ( taxonomyCompiled == null && taxonomy == null )
+			throw new IllegalStateException( "Couldn't locate taxonomy " + taxonomyName + "." );
+		
+		AccessType declaredDefaultAccessType = ( taxonomyCompiled != null ? taxonomyCompiled.getDefaultAccessType() : taxonomy.getDefaultAccessType() );
+
+		return declaredDefaultAccessType;
+	}
+	
+	private List< String > getExtendedTaxonomies( String taxonomyName )
+	{
+		TaxonomyCompiled taxonomyCompiled = getKnownTaxonomiesCompiled().get( taxonomyName );
+		Taxonomy taxonomy = getTaxonomyLoader().loadTaxonomy( taxonomyName );
+		List< String > extendedTaxonomies;
+		
+		if ( taxonomyCompiled == null && taxonomy == null )
+			throw new IllegalStateException( "Couldn't locate taxonomy " + taxonomyName + "." );
+
+		if ( taxonomyCompiled != null )
+		{
+			extendedTaxonomies = taxonomyCompiled.getExtendedTaxonomies();
+		}
+		else if ( taxonomy != null )
+		{
+			extendedTaxonomies = new ArrayList< String >();
+			
+			for ( Taxonomy extendedTaxonomy : taxonomy.getExtendedTaxonomies() )
+				extendedTaxonomies.add( extendedTaxonomy.getName() );
+		}
+		else
+		{
+			throw new IllegalStateException( "Couldn't locate taxonomy " + taxonomyName + "." );
+		}
+		
+		return extendedTaxonomies;
+	}
+	
+	// TODO: use a list instead of a set to preserve the order of members
+	private Set< String > getMatchingMembers( ViewCompiled viewCompiled, AccessType effectiveAccessType, ParserRuleContext memberSelectorContext )
+	{
+		IdentifierContext identifierContext = getRuleContextRecursive( memberSelectorContext, IdentifierContext.class );
+		WildcardIdentifierContext wildcardIdentifierContext = getRuleContextRecursive( memberSelectorContext, WildcardIdentifierContext.class );
+		String memberSelector = ( identifierContext != null ? identifierContext : wildcardIdentifierContext ).getText().toLowerCase();
+		String memberSelectorRegEx = memberSelector.replace( "*", "[a-zA-Z0-9_$]*?" );
+		Class< ? > viewClass = getClass( viewCompiled.getName() );
+		Set< String > memberNames;
+		 
+		if ( effectiveAccessType.equals( AccessType.FIELD ) )
+			memberNames = getFieldNames( viewClass );
+		else if ( effectiveAccessType.equals( AccessType.PROPERTY ) )
+			memberNames = getPropertyNames( viewClass );
+		else
+			throw new IllegalStateException( "Unexpected value for effectiveAccessType: " + effectiveAccessType  );
+
+		Set< String > matchingMembers = new HashSet< String >();
+		
+		for ( String memberName : memberNames )
+			if ( memberName.matches( memberSelectorRegEx ) )
+				matchingMembers.add( memberName );
+		
+		if ( identifierContext != null && matchingMembers.isEmpty() )
+			reportError( memberSelectorContext.start, memberSelectorContext.stop, "Member selector doesn't match any member in class " + viewCompiled.getName() );
+		
+		return matchingMembers;
+	}
+
+	private Set< String > getFieldNames( Class< ? > viewClass )
+	{
+		Set< String > fieldNames = new HashSet< String >();
+
+		for ( Field declaredField : viewClass.getDeclaredFields() )
+			fieldNames.add( declaredField.getName() );
+		
+		return fieldNames;
+	}
+	
+	private Set< String > getPropertyNames( Class< ? > viewClass )
+	{
+		Set< String > propertyNames = new HashSet< String >();
+
+		for ( Method declaredMethod : viewClass.getDeclaredMethods() )
+		{
+			String declaredMethodName = declaredMethod.getName();
+			
+			if ( declaredMethodName.startsWith( "get" ) )
+				propertyNames.add( declaredMethodName.substring( "get".length() ).toLowerCase() );
+			else if ( declaredMethodName.startsWith( "set" ) )
+				propertyNames.add( declaredMethodName.substring( "set".length() ).toLowerCase() );
+			else if ( declaredMethodName.startsWith( "is" ) )
+				propertyNames.add( declaredMethodName.substring( "is".length() ).toLowerCase() );
+		}
+		
+		return propertyNames;
+	}
+	
+	private Set< MemberCompiled > getMembersCompiled( Set< String > matchingMembers )
+	{
+		Set< MemberCompiled > membersCompiled = new HashSet< MemberCompiled >();
+		
+		for ( String matchingMember : matchingMembers )
+			membersCompiled.add( new MemberCompiled( matchingMember ) );
+		
+		return membersCompiled;
+	}
+
+	@Override
+	public void enterAliasableMemberSelector( AliasableMemberSelectorContext aliasableMemberSelectorContext )
+	{
+		MemberSelectorContext memberSelectorContext = (MemberSelectorContext)aliasableMemberSelectorContext.getChild( 0 );
+		AliasContext aliasContext = (AliasContext)aliasableMemberSelectorContext.getChild( 2 );
+		String alias = aliasContext.getText();
+		String memberName = memberSelectorContext.getText();
+		String fqAlias = ( getPackageName().equals( DEFAULT_PACKAGE_NAME ) ? alias : getPackageName() + "." + alias );
+		validateAliasNameNotInConflict( aliasContext, fqAlias );
+		
+		for ( MemberCompiled currentMemberCompiled : currentMembersCompiled )
+		{
+			if ( currentMemberCompiled.getName().equals( memberName ) )
+			{
+				currentMemberCompiled.setAlias( alias );
+				break;
+			}
+		}
+	}
+	
+
+//	@Override
+//	public void enterAliasableClassSelector( AliasableClassSelectorContext aliasableClassSelectorContext )
+//	{
+//		// Note that I'm assuming that there is exactly one matching class and therefore
+//		// invoking iterator().next() is safe; the checks should have already been performed
+//		// in enterViewDeclaration().
+//		ClassSelectorContext classSelectorContext = (ClassSelectorContext)aliasableClassSelectorContext.getChild( 0 );
+//		AliasContext aliasContext = (AliasContext)aliasableClassSelectorContext.getChild( 2 );
+//		String alias = aliasContext.getText();
+//		String className = getMatchingClasses( classSelectorContext ).iterator().next();
+//		String fqAlias = ( getPackageName().equals( DEFAULT_PACKAGE_NAME ) ? alias : getPackageName() + "." + alias );
+//		validateAliasNameNotInConflict( aliasContext, fqAlias );
+//		
+//		for ( ViewCompiled viewCompiled : currentTaxonomyCompiled.getViewsCompiled() )
+//		{
+//			if ( viewCompiled.getName().equals( className ) )
+//			{
+//				viewCompiled.setAlias( alias );
+//				break;
+//			}
+//		}
+//	}
+	
+	
 	// MISC
 
 	@Override
@@ -510,7 +753,7 @@ public class Pass2Listener extends AbstractInflectionListener
 	{
 		currentAnnotationsCompiled.add( new AnnotationCompiled( annotationContext.getText() ) );
 	}
-	
+
 	@Override
 	public void enterIncludeViewModifier( IncludeViewModifierContext includeViewModifierContext )
 	{
@@ -521,5 +764,16 @@ public class Pass2Listener extends AbstractInflectionListener
 	public void enterExcludeViewModifier( ExcludeViewModifierContext excludeViewModifierContext )
 	{
 		currentSelectionType = SelectionType.EXCLUDE;
+	}
+
+	@Override
+	public void enterAccessMethodModifier( AccessMethodModifierContext accessMethodModifierContext )
+	{
+		if ( accessMethodModifierContext.getChildCount() == 0 )
+			currentAccessType = null;
+		else if ( accessMethodModifierContext.getChildCount() == 1 )
+			currentAccessType = AccessType.valueOf( accessMethodModifierContext.getChild( 0 ).getText().toUpperCase() );
+		else
+			throw new IllegalStateException( "Unexpected value for accessMethodModifierContext.getChildCount()." );
 	}
 }

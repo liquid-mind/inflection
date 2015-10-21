@@ -6,7 +6,7 @@ taxonomy MyTaxonomy1
 	@MyViewAnnotation
 	view MyClass1 as MyClass2 use MyUsedClass1
 	{
-		a, e;
+		field a as b, c;
 	}
 }
 

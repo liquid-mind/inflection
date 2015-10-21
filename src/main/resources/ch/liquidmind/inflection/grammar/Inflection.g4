@@ -82,7 +82,7 @@ taxonomyBody
 	;
 
 defaultAccessMethodModifier
-	:	DEFAULT ( PROPERTY | FIELD | INHERITED ) SEMICOLON
+	:	DEFAULT accessMethodModifier SEMICOLON
 	|	// default is INHERITED
 	;
 
@@ -93,14 +93,6 @@ viewDeclaration
 	|	annotation* excludeViewModifier VIEW excludableClassSelector ( COMMA excludableClassSelector )* SEMICOLON
 	;
 	
-includeViewModifier
-	:	INCLUDE?
-	;
-
-excludeViewModifier
-	:	EXCLUDE
-	;
-
 viewBody
 	:	CURLY_BRACKET_OPEN memberDeclaration* CURLY_BRACKET_CLOSE
 	;
@@ -134,19 +126,14 @@ wildcardClassSelector
 // MEMBER
 
 memberDeclaration
-	:	memberAnnotation* INCLUDE? accessMethodModifier includableMemberSelector ( COMMA includableMemberSelector )* SEMICOLON
-	|	memberAnnotation* EXCLUDE accessMethodModifier excludableMemberSelector ( COMMA excludableMemberSelector )* SEMICOLON
-	;
-	
-memberAnnotation
-	:	annotation
+	:	annotation* includeViewModifier accessMethodModifier includableMemberSelector ( COMMA includableMemberSelector )* SEMICOLON
+	|	annotation* excludeViewModifier accessMethodModifier excludableMemberSelector ( COMMA excludableMemberSelector )* SEMICOLON
 	;
 	
 accessMethodModifier
 	:	PROPERTY
 	|	FIELD
-	|	INHERITED
-	|
+	|	// default is INHERITED
 	;
 
 includableMemberSelector
@@ -159,7 +146,7 @@ excludableMemberSelector
 	;
 
 aliasableMemberSelector
-	:	memberSelector ( AS alias )?		// Aliases cannot conflict with member names or other member aliases.
+	:	memberSelector AS alias			// Aliases cannot conflict with member names or other member aliases.
 	;
 
 memberSelector
@@ -172,6 +159,14 @@ wildcardMemberSelector
 	;
 	
 // COMMON
+
+includeViewModifier
+	:	INCLUDE?
+	;
+
+excludeViewModifier
+	:	EXCLUDE
+	;
 
 annotation
 	:	ANNOTATION
