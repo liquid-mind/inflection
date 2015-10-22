@@ -12,6 +12,7 @@ import __java.io.__FileInputStream;
 import __org.antlr.v4.runtime.__ANTLRInputStream;
 import ch.liquidmind.inflection.grammar.InflectionLexer;
 import ch.liquidmind.inflection.grammar.InflectionParser;
+import ch.liquidmind.inflection.model.compiled.TaxonomyCompiled;
 
 public class InflectionCompiler
 {
@@ -76,5 +77,9 @@ public class InflectionCompiler
 	}
 	
 	private static void save( CompilationJob job )
-	{}
+	{
+		for ( CompilationUnit compilationUnit : job.getCompilationUnits() )
+			for ( TaxonomyCompiled taxonomyCompiled : compilationUnit.getCompilationUnitCompiled().getTaxonomiesCompiled() )
+				taxonomyCompiled.save( job.getTargetDirectory() );
+	}
 }
