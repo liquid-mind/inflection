@@ -1,11 +1,15 @@
 package ch.liquidmind.inflection.compiler;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.Member;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.antlr.v4.runtime.ParserRuleContext;
@@ -557,8 +561,8 @@ public class Pass2Listener extends AbstractInflectionListener
 		
 		for ( ViewCompiled currentViewCompiled : currentViewsCompiled )
 		{
-			Set< String > matchingMembers = getMatchingMembers( currentViewCompiled, effectiveAccessType, memberSelectorContext );
-			Set< MemberCompiled > membersCompiled = getMembersCompiled( matchingMembers );
+			List< String > matchingMembers = getMatchingMembers( currentViewCompiled, effectiveAccessType, memberSelectorContext );
+			List< MemberCompiled > membersCompiled = getMembersCompiled( matchingMembers );
 			currentViewCompiled.getMembersCompiled().addAll( membersCompiled );
 			currentMembersCompiled.addAll( membersCompiled );
 		}
@@ -634,66 +638,130 @@ public class Pass2Listener extends AbstractInflectionListener
 	}
 	
 	// TODO: use a list instead of a set to preserve the order of members
-	private Set< String > getMatchingMembers( ViewCompiled viewCompiled, AccessType effectiveAccessType, ParserRuleContext memberSelectorContext )
+	private List< String > getMatchingMembers( ViewCompiled viewCompiled, AccessType effectiveAccessType, ParserRuleContext memberSelectorContext )
 	{
 		IdentifierContext identifierContext = getRuleContextRecursive( memberSelectorContext, IdentifierContext.class );
 		WildcardIdentifierContext wildcardIdentifierContext = getRuleContextRecursive( memberSelectorContext, WildcardIdentifierContext.class );
 		String memberSelector = ( identifierContext != null ? identifierContext : wildcardIdentifierContext ).getText().toLowerCase();
 		String memberSelectorRegEx = memberSelector.replace( "*", "[a-zA-Z0-9_$]*?" );
 		Class< ? > viewClass = getClass( viewCompiled.getName() );
-		Set< String > memberNames;
+		Map< String, List< Member > > members = new HashMap< String, List< Member > >();
 		 
 		if ( effectiveAccessType.equals( AccessType.FIELD ) )
-			memberNames = getFieldNames( viewClass );
+			getFieldNames( viewClass, members );
 		else if ( effectiveAccessType.equals( AccessType.PROPERTY ) )
-			memberNames = getPropertyNames( viewClass );
+			getPropertyNames( viewClass, PropertyType.DYNAMIC, members );
 		else
 			throw new IllegalStateException( "Unexpected value for effectiveAccessType: " + effectiveAccessType  );
+		
+		for ( String className : viewCompiled.getUsedClasses() )
+		{
+			Class< ? > usedClass = getClass( className );
+			getPropertyNames( usedClass, PropertyType.STATIC, members );
+		}
 
-		Set< String > matchingMembers = new HashSet< String >();
+		List< String > matchingMembers = new ArrayList< String >();
+
+		for ( Map.Entry< String, List< Member > > member : members.entrySet() )
+		{
+			if ( member.getKey().matches( memberSelectorRegEx ) )
+			{
+				List< Member > specificMembers = member.getValue();
+				validateSpecificMembersNotAmbiguous( specificMembers, memberSelectorContext );
+				matchingMembers.add( member.getKey() );
+			}
+		}
 		
-		for ( String memberName : memberNames )
-			if ( memberName.matches( memberSelectorRegEx ) )
-				matchingMembers.add( memberName );
-		
-		if ( identifierContext != null && matchingMembers.isEmpty() )
-			reportError( memberSelectorContext.start, memberSelectorContext.stop, "Member selector doesn't match any member in class " + viewCompiled.getName() );
+		validateMemberSelectorMatchesAtLeastOne( identifierContext, matchingMembers, viewCompiled, memberSelectorContext );
 		
 		return matchingMembers;
 	}
 
-	private Set< String > getFieldNames( Class< ? > viewClass )
+	private void validateMemberSelectorMatchesAtLeastOne( IdentifierContext identifierContext, List< String > matchingMembers, ViewCompiled viewCompiled, ParserRuleContext memberSelectorContext )
 	{
-		Set< String > fieldNames = new HashSet< String >();
-
-		for ( Field declaredField : viewClass.getDeclaredFields() )
-			fieldNames.add( declaredField.getName() );
-		
-		return fieldNames;
+		if ( identifierContext != null && matchingMembers.isEmpty() )
+			reportError( memberSelectorContext.start, memberSelectorContext.stop, "Member selector doesn't match any member in class " + viewCompiled.getName() );
 	}
 	
-	private Set< String > getPropertyNames( Class< ? > viewClass )
+	private void validateSpecificMembersNotAmbiguous( List< Member > specificMembers, ParserRuleContext memberSelectorContext )
 	{
-		Set< String > propertyNames = new HashSet< String >();
+		Set< String > specificMemberClasses = new HashSet< String >();
+		
+		for ( Member specificMember : specificMembers )
+			specificMemberClasses.add( specificMember.getDeclaringClass().getName() );
+		
+		if ( specificMemberClasses.size() > 1 )
+			reportError( memberSelectorContext.start, memberSelectorContext.stop, "Member selector is ambigous; could refer to classes: " + String.join( ", ", specificMemberClasses ) );
+		else if ( specificMemberClasses.size() == 0 )
+			throw new IllegalStateException( "Unexpected value for specificMemberClasses.size(): " + specificMemberClasses.size() );
+	}
 
-		for ( Method declaredMethod : viewClass.getDeclaredMethods() )
+	private void getFieldNames( Class< ? > viewClass, Map< String, List< Member > > members )
+	{
+		for ( Field declaredField : viewClass.getDeclaredFields() )
+			addMember( members, declaredField, declaredField.getName() );
+	}
+	
+	private void addMember( Map< String, List< Member > > members, Member member, String memberName )
+	{
+		List< Member > specificMembers = members.get( memberName );
+		
+		if ( specificMembers == null )
 		{
-			String declaredMethodName = declaredMethod.getName();
-			
-			if ( declaredMethodName.startsWith( "get" ) )
-				propertyNames.add( declaredMethodName.substring( "get".length() ).toLowerCase() );
-			else if ( declaredMethodName.startsWith( "set" ) )
-				propertyNames.add( declaredMethodName.substring( "set".length() ).toLowerCase() );
-			else if ( declaredMethodName.startsWith( "is" ) )
-				propertyNames.add( declaredMethodName.substring( "is".length() ).toLowerCase() );
+			specificMembers = new ArrayList< Member >();
+			members.put( memberName, specificMembers );
 		}
 		
-		return propertyNames;
+		specificMembers.add( member );
 	}
 	
-	private Set< MemberCompiled > getMembersCompiled( Set< String > matchingMembers )
+	public enum PropertyType
 	{
-		Set< MemberCompiled > membersCompiled = new HashSet< MemberCompiled >();
+		STATIC,
+		DYNAMIC
+	}
+	
+	private void getPropertyNames( Class< ? > viewClass, PropertyType propertyType, Map< String, List< Member > > members )
+	{
+		for ( Method declaredMethod : viewClass.getDeclaredMethods() )
+		{
+			if ( ( Modifier.isStatic( declaredMethod.getModifiers() ) && propertyType.equals( PropertyType.DYNAMIC ) ) ||
+					( !Modifier.isStatic( declaredMethod.getModifiers() ) && propertyType.equals( PropertyType.STATIC ) ) )
+				continue;
+			
+			String propertyName = getPropertyName( declaredMethod );
+			
+			if ( propertyName != null )
+			{
+				addMember( members, declaredMethod, propertyName );
+				validatePropertySignature( declaredMethod );
+			}
+		}
+	}
+	
+	private String getPropertyName( Method declaredMethod )
+	{
+		String declaredMethodName = declaredMethod.getName();
+		String propertyName = null;
+		
+		if ( declaredMethodName.startsWith( "get" ) )
+			propertyName = declaredMethodName.substring( "get".length() ).toLowerCase();
+		else if ( declaredMethodName.startsWith( "set" ) )
+			propertyName = declaredMethodName.substring( "set".length() ).toLowerCase();
+		else if ( declaredMethodName.startsWith( "is" ) )
+			propertyName = declaredMethodName.substring( "is".length() ).toLowerCase();
+		
+		return propertyName;
+	}
+	
+	private void validatePropertySignature( Method declaredMethod )
+	{
+		// TODO: implement
+	}
+	
+	private List< MemberCompiled > getMembersCompiled( List< String > matchingMembers )
+	{
+		List< MemberCompiled > membersCompiled = new ArrayList< MemberCompiled >();
 		
 		for ( String matchingMember : matchingMembers )
 			membersCompiled.add( new MemberCompiled( matchingMember ) );
@@ -720,31 +788,6 @@ public class Pass2Listener extends AbstractInflectionListener
 			}
 		}
 	}
-	
-
-//	@Override
-//	public void enterAliasableClassSelector( AliasableClassSelectorContext aliasableClassSelectorContext )
-//	{
-//		// Note that I'm assuming that there is exactly one matching class and therefore
-//		// invoking iterator().next() is safe; the checks should have already been performed
-//		// in enterViewDeclaration().
-//		ClassSelectorContext classSelectorContext = (ClassSelectorContext)aliasableClassSelectorContext.getChild( 0 );
-//		AliasContext aliasContext = (AliasContext)aliasableClassSelectorContext.getChild( 2 );
-//		String alias = aliasContext.getText();
-//		String className = getMatchingClasses( classSelectorContext ).iterator().next();
-//		String fqAlias = ( getPackageName().equals( DEFAULT_PACKAGE_NAME ) ? alias : getPackageName() + "." + alias );
-//		validateAliasNameNotInConflict( aliasContext, fqAlias );
-//		
-//		for ( ViewCompiled viewCompiled : currentTaxonomyCompiled.getViewsCompiled() )
-//		{
-//			if ( viewCompiled.getName().equals( className ) )
-//			{
-//				viewCompiled.setAlias( alias );
-//				break;
-//			}
-//		}
-//	}
-	
 	
 	// MISC
 
