@@ -4,6 +4,7 @@ import java.util.List;
 
 public interface View extends AliasableElement
 {
+	public String getName();
 	public Class< ? > getViewedClass();
 	public List< Class< ? > > getUsedClasses();
 	public Taxonomy getParentTaxonomy();

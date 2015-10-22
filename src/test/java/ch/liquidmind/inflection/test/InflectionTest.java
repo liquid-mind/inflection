@@ -18,6 +18,8 @@ import ch.liquidmind.inflection.model.SelectionType;
 import ch.liquidmind.inflection.model.compiled.MemberCompiled;
 import ch.liquidmind.inflection.model.compiled.TaxonomyCompiled;
 import ch.liquidmind.inflection.model.compiled.ViewCompiled;
+import ch.liquidmind.inflection.model.external.Taxonomy;
+import ch.liquidmind.inflection.util.InflectionPrinter;
 
 public class InflectionTest
 {
@@ -59,13 +61,35 @@ public class InflectionTest
 	@Test
 	public void testCompiler()
 	{
-		CompilationJob job = new CompilationJob(
-			TaxonomyLoader.getSystemTaxonomyLoader(),
-			new File( "/Users/john/Documents/workspace-liquid-mind/inflection/build/inflection-test" ),
-			CompilationMode.BOOTSTRAP, 
-			new File( "/Users/john/Documents/workspace-liquid-mind/inflection/src/test/resources/ch/liquidmind/inflection/test/test.inflect" ), 
-			new File( "/Users/john/Documents/workspace-liquid-mind/inflection/src/test/resources/ch/liquidmind/inflection/test/otherpackage/test2.inflect" ) );
+		File targetDir = new File( "/Users/john/Documents/workspace-liquid-mind/inflection/build/inflection-test" );
+		File inflectionTest = new File( "/Users/john/Documents/workspace-liquid-mind/inflection/src/test/resources/ch/liquidmind/inflection/test/model/test.inflect" );
+		
+		if ( targetDir.exists() )
+			__FileUtils.forceDelete( null, targetDir );
+		
+		// Note that the CompilationMode.BOOTSTRAP option is to avoid an error
+		// due to the reserved namespace "ch.liquidmind.inflection".
+		CompilationJob job = new CompilationJob( TaxonomyLoader.getSystemTaxonomyLoader(), targetDir, CompilationMode.BOOTSTRAP, inflectionTest );
 		InflectionCompiler.compile( job );
 		job.printFaults();
+
+		URLClassLoader currentClassLoader = (URLClassLoader)InflectionTest.class.getClassLoader();
+		URL[] currentUrls = currentClassLoader.getURLs();
+		URL[] urls = new URL[ currentUrls.length + 2 ];
+		System.arraycopy( currentUrls, 0, urls, 0, currentUrls.length );
+		urls[ urls.length - 2 ] = __URI.toURL( targetDir.toURI() );
+		URLClassLoader newClassLoader = new URLClassLoader( urls );
+		
+		TaxonomyLoader taxonomyLoader = new TaxonomyLoader( TaxonomyLoader.getSystemTaxonomyLoader(), newClassLoader );
+		
+		String[] taxonomyNames = new String[] { "FullTaxonomy", "UseCase1", "UseCase2", "UseCase3", "UseCase4" };
+		
+		for ( String taxonomyName : taxonomyNames )
+		{
+			Taxonomy taxonomy = taxonomyLoader.loadTaxonomy( "ch.liquidmind.inflection.test.model." + taxonomyName );
+			InflectionPrinter printer = new InflectionPrinter();
+			printer.printTaxonomy( taxonomy );
+			System.out.println();
+		}
 	}
 }

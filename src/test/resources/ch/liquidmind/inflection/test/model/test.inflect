@@ -1,0 +1,36 @@
+package ch.liquidmind.inflection.test.model;
+
+taxonomy FullTaxonomy
+{
+	view * { *; }
+	exclude view CalculatedMembers;
+}
+
+taxonomy UseCase1 extends FullTaxonomy
+{
+	view Address {}
+}
+
+// Need the ability to specify class in member selector. E.g.,
+// "Person.*" includes only the members of Person and not of CalculatedMembers.
+taxonomy UseCase2 extends FullTaxonomy
+{
+	view Person use CalculatedMembers
+	{
+		*;
+		exclude fullName, primaryAddress;
+	}
+}
+
+taxonomy UseCase3 extends FullTaxonomy
+{
+	view Person use CalculatedMembers
+	{
+		fullName, email, gender, dateOfBirth, primaryAddress;
+	}
+}
+
+taxonomy UseCase4 extends FullTaxonomy
+{
+	view Person {}
+}

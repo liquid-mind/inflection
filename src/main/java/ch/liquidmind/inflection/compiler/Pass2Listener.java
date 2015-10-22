@@ -30,11 +30,13 @@ import ch.liquidmind.inflection.grammar.InflectionParser.CompilationUnitContext;
 import ch.liquidmind.inflection.grammar.InflectionParser.DefaultAccessMethodModifierContext;
 import ch.liquidmind.inflection.grammar.InflectionParser.ExcludableClassSelectorContext;
 import ch.liquidmind.inflection.grammar.InflectionParser.ExcludableMemberSelectorContext;
+import ch.liquidmind.inflection.grammar.InflectionParser.ExcludeMemberModifierContext;
 import ch.liquidmind.inflection.grammar.InflectionParser.ExcludeViewModifierContext;
 import ch.liquidmind.inflection.grammar.InflectionParser.ExtendedTaxonomyContext;
 import ch.liquidmind.inflection.grammar.InflectionParser.IdentifierContext;
 import ch.liquidmind.inflection.grammar.InflectionParser.IncludableClassSelectorContext;
 import ch.liquidmind.inflection.grammar.InflectionParser.IncludableMemberSelectorContext;
+import ch.liquidmind.inflection.grammar.InflectionParser.IncludeMemberModifierContext;
 import ch.liquidmind.inflection.grammar.InflectionParser.IncludeViewModifierContext;
 import ch.liquidmind.inflection.grammar.InflectionParser.MemberDeclarationContext;
 import ch.liquidmind.inflection.grammar.InflectionParser.MemberSelectorContext;
@@ -64,7 +66,8 @@ public class Pass2Listener extends AbstractInflectionListener
 	private Set< ViewCompiled > currentViewsCompiled;
 	private Set< MemberCompiled > currentMembersCompiled;
 	private List< AnnotationCompiled > currentAnnotationsCompiled;
-	private SelectionType currentSelectionType;
+	private SelectionType currentViewSelectionType;
+	private SelectionType currentMemberSelectionType;
 	private AccessType currentAccessType;
 	
 	public Pass2Listener( CompilationUnit compilationUnit )
@@ -284,7 +287,7 @@ public class Pass2Listener extends AbstractInflectionListener
 		for ( ViewCompiled currentViewCompiled : currentViewsCompiled )
 		{
 			currentViewCompiled.getAnnotationsCompiled().addAll( currentAnnotationsCompiled );
-			currentViewCompiled.setSelectionType( currentSelectionType );
+			currentViewCompiled.setSelectionType( currentViewSelectionType );
 		}
 	}
 	
@@ -522,6 +525,18 @@ public class Pass2Listener extends AbstractInflectionListener
 		return getMatchingClasses( packageContext, classSelectorRegEx );
 	}
 
+	@Override
+	public void enterIncludeViewModifier( IncludeViewModifierContext includeViewModifierContext )
+	{
+		currentViewSelectionType = SelectionType.INCLUDE;
+	}
+
+	@Override
+	public void enterExcludeViewModifier( ExcludeViewModifierContext excludeViewModifierContext )
+	{
+		currentViewSelectionType = SelectionType.EXCLUDE;
+	}
+
 	// MEMBERS
 	
 	@Override
@@ -538,7 +553,7 @@ public class Pass2Listener extends AbstractInflectionListener
 		for ( MemberCompiled currentMemberCompiled : currentMembersCompiled )
 		{
 			currentMemberCompiled.getAnnotationsCompiled().addAll( currentAnnotationsCompiled );
-			currentMemberCompiled.setSelectionType( currentSelectionType );
+			currentMemberCompiled.setSelectionType( currentMemberSelectionType );
 			currentMemberCompiled.setAccessType( currentAccessType );
 		}
 	}
@@ -788,6 +803,18 @@ public class Pass2Listener extends AbstractInflectionListener
 			}
 		}
 	}
+
+	@Override
+	public void enterIncludeMemberModifier( IncludeMemberModifierContext includeMemberModifierContext )
+	{
+		currentMemberSelectionType = SelectionType.INCLUDE;
+	}
+
+	@Override
+	public void enterExcludeMemberModifier( ExcludeMemberModifierContext excludeMemberModifierContext )
+	{
+		currentMemberSelectionType = SelectionType.EXCLUDE;
+	}
 	
 	// MISC
 
@@ -795,18 +822,6 @@ public class Pass2Listener extends AbstractInflectionListener
 	public void enterAnnotation( AnnotationContext annotationContext )
 	{
 		currentAnnotationsCompiled.add( new AnnotationCompiled( annotationContext.getText() ) );
-	}
-
-	@Override
-	public void enterIncludeViewModifier( IncludeViewModifierContext includeViewModifierContext )
-	{
-		currentSelectionType = SelectionType.INCLUDE;
-	}
-
-	@Override
-	public void enterExcludeViewModifier( ExcludeViewModifierContext excludeViewModifierContext )
-	{
-		currentSelectionType = SelectionType.EXCLUDE;
 	}
 
 	@Override

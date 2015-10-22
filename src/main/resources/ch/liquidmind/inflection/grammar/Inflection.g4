@@ -93,6 +93,13 @@ viewDeclaration
 	|	annotation* excludeViewModifier VIEW excludableClassSelector ( COMMA excludableClassSelector )* SEMICOLON
 	;
 	
+includeViewModifier
+	:	includModifier
+	;
+	
+excludeViewModifier
+	:	excludeModifier
+	;	
 viewBody
 	:	CURLY_BRACKET_OPEN memberDeclaration* CURLY_BRACKET_CLOSE
 	;
@@ -126,8 +133,16 @@ wildcardClassSelector
 // MEMBER
 
 memberDeclaration
-	:	annotation* includeViewModifier accessMethodModifier includableMemberSelector ( COMMA includableMemberSelector )* SEMICOLON
-	|	annotation* excludeViewModifier accessMethodModifier excludableMemberSelector ( COMMA excludableMemberSelector )* SEMICOLON
+	:	annotation* includeMemberModifier accessMethodModifier includableMemberSelector ( COMMA includableMemberSelector )* SEMICOLON
+	|	annotation* excludeMemberModifier accessMethodModifier excludableMemberSelector ( COMMA excludableMemberSelector )* SEMICOLON
+	;
+	
+includeMemberModifier
+	:	includModifier
+	;
+	
+excludeMemberModifier
+	:	excludeModifier
 	;
 	
 accessMethodModifier
@@ -160,11 +175,11 @@ wildcardMemberSelector
 	
 // COMMON
 
-includeViewModifier
+includModifier
 	:	INCLUDE?
 	;
 
-excludeViewModifier
+excludeModifier
 	:	EXCLUDE
 	;
 

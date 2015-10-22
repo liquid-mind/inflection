@@ -1,13 +1,16 @@
 package ch.liquidmind.inflection.model.linked;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import com.google.common.collect.ImmutableList;
 
 import ch.liquidmind.inflection.model.AccessType;
+import ch.liquidmind.inflection.model.SelectionType;
 import ch.liquidmind.inflection.model.external.Taxonomy;
 import ch.liquidmind.inflection.model.external.View;
+import ch.liquidmind.inflection.model.external.ViewRaw;
 
 public class TaxonomyLinked extends AnnotatableElementLinked implements Taxonomy
 {
@@ -73,6 +76,134 @@ public class TaxonomyLinked extends AnnotatableElementLinked implements Taxonomy
 	@Override
 	public List< View > getViews()
 	{
-		return ImmutableList.copyOf( getViewsLinked() );
+		return getViews( getViewsRaw() );
+	}
+
+	@Override
+	public List< View > getDeclaredViews()
+	{
+		return getViews( getDeclaredViewsRaw() );
+	}
+	
+	private List< View > getViews( List< ViewRaw > viewsRaw )
+	{
+		List< View > views = new ArrayList< View >();
+		
+		// Pass 1: add includes
+		for ( ViewRaw viewRaw : viewsRaw )
+			if ( viewRaw.getSelectionType().equals( SelectionType.INCLUDE ) )
+				views.add( viewRaw );
+		
+		// Pass 2: remove excludes
+		for ( ViewRaw viewRaw : viewsRaw )
+		{
+			if ( viewRaw.getSelectionType().equals( SelectionType.EXCLUDE ) )
+			{
+				Iterator< View > iter = views.iterator();
+				
+				while( iter.hasNext() )
+				{
+					View declaredView = iter.next();
+					if ( declaredView.getName().equals( viewRaw.getName() ) )
+					{
+						views.remove( declaredView );
+						break;
+					}
+				}
+			}
+		}
+		
+		return views;
+	}
+
+	@Override
+	public View getView( String name )
+	{
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public View getDeclaredView( String name )
+	{
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public View resolveView( Class< ? > aClass )
+	{
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public View resolveView( String className )
+	{
+		throw new UnsupportedOperationException();
+	}
+
+	@SuppressWarnings( "unchecked" )
+	@Override
+	public List< ViewRaw > getViewsRaw()
+	{
+		return (List< ViewRaw >)(Object)getViewsRaw( this );
+	}
+	
+	private static List< ViewLinked > getViewsRaw( TaxonomyLinked taxonomyLinked )
+	{
+		List< ViewLinked > viewsRaw = new ArrayList< ViewLinked >();
+		List< TaxonomyLinked > extendedTaxonomiesLinked = taxonomyLinked.getExtendedTaxonomiesLinked();
+		
+		for ( int i = extendedTaxonomiesLinked.size() - 1 ; i >= 0 ; --i )
+		{
+			TaxonomyLinked extendedTaxonomyLinked = extendedTaxonomiesLinked.get( i );
+			List< ViewLinked > viewsRawDelta = getViewsRaw( extendedTaxonomyLinked );
+			addViewsRaw( viewsRaw, viewsRawDelta );
+		}
+
+		List< ViewLinked > viewsRawDelta = taxonomyLinked.getViewsLinked();
+		addViewsRaw( viewsRaw, viewsRawDelta );
+		
+		return viewsRaw;
+	}
+	
+	private static void addViewsRaw( List< ViewLinked > viewsRaw, List< ViewLinked > viewsRawDelta )
+	{
+		for ( ViewLinked viewRawDelta : viewsRawDelta )
+		{
+			boolean foundMatch = false;
+			
+			for ( int i = 0 ; i < viewsRaw.size() ; ++i )
+			{
+				ViewLinked viewRaw = viewsRaw.get( i );
+				
+				if ( viewRaw.equals( viewRawDelta ) )
+				{
+					viewsRaw.set( i, viewRawDelta );
+					foundMatch = true;
+					break;
+				}
+			}
+			
+			if ( !foundMatch )
+				viewsRaw.add( viewRawDelta );
+		}
+	}
+
+	@SuppressWarnings( "unchecked" )
+	@Override
+	public List< ViewRaw > getDeclaredViewsRaw()
+	{
+		return (List< ViewRaw >)(Object)ImmutableList.copyOf( getViewsLinked() );
+	}
+
+	@Override
+	public ViewRaw getViewRaw( String name )
+	{
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public ViewRaw getDeclaredViewRaw( String name )
+	{
+		throw new UnsupportedOperationException();
 	}
 }
