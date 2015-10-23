@@ -1,7 +1,6 @@
 package ch.liquidmind.inflection.model.linked;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 import com.google.common.collect.ImmutableList;
@@ -12,7 +11,6 @@ import ch.liquidmind.inflection.model.AccessType;
 import ch.liquidmind.inflection.model.SelectionType;
 import ch.liquidmind.inflection.model.external.Taxonomy;
 import ch.liquidmind.inflection.model.external.View;
-import ch.liquidmind.inflection.model.external.ViewRaw;
 
 public class TaxonomyLinked extends AnnotatableElementLinked implements Taxonomy
 {
@@ -76,60 +74,155 @@ public class TaxonomyLinked extends AnnotatableElementLinked implements Taxonomy
 	{
 		return ImmutableList.copyOf( getExtendingTaxonomiesLinked() );
 	}
-
+	
+	@SuppressWarnings( "unchecked" )
 	@Override
 	public List< View > getViews()
 	{
-		return getViews( getViewsRaw() );
+		return (List< View >)(Object)getViews( this, new ArrayList< TaxonomyLinked >() );
 	}
+	
+	@SuppressWarnings( "unchecked" )
+	private static List< ViewLinked > getViews( TaxonomyLinked taxonomyLinked, List< TaxonomyLinked > taxonomyLinkedSiblings )
+	{
+		List< ViewLinked > views = new ArrayList< ViewLinked >();
+		
+		if ( taxonomyLinked != null )
+		{
+			List< ViewLinked > combinedViews = getCombinedViews( taxonomyLinked.getExtendedTaxonomiesLinked(), taxonomyLinkedSiblings );
+			List< ViewLinked > unresolvedViews = (List< ViewLinked >)(Object)taxonomyLinked.getUnresolvedViews();
+			views = resolveViews( unresolvedViews, combinedViews );
+		}
 
+		return views;
+	}
+	
+	private static List< ViewLinked > getCombinedViews( List< TaxonomyLinked > extendedTaxonomiesLinked, List< TaxonomyLinked > taxonomyLinkedSiblings )
+	{
+		List< ViewLinked > extendedViewsLinked = getViews( getFirstTaxonomyLinked( extendedTaxonomiesLinked ), getFollowingTaxonomiesLinked( extendedTaxonomiesLinked ) );
+		List< ViewLinked > siblingsViewsLinked = getViews( getFirstTaxonomyLinked( taxonomyLinkedSiblings ), getFollowingTaxonomiesLinked( taxonomyLinkedSiblings ) );
+		List< ViewLinked > combinedViews = new ArrayList< ViewLinked >();
+		
+		combinedViews.addAll( siblingsViewsLinked );
+		
+		for ( ViewLinked extendedViewLinked : extendedViewsLinked )
+		{
+			if ( containsViewLinked( combinedViews, extendedViewLinked.getName(), extendedViewLinked.getSelectionType() ) )
+				combinedViews.set( indexOfViewLinked( combinedViews, extendedViewLinked.getName(), extendedViewLinked.getSelectionType() ), extendedViewLinked );
+			else
+				combinedViews.add( extendedViewLinked );
+		}
+		
+		return combinedViews;
+	}
+	
+	private static TaxonomyLinked getFirstTaxonomyLinked( List< TaxonomyLinked > taxonomyLinkedSiblings )
+	{
+		TaxonomyLinked firstTaxonomyLinked;
+		
+		if ( taxonomyLinkedSiblings.size() == 0 )
+			firstTaxonomyLinked = null;
+		else
+			firstTaxonomyLinked = taxonomyLinkedSiblings.get( 0 );
+		
+		return firstTaxonomyLinked;
+	}
+	
+	private static List< TaxonomyLinked > getFollowingTaxonomiesLinked( List< TaxonomyLinked > taxonomyLinkedSiblings )
+	{
+		List< TaxonomyLinked > followingTaxonomiesLinked;
+		
+		if ( taxonomyLinkedSiblings.size() > 1 )
+			followingTaxonomiesLinked = taxonomyLinkedSiblings.subList( 1, taxonomyLinkedSiblings.size() );
+		else
+			followingTaxonomiesLinked = new ArrayList< TaxonomyLinked >();
+		
+		return followingTaxonomiesLinked;
+	}
+	
+	@SuppressWarnings( "unchecked" )
 	@Override
 	public List< View > getDeclaredViews()
 	{
-		return getViews( getDeclaredViewsRaw() );
+		return (List< View >)(Object)resolveViews( viewsLinked, new ArrayList< ViewLinked >() );
 	}
 	
-	private List< View > getViews( List< ViewRaw > viewsRaw )
+	private static List< ViewLinked > resolveViews( List< ViewLinked > unresolvedViews, List< ViewLinked > previouslyResolvedViews )
 	{
-		List< View > views = new ArrayList< View >();
+		List< ViewLinked > resolvedViews = new ArrayList< ViewLinked >();
+		resolvedViews.addAll( previouslyResolvedViews );
 		
 		// Pass 1: add includes
-		for ( ViewRaw viewRaw : viewsRaw )
-			if ( viewRaw.getSelectionType().equals( SelectionType.INCLUDE ) )
-				views.add( viewRaw );
-		
-		// Pass 2: remove excludes
-		for ( ViewRaw viewRaw : viewsRaw )
+		for ( ViewLinked unresolvedView : unresolvedViews )
 		{
-			if ( viewRaw.getSelectionType().equals( SelectionType.EXCLUDE ) )
+			if ( unresolvedView.getSelectionType().equals( SelectionType.INCLUDE ) )
 			{
-				Iterator< View > iter = views.iterator();
-				
-				while( iter.hasNext() )
-				{
-					View declaredView = iter.next();
-					if ( declaredView.getName().equals( viewRaw.getName() ) )
-					{
-						views.remove( declaredView );
-						break;
-					}
-				}
+				if ( containsViewLinked( resolvedViews, unresolvedView.getName(), SelectionType.INCLUDE ) )
+					resolvedViews.set( indexOfViewLinked( resolvedViews, unresolvedView.getName(), unresolvedView.getSelectionType() ), unresolvedView );
+				else
+					resolvedViews.add( unresolvedView );
 			}
 		}
 		
-		return views;
+		// Pass 2: remove excludes
+		for ( ViewLinked unresolvedView : unresolvedViews )
+		{
+			if ( unresolvedView.getSelectionType().equals( SelectionType.EXCLUDE ) && containsViewLinked( resolvedViews, unresolvedView.getName(), SelectionType.INCLUDE ) )
+				resolvedViews.remove( indexOfViewLinked( resolvedViews, unresolvedView.getName(), SelectionType.INCLUDE ) );
+		}
+		
+		return resolvedViews;
+	}
+
+	private static boolean containsViewLinked( List< ViewLinked > viewsLinked, String name, SelectionType selectionType )
+	{
+		return indexOfViewLinked( viewsLinked, name, selectionType ) == -1 ? false : true;
+	}
+	
+	private static int indexOfViewLinked( List< ViewLinked > viewsLinked, String name, SelectionType selectionType )
+	{
+		int foundIndex = -1;
+		
+		for ( int i = 0 ; i < viewsLinked.size() ; ++i )
+		{
+			ViewLinked viewLinked = viewsLinked.get( i );
+			
+			if ( ( name == null || viewLinked.getName().equals( name ) ) && ( selectionType == null || viewLinked.getSelectionType().equals( selectionType ) ) )
+			{
+				foundIndex = i;
+				break;
+			}
+		}
+		
+		return foundIndex;
+	}
+
+	@SuppressWarnings( "unchecked" )
+	@Override
+	public List< View > getUnresolvedViews()
+	{
+		return ImmutableList.copyOf( (List< View >)(Object)viewsLinked );
 	}
 
 	@Override
 	public View getView( String name )
 	{
-		throw new UnsupportedOperationException();
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 	@Override
 	public View getDeclaredView( String name )
 	{
-		throw new UnsupportedOperationException();
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public View getUnresolvedView( String name )
+	{
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 	@Override
@@ -143,83 +236,16 @@ public class TaxonomyLinked extends AnnotatableElementLinked implements Taxonomy
 	{
 		View resolvedView = null;
 		
-		for ( ViewLinked viewLinked : viewsLinked )
+		for ( View view : getViews() )
 		{
-			if ( viewLinked.getViewedClass().equals( viewedClass ) )
+			if ( view.getViewedClass().equals( viewedClass ) )
 			{
-				resolvedView = viewLinked;
+				resolvedView = view;
 				break;
 			}
 		}
 		
 		return resolvedView;
-	}
-
-	@SuppressWarnings( "unchecked" )
-	@Override
-	public List< ViewRaw > getViewsRaw()
-	{
-		return (List< ViewRaw >)(Object)getViewsRaw( this );
-	}
-	
-	private static List< ViewLinked > getViewsRaw( TaxonomyLinked taxonomyLinked )
-	{
-		List< ViewLinked > viewsRaw = new ArrayList< ViewLinked >();
-		List< TaxonomyLinked > extendedTaxonomiesLinked = taxonomyLinked.getExtendedTaxonomiesLinked();
-		
-		for ( int i = extendedTaxonomiesLinked.size() - 1 ; i >= 0 ; --i )
-		{
-			TaxonomyLinked extendedTaxonomyLinked = extendedTaxonomiesLinked.get( i );
-			List< ViewLinked > viewsRawDelta = getViewsRaw( extendedTaxonomyLinked );
-			addViewsRaw( viewsRaw, viewsRawDelta );
-		}
-
-		List< ViewLinked > viewsRawDelta = taxonomyLinked.getViewsLinked();
-		addViewsRaw( viewsRaw, viewsRawDelta );
-		
-		return viewsRaw;
-	}
-	
-	private static void addViewsRaw( List< ViewLinked > viewsRaw, List< ViewLinked > viewsRawDelta )
-	{
-		for ( ViewLinked viewRawDelta : viewsRawDelta )
-		{
-			boolean foundMatch = false;
-			
-			for ( int i = 0 ; i < viewsRaw.size() ; ++i )
-			{
-				ViewLinked viewRaw = viewsRaw.get( i );
-				
-				if ( viewRaw.equals( viewRawDelta ) )
-				{
-					viewsRaw.set( i, viewRawDelta );
-					foundMatch = true;
-					break;
-				}
-			}
-			
-			if ( !foundMatch )
-				viewsRaw.add( viewRawDelta );
-		}
-	}
-
-	@SuppressWarnings( "unchecked" )
-	@Override
-	public List< ViewRaw > getDeclaredViewsRaw()
-	{
-		return (List< ViewRaw >)(Object)ImmutableList.copyOf( getViewsLinked() );
-	}
-
-	@Override
-	public ViewRaw getViewRaw( String name )
-	{
-		throw new UnsupportedOperationException();
-	}
-
-	@Override
-	public ViewRaw getDeclaredViewRaw( String name )
-	{
-		throw new UnsupportedOperationException();
 	}
 
 	public TaxonomyLoader getTaxonomyLoader()

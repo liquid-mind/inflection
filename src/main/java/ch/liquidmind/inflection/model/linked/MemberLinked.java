@@ -25,6 +25,6 @@ public abstract class MemberLinked extends AliasableElementLinked implements Mem
 	@Override
 	public View getParentView()
 	{
-		return getParentViewLinked();
+		return parentViewLinked;
 	}
 }

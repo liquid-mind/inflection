@@ -38,3 +38,14 @@ taxonomy UseCase4 extends FullTaxonomy
 {
 	view Person {}
 }
+
+taxonomy UseCase5 extends FullTaxonomy
+{
+	view Person
+	{
+		*;
+		exclude addresses;
+	}
+	
+	exclude view Address;
+}

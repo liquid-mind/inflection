@@ -3,14 +3,11 @@ package ch.liquidmind.inflection.model.linked;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.google.common.collect.ImmutableList;
-
 import ch.liquidmind.inflection.model.external.Member;
 import ch.liquidmind.inflection.model.external.Taxonomy;
 import ch.liquidmind.inflection.model.external.View;
-import ch.liquidmind.inflection.model.external.ViewRaw;
 
-public class ViewLinked extends AliasableElementLinked implements ViewRaw
+public class ViewLinked extends AliasableElementLinked implements View
 {
 	private Class< ? > viewedClass;
 	private List< Class< ? > > usedClasses = new ArrayList< Class< ? > >();
@@ -55,9 +52,9 @@ public class ViewLinked extends AliasableElementLinked implements ViewRaw
 	@Override
 	public Taxonomy getParentTaxonomy()
 	{
-		return getParentTaxonomyLinked();
+		return parentTaxonomyLinked;
 	}
-
+	
 	@Override
 	public List< Member > getMembers()
 	{
@@ -71,52 +68,9 @@ public class ViewLinked extends AliasableElementLinked implements ViewRaw
 	}
 
 	@Override
-	public List< Member > getMembersRaw()
-	{
-		return ImmutableList.copyOf( getMembersRaw( this ) );
-	}
-	
-	public List< MemberLinked > getMembersRaw( ViewLinked viewLinked )
+	public List< Member > getUnresolvedMembers()
 	{
 		throw new UnsupportedOperationException();
-	}
-
-	@Override
-	public List< Member > getDeclaredMembersRaw()
-	{
-		return ImmutableList.copyOf( getMembersLinked() );
-	}
-
-	@Override
-	public int hashCode()
-	{
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + ( ( getSelectionType() == null ) ? 0 : getSelectionType().hashCode() );
-		result = prime * result + ( ( viewedClass == null ) ? 0 : viewedClass.hashCode() );
-		return result;
-	}
-
-	@Override
-	public boolean equals( Object obj )
-	{
-		if ( this == obj )
-			return true;
-		if ( obj == null )
-			return false;
-		if ( getClass() != obj.getClass() )
-			return false;
-		ViewLinked other = (ViewLinked)obj;
-		if ( getSelectionType() != other.getSelectionType() )
-			return false;
-		if ( viewedClass == null )
-		{
-			if ( other.viewedClass != null )
-				return false;
-		}
-		else if ( !viewedClass.equals( other.viewedClass ) )
-			return false;
-		return true;
 	}
 
 	@Override

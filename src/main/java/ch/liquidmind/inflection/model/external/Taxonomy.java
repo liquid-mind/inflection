@@ -13,12 +13,10 @@ public interface Taxonomy extends AnnotatableElement
 	public List< Taxonomy > getExtendingTaxonomies();
 	public List< View > getViews();
 	public List< View > getDeclaredViews();
-	public List< ViewRaw > getViewsRaw();
-	public List< ViewRaw > getDeclaredViewsRaw();
+	public List< View > getUnresolvedViews();
 	public View getView( String name );
 	public View getDeclaredView( String name );
-	public ViewRaw getViewRaw( String name );
-	public ViewRaw getDeclaredViewRaw( String name );
+	public View getUnresolvedView( String name );
 	public View resolveView( Class< ? > aClass );
 	public View resolveView( String className );
 }
