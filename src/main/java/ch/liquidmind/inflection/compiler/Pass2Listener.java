@@ -679,7 +679,7 @@ public class Pass2Listener extends AbstractInflectionListener
 
 		for ( Map.Entry< String, List< Member > > member : members.entrySet() )
 		{
-			if ( member.getKey().matches( memberSelectorRegEx ) )
+			if ( member.getKey().toLowerCase().matches( memberSelectorRegEx ) )
 			{
 				List< Member > specificMembers = member.getValue();
 				validateSpecificMembersNotAmbiguous( specificMembers, memberSelectorContext );
@@ -760,13 +760,22 @@ public class Pass2Listener extends AbstractInflectionListener
 		String propertyName = null;
 		
 		if ( declaredMethodName.startsWith( "get" ) )
-			propertyName = declaredMethodName.substring( "get".length() ).toLowerCase();
+			propertyName = declaredMethodName.substring( "get".length() );
 		else if ( declaredMethodName.startsWith( "set" ) )
-			propertyName = declaredMethodName.substring( "set".length() ).toLowerCase();
+			propertyName = declaredMethodName.substring( "set".length() );
 		else if ( declaredMethodName.startsWith( "is" ) )
-			propertyName = declaredMethodName.substring( "is".length() ).toLowerCase();
+			propertyName = declaredMethodName.substring( "is".length() );
 		
-		return propertyName;
+		String propertyNameAdjusted = null;
+		
+		if ( propertyName == null || propertyName.length() == 0 )
+			propertyNameAdjusted = propertyName;
+		else if ( propertyName.length() == 1 )
+			propertyNameAdjusted = propertyName.toLowerCase();
+		else
+			propertyNameAdjusted = propertyName.substring( 0, 1 ).toLowerCase() + propertyName.substring( 1 );
+		
+		return propertyNameAdjusted;
 	}
 	
 	private void validatePropertySignature( Method declaredMethod )
