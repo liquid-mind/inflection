@@ -9,4 +9,8 @@ public interface View extends AliasableElement
 	public List< Class< ? > > getUsedClasses();
 	public Taxonomy getParentTaxonomy();
 	public List< Member > getMembers();
+	public List< Member > getDeclaredMembers();
+	public List< Member > getMembersRaw();
+	public List< Member > getDeclaredMembersRaw();
+	public View getSuperview();
 }

@@ -687,15 +687,15 @@ public class Pass2Listener extends AbstractInflectionListener
 			}
 		}
 		
-		validateMemberSelectorMatchesAtLeastOne( identifierContext, matchingMembers, viewCompiled, memberSelectorContext );
+		validateMemberSelectorMatchesAtLeastOne( identifierContext, matchingMembers, viewCompiled );
 		
 		return matchingMembers;
 	}
 
-	private void validateMemberSelectorMatchesAtLeastOne( IdentifierContext identifierContext, List< String > matchingMembers, ViewCompiled viewCompiled, ParserRuleContext memberSelectorContext )
+	private void validateMemberSelectorMatchesAtLeastOne( IdentifierContext identifierContext, List< String > matchingMembers, ViewCompiled viewCompiled )
 	{
 		if ( identifierContext != null && matchingMembers.isEmpty() )
-			reportError( memberSelectorContext.start, memberSelectorContext.stop, "Member selector doesn't match any member in class " + viewCompiled.getName() );
+			reportError( identifierContext.start, identifierContext.stop, "Member selector doesn't match any member in class " + viewCompiled.getName() );
 	}
 	
 	private void validateSpecificMembersNotAmbiguous( List< Member > specificMembers, ParserRuleContext memberSelectorContext )

@@ -152,7 +152,7 @@ public class TaxonomyLoader
 	
 	protected Taxonomy defineTaxonomy( TaxonomyCompiled taxonomyCompiled )
 	{
-		TaxonomyLinked taxonomyLinked = new TaxonomyLinked( taxonomyCompiled.getName() );
+		TaxonomyLinked taxonomyLinked = new TaxonomyLinked( taxonomyCompiled.getName(), this );
 		
 		for ( String extendedTaxonomy : taxonomyCompiled.getExtendedTaxonomies() )
 			taxonomyLinked.getExtendedTaxonomiesLinked().add( (TaxonomyLinked)loadTaxonomy( extendedTaxonomy ) );

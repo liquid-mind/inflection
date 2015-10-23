@@ -7,6 +7,7 @@ import com.google.common.collect.ImmutableList;
 
 import ch.liquidmind.inflection.model.external.Member;
 import ch.liquidmind.inflection.model.external.Taxonomy;
+import ch.liquidmind.inflection.model.external.View;
 import ch.liquidmind.inflection.model.external.ViewRaw;
 
 public class ViewLinked extends AliasableElementLinked implements ViewRaw
@@ -60,6 +61,29 @@ public class ViewLinked extends AliasableElementLinked implements ViewRaw
 	@Override
 	public List< Member > getMembers()
 	{
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public List< Member > getDeclaredMembers()
+	{
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public List< Member > getMembersRaw()
+	{
+		return ImmutableList.copyOf( getMembersRaw( this ) );
+	}
+	
+	public List< MemberLinked > getMembersRaw( ViewLinked viewLinked )
+	{
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public List< Member > getDeclaredMembersRaw()
+	{
 		return ImmutableList.copyOf( getMembersLinked() );
 	}
 
@@ -93,5 +117,14 @@ public class ViewLinked extends AliasableElementLinked implements ViewRaw
 		else if ( !viewedClass.equals( other.viewedClass ) )
 			return false;
 		return true;
+	}
+
+	@Override
+	public View getSuperview()
+	{
+		Class< ? > superclass = getViewedClass().getSuperclass();
+		View superview = getParentTaxonomyLinked().resolveView( superclass );
+		
+		return superview;
 	}
 }

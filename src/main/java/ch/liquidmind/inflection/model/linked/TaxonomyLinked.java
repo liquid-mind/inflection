@@ -6,6 +6,8 @@ import java.util.List;
 
 import com.google.common.collect.ImmutableList;
 
+import __java.lang.__ClassLoader;
+import ch.liquidmind.inflection.loader.TaxonomyLoader;
 import ch.liquidmind.inflection.model.AccessType;
 import ch.liquidmind.inflection.model.SelectionType;
 import ch.liquidmind.inflection.model.external.Taxonomy;
@@ -14,14 +16,16 @@ import ch.liquidmind.inflection.model.external.ViewRaw;
 
 public class TaxonomyLinked extends AnnotatableElementLinked implements Taxonomy
 {
+	private TaxonomyLoader taxonomyLoader;
 	private AccessType defaultAccessType;
 	private List< TaxonomyLinked > extendedTaxonomiesLinked = new ArrayList< TaxonomyLinked >();
 	private List< TaxonomyLinked > extendingTaxonomiesLinked = new ArrayList< TaxonomyLinked >();
 	private List< ViewLinked > viewsLinked = new ArrayList< ViewLinked >();
 
-	public TaxonomyLinked( String name )
+	public TaxonomyLinked( String name, TaxonomyLoader taxonomyLoader )
 	{
 		super( name );
+		this.taxonomyLoader = taxonomyLoader;
 	}
 
 	public AccessType getDefaultAccessType()
@@ -129,15 +133,26 @@ public class TaxonomyLinked extends AnnotatableElementLinked implements Taxonomy
 	}
 
 	@Override
-	public View resolveView( Class< ? > aClass )
+	public View resolveView( String viewedClassName )
 	{
-		throw new UnsupportedOperationException();
+		return resolveView( __ClassLoader.loadClass( taxonomyLoader.getClassLoader(), viewedClassName ) );
 	}
 
 	@Override
-	public View resolveView( String className )
+	public View resolveView( Class< ? > viewedClass )
 	{
-		throw new UnsupportedOperationException();
+		View resolvedView = null;
+		
+		for ( ViewLinked viewLinked : viewsLinked )
+		{
+			if ( viewLinked.getViewedClass().equals( viewedClass ) )
+			{
+				resolvedView = viewLinked;
+				break;
+			}
+		}
+		
+		return resolvedView;
 	}
 
 	@SuppressWarnings( "unchecked" )
@@ -205,5 +220,10 @@ public class TaxonomyLinked extends AnnotatableElementLinked implements Taxonomy
 	public ViewRaw getDeclaredViewRaw( String name )
 	{
 		throw new UnsupportedOperationException();
+	}
+
+	public TaxonomyLoader getTaxonomyLoader()
+	{
+		return taxonomyLoader;
 	}
 }
