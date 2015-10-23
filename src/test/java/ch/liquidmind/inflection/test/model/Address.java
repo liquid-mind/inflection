@@ -3,7 +3,7 @@ package ch.liquidmind.inflection.test.model;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Address
+public class Address extends IdentifiableObject
 {
 	private String street, city, zip, country;
 	private List< Person > people = new ArrayList< Person >();

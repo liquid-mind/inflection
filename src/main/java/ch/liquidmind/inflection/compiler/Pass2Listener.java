@@ -796,7 +796,7 @@ public class Pass2Listener extends AbstractInflectionListener
 		
 		for ( MemberCompiled currentMemberCompiled : currentMembersCompiled )
 		{
-			if ( currentMemberCompiled.getName().equals( memberName ) )
+			if ( currentMemberCompiled.getName().toLowerCase().equals( memberName.toLowerCase() ) )
 			{
 				currentMemberCompiled.setAlias( alias );
 				break;

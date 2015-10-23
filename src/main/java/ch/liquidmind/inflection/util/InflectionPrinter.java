@@ -4,8 +4,11 @@ import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.List;
 
+import ch.liquidmind.inflection.model.external.Member;
 import ch.liquidmind.inflection.model.external.Taxonomy;
 import ch.liquidmind.inflection.model.external.View;
+import ch.liquidmind.inflection.model.linked.FieldLinked;
+import ch.liquidmind.inflection.model.linked.PropertyLinked;
 
 public class InflectionPrinter
 {
@@ -44,16 +47,26 @@ public class InflectionPrinter
 			printWriter.println( " extends " + String.join( ", ", taxonomyNames ) );
 		else
 			printWriter.println();
+
+		List< View > views = taxonomy.getDeclaredViews();
+		
+		if ( views.isEmpty() )
+		{
+			printWriter.println( "{}" );
+			return;
+		}
 		
 		printWriter.println( "{" );
 		printWriter.increaseIndent();
 		
-		for ( View view : taxonomy.getViews() )
+		for ( int i = 0 ; i < views.size() ; ++i )
 		{
+			View view = views.get( i );
+			
 			printWriter.print( "view " + getTypeName( view.getName() ) );
 			
 			if ( view.getAlias() != null )
-				printWriter.print( " alias " + view.getAlias() );
+				printWriter.print( " as " + view.getAlias() );
 			
 			List< String > usedClassNames = new ArrayList< String >();
 			
@@ -61,11 +74,48 @@ public class InflectionPrinter
 				usedClassNames.add( getTypeName( usedClass.getName() ) );
 			
 			if ( !usedClassNames.isEmpty() )
-				printWriter.println( " use " + String.join( ", ", usedClassNames ) );
+				printWriter.print( " use " + String.join( ", ", usedClassNames ) );
+			
+			if ( view.getSuperview() != null)
+				printWriter.println( " extends " + getTypeName( view.getSuperview().getName() ) );
 			else
 				printWriter.println();
-		}
+			
+			List< Member > members = view.getDeclaredMembers();
+			
+			if ( members.isEmpty() )
+			{
+				printWriter.println( "{}" );
+			}
+			else
+			{
+				printWriter.println( "{" );
+				printWriter.increaseIndent();
 
+				for ( Member member : members )
+				{
+					String accessType;
+					
+					if ( member instanceof FieldLinked )
+						accessType = "field";
+					else if ( member instanceof PropertyLinked )
+						accessType = "property";
+					else
+						throw new IllegalStateException( "Unexpected type for member: " + member.getClass().getName() );
+					
+					String alias = ( member.getAlias() == null ? "" : " as " + member.getAlias() );
+					
+					printWriter.println( accessType + " " + member.getName() + alias + ";" );
+				}
+				
+				printWriter.decreaseIndent();
+				printWriter.println( "}" );
+			}
+			
+			if ( i + 1 != views.size() )
+				printWriter.println();
+		}
+		
 		printWriter.decreaseIndent();
 		printWriter.println( "}" );
 		printWriter.flush();

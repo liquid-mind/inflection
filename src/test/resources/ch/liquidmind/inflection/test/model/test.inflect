@@ -28,9 +28,9 @@ taxonomy UseCase2 extends FullTaxonomy
 
 taxonomy UseCase3 extends FullTaxonomy
 {
-	view Person use CalculatedMembers
+	view Person as Customer use CalculatedMembers
 	{
-		fullName, email, gender, dateOfBirth, primaryAddress;
+		fullName as completeName, email, gender, dateOfBirth, primaryAddress;
 	}
 }
 

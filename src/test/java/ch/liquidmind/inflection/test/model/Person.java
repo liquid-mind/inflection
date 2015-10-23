@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-public class Person
+public class Person extends IdentifiableObject
 {
 	private String firstName , lastName , title;
 	private String telephone , mobile , email;

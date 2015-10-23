@@ -179,22 +179,10 @@ public class TaxonomyLinked extends AnnotatableElementLinked implements Taxonomy
 		return indexOfViewLinked( viewsLinked, name, selectionType ) == -1 ? false : true;
 	}
 	
+	@SuppressWarnings( "unchecked" )
 	private static int indexOfViewLinked( List< ViewLinked > viewsLinked, String name, SelectionType selectionType )
 	{
-		int foundIndex = -1;
-		
-		for ( int i = 0 ; i < viewsLinked.size() ; ++i )
-		{
-			ViewLinked viewLinked = viewsLinked.get( i );
-			
-			if ( ( name == null || viewLinked.getName().equals( name ) ) && ( selectionType == null || viewLinked.getSelectionType().equals( selectionType ) ) )
-			{
-				foundIndex = i;
-				break;
-			}
-		}
-		
-		return foundIndex;
+		return SelectingElementLinked.indexOfSelectingElementLinked( (List< SelectingElementLinked >)(Object)viewsLinked, name, selectionType );
 	}
 
 	@SuppressWarnings( "unchecked" )

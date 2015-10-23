@@ -6,7 +6,6 @@ import ch.liquidmind.inflection.model.AccessType;
 
 public interface Taxonomy extends AnnotatableElement
 {
-	public String getName();
 	public AccessType getDefaultAccessType();
 	public AccessType getDeclaredDefaultAccessType();
 	public List< Taxonomy > getExtendedTaxonomies();
