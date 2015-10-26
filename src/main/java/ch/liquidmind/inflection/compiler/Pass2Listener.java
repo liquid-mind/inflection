@@ -63,8 +63,8 @@ import ch.liquidmind.inflection.model.external.Taxonomy;
 public class Pass2Listener extends AbstractInflectionListener
 {
 	private TaxonomyCompiled currentTaxonomyCompiled;
-	private Set< ViewCompiled > currentViewsCompiled;
-	private Set< MemberCompiled > currentMembersCompiled;
+	private List< ViewCompiled > currentViewsCompiled;
+	private List< MemberCompiled > currentMembersCompiled;
 	private List< AnnotationCompiled > currentAnnotationsCompiled;
 	private SelectionType currentViewSelectionType;
 	private SelectionType currentMemberSelectionType;
@@ -278,7 +278,7 @@ public class Pass2Listener extends AbstractInflectionListener
 	public void enterViewDeclaration( ViewDeclarationContext viewDeclarationContext )
 	{
 		currentAnnotationsCompiled = new ArrayList< AnnotationCompiled >();
-		currentViewsCompiled = new HashSet< ViewCompiled >();
+		currentViewsCompiled = new ArrayList< ViewCompiled >();
 	}
 	
 	@Override
@@ -542,7 +542,7 @@ public class Pass2Listener extends AbstractInflectionListener
 	@Override
 	public void enterMemberDeclaration( MemberDeclarationContext memberDeclarationContext )
 	{
-		currentMembersCompiled = new HashSet< MemberCompiled >();
+		currentMembersCompiled = new ArrayList< MemberCompiled >();
 		currentAnnotationsCompiled = new ArrayList< AnnotationCompiled >();
 		currentAccessType = null;
 	}
