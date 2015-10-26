@@ -240,4 +240,16 @@ public class TaxonomyLinked extends AnnotatableElementLinked implements Taxonomy
 	{
 		return taxonomyLoader;
 	}
+
+	@Override
+	public String getPackageName()
+	{
+		return getPackageName( getName() );
+	}
+
+	@Override
+	public String getSimpleName()
+	{
+		return getSimpleName( getName() );
+	}
 }

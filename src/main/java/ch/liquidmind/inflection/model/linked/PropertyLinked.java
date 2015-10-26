@@ -2,7 +2,9 @@ package ch.liquidmind.inflection.model.linked;
 
 import java.lang.reflect.Method;
 
-public class PropertyLinked extends MemberLinked
+import ch.liquidmind.inflection.model.external.Property;
+
+public class PropertyLinked extends MemberLinked implements Property
 {
 	private Method readMethod;
 	private Method writeMethod;

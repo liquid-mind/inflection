@@ -106,26 +106,6 @@ public class ViewLinked extends AliasableElementLinked implements View
 		
 		return (List< Member >)(Object)declaredMembers;
 	}
-	
-//	// Pass 1: add includes
-//	for ( ViewLinked unresolvedView : unresolvedViews )
-//	{
-//		if ( unresolvedView.getSelectionType().equals( SelectionType.INCLUDE ) )
-//		{
-//			if ( containsViewLinked( resolvedViews, unresolvedView.getName(), SelectionType.INCLUDE ) )
-//				resolvedViews.set( indexOfViewLinked( resolvedViews, unresolvedView.getName(), unresolvedView.getSelectionType() ), unresolvedView );
-//			else
-//				resolvedViews.add( unresolvedView );
-//		}
-//	}
-//	
-//	// Pass 2: remove excludes
-//	for ( ViewLinked unresolvedView : unresolvedViews )
-//	{
-//		if ( unresolvedView.getSelectionType().equals( SelectionType.EXCLUDE ) && containsViewLinked( resolvedViews, unresolvedView.getName(), SelectionType.INCLUDE ) )
-//			resolvedViews.remove( indexOfViewLinked( resolvedViews, unresolvedView.getName(), SelectionType.INCLUDE ) );
-//	}
-	
 
 	private static boolean containsMemberLinked( List< MemberLinked > membersLinked, String name, SelectionType selectionType )
 	{
@@ -151,5 +131,17 @@ public class ViewLinked extends AliasableElementLinked implements View
 		View superview = getParentTaxonomyLinked().resolveView( superclass );
 		
 		return superview;
+	}
+
+	@Override
+	public String getPackageName()
+	{
+		return getPackageName( getName() );
+	}
+
+	@Override
+	public String getSimpleName()
+	{
+		return getSimpleName( getName() );
 	}
 }

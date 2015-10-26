@@ -19,6 +19,7 @@ import ch.liquidmind.inflection.model.compiled.MemberCompiled;
 import ch.liquidmind.inflection.model.compiled.TaxonomyCompiled;
 import ch.liquidmind.inflection.model.compiled.ViewCompiled;
 import ch.liquidmind.inflection.model.external.Taxonomy;
+import ch.liquidmind.inflection.proxy.ProxyGenerator;
 import ch.liquidmind.inflection.util.InflectionPrinter;
 
 public class InflectionTest
@@ -58,8 +59,34 @@ public class InflectionTest
 		taxonomyLoader.loadTaxonomy( myTaxonomy.getName() );
 	}
 	
+	@Ignore
 	@Test
 	public void testCompiler()
+	{
+		TaxonomyLoader taxonomyLoader = compileTestTaxonomies();
+		
+		String[] taxonomyNames = new String[] { "FullTaxonomy", "UseCase1", "UseCase2", "UseCase3", "UseCase4", "UseCase5" };
+		
+		for ( String taxonomyName : taxonomyNames )
+		{
+			Taxonomy taxonomy = taxonomyLoader.loadTaxonomy( "ch.liquidmind.inflection.test.model." + taxonomyName );
+			InflectionPrinter printer = new InflectionPrinter();
+			printer.printTaxonomy( taxonomy );
+			System.out.println();
+		}
+	}
+
+	@Test
+	public void testGenerator()
+	{
+		TaxonomyLoader taxonomyLoader = compileTestTaxonomies();
+		Taxonomy taxonomy = taxonomyLoader.loadTaxonomy( "ch.liquidmind.inflection.test.model.FullTaxonomy" );
+		File baseDir = new File( "/Users/john/Documents/workspace-liquid-mind/inflection/build/inflection-test" );
+		ProxyGenerator proxyGenerator = new ProxyGenerator( baseDir, taxonomy );
+		proxyGenerator.generateTaxonomy();
+	}
+	
+	private TaxonomyLoader compileTestTaxonomies()
 	{
 		File targetDir = new File( "/Users/john/Documents/workspace-liquid-mind/inflection/build/inflection-test" );
 		File inflectionTest = new File( "/Users/john/Documents/workspace-liquid-mind/inflection/src/test/resources/ch/liquidmind/inflection/test/model/test.inflect" );
@@ -82,14 +109,6 @@ public class InflectionTest
 		
 		TaxonomyLoader taxonomyLoader = new TaxonomyLoader( TaxonomyLoader.getSystemTaxonomyLoader(), newClassLoader );
 		
-		String[] taxonomyNames = new String[] { "FullTaxonomy", "UseCase1", "UseCase2", "UseCase3", "UseCase4", "UseCase5" };
-		
-		for ( String taxonomyName : taxonomyNames )
-		{
-			Taxonomy taxonomy = taxonomyLoader.loadTaxonomy( "ch.liquidmind.inflection.test.model." + taxonomyName );
-			InflectionPrinter printer = new InflectionPrinter();
-			printer.printTaxonomy( taxonomy );
-			System.out.println();
-		}
+		return taxonomyLoader;
 	}
 }

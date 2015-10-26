@@ -11,4 +11,6 @@ public interface View extends AliasableElement
 	public List< Member > getDeclaredMembers();
 	public List< Member > getUnresolvedMembers();
 	public View getSuperview();
+	public String getPackageName();
+	public String getSimpleName();
 }

@@ -2,6 +2,7 @@ package ch.liquidmind.inflection.model.external;
 
 import java.util.List;
 
+import ch.liquidmind.inflection.loader.TaxonomyLoader;
 import ch.liquidmind.inflection.model.AccessType;
 
 public interface Taxonomy extends AnnotatableElement
@@ -18,4 +19,7 @@ public interface Taxonomy extends AnnotatableElement
 	public View getUnresolvedView( String name );
 	public View resolveView( Class< ? > aClass );
 	public View resolveView( String className );
+	public TaxonomyLoader getTaxonomyLoader();
+	public String getPackageName();
+	public String getSimpleName();
 }
