@@ -195,15 +195,35 @@ public class TaxonomyLinked extends AnnotatableElementLinked implements Taxonomy
 	@Override
 	public View getView( String name )
 	{
-		// TODO Auto-generated method stub
-		return null;
+		View foundView = null;
+		
+		for ( View view : getViews() )
+		{
+			if ( view.getName().equals( name ) )
+			{
+				foundView = view;
+				break;
+			}
+		}
+		
+		return foundView;
 	}
 
 	@Override
 	public View getDeclaredView( String name )
 	{
-		// TODO Auto-generated method stub
-		return null;
+		View foundView = null;
+		
+		for ( View declaredViews : getDeclaredViews() )
+		{
+			if ( declaredViews.getName().equals( name ) )
+			{
+				foundView = declaredViews;
+				break;
+			}
+		}
+		
+		return foundView;
 	}
 
 	@Override

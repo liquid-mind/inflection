@@ -6,11 +6,6 @@ import java.util.Set;
 
 public class MapProxy< K extends Object, V extends Object > extends Proxy implements Map< K, V >
 {
-	public MapProxy()
-	{
-		super( null );
-	}
-
 	@Override
 	public int size()
 	{

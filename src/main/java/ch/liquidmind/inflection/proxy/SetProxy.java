@@ -6,11 +6,6 @@ import java.util.Set;
 
 public class SetProxy< E extends Object > extends Proxy implements Set< E >
 {
-	public SetProxy()
-	{
-		super( null );
-	}
-
 	@Override
 	public int size()
 	{

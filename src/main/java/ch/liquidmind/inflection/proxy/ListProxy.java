@@ -7,11 +7,6 @@ import java.util.ListIterator;
 
 public class ListProxy< E extends Object > extends Proxy implements List< E >
 {
-	public ListProxy()
-	{
-		super( null );
-	}
-
 	@Override
 	public int size()
 	{

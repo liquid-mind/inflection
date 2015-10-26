@@ -4,6 +4,8 @@ import java.io.File;
 import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.lang.reflect.Method;
+import java.lang.reflect.Type;
+import java.util.ArrayList;
 import java.util.List;
 
 import __java.io.__FileOutputStream;
@@ -40,8 +42,7 @@ public class ProxyGenerator
 	
 	private void generateView( View view )
 	{
-		Taxonomy taxonomy = view.getParentTaxonomy();
-		String fqViewName = taxonomy.getName() + "." + view.getPackageName() + "." + taxonomy.getSimpleName() + "_" + view.getSimpleName();
+		String fqViewName = getFullyQualifiedViewName( view );
 		String viewFileName = fqViewName.replace( ".", "/" ) + ".java";
 		File viewFile = new File( baseDir, viewFileName );
 		
@@ -61,19 +62,56 @@ public class ProxyGenerator
 			__OutputStream.close( outputStream );
 		}
 	}
-
+	
+	private static String getFullyQualifiedViewName( View view )
+	{
+		Taxonomy taxonomy = view.getParentTaxonomy();
+		String fqViewName = taxonomy.getName() + "." + view.getPackageName() + "." + taxonomy.getSimpleName() + "_" + view.getSimpleName();
+		
+		return fqViewName;
+	}
+	
 	private void generateView( View view, String fqViewName )
 	{
 		printWriter.println( "package " + NamedElementLinked.getPackageName( fqViewName ) + ";" );
 		printWriter.println();
 		
-		printWriter.println( "public class " + NamedElementLinked.getSimpleName( fqViewName ) );
+		printWriter.println( "public class " + NamedElementLinked.getSimpleName( fqViewName ) + " extends " + getSuperClassName( view ) );
 		printWriter.println( "{" );
 		
+		generateConstructors( view, fqViewName );
 		generateMembers( view.getDeclaredMembers() );
 		
 		printWriter.println( "}" );
 		
+	}
+	
+	private String getSuperClassName( View view )
+	{
+		String superClassName;
+		View superView = view.getSuperview();
+		
+		if ( superView != null )
+			superClassName = getFullyQualifiedViewName( superView );
+		else
+			superClassName = Proxy.class.getName();
+		
+		return superClassName;
+	}
+
+	private void generateConstructors( View view, String fqViewName  )
+	{
+		printWriter.println( "    public " + NamedElementLinked.getSimpleName( fqViewName ) + "()" );
+		printWriter.println( "    {" );
+		printWriter.println( "        super( \"" + view.getParentTaxonomy().getName() + "\", \"" + view.getName() + "\" );" );
+		printWriter.println( "    }" );
+		printWriter.println();
+		
+		printWriter.println( "    protected " + NamedElementLinked.getSimpleName( fqViewName ) + "( String taxonomyName, String viewName )" );
+		printWriter.println( "    {" );
+		printWriter.println( "        super( taxonomyName, viewName );" );
+		printWriter.println( "    }" );
+		printWriter.println();
 	}
 	
 	private void generateMembers( List< Member > members )
@@ -98,6 +136,7 @@ public class ProxyGenerator
 	private void generateProperty( Property property )
 	{
 		generateMethod( property.getReadMethod() );
+		printWriter.println();
 		generateMethod( property.getWriteMethod() );
 	}
 	
@@ -114,11 +153,97 @@ public class ProxyGenerator
 		if ( method == null )
 			return;
 		
-		generateMethod( method.getName(), method.getReturnType(), method.getParameterTypes(), method.getExceptionTypes() );
+		generateMethod( method.getName(), method.getGenericReturnType(), method.getGenericParameterTypes(), method.getExceptionTypes() );
 	}
 	
-	private void generateMethod( String methodName, Class< ? > retType, Class< ? >[] paramTypes, Class< ? >[] exTypes )
+	private void generateMethod( String methodName, Type retType, Type[] paramTypes, Class< ? >[] exTypes )
 	{
+		String retTypeName = retType.getTypeName();
+		String parameters = String.join( ", ", getParameters( paramTypes ) );
+		String exceptions = String.join( ", ", getExceptions( exTypes ) );
+		String paramsWithParens = ( parameters.isEmpty() ? "()" : "( " + parameters + " )" );
+		String execptionsWithThrows = ( exceptions.isEmpty() ? "" : " throws " + exceptions );
 		
+		printWriter.println( "    public " + retTypeName + " " + methodName + paramsWithParens + execptionsWithThrows );
+		printWriter.println( "    {" );
+		
+		printWriter.println( "        try" );
+		printWriter.println( "        {" );
+		
+		generateInvocation( methodName, retType, paramTypes, exTypes );
+		
+		printWriter.println( "        }" );
+		
+		// TODO: Need to do this in the same way as I did in deflector: the
+		// order in which exceptions are caught matters!
+		for ( Class< ? > exType : exTypes )
+		{
+			printWriter.println( "        catch ( " + exType.getName() + " e )" );
+			printWriter.println( "        {" );
+			printWriter.println( "            throw (" + exType.getName() + ")e;" );
+			printWriter.println( "        }" );
+		}
+
+		printWriter.println( "        catch ( java.lang.RuntimeException e )" );
+		printWriter.println( "        {" );
+		printWriter.println( "            throw (java.lang.RuntimeException)e;" );
+		printWriter.println( "        }" );
+		printWriter.println( "        catch ( java.lang.Throwable e )" );
+		printWriter.println( "        {" );
+		printWriter.println( "            throw new java.lang.IllegalStateException();" );
+		printWriter.println( "        }" );
+		
+		printWriter.println( "    }" );
+	}
+
+	private void generateInvocation( String methodName, Type retType, Type[] paramTypes, Class< ? >[] exTypes )
+	{
+		String parameterClasses = String.join( ", ", getParameterClasses( paramTypes ) );
+		String parameterClassesWithClassArray = ( parameterClasses.isEmpty() ? "new Class< ? >[]{}" : "new Class< ? >[]{ " + parameterClasses + " }");
+		String arguments = String.join( ", ", getArguments( paramTypes ) );
+		String argumentsWithObjectArray = ( parameterClasses.isEmpty() ? "new Object[]{}" : "new Object[]{ " + arguments + " }");
+		String returnKeyword = ( retType != void.class ? "return " : "" );
+		
+		printWriter.println( "            " + returnKeyword + "invoke( \"" + methodName + "\", " + parameterClassesWithClassArray + ", " + argumentsWithObjectArray + " );" );
+	}
+	
+	private List< String > getParameters( Type[] paramTypes )
+	{
+		List< String > parameters = new ArrayList< String >();
+		
+		for ( int i = 0 ; i < paramTypes.length ; ++i )
+			parameters.add( paramTypes[ i ].getTypeName() + " arg" + i );
+			
+		return parameters;
+	}
+	
+	private List< String > getExceptions( Class< ? >[] exTypes )
+	{
+		List< String > exceptions = new ArrayList< String >();
+		
+		for ( Class< ? > exType : exTypes )
+			exceptions.add( exType.getName() );
+		
+		return exceptions;
+	}
+
+	private List< String > getParameterClasses( Type[] paramTypes )
+	{
+		List< String > parameters = new ArrayList< String >();
+		
+		for ( int i = 0 ; i < paramTypes.length ; ++i )
+			parameters.add( paramTypes[ i ].getTypeName() + ".class" );
+			
+		return parameters;
+	}
+
+	private List< String > getArguments( Type[] paramTypes )
+	{
+		List< String > arguments = new ArrayList< String >();
+		
+		for ( int i = 0 ; i < paramTypes.length ; ++i )
+			arguments.add( "arg" + i );
+			
+		return arguments;
 	}
 }
