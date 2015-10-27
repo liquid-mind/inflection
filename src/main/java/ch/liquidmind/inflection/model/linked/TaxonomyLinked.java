@@ -199,7 +199,7 @@ public class TaxonomyLinked extends AnnotatableElementLinked implements Taxonomy
 		
 		for ( View view : getViews() )
 		{
-			if ( view.getName().equals( name ) )
+			if ( view.getName().equals( name ) || ( view.getAlias() != null && view.getAlias().equals( name ) ) )
 			{
 				foundView = view;
 				break;
@@ -214,11 +214,11 @@ public class TaxonomyLinked extends AnnotatableElementLinked implements Taxonomy
 	{
 		View foundView = null;
 		
-		for ( View declaredViews : getDeclaredViews() )
+		for ( View declaredView : getDeclaredViews() )
 		{
-			if ( declaredViews.getName().equals( name ) )
+			if ( declaredView.getName().equals( name ) || ( declaredView.getAlias() != null && declaredView.getAlias().equals( name ) ) )
 			{
-				foundView = declaredViews;
+				foundView = declaredView;
 				break;
 			}
 		}
@@ -229,8 +229,7 @@ public class TaxonomyLinked extends AnnotatableElementLinked implements Taxonomy
 	@Override
 	public View getUnresolvedView( String name )
 	{
-		// TODO Auto-generated method stub
-		return null;
+		throw new UnsupportedOperationException();
 	}
 
 	@Override

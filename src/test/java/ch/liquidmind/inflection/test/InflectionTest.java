@@ -88,7 +88,8 @@ public class InflectionTest
 		
 		TaxonomyLoader.setContextTaxonomyLoader( taxonomyLoader );
 		FullTaxonomy_Person p = new FullTaxonomy_Person();
-		p.getFirstName();
+		p.setFirstName( "John" );
+		System.out.println( "FullTaxonomy_Person.firstName = " + p.getFirstName() );
 	}
 	
 	private TaxonomyLoader compileTestTaxonomies()

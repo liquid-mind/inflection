@@ -754,7 +754,9 @@ public class Pass2Listener extends AbstractInflectionListener
 		}
 	}
 	
-	private String getPropertyName( Method declaredMethod )
+	// TODO Put this and any other property helper methods in a 
+	// separate class.
+	public static String getPropertyName( Method declaredMethod )
 	{
 		String declaredMethodName = declaredMethod.getName();
 		String propertyName = null;

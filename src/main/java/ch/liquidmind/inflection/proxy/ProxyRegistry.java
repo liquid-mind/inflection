@@ -119,7 +119,7 @@ public class ProxyRegistry
 		}
 	}
 	
-	public ProxyRegistry getContextProxyRegistry()
+	public static ProxyRegistry getContextProxyRegistry()
 	{
 		if ( contextProxyRegistry.get() == null )
 			contextProxyRegistry.set( new ProxyRegistry() );
@@ -130,6 +130,9 @@ public class ProxyRegistry
 	@SuppressWarnings( "unchecked" )
 	public < T extends Proxy > T getProxy( Taxonomy taxonomy, Object object )
 	{
+		if ( object == null )
+			return null;
+		
 		PairTables pairTables = pairTablesByTaxonomy.get( taxonomy );
 		Set< ProxyObjectPair > proxyObjectPairs = pairTables.getPairsByObjectHashcode().get( object.hashCode() );
 		
@@ -188,8 +191,18 @@ public class ProxyRegistry
 	@SuppressWarnings( "unchecked" )
 	public < T extends Object > T getObject( Proxy proxy )
 	{
+		if ( proxy == null )
+			return null;
+		
 		View view = proxy.getView();
 		PairTables pairTables = pairTablesByTaxonomy.get( view.getParentTaxonomy() );
+		
+		if ( pairTables == null )
+		{
+			pairTables = new PairTables();
+			pairTablesByTaxonomy.put( view.getParentTaxonomy(), pairTables );
+		}
+		
 		Set< ProxyObjectPair > proxyObjectPairs = pairTables.getPairsByProxyHashcode().get( proxy.hashCode() );
 		
 		if ( proxyObjectPairs == null )

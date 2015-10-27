@@ -144,4 +144,38 @@ public class ViewLinked extends AliasableElementLinked implements View
 	{
 		return getSimpleName( getName() );
 	}
+
+	@Override
+	public Member getMember( String nameOrAlias )
+	{
+		Member foundMember = null;
+		
+		for ( Member member : getMembers() )
+		{
+			if ( member.getName().equals( nameOrAlias ) || ( member.getAlias() != null && member.getAlias().equals( nameOrAlias ) ) )
+			{
+				foundMember = member;
+				break;
+			}
+		}
+		
+		return foundMember;
+	}
+
+	@Override
+	public Member getDeclaredMember( String nameOrAlias )
+	{
+		Member foundMember = null;
+		
+		for ( Member declaredMember : getDeclaredMembers() )
+		{
+			if ( declaredMember.getName().equals( nameOrAlias ) || ( declaredMember.getAlias() != null && declaredMember.getAlias().equals( nameOrAlias ) ) )
+			{
+				foundMember = declaredMember;
+				break;
+			}
+		}
+		
+		return foundMember;
+	}
 }

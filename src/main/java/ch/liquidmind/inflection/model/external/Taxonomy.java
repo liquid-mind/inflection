@@ -14,9 +14,9 @@ public interface Taxonomy extends AnnotatableElement
 	public List< View > getViews();
 	public List< View > getDeclaredViews();
 	public List< View > getUnresolvedViews();
-	public View getView( String name );
-	public View getDeclaredView( String name );
-	public View getUnresolvedView( String name );
+	public View getView( String nameOrAlias );
+	public View getDeclaredView( String nameOrAlias );
+	public View getUnresolvedView( String nameOrAlias );
 	public View resolveView( Class< ? > aClass );
 	public View resolveView( String className );
 	public TaxonomyLoader getTaxonomyLoader();

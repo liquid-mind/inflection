@@ -13,4 +13,6 @@ public interface View extends AliasableElement
 	public View getSuperview();
 	public String getPackageName();
 	public String getSimpleName();
+	public Member getMember( String nameOrAlias );
+	public Member getDeclaredMember( String nameOrAlias );
 }
