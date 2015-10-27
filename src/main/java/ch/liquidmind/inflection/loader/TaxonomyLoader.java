@@ -120,6 +120,7 @@ public class TaxonomyLoader
 	{
 		TaxonomyCompiled taxonomyCompiled = loadTaxonomyInternal( name );
 		Taxonomy taxonomy = defineTaxonomy( taxonomyCompiled );
+		loadedTaxonomies.put( taxonomy.getName(), (TaxonomyLinked)taxonomy );
 		
 		return taxonomy;
 	}

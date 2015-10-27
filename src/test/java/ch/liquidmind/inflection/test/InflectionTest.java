@@ -78,6 +78,7 @@ public class InflectionTest
 		}
 	}
 
+	@Ignore
 	@Test
 	public void testGenerator()
 	{
@@ -87,13 +88,19 @@ public class InflectionTest
 		ProxyGenerator proxyGenerator = new ProxyGenerator( baseDir, taxonomy );
 		proxyGenerator.generateTaxonomy();
 		TaxonomyLoader.setContextTaxonomyLoader( taxonomyLoader );
+	}
+
+	@Test
+	public void testProxies()
+	{
+		testGenerator();
 		FullTaxonomy_Person p = new FullTaxonomy_Person();
 		p.setFirstName( "John" );
 		System.out.println( "FullTaxonomy_Person.firstName = " + p.getFirstName() );
 		FullTaxonomy_Address address = new FullTaxonomy_Address();
 		address.setCity( "Zurich" );
 		p.getAddresses().add( address );
-		System.out.println( "FullTaxonomy_Person.addresses[ 0 ].street = " + p.getAddresses().get( 0 ).getStreet() );
+		System.out.println( "FullTaxonomy_Person.addresses[ 0 ].city = " + p.getAddresses().get( 0 ).getCity() );
 	}
 	
 	private TaxonomyLoader compileTestTaxonomies()

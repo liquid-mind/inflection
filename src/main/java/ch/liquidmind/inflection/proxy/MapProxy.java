@@ -6,6 +6,11 @@ import java.util.Set;
 
 public class MapProxy< K extends Object, V extends Object > extends Proxy implements Map< K, V >
 {
+	protected MapProxy( String taxonomyName )
+	{
+		super( taxonomyName );
+	}
+
 	@Override
 	public int size()
 	{

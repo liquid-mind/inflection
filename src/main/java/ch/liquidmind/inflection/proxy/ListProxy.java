@@ -7,6 +7,11 @@ import java.util.ListIterator;
 
 public class ListProxy< E extends Object > extends Proxy implements List< E >
 {
+	protected ListProxy( String taxonomyName )
+	{
+		super( taxonomyName );
+	}
+
 	@Override
 	public int size()
 	{

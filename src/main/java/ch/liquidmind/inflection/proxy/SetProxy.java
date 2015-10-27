@@ -6,6 +6,11 @@ import java.util.Set;
 
 public class SetProxy< E extends Object > extends Proxy implements Set< E >
 {
+	protected SetProxy( String taxonomyName )
+	{
+		super( taxonomyName );
+	}
+
 	@Override
 	public int size()
 	{

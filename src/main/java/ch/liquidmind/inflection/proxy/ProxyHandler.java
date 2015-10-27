@@ -45,7 +45,7 @@ public class ProxyHandler implements InvocationHandler
 		else
 			throw new IllegalStateException();
 		
-		Object proxyRetVal = getProxyObject( proxy.getView().getParentTaxonomy(), viewableRetVal );
+		Object proxyRetVal = getProxyObject( proxy.getTaxonomy(), viewableRetVal );
 
 		return proxyRetVal;
 	}

@@ -1,5 +1,6 @@
 package ch.liquidmind.inflection.proxy;
 
+import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -9,6 +10,7 @@ import java.util.Set;
 
 import __java.lang.__Class;
 import __java.lang.__ClassLoader;
+import __java.lang.reflect.__Constructor;
 import ch.liquidmind.inflection.model.external.Taxonomy;
 import ch.liquidmind.inflection.model.external.View;
 
@@ -131,12 +133,20 @@ public class ProxyRegistry
 		return contextProxyRegistry.get();
 	}
 	
+	@SuppressWarnings( "unchecked" )
 	public < T extends Proxy > T getProxy( Taxonomy taxonomy, Object object )
 	{
 		if ( object == null )
 			return null;
 		
 		PairTables pairTables = pairTablesByTaxonomy.get( taxonomy );
+		
+		if ( pairTables == null )
+		{
+			pairTables = new PairTables();
+			pairTablesByTaxonomy.put( taxonomy, pairTables );
+		}
+
 		Set< ProxyObjectPair > proxyObjectPairs = pairTables.getPairsByObjectHashcode().get( object.hashCode() );
 		
 		if ( proxyObjectPairs == null )
@@ -166,11 +176,15 @@ public class ProxyRegistry
 			{
 				proxyObjectPairFound = new ProxyObjectPair( proxy, object );
 				proxyObjectPairs.add( proxyObjectPairFound );
-				pairTables.getPairsByProxyHashcode().put( proxyObjectPairFound.getProxy().hashCode(), proxyObjectPairs );
+				pairTables.getPairsByProxyHashcode().put( proxy.hashCode(), proxyObjectPairs );
 			}
 		}
+		else
+		{
+			proxy = (T)proxyObjectPairFound.getProxy();
+		}
 		
-		return (T)proxy;
+		return proxy;
 	}
 	
 	// TODO: currently constrained to one-dimensional collections; thus, e.g., 
@@ -179,21 +193,25 @@ public class ProxyRegistry
 	private < T extends Proxy > T createProxy( Taxonomy taxonomy, Object object )
 	{
 		T proxy = null;
-		Class< ? > proxyClass = proxiesByCollection.get( object.getClass() );
 		
-		if ( proxyClass == null )
+		if ( proxiesByCollection.containsKey( object.getClass() ) )
+		{
+			Class< ? > proxyClass = proxiesByCollection.get( object.getClass() );
+			Constructor< ? > constructor = __Class.getDeclaredConstructor( proxyClass, String.class );
+			constructor.setAccessible( true );
+			proxy = (T)__Constructor.newInstance( constructor, taxonomy.getName() );
+		}
+		else
 		{
 			View view = taxonomy.resolveView( object.getClass() );
 			
 			if ( view != null )
 			{
-				String proxyClassName = view.getParentTaxonomy().getName() + "." + view.getName();
-				proxyClass = __ClassLoader.loadClass( view.getParentTaxonomy().getTaxonomyLoader().getClassLoader(), proxyClassName );
+				String proxyClassName = taxonomy.getName() + "." + view.getName();
+				Class< ? > proxyClass = __ClassLoader.loadClass( taxonomy.getTaxonomyLoader().getClassLoader(), proxyClassName );
+				proxy = (T)__Class.newInstance( proxyClass );
 			}
 		}
-		
-		if ( proxyClass != null )
-			proxy = (T)__Class.newInstance( proxyClass );
 		
 		return proxy;
 	}
@@ -204,13 +222,12 @@ public class ProxyRegistry
 		if ( proxy == null )
 			return null;
 		
-		View view = proxy.getView();
-		PairTables pairTables = pairTablesByTaxonomy.get( view.getParentTaxonomy() );
+		PairTables pairTables = pairTablesByTaxonomy.get( proxy.getTaxonomy() );
 		
 		if ( pairTables == null )
 		{
 			pairTables = new PairTables();
-			pairTablesByTaxonomy.put( view.getParentTaxonomy(), pairTables );
+			pairTablesByTaxonomy.put( proxy.getTaxonomy(), pairTables );
 		}
 		
 		Set< ProxyObjectPair > proxyObjectPairs = pairTables.getPairsByProxyHashcode().get( proxy.hashCode() );

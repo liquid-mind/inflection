@@ -43,7 +43,7 @@ public class ProxyGenerator
 	
 	private void generateView( View view )
 	{
-		String fqViewName = getFullyQualifiedViewName( view );
+		String fqViewName = getFullyQualifiedViewName( taxonomy, view );
 		String viewFileName = fqViewName.replace( ".", "/" ) + ".java";
 		File viewFile = new File( baseDir, viewFileName );
 		
@@ -64,9 +64,8 @@ public class ProxyGenerator
 		}
 	}
 	
-	private static String getFullyQualifiedViewName( View view )
+	private static String getFullyQualifiedViewName( Taxonomy taxonomy, View view )
 	{
-		Taxonomy taxonomy = view.getParentTaxonomy();
 		String fqViewName = taxonomy.getName() + "." + view.getPackageName() + "." + taxonomy.getSimpleName() + "_" + view.getSimpleNameOrAlias();
 		
 		return fqViewName;
@@ -93,7 +92,7 @@ public class ProxyGenerator
 		View superView = view.getSuperview();
 		
 		if ( superView != null )
-			superClassName = getFullyQualifiedViewName( superView );
+			superClassName = getFullyQualifiedViewName( taxonomy, superView );
 		else
 			superClassName = Proxy.class.getName();
 		
@@ -104,7 +103,7 @@ public class ProxyGenerator
 	{
 		printWriter.println( "    public " + NamedElementLinked.getSimpleName( fqViewName ) + "()" );
 		printWriter.println( "    {" );
-		printWriter.println( "        super( \"" + view.getParentTaxonomy().getName() + "\", \"" + view.getName() + "\" );" );
+		printWriter.println( "        super( \"" + taxonomy.getName() + "\", \"" + view.getName() + "\" );" );
 		printWriter.println( "    }" );
 		printWriter.println();
 		
@@ -233,7 +232,7 @@ public class ProxyGenerator
 			if ( view == null )
 				typeName = aClass.getName();
 			else
-				typeName = getFullyQualifiedViewName( view );
+				typeName = getFullyQualifiedViewName( taxonomy, view );
 		}
 		else if ( type instanceof ParameterizedType )
 		{

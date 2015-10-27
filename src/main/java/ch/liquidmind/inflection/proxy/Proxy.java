@@ -9,18 +9,28 @@ import ch.liquidmind.inflection.model.external.View;
 
 public class Proxy
 {
+	// Note that the view's taxonomy (View.getTaxonomy()) may be distinct from
+	// this taxonomy.
+	private Taxonomy taxonomy;
 	private View view;
 
 	// Constructor for collection proxies.
-	protected Proxy()
-	{}
+	protected Proxy( String taxonomyName )
+	{
+		this( taxonomyName, null );
+	}
 	
 	// Constructor for normal proxies.
 	protected Proxy( String taxonomyName, String viewName )
 	{
 		super();
-        Taxonomy taxonomy = TaxonomyLoader.getContextTaxonomyLoader().loadTaxonomy( taxonomyName );
+        taxonomy = TaxonomyLoader.getContextTaxonomyLoader().loadTaxonomy( taxonomyName );
         this.view = taxonomy.getView( viewName );
+	}
+	
+	public Taxonomy getTaxonomy()
+	{
+		return taxonomy;
 	}
 
 	public View getView()
