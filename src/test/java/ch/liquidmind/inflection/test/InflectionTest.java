@@ -20,6 +20,7 @@ import ch.liquidmind.inflection.model.compiled.TaxonomyCompiled;
 import ch.liquidmind.inflection.model.compiled.ViewCompiled;
 import ch.liquidmind.inflection.model.external.Taxonomy;
 import ch.liquidmind.inflection.proxy.ProxyGenerator;
+import ch.liquidmind.inflection.test.model.FullTaxonomy.ch.liquidmind.inflection.test.model.FullTaxonomy_Address;
 import ch.liquidmind.inflection.test.model.FullTaxonomy.ch.liquidmind.inflection.test.model.FullTaxonomy_Person;
 import ch.liquidmind.inflection.util.InflectionPrinter;
 
@@ -85,11 +86,14 @@ public class InflectionTest
 		File baseDir = new File( "/Users/john/Documents/workspace-liquid-mind/inflection/build/inflection-test" );
 		ProxyGenerator proxyGenerator = new ProxyGenerator( baseDir, taxonomy );
 		proxyGenerator.generateTaxonomy();
-		
 		TaxonomyLoader.setContextTaxonomyLoader( taxonomyLoader );
 		FullTaxonomy_Person p = new FullTaxonomy_Person();
 		p.setFirstName( "John" );
 		System.out.println( "FullTaxonomy_Person.firstName = " + p.getFirstName() );
+		FullTaxonomy_Address address = new FullTaxonomy_Address();
+		address.setCity( "Zurich" );
+		p.getAddresses().add( address );
+		System.out.println( "FullTaxonomy_Person.addresses[ 0 ].street = " + p.getAddresses().get( 0 ).getStreet() );
 	}
 	
 	private TaxonomyLoader compileTestTaxonomies()

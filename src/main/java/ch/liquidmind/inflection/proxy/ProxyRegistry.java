@@ -15,8 +15,9 @@ import ch.liquidmind.inflection.model.external.View;
 // TODO: look into using weak-/soft references to manage memory.
 public class ProxyRegistry
 {
-	private static final Map< Class< ? >, Class< ? > > collectionsByProxy = new HashMap< Class< ? >, Class< ? > >();
-	private static final Map< Class< ? >, Class< ? > > proxiesByCollection = new HashMap< Class< ? >, Class< ? > >();
+	// TODO: put this in a different location: also used by ProxyGenerator.
+	public static final Map< Class< ? >, Class< ? > > collectionsByProxy = new HashMap< Class< ? >, Class< ? > >();
+	public static final Map< Class< ? >, Class< ? > > proxiesByCollection = new HashMap< Class< ? >, Class< ? > >();
 	
 	static
 	{
@@ -24,6 +25,9 @@ public class ProxyRegistry
 		collectionsByProxy.put( SetProxy.class, HashSet.class );
 		collectionsByProxy.put( MapProxy.class, HashMap.class );
 		
+		proxiesByCollection.put( ArrayList.class, ListProxy.class );
+		proxiesByCollection.put( HashSet.class, SetProxy.class );
+		proxiesByCollection.put( HashMap.class, MapProxy.class );
 		proxiesByCollection.put( List.class, ListProxy.class );
 		proxiesByCollection.put( Set.class, SetProxy.class );
 		proxiesByCollection.put( Map.class, MapProxy.class );
@@ -127,7 +131,6 @@ public class ProxyRegistry
 		return contextProxyRegistry.get();
 	}
 	
-	@SuppressWarnings( "unchecked" )
 	public < T extends Proxy > T getProxy( Taxonomy taxonomy, Object object )
 	{
 		if ( object == null )
@@ -153,14 +156,21 @@ public class ProxyRegistry
 			}
 		}
 
+		T proxy = null;
+		
 		if ( proxyObjectPairFound == null )
 		{
-			proxyObjectPairFound = new ProxyObjectPair( createProxy( taxonomy, object ), object );
-			proxyObjectPairs.add( proxyObjectPairFound );
-			pairTables.getPairsByProxyHashcode().put( proxyObjectPairFound.getProxy().hashCode(), proxyObjectPairs );
+			proxy = createProxy( taxonomy, object );
+			
+			if ( proxy != null )
+			{
+				proxyObjectPairFound = new ProxyObjectPair( proxy, object );
+				proxyObjectPairs.add( proxyObjectPairFound );
+				pairTables.getPairsByProxyHashcode().put( proxyObjectPairFound.getProxy().hashCode(), proxyObjectPairs );
+			}
 		}
 		
-		return (T)proxyObjectPairFound.getProxy();
+		return (T)proxy;
 	}
 	
 	// TODO: currently constrained to one-dimensional collections; thus, e.g., 

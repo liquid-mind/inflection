@@ -76,7 +76,7 @@ public class ProxyHandler implements InvocationHandler
 		else
 			throw new IllegalStateException();
 		
-		return method.invoke( viewableObject, viewableArgs );
+		return method.invoke( viewableObject, viewableArgs.toArray( new Object[ viewableArgs.size() ] ) );
 	}
 	
 	private Object delegateByField( Field field, MemberOperation memberOperation, Object viewableObject, List< Object > viewableArgs ) throws Throwable

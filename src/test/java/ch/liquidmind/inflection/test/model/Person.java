@@ -96,4 +96,9 @@ public class Person extends IdentifiableObject
 	{
 		return addresses;
 	}
+
+	public void setAddresses( List< Address > addresses )
+	{
+		this.addresses = addresses;
+	}
 }

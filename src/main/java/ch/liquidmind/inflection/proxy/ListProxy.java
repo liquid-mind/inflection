@@ -52,8 +52,18 @@ public class ListProxy< E extends Object > extends Proxy implements List< E >
 	@Override
 	public boolean add( E e )
 	{
-		// TODO Auto-generated method stub
-		return false;
+        try
+        {
+    		return invokeOnCollection( "add", new Class< ? >[] { Object.class }, new Object[] { e } );
+        }
+        catch ( RuntimeException | Error ex )
+        {
+            throw ex;
+        }
+        catch ( java.lang.Throwable ex )
+        {
+            throw new IllegalStateException( "Unexpected exception type: " + ex.getClass().getName(), ex );
+        }
 	}
 
 	@Override
@@ -108,8 +118,18 @@ public class ListProxy< E extends Object > extends Proxy implements List< E >
 	@Override
 	public E get( int index )
 	{
-		// TODO Auto-generated method stub
-		return null;
+        try
+        {
+    		return invokeOnCollection( "get", new Class< ? >[] { int.class }, new Object[] { index } );
+        }
+        catch ( RuntimeException | Error ex )
+        {
+            throw ex;
+        }
+        catch ( java.lang.Throwable ex )
+        {
+            throw new IllegalStateException( "Unexpected exception type: " + ex.getClass().getName(), ex );
+        }
 	}
 
 	@Override

@@ -41,4 +41,15 @@ public class Proxy
 		
 		return (T)retVal;
 	}
+	
+	// TODO: refactor this and the above method and/or the entire class to fit
+	// better with the two distinct cases: (non-collection) object proxy and collection proxy
+	@SuppressWarnings( "unchecked" )
+	protected < T extends Object > T invokeOnCollection( String methodName, Class< ? >[] paramTypes, Object[] params ) throws Throwable
+	{
+		Method method = __Class.getDeclaredMethod( this.getClass(), methodName, paramTypes );
+		Object retVal = CollectionProxyHandler.getContextCollectionProxyHandler().invoke( this, method, params );
+		
+		return (T)retVal;
+	}
 }

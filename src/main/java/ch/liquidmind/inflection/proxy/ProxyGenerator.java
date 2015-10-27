@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.lang.reflect.Method;
+import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
@@ -66,7 +67,7 @@ public class ProxyGenerator
 	private static String getFullyQualifiedViewName( View view )
 	{
 		Taxonomy taxonomy = view.getParentTaxonomy();
-		String fqViewName = taxonomy.getName() + "." + view.getPackageName() + "." + taxonomy.getSimpleName() + "_" + view.getSimpleName();
+		String fqViewName = taxonomy.getName() + "." + view.getPackageName() + "." + taxonomy.getSimpleName() + "_" + view.getSimpleNameOrAlias();
 		
 		return fqViewName;
 	}
@@ -158,7 +159,7 @@ public class ProxyGenerator
 	
 	private void generateMethod( String methodName, Type retType, Type[] paramTypes, Class< ? >[] exTypes )
 	{
-		String retTypeName = retType.getTypeName();
+		String retTypeName = getTypeName( retType );
 		String parameters = String.join( ", ", getParameters( paramTypes ) );
 		String exceptions = String.join( ", ", getExceptions( exTypes ) );
 		String paramsWithParens = ( parameters.isEmpty() ? "()" : "( " + parameters + " )" );
@@ -198,7 +199,7 @@ public class ProxyGenerator
 
 	private void generateInvocation( String methodName, Type retType, Type[] paramTypes, Class< ? >[] exTypes )
 	{
-		String parameterClasses = String.join( ", ", getParameterClasses( paramTypes ) );
+		String parameterClasses = String.join( ", ", getParameterTypes( paramTypes ) );
 		String parameterClassesWithClassArray = ( parameterClasses.isEmpty() ? "new Class< ? >[]{}" : "new Class< ? >[]{ " + parameterClasses + " }");
 		String arguments = String.join( ", ", getArguments( paramTypes ) );
 		String argumentsWithObjectArray = ( parameterClasses.isEmpty() ? "new Object[]{}" : "new Object[]{ " + arguments + " }");
@@ -212,9 +213,57 @@ public class ProxyGenerator
 		List< String > parameters = new ArrayList< String >();
 		
 		for ( int i = 0 ; i < paramTypes.length ; ++i )
-			parameters.add( paramTypes[ i ].getTypeName() + " arg" + i );
+			parameters.add( getTypeName( paramTypes[ i ] ) + " arg" + i );
 			
 		return parameters;
+	}
+	
+	// TODO: For now, I am handling generic types in a highly
+	// simplified way. In a second pass, we need to handle them
+	// in the same fashion as deflector.
+	private String getTypeName( Type type )
+	{
+		String typeName;
+		
+		if ( type instanceof Class )
+		{
+			Class< ? > aClass = (Class< ? >)type;
+			View view = taxonomy.resolveView( aClass );
+			
+			if ( view == null )
+				typeName = aClass.getName();
+			else
+				typeName = getFullyQualifiedViewName( view );
+		}
+		else if ( type instanceof ParameterizedType )
+		{
+			ParameterizedType parameterizedType = (ParameterizedType)type;
+			Type rawType = parameterizedType.getRawType();
+			Type[] actualTypeArguments = parameterizedType.getActualTypeArguments();
+			String rawTypeConverted;
+			List< String > actualTypeArgumentsConverted = new ArrayList< String >();
+			
+			if ( ProxyRegistry.proxiesByCollection.containsKey( rawType ) )
+				rawTypeConverted = ProxyRegistry.proxiesByCollection.get( rawType ).getName();
+			else
+				throw new IllegalStateException( "No support for non-collection generic types at this time." );
+
+			for ( Type actualTypeArgument : actualTypeArguments )
+			{
+				if ( actualTypeArgument instanceof Class )
+					actualTypeArgumentsConverted.add( getTypeName( actualTypeArgument ) );
+				else
+					throw new IllegalStateException( "No support for general purpose generics at this time (only for collections)." );
+			}
+			
+			typeName = rawTypeConverted + "< " + String.join( ", ", actualTypeArgumentsConverted ) + " >";
+		}
+		else
+		{
+			throw new IllegalStateException( "Unexpected type for 'type': " + type.getClass().getName() );
+		}
+		
+		return typeName;
 	}
 	
 	private List< String > getExceptions( Class< ? >[] exTypes )
@@ -227,12 +276,25 @@ public class ProxyGenerator
 		return exceptions;
 	}
 
-	private List< String > getParameterClasses( Type[] paramTypes )
+	private List< String > getParameterTypes( Type[] paramTypes )
 	{
 		List< String > parameters = new ArrayList< String >();
 		
 		for ( int i = 0 ; i < paramTypes.length ; ++i )
-			parameters.add( paramTypes[ i ].getTypeName() + ".class" );
+		{
+			// TODO: The way I'm getting typeNameOfRawType is, frankly, a hack, but
+			// as I've said, I plan on completely replacing the way generics are
+			// handled with a deflector-like implementation in the near future.
+			String typeName = getTypeName( paramTypes[ i ] );
+			String typeNameOfRawType;
+			
+			if ( typeName.contains( "<" ) )
+				typeNameOfRawType = typeName.substring( 0, typeName.indexOf( "<" ) );
+			else
+				typeNameOfRawType = typeName;
+			
+			parameters.add( typeNameOfRawType + ".class" );
+		}
 			
 		return parameters;
 	}
