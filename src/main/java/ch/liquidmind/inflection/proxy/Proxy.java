@@ -27,15 +27,27 @@ public class Proxy
         taxonomy = TaxonomyLoader.getContextTaxonomyLoader().loadTaxonomy( taxonomyName );
         this.view = taxonomy.getView( viewName );
 	}
-	
-	public Taxonomy getTaxonomy()
+
+	private Taxonomy getTaxonomy()
 	{
 		return taxonomy;
 	}
 
-	public View getView()
+	private View getView()
 	{
 		return view;
+	}
+
+	// TODO: should probably put these accessors in a different place altogether,
+	// to avoid any confusion, esp. with frameworks.
+	public static Taxonomy getTaxonomy( Proxy proxy )
+	{
+		return proxy.getTaxonomy();
+	}
+
+	public static View getView( Proxy proxy )
+	{
+		return proxy.getView();
 	}
 	
 	protected Method getMethod( String name, Class< ? >[] paramTypes )

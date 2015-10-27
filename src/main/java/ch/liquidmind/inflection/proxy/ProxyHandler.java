@@ -32,7 +32,7 @@ public class ProxyHandler implements InvocationHandler
 	private Object invoke( Proxy proxy, Method method, Object[] args ) throws Throwable
 	{
 		String memberName = Pass2Listener.getPropertyName( method );
-		Member member = proxy.getView().getDeclaredMember( memberName );
+		Member member = Proxy.getView( proxy ).getDeclaredMember( memberName );
 		Object viewableObject = ProxyRegistry.getContextProxyRegistry().getObject( proxy );
 		List< Object > viewableArgs = getViewableObjects( args );
 		MemberOperation memberOperation = getMemberOperation( method );
@@ -45,7 +45,7 @@ public class ProxyHandler implements InvocationHandler
 		else
 			throw new IllegalStateException();
 		
-		Object proxyRetVal = getProxyObject( proxy.getTaxonomy(), viewableRetVal );
+		Object proxyRetVal = getProxyObject( Proxy.getTaxonomy( proxy ), viewableRetVal );
 
 		return proxyRetVal;
 	}

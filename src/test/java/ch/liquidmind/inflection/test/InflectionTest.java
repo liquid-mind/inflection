@@ -1,11 +1,16 @@
 package ch.liquidmind.inflection.test;
 
 import java.io.File;
+import java.io.IOException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 
+import org.codehaus.jackson.JsonGenerationException;
+import org.codehaus.jackson.map.JsonMappingException;
+import org.codehaus.jackson.map.ObjectMapper;
+import org.codehaus.jackson.map.ObjectWriter;
 import org.junit.Ignore;
 import org.junit.Test;
 
@@ -21,10 +26,8 @@ import ch.liquidmind.inflection.model.compiled.MemberCompiled;
 import ch.liquidmind.inflection.model.compiled.TaxonomyCompiled;
 import ch.liquidmind.inflection.model.compiled.ViewCompiled;
 import ch.liquidmind.inflection.model.external.Taxonomy;
-import ch.liquidmind.inflection.model.external.View;
 import ch.liquidmind.inflection.proxy.ProxyGenerator;
 import ch.liquidmind.inflection.proxy.ProxyHelper;
-import ch.liquidmind.inflection.proxy.ProxyRegistry;
 import ch.liquidmind.inflection.test.model.Address;
 import ch.liquidmind.inflection.test.model.Gender;
 import ch.liquidmind.inflection.test.model.Person;
@@ -113,7 +116,7 @@ public class InflectionTest
 	}
 
 	@Test
-	public void testProxies2()
+	public void testProxies2() throws JsonGenerationException, JsonMappingException, IOException
 	{
 		testGenerator();
 		
@@ -122,15 +125,24 @@ public class InflectionTest
 		Person person = new Person( "John", "Brush", "Mr.", "+41 79 235 17 56", "+41 79 235 17 56", "jebrush@gmail.com", Gender.MALE, cal.getTime() );
 		Address address = new Address( "Feldgüetliweg 82", "Feldmeilen", "8706", "Switzerland" );
 		person.getAddresses().add( address );
-		address.getPeople().add( person );
+//		address.getPeople().add( person );
 		
 		FullTaxonomy_Person personView = ProxyHelper.getProxy( "ch.liquidmind.inflection.test.model.FullTaxonomy", person );
 		FullTaxonomy_Address addressView = personView.getAddresses().get( 0 );
 		
-		System.out.println( "personView.getFirstName() = " + personView.getFirstName() );
-		System.out.println( "personView.getFirstName() = " + personView.getLastName() );
-		System.out.println( "addressView.getStreet() = " + addressView.getStreet() );
-		System.out.println( "addressView.getCity() = " + addressView.getCity() );
+//		System.out.println( "personView.getFirstName() = " + personView.getFirstName() );
+//		System.out.println( "personView.getFirstName() = " + personView.getLastName() );
+//		System.out.println( "addressView.getStreet() = " + addressView.getStreet() );
+//		System.out.println( "addressView.getCity() = " + addressView.getCity() );
+		
+		ObjectMapper mapper = new ObjectMapper();
+		ObjectWriter writer = mapper.writerWithDefaultPrettyPrinter();
+		
+		System.out.println( "Person:" );
+		System.out.println( writer.writeValueAsString( person ) );
+		System.out.println();
+		System.out.println( "FullTaxonomy_Person:" );
+		System.out.println( writer.writeValueAsString( personView ) );
 	}
 	
 	private TaxonomyLoader compileTestTaxonomies()
