@@ -207,7 +207,7 @@ public class ProxyRegistry
 			
 			if ( view != null )
 			{
-				String proxyClassName = taxonomy.getName() + "." + view.getName();
+				String proxyClassName = ProxyGenerator.getFullyQualifiedViewName( taxonomy, view );
 				Class< ? > proxyClass = __ClassLoader.loadClass( taxonomy.getTaxonomyLoader().getClassLoader(), proxyClassName );
 				proxy = (T)__Class.newInstance( proxyClass );
 			}

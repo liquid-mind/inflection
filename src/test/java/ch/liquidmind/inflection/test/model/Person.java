@@ -12,6 +12,24 @@ public class Person extends IdentifiableObject
 	private Date dateOfBirth;
 	private List< Address > addresses = new ArrayList< Address >();
 	
+	public Person()
+	{
+		super();
+	}
+
+	public Person( String firstName, String lastName, String title, String telephone, String mobile, String email, Gender gender, Date dateOfBirth )
+	{
+		super();
+		this.firstName = firstName;
+		this.lastName = lastName;
+		this.title = title;
+		this.telephone = telephone;
+		this.mobile = mobile;
+		this.email = email;
+		this.gender = gender;
+		this.dateOfBirth = dateOfBirth;
+	}
+
 	public String getFirstName()
 	{
 		return firstName;

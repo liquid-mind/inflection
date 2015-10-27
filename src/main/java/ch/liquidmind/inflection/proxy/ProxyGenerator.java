@@ -64,7 +64,8 @@ public class ProxyGenerator
 		}
 	}
 	
-	private static String getFullyQualifiedViewName( Taxonomy taxonomy, View view )
+	// TODO: move this to common location (also used by ProxyRegistry).
+	public static String getFullyQualifiedViewName( Taxonomy taxonomy, View view )
 	{
 		String fqViewName = taxonomy.getName() + "." + view.getPackageName() + "." + taxonomy.getSimpleName() + "_" + view.getSimpleNameOrAlias();
 		

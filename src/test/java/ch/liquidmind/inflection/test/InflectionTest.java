@@ -3,6 +3,8 @@ package ch.liquidmind.inflection.test;
 import java.io.File;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.util.Calendar;
+import java.util.GregorianCalendar;
 
 import org.junit.Ignore;
 import org.junit.Test;
@@ -19,7 +21,13 @@ import ch.liquidmind.inflection.model.compiled.MemberCompiled;
 import ch.liquidmind.inflection.model.compiled.TaxonomyCompiled;
 import ch.liquidmind.inflection.model.compiled.ViewCompiled;
 import ch.liquidmind.inflection.model.external.Taxonomy;
+import ch.liquidmind.inflection.model.external.View;
 import ch.liquidmind.inflection.proxy.ProxyGenerator;
+import ch.liquidmind.inflection.proxy.ProxyHelper;
+import ch.liquidmind.inflection.proxy.ProxyRegistry;
+import ch.liquidmind.inflection.test.model.Address;
+import ch.liquidmind.inflection.test.model.Gender;
+import ch.liquidmind.inflection.test.model.Person;
 import ch.liquidmind.inflection.test.model.FullTaxonomy.ch.liquidmind.inflection.test.model.FullTaxonomy_Address;
 import ch.liquidmind.inflection.test.model.FullTaxonomy.ch.liquidmind.inflection.test.model.FullTaxonomy_Person;
 import ch.liquidmind.inflection.util.InflectionPrinter;
@@ -90,6 +98,7 @@ public class InflectionTest
 		TaxonomyLoader.setContextTaxonomyLoader( taxonomyLoader );
 	}
 
+	@Ignore
 	@Test
 	public void testProxies()
 	{
@@ -101,6 +110,27 @@ public class InflectionTest
 		address.setCity( "Zurich" );
 		p.getAddresses().add( address );
 		System.out.println( "FullTaxonomy_Person.addresses[ 0 ].city = " + p.getAddresses().get( 0 ).getCity() );
+	}
+
+	@Test
+	public void testProxies2()
+	{
+		testGenerator();
+		
+		Calendar cal = new GregorianCalendar();
+		cal.set( 1972, 8, 8 );
+		Person person = new Person( "John", "Brush", "Mr.", "+41 79 235 17 56", "+41 79 235 17 56", "jebrush@gmail.com", Gender.MALE, cal.getTime() );
+		Address address = new Address( "Feldgüetliweg 82", "Feldmeilen", "8706", "Switzerland" );
+		person.getAddresses().add( address );
+		address.getPeople().add( person );
+		
+		FullTaxonomy_Person personView = ProxyHelper.getProxy( "ch.liquidmind.inflection.test.model.FullTaxonomy", person );
+		FullTaxonomy_Address addressView = personView.getAddresses().get( 0 );
+		
+		System.out.println( "personView.getFirstName() = " + personView.getFirstName() );
+		System.out.println( "personView.getFirstName() = " + personView.getLastName() );
+		System.out.println( "addressView.getStreet() = " + addressView.getStreet() );
+		System.out.println( "addressView.getCity() = " + addressView.getCity() );
 	}
 	
 	private TaxonomyLoader compileTestTaxonomies()
