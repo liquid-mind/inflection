@@ -90,7 +90,9 @@ public class Pass2Listener extends AbstractInflectionListener
 				reportWarning( packageImport.getParserRuleContext().start, packageImport.getParserRuleContext().stop, "Unused import." );
 	}
 
+	//////////
 	// IMPORTS
+	//////////
 	
 	@Override
 	public void enterPackageImport( PackageImportContext packageImportContext )
@@ -144,7 +146,9 @@ public class Pass2Listener extends AbstractInflectionListener
 			reportWarning( typeContext.start, typeContext.stop, "Overlapping import: symbol already implicitly imported by 'import " + packageNameOfType + ".*;" );
 	}
 	
+	/////////////
 	// TAXONOMIES
+	/////////////
 	
 	@Override
 	public void enterTaxonomyDeclaration( TaxonomyDeclarationContext taxonomyDeclarationContext )
@@ -275,7 +279,9 @@ public class Pass2Listener extends AbstractInflectionListener
 		currentTaxonomyCompiled.setDefaultAccessType( currentAccessType );
 	}
 	
+	////////
 	// VIEWS
+	////////
 
 	@Override
 	public void enterViewDeclaration( ViewDeclarationContext viewDeclarationContext )
@@ -540,7 +546,9 @@ public class Pass2Listener extends AbstractInflectionListener
 		currentViewSelectionType = SelectionType.EXCLUDE;
 	}
 
+	//////////
 	// MEMBERS
+	//////////
 	
 	@Override
 	public void enterMemberDeclaration( MemberDeclarationContext memberDeclarationContext )
@@ -830,7 +838,9 @@ public class Pass2Listener extends AbstractInflectionListener
 		currentMemberSelectionType = SelectionType.EXCLUDE;
 	}
 	
+	///////
 	// MISC
+	///////
 
 	@Override
 	public void enterAnnotation( AnnotationContext annotationContext )
