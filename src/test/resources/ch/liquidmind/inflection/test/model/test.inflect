@@ -43,8 +43,7 @@ taxonomy UseCase5 extends FullTaxonomy
 {
 	view Person
 	{
-		*;
-		exclude addresses;
+		firstName;
 	}
 	
 	exclude view Address;

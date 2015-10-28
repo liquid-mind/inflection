@@ -33,6 +33,8 @@ import ch.liquidmind.inflection.test.model.Gender;
 import ch.liquidmind.inflection.test.model.Person;
 import ch.liquidmind.inflection.test.model.FullTaxonomy.ch.liquidmind.inflection.test.model.FullTaxonomy_Address;
 import ch.liquidmind.inflection.test.model.FullTaxonomy.ch.liquidmind.inflection.test.model.FullTaxonomy_Person;
+import ch.liquidmind.inflection.test.model.UseCase1.ch.liquidmind.inflection.test.model.UseCase1_Person;
+import ch.liquidmind.inflection.test.model.UseCase5.ch.liquidmind.inflection.test.model.UseCase5_Person;
 import ch.liquidmind.inflection.util.InflectionPrinter;
 
 public class InflectionTest
@@ -94,10 +96,21 @@ public class InflectionTest
 	public void testGenerator()
 	{
 		TaxonomyLoader taxonomyLoader = compileTestTaxonomies();
-		Taxonomy taxonomy = taxonomyLoader.loadTaxonomy( "ch.liquidmind.inflection.test.model.FullTaxonomy" );
 		File baseDir = new File( "/Users/john/Documents/workspace-liquid-mind/inflection/build/inflection-test" );
-		ProxyGenerator proxyGenerator = new ProxyGenerator( baseDir, taxonomy );
-		proxyGenerator.generateTaxonomy();
+		Taxonomy fullTaxonomy = taxonomyLoader.loadTaxonomy( "ch.liquidmind.inflection.test.model.FullTaxonomy" );
+		Taxonomy useCase1 = taxonomyLoader.loadTaxonomy( "ch.liquidmind.inflection.test.model.UseCase1" );
+		Taxonomy useCase2 = taxonomyLoader.loadTaxonomy( "ch.liquidmind.inflection.test.model.UseCase2" );
+		Taxonomy useCase3 = taxonomyLoader.loadTaxonomy( "ch.liquidmind.inflection.test.model.UseCase3" );
+		Taxonomy useCase4 = taxonomyLoader.loadTaxonomy( "ch.liquidmind.inflection.test.model.UseCase4" );
+		Taxonomy useCase5 = taxonomyLoader.loadTaxonomy( "ch.liquidmind.inflection.test.model.UseCase5" );
+
+		new ProxyGenerator( baseDir, fullTaxonomy ).generateTaxonomy();
+		new ProxyGenerator( baseDir, useCase1 ).generateTaxonomy();
+		new ProxyGenerator( baseDir, useCase2 ).generateTaxonomy();
+		new ProxyGenerator( baseDir, useCase3 ).generateTaxonomy();
+		new ProxyGenerator( baseDir, useCase4 ).generateTaxonomy();
+		new ProxyGenerator( baseDir, useCase5 ).generateTaxonomy();
+		
 		TaxonomyLoader.setContextTaxonomyLoader( taxonomyLoader );
 	}
 
@@ -115,6 +128,7 @@ public class InflectionTest
 		System.out.println( "FullTaxonomy_Person.addresses[ 0 ].city = " + p.getAddresses().get( 0 ).getCity() );
 	}
 
+//	@Ignore
 	@Test
 	public void testProxies2() throws JsonGenerationException, JsonMappingException, IOException
 	{
@@ -127,15 +141,9 @@ public class InflectionTest
 		person.getAddresses().add( address );
 //		address.getPeople().add( person );
 		
-		FullTaxonomy_Person personView = ProxyHelper.getProxy( "ch.liquidmind.inflection.test.model.FullTaxonomy", person );
-//		FullTaxonomy_Address addressView = personView.getAddresses().get( 0 );
-		
-		personView.getId();
-		
-//		System.out.println( "personView.getFirstName() = " + personView.getFirstName() );
-//		System.out.println( "personView.getFirstName() = " + personView.getLastName() );
-//		System.out.println( "addressView.getStreet() = " + addressView.getStreet() );
-//		System.out.println( "addressView.getCity() = " + addressView.getCity() );
+		FullTaxonomy_Person fullTaxonomyPerson = ProxyHelper.getProxy( "ch.liquidmind.inflection.test.model.FullTaxonomy", person );
+		UseCase1_Person useCase1Person = ProxyHelper.getProxy( "ch.liquidmind.inflection.test.model.UseCase1", person );
+		UseCase5_Person useCase5Person = ProxyHelper.getProxy( "ch.liquidmind.inflection.test.model.UseCase5", person );
 		
 		ObjectMapper mapper = new ObjectMapper();
 		ObjectWriter writer = mapper.writerWithDefaultPrettyPrinter();
@@ -144,7 +152,13 @@ public class InflectionTest
 		System.out.println( writer.writeValueAsString( person ) );
 		System.out.println();
 		System.out.println( "FullTaxonomy_Person:" );
-		System.out.println( writer.writeValueAsString( personView ) );
+		System.out.println( writer.writeValueAsString( fullTaxonomyPerson ) );
+		System.out.println();
+		System.out.println( "UseCase1_Person:" );
+		System.out.println( writer.writeValueAsString( useCase1Person ) );
+		System.out.println();
+		System.out.println( "UseCase5_Person:" );
+		System.out.println( writer.writeValueAsString( useCase5Person ) );
 	}
 	
 	private TaxonomyLoader compileTestTaxonomies()

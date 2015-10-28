@@ -28,9 +28,6 @@ public class ProxyRegistry
 		collectionsByProxy.put( SetProxy.class, HashSet.class );
 		collectionsByProxy.put( MapProxy.class, HashMap.class );
 		
-		proxiesByCollection.put( ArrayList.class, ListProxy.class );
-		proxiesByCollection.put( HashSet.class, SetProxy.class );
-		proxiesByCollection.put( HashMap.class, MapProxy.class );
 		proxiesByCollection.put( List.class, ListProxy.class );
 		proxiesByCollection.put( Set.class, SetProxy.class );
 		proxiesByCollection.put( Map.class, MapProxy.class );
@@ -196,9 +193,15 @@ public class ProxyRegistry
 	{
 		T proxy = null;
 		
-		if ( proxiesByCollection.containsKey( object.getClass() ) )
+		Set< Class< ? > > intersection = new HashSet< Class< ? > >( proxiesByCollection.keySet() );
+		intersection.retainAll( java.util.Arrays.asList( object.getClass().getInterfaces() ) );
+		
+		if ( !intersection.isEmpty() )
 		{
-			Class< ? > proxyClass = proxiesByCollection.get( object.getClass() );
+			if ( intersection.size() > 1 )
+				throw new IllegalStateException( "intersection should contain exactly one element." );
+			
+			Class< ? > proxyClass = proxiesByCollection.get( intersection.iterator().next() );
 			Constructor< ? > constructor = __Class.getDeclaredConstructor( proxyClass, String.class );
 			constructor.setAccessible( true );
 			proxy = (T)__Constructor.newInstance( constructor, taxonomy.getName() );
