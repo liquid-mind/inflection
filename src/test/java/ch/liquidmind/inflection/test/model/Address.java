@@ -13,9 +13,9 @@ public class Address extends IdentifiableObject
 		super();
 	}
 	
-	public Address( String street, String city, String zip, String country )
+	public Address( long id, String street, String city, String zip, String country )
 	{
-		super();
+		super( id );
 		this.street = street;
 		this.city = city;
 		this.zip = zip;

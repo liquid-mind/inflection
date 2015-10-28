@@ -60,6 +60,9 @@ import ch.liquidmind.inflection.model.compiled.TaxonomyCompiled;
 import ch.liquidmind.inflection.model.compiled.ViewCompiled;
 import ch.liquidmind.inflection.model.external.Taxonomy;
 
+// TODO There is a bug when the same view is defined more than once in the same taxonomy;
+// instead of the second definition taking precedence over the first, the view incorrectly
+// gets the union of both sets of members.
 public class Pass2Listener extends AbstractInflectionListener
 {
 	private TaxonomyCompiled currentTaxonomyCompiled;

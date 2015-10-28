@@ -127,7 +127,6 @@ public class ListProxy< E extends Object > extends Proxy implements List< E >
 	public void clear()
 	{
 		// TODO Auto-generated method stub
-		int i = 0;
 	}
 
 	@Override
@@ -158,7 +157,6 @@ public class ListProxy< E extends Object > extends Proxy implements List< E >
 	public void add( int index, E element )
 	{
 		// TODO Auto-generated method stub
-		int i = 0;
 	}
 
 	@Override

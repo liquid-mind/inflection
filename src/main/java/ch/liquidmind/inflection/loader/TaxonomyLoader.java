@@ -120,7 +120,6 @@ public class TaxonomyLoader
 	{
 		TaxonomyCompiled taxonomyCompiled = loadTaxonomyInternal( name );
 		Taxonomy taxonomy = defineTaxonomy( taxonomyCompiled );
-		loadedTaxonomies.put( taxonomy.getName(), (TaxonomyLinked)taxonomy );
 		
 		return taxonomy;
 	}
@@ -164,6 +163,8 @@ public class TaxonomyLoader
 		
 		for ( ViewCompiled viewCompiled : taxonomyCompiled.getViewsCompiled() )
 			taxonomyLinked.getViewsLinked().add( defineView( taxonomyLinked, viewCompiled, taxonomyLinked.getDefaultAccessType() ) );
+
+		loadedTaxonomies.put( taxonomyLinked.getName(), taxonomyLinked );
 		
 		return taxonomyLinked;
 	}
@@ -208,6 +209,10 @@ public class TaxonomyLoader
 			
 			for ( Method method : viewedClass.getDeclaredMethods() )
 				declaredMethods.put( method.getName().toLowerCase(), method );
+			
+			for ( Class< ? > usedClass : parentViewLinked.getUsedClasses() )
+				for ( Method method : usedClass.getDeclaredMethods() )
+					declaredMethods.put( method.getName().toLowerCase(), method );
 			
 			Method writeMethod = declaredMethods.get( "set" + propertyLinked.getName().toLowerCase() );
 			Method readMethod = declaredMethods.get( "is" + propertyLinked.getName().toLowerCase() );

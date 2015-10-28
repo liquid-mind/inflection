@@ -17,9 +17,9 @@ public class Person extends IdentifiableObject
 		super();
 	}
 
-	public Person( String firstName, String lastName, String title, String telephone, String mobile, String email, Gender gender, Date dateOfBirth )
+	public Person( long id, String firstName, String lastName, String title, String telephone, String mobile, String email, Gender gender, Date dateOfBirth )
 	{
-		super();
+		super( id );
 		this.firstName = firstName;
 		this.lastName = lastName;
 		this.title = title;

@@ -2,6 +2,7 @@ package ch.liquidmind.inflection.proxy;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -75,6 +76,13 @@ public class ProxyHandler implements InvocationHandler
 			method = property.getWriteMethod();
 		else
 			throw new IllegalStateException();
+
+		// Adjustment for calculated fields.
+		if ( Modifier.isStatic( method.getModifiers() ) )
+		{
+			viewableArgs.add( 0, viewableObject );
+			viewableObject = null;
+		}
 		
 		return method.invoke( viewableObject, viewableArgs.toArray( new Object[ viewableArgs.size() ] ) );
 	}

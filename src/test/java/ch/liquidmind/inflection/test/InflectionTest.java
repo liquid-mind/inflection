@@ -31,10 +31,11 @@ import ch.liquidmind.inflection.proxy.ProxyHelper;
 import ch.liquidmind.inflection.test.model.Address;
 import ch.liquidmind.inflection.test.model.Gender;
 import ch.liquidmind.inflection.test.model.Person;
-import ch.liquidmind.inflection.test.model.FullTaxonomy.ch.liquidmind.inflection.test.model.FullTaxonomy_Address;
 import ch.liquidmind.inflection.test.model.FullTaxonomy.ch.liquidmind.inflection.test.model.FullTaxonomy_Person;
 import ch.liquidmind.inflection.test.model.UseCase1.ch.liquidmind.inflection.test.model.UseCase1_Person;
-import ch.liquidmind.inflection.test.model.UseCase5.ch.liquidmind.inflection.test.model.UseCase5_Person;
+import ch.liquidmind.inflection.test.model.UseCase2.ch.liquidmind.inflection.test.model.UseCase2_Person;
+import ch.liquidmind.inflection.test.model.UseCase3.ch.liquidmind.inflection.test.model.UseCase3_Person;
+import ch.liquidmind.inflection.test.model.UseCase4.ch.liquidmind.inflection.test.model.UseCase4_Address;
 import ch.liquidmind.inflection.util.InflectionPrinter;
 
 public class InflectionTest
@@ -91,7 +92,6 @@ public class InflectionTest
 		}
 	}
 
-	@Ignore
 	@Test
 	public void testGenerator()
 	{
@@ -102,63 +102,52 @@ public class InflectionTest
 		Taxonomy useCase2 = taxonomyLoader.loadTaxonomy( "ch.liquidmind.inflection.test.model.UseCase2" );
 		Taxonomy useCase3 = taxonomyLoader.loadTaxonomy( "ch.liquidmind.inflection.test.model.UseCase3" );
 		Taxonomy useCase4 = taxonomyLoader.loadTaxonomy( "ch.liquidmind.inflection.test.model.UseCase4" );
-		Taxonomy useCase5 = taxonomyLoader.loadTaxonomy( "ch.liquidmind.inflection.test.model.UseCase5" );
 
 		new ProxyGenerator( baseDir, fullTaxonomy ).generateTaxonomy();
 		new ProxyGenerator( baseDir, useCase1 ).generateTaxonomy();
 		new ProxyGenerator( baseDir, useCase2 ).generateTaxonomy();
 		new ProxyGenerator( baseDir, useCase3 ).generateTaxonomy();
 		new ProxyGenerator( baseDir, useCase4 ).generateTaxonomy();
-		new ProxyGenerator( baseDir, useCase5 ).generateTaxonomy();
 		
 		TaxonomyLoader.setContextTaxonomyLoader( taxonomyLoader );
 	}
 
-	@Ignore
 	@Test
-	public void testProxies()
-	{
-		testGenerator();
-		FullTaxonomy_Person p = new FullTaxonomy_Person();
-		p.setFirstName( "John" );
-		System.out.println( "FullTaxonomy_Person.firstName = " + p.getFirstName() );
-		FullTaxonomy_Address address = new FullTaxonomy_Address();
-		address.setCity( "Zurich" );
-		p.getAddresses().add( address );
-		System.out.println( "FullTaxonomy_Person.addresses[ 0 ].city = " + p.getAddresses().get( 0 ).getCity() );
-	}
-
-//	@Ignore
-	@Test
-	public void testProxies2() throws JsonGenerationException, JsonMappingException, IOException
+	public void testProxies() throws JsonGenerationException, JsonMappingException, IOException
 	{
 		testGenerator();
 		
 		Calendar cal = new GregorianCalendar();
 		cal.set( 1972, 8, 8 );
-		Person person = new Person( "John", "Brush", "Mr.", "+41 79 235 17 56", "+41 79 235 17 56", "jebrush@gmail.com", Gender.MALE, cal.getTime() );
-		Address address = new Address( "Feldgüetliweg 82", "Feldmeilen", "8706", "Switzerland" );
+		Person person = new Person( 42, "John", "Brush", "Mr.", "+41 79 235 17 56", "+41 79 235 17 56", "jebrush@gmail.com", Gender.MALE, cal.getTime() );
+		Address address = new Address( 43, "Feldgüetliweg 82", "Feldmeilen", "8706", "Switzerland" );
 		person.getAddresses().add( address );
-//		address.getPeople().add( person );
+		address.getPeople().add( person );
 		
 		FullTaxonomy_Person fullTaxonomyPerson = ProxyHelper.getProxy( "ch.liquidmind.inflection.test.model.FullTaxonomy", person );
 		UseCase1_Person useCase1Person = ProxyHelper.getProxy( "ch.liquidmind.inflection.test.model.UseCase1", person );
-		UseCase5_Person useCase5Person = ProxyHelper.getProxy( "ch.liquidmind.inflection.test.model.UseCase5", person );
+		UseCase2_Person useCase2Person = ProxyHelper.getProxy( "ch.liquidmind.inflection.test.model.UseCase2", person );
+		UseCase3_Person useCase3Person = ProxyHelper.getProxy( "ch.liquidmind.inflection.test.model.UseCase3", person );
+		UseCase4_Address useCase4Address = ProxyHelper.getProxy( "ch.liquidmind.inflection.test.model.UseCase4", address );
 		
 		ObjectMapper mapper = new ObjectMapper();
 		ObjectWriter writer = mapper.writerWithDefaultPrettyPrinter();
 		
-		System.out.println( "Person:" );
-		System.out.println( writer.writeValueAsString( person ) );
-		System.out.println();
 		System.out.println( "FullTaxonomy_Person:" );
 		System.out.println( writer.writeValueAsString( fullTaxonomyPerson ) );
 		System.out.println();
 		System.out.println( "UseCase1_Person:" );
 		System.out.println( writer.writeValueAsString( useCase1Person ) );
 		System.out.println();
-		System.out.println( "UseCase5_Person:" );
-		System.out.println( writer.writeValueAsString( useCase5Person ) );
+		System.out.println( "UseCase2_Person:" );
+		System.out.println( writer.writeValueAsString( useCase2Person ) );
+		System.out.println();
+		System.out.println( "UseCase3_Person:" );
+		System.out.println( writer.writeValueAsString( useCase3Person ) );
+		System.out.println();
+		System.out.println( "UseCase4_Address:" );
+		System.out.println( writer.writeValueAsString( useCase4Address ) );
+		System.out.println();
 	}
 	
 	private TaxonomyLoader compileTestTaxonomies()

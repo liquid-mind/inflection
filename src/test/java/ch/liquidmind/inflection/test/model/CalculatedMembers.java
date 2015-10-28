@@ -11,7 +11,7 @@ public class CalculatedMembers
 	{
 		Calendar c = new GregorianCalendar ();
 		c.setTime( person.getDateOfBirth() );
-		return (int)ChronoUnit.YEARS.between(
+		return (int)-ChronoUnit.YEARS.between(
 			LocalDate.now(), LocalDate.of(
 			c.get( Calendar.YEAR ),
 			c.get( Calendar.MONTH ), c.get( Calendar.DAY_OF_MONTH )

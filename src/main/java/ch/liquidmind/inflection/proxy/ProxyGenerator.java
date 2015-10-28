@@ -4,9 +4,11 @@ import java.io.File;
 import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import __java.io.__FileOutputStream;
@@ -154,7 +156,12 @@ public class ProxyGenerator
 		if ( method == null )
 			return;
 		
-		generateMethod( method.getName(), method.getGenericReturnType(), method.getGenericParameterTypes(), method.getExceptionTypes() );
+		List< Type > paramTypes = Arrays.asList( method.getGenericParameterTypes() );
+		
+		if ( Modifier.isStatic( method.getModifiers() ) )
+			paramTypes = new ArrayList< Type >( paramTypes.subList( 1, paramTypes.size() ) );
+		
+		generateMethod( method.getName(), method.getGenericReturnType(), paramTypes.toArray( new Type[ paramTypes.size() ] ), method.getExceptionTypes() );
 	}
 	
 	private void generateMethod( String methodName, Type retType, Type[] paramTypes, Class< ? >[] exTypes )

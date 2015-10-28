@@ -2,7 +2,14 @@ package ch.liquidmind.inflection.test.model;
 
 taxonomy FullTaxonomy
 {
-	view * { *; }
+	view IdentifiableObject, Person { *; }
+	
+	view Address
+	{
+		*;
+		exclude people;
+	}
+	
 	exclude view CalculatedMembers;
 }
 
@@ -22,29 +29,22 @@ taxonomy UseCase2 extends FullTaxonomy
 		
 		// ...or this syntax, which is not yet operational:
 		// Person.*;
-		// CalculatedMembers.fullName;
+		// CalculatedMembers.age;
 	}
 }
 
 taxonomy UseCase3 extends FullTaxonomy
 {
-	view Person as Customer use CalculatedMembers
+	view Person use CalculatedMembers
 	{
-		fullName as completeName, email, gender, dateOfBirth, primaryAddress;
+		fullName, email, gender, dateOfBirth, primaryAddress;
 	}
 }
 
+// Note: for some reason the compiler is not creating an instance of
+// MemberCompiled for Address...
 taxonomy UseCase4 extends FullTaxonomy
 {
+	view Address { *; }
 	view Person {}
-}
-
-taxonomy UseCase5 extends FullTaxonomy
-{
-	view Person
-	{
-		firstName;
-	}
-	
-	exclude view Address;
 }
