@@ -3,6 +3,7 @@ package ch.liquidmind.inflection.proxy;
 import java.lang.reflect.Method;
 
 import __java.lang.__Class;
+import __java.lang.__NoSuchMethodException;
 import ch.liquidmind.inflection.loader.TaxonomyLoader;
 import ch.liquidmind.inflection.model.external.Taxonomy;
 import ch.liquidmind.inflection.model.external.View;
@@ -58,7 +59,7 @@ public class Proxy
 	@SuppressWarnings( "unchecked" )
 	protected < T extends Object > T invoke( String methodName, Class< ? >[] paramTypes, Object[] params ) throws Throwable
 	{
-		Method method = __Class.getDeclaredMethod( this.getClass(), methodName, paramTypes );
+		Method method = getDeclaredMethodRecursive( this.getClass(), methodName, paramTypes );
 		Object retVal = ProxyHandler.getContextProxyHandler().invoke( this, method, params );
 		
 		return (T)retVal;
@@ -69,9 +70,26 @@ public class Proxy
 	@SuppressWarnings( "unchecked" )
 	protected < T extends Object > T invokeOnCollection( String methodName, Class< ? >[] paramTypes, Object[] params ) throws Throwable
 	{
-		Method method = __Class.getDeclaredMethod( this.getClass(), methodName, paramTypes );
+		Method method = getDeclaredMethodRecursive( this.getClass(), methodName, paramTypes );
 		Object retVal = CollectionProxyHandler.getContextCollectionProxyHandler().invoke( this, method, params );
 		
 		return (T)retVal;
+	}
+	
+	private Method getDeclaredMethodRecursive( Class< ? > aClass, String methodName, Class< ? >[] paramTypes )
+	{
+		Method method = null;
+		
+		try
+		{
+			method = __Class.getDeclaredMethod( aClass, methodName, paramTypes );
+		}
+		catch ( __NoSuchMethodException e )
+		{
+			if ( aClass.getSuperclass() != null )
+				method = getDeclaredMethodRecursive( aClass.getSuperclass(), methodName, paramTypes );
+		}
+		
+		return method;
 	}
 }

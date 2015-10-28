@@ -36,8 +36,18 @@ public class ListProxy< E extends Object > extends Proxy implements List< E >
 	@Override
 	public Iterator< E > iterator()
 	{
-		// TODO Auto-generated method stub
-		return null;
+        try
+        {
+    		return invokeOnCollection( "iterator", new Class< ? >[] {}, new Object[] {} );
+        }
+        catch ( RuntimeException | Error ex )
+        {
+            throw ex;
+        }
+        catch ( java.lang.Throwable ex )
+        {
+            throw new IllegalStateException( "Unexpected exception type: " + ex.getClass().getName(), ex );
+        }
 	}
 
 	@Override

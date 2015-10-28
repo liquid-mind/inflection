@@ -128,7 +128,9 @@ public class InflectionTest
 //		address.getPeople().add( person );
 		
 		FullTaxonomy_Person personView = ProxyHelper.getProxy( "ch.liquidmind.inflection.test.model.FullTaxonomy", person );
-		FullTaxonomy_Address addressView = personView.getAddresses().get( 0 );
+//		FullTaxonomy_Address addressView = personView.getAddresses().get( 0 );
+		
+		personView.getId();
 		
 //		System.out.println( "personView.getFirstName() = " + personView.getFirstName() );
 //		System.out.println( "personView.getFirstName() = " + personView.getLastName() );

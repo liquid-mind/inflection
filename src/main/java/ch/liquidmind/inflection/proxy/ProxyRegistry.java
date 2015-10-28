@@ -4,6 +4,7 @@ import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -33,6 +34,7 @@ public class ProxyRegistry
 		proxiesByCollection.put( List.class, ListProxy.class );
 		proxiesByCollection.put( Set.class, SetProxy.class );
 		proxiesByCollection.put( Map.class, MapProxy.class );
+		proxiesByCollection.put( Iterator.class, IteratorProxy.class );
 	}
 	
 	private static ThreadLocal< ProxyRegistry > contextProxyRegistry = new ThreadLocal< ProxyRegistry >();
