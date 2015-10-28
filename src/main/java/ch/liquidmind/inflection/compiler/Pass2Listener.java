@@ -672,29 +672,30 @@ public class Pass2Listener extends AbstractInflectionListener
 		String memberSelectorRegEx = memberSelector.replace( "*", "[a-zA-Z0-9_$]*?" );
 		Class< ? > viewClass = getClass( viewCompiled.getName() );
 		Map< String, List< Member > > members = new HashMap< String, List< Member > >();
+		List< String > memberNames = new ArrayList< String >();
 		 
 		if ( effectiveAccessType.equals( AccessType.FIELD ) )
-			getFieldNames( viewClass, members );
+			getFieldNames( viewClass, members, memberNames );
 		else if ( effectiveAccessType.equals( AccessType.PROPERTY ) )
-			getPropertyNames( viewClass, PropertyType.DYNAMIC, members );
+			getPropertyNames( viewClass, PropertyType.DYNAMIC, members, memberNames );
 		else
 			throw new IllegalStateException( "Unexpected value for effectiveAccessType: " + effectiveAccessType  );
 		
 		for ( String className : viewCompiled.getUsedClasses() )
 		{
 			Class< ? > usedClass = getClass( className );
-			getPropertyNames( usedClass, PropertyType.STATIC, members );
+			getPropertyNames( usedClass, PropertyType.STATIC, members, memberNames );
 		}
 
 		List< String > matchingMembers = new ArrayList< String >();
 
-		for ( Map.Entry< String, List< Member > > member : members.entrySet() )
+		for ( String memberName : memberNames )
 		{
-			if ( member.getKey().toLowerCase().matches( memberSelectorRegEx ) )
+			if ( memberName.toLowerCase().matches( memberSelectorRegEx ) )
 			{
-				List< Member > specificMembers = member.getValue();
+				List< Member > specificMembers = members.get( memberName );
 				validateSpecificMembersNotAmbiguous( specificMembers, memberSelectorContext );
-				matchingMembers.add( member.getKey() );
+				matchingMembers.add( memberName );
 			}
 		}
 		
@@ -722,13 +723,13 @@ public class Pass2Listener extends AbstractInflectionListener
 			throw new IllegalStateException( "Unexpected value for specificMemberClasses.size(): " + specificMemberClasses.size() );
 	}
 
-	private void getFieldNames( Class< ? > viewClass, Map< String, List< Member > > members )
+	private void getFieldNames( Class< ? > viewClass, Map< String, List< Member > > members, List< String > memberNames )
 	{
 		for ( Field declaredField : viewClass.getDeclaredFields() )
-			addMember( members, declaredField, declaredField.getName() );
+			addMember( members, declaredField, declaredField.getName(), memberNames );
 	}
 	
-	private void addMember( Map< String, List< Member > > members, Member member, String memberName )
+	private void addMember( Map< String, List< Member > > members, Member member, String memberName, List< String > memberNames )
 	{
 		List< Member > specificMembers = members.get( memberName );
 		
@@ -736,6 +737,7 @@ public class Pass2Listener extends AbstractInflectionListener
 		{
 			specificMembers = new ArrayList< Member >();
 			members.put( memberName, specificMembers );
+			memberNames.add( memberName );
 		}
 		
 		specificMembers.add( member );
@@ -747,7 +749,7 @@ public class Pass2Listener extends AbstractInflectionListener
 		DYNAMIC
 	}
 	
-	private void getPropertyNames( Class< ? > viewClass, PropertyType propertyType, Map< String, List< Member > > members )
+	private void getPropertyNames( Class< ? > viewClass, PropertyType propertyType, Map< String, List< Member > > members, List< String > memberNames )
 	{
 		for ( Method declaredMethod : viewClass.getDeclaredMethods() )
 		{
@@ -759,7 +761,7 @@ public class Pass2Listener extends AbstractInflectionListener
 			
 			if ( propertyName != null )
 			{
-				addMember( members, declaredMethod, propertyName );
+				addMember( members, declaredMethod, propertyName, memberNames );
 				validatePropertySignature( declaredMethod );
 			}
 		}

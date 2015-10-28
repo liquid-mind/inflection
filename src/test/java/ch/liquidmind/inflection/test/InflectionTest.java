@@ -92,6 +92,7 @@ public class InflectionTest
 		}
 	}
 
+	@Ignore
 	@Test
 	public void testGenerator()
 	{
