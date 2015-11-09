@@ -46,6 +46,9 @@ public class InflectionCompiler
 			job.printFaults();
 		}
 		
+		if ( job.hasCompilationErrors() )
+			return;
+		
 		long timeAfter = System.currentTimeMillis();
 		float timeDeltaInSecs = ( timeAfter - timeBefore ) / 1000F;
 		int compilationUnitCount = job.getCompilationUnits().size();
