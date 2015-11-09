@@ -35,6 +35,8 @@ public class SystemTaxonomyLoader extends TaxonomyLoader
 		
 		if ( name.equals( TAXONOMY ) )
 			foundTaxonomy = defineTaxonomy( taxonomy );
+		else
+			foundTaxonomy = super.findTaxonomy( name );
 		
 		return foundTaxonomy;
 	}

@@ -119,7 +119,10 @@ public class TaxonomyLoader
 	protected Taxonomy findTaxonomy( String name )
 	{
 		TaxonomyCompiled taxonomyCompiled = loadTaxonomyInternal( name );
-		Taxonomy taxonomy = defineTaxonomy( taxonomyCompiled );
+		Taxonomy taxonomy = null;
+		
+		if ( taxonomyCompiled != null )
+			taxonomy = defineTaxonomy( taxonomyCompiled );
 		
 		return taxonomy;
 	}
@@ -128,7 +131,7 @@ public class TaxonomyLoader
 	{
 		String taxonomyName = name.replace( ".", "/" ) + TaxonomyCompiled.TAXONOMY_COMPILED_SUFFIX;
 		InputStream inputStream = classLoader.getResourceAsStream( taxonomyName );
-		TaxonomyCompiled taxonomyCompiled;
+		TaxonomyCompiled taxonomyCompiled = null;
 
 		try
 		{
@@ -136,7 +139,7 @@ public class TaxonomyLoader
 		}
 		catch ( Throwable t )
 		{
-			throw new TaxonomyNotFoundException( "Unable to load class view: " + name, t );
+			// Allow taxonomyCompiled to return as null
 		}
 		
 		return taxonomyCompiled;

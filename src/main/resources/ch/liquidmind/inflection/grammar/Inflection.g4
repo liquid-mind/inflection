@@ -16,6 +16,10 @@ grammar Inflection;
  * Ideas:
  * - New modifier operation type which can be either read, write or readwrite. Can be
  *   set at method or taxonomy level.
+ * - Solution to bootstraping problem: introduce ability to parse Java class files; the views
+ *   could then refer to either compiled or uncompiled classes. This would allow you to run
+ *   inflection *before* normal compilation, thus avoiding the catch 22 of classes that
+ *   reference proxies that have not yet been generated and thus cannot be compiled.
  */
 
 // COMPILATION UNIT

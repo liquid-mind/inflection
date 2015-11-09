@@ -14,6 +14,7 @@ import java.util.List;
 import __java.io.__FileOutputStream;
 import __java.io.__OutputStream;
 import __org.apache.commons.io.__FileUtils;
+import ch.liquidmind.inflection.loader.TaxonomyLoader;
 import ch.liquidmind.inflection.model.external.Field;
 import ch.liquidmind.inflection.model.external.Member;
 import ch.liquidmind.inflection.model.external.Property;
@@ -26,6 +27,22 @@ public class ProxyGenerator
 	private File baseDir;
 	private Taxonomy taxonomy;
 	private PrintWriter printWriter;
+	
+	// TODO Introduce apache commons cli, analogous to deflector.
+	public static void main( String[] args )
+	{
+		File baseDir = new File( args[ 0 ] );
+		String[] taxonomyNames = new String[ args.length - 1 ];
+		
+		for ( int i = 0 ; i < taxonomyNames.length ; ++i )
+			taxonomyNames[ i ] = args[ i + 1 ];
+		
+		for ( String taxonomyName : taxonomyNames )
+		{
+			Taxonomy taxonomy = TaxonomyLoader.getContextTaxonomyLoader().loadTaxonomy( taxonomyName );
+			new ProxyGenerator( baseDir, taxonomy ).generateTaxonomy();
+		}
+	}
 	
 	public ProxyGenerator( File baseDir, Taxonomy taxonomy )
 	{

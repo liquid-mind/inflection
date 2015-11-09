@@ -1,5 +1,6 @@
 package ch.liquidmind.inflection.compiler;
 
+import java.io.File;
 import java.io.FileInputStream;
 
 import org.antlr.v4.runtime.ANTLRInputStream;
@@ -10,8 +11,11 @@ import org.antlr.v4.runtime.tree.ParseTreeWalker;
 import __java.io.__Closeable;
 import __java.io.__FileInputStream;
 import __org.antlr.v4.runtime.__ANTLRInputStream;
+import __org.apache.commons.io.__FileUtils;
+import ch.liquidmind.inflection.compiler.CompilationJob.CompilationMode;
 import ch.liquidmind.inflection.grammar.InflectionLexer;
 import ch.liquidmind.inflection.grammar.InflectionParser;
+import ch.liquidmind.inflection.loader.TaxonomyLoader;
 import ch.liquidmind.inflection.model.compiled.TaxonomyCompiled;
 
 public class InflectionCompiler
@@ -19,7 +23,34 @@ public class InflectionCompiler
 	public static final String INFLECT_SUFFIX = ".inflect";
 	
 	private static ParseTreeWalker parseTreeWalker = new ParseTreeWalker();
-
+	
+	// TODO Introduce apache commons cli, analogous to deflector.
+	public static void main( String[] args )
+	{
+		File targetDir = new File( args[ 0 ] );
+		CompilationMode compilationMode = CompilationMode.valueOf( args[ 1 ] );
+		
+		File[] sourceFiles = new File[ args.length - 2 ];
+		
+		for ( int i = 0 ; i < sourceFiles.length ; ++i )
+			sourceFiles[ i ] = new File( args[ i + 2 ] );
+		
+		// TODO Should probably take this out at some point (should be handled by build script).
+		if ( targetDir.exists() )
+			__FileUtils.forceDelete( null, targetDir );
+		
+		CompilationJob job = new CompilationJob( TaxonomyLoader.getSystemTaxonomyLoader(), targetDir, compilationMode, sourceFiles );
+		
+		try
+		{
+			InflectionCompiler.compile( job );
+		}
+		finally
+		{
+			job.printFaults();
+		}
+	}
+	
 	public static void compile( CompilationJob job )
 	{
 		parse( job );

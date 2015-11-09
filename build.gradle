@@ -1,5 +1,9 @@
+// For debugging:
+// '-agentlib:jdwp=transport=dt_socket,address=8000,server=y,suspend=y'
+
 plugins {
     id "java"
+    id "maven"
     id "maven-publish"
     id "eclipse"
     id "idea"
@@ -8,7 +12,7 @@ plugins {
 }
 
 group = "ch.liquidmind"
-version = "0.0.4"
+version = "0.5"
 
 jar {
     from ("./LICENSE") {
@@ -23,6 +27,26 @@ repositories {
 	}
 }
 
+sourceSets {
+    testModel {
+        java {
+            srcDir "src/test/java"
+            include "ch/liquidmind/inflection/test/model/*"
+        }
+        resources {
+        	srcDir "src/test/resources"
+        }
+    }
+    test {
+    	java {
+	    	srcDirs "src/test/java", "build/generated/inflection"
+    	}
+        resources {
+        	srcDirs "src/test/resources", "build/resources/testModel"
+        }
+    }
+}
+
 dependencies {
 	compile "__commons-io:commons-io:2.4"
 	compile "__org.antlr:antlr4:4.5"
@@ -32,14 +56,45 @@ dependencies {
 	compile 'org.codehaus.jackson:jackson-mapper-asl:1.9.13'
 }
 
-// Antlr Config
+// Antlr
 antlr4 {
 	source=file("src/main/resources/ch/liquidmind/inflection/grammar")
-	output=file("$buildDir/generated-src/ch/liquidmind/inflection/grammar")
+	output=file("$buildDir/generated/antlr/ch/liquidmind/inflection/grammar")
 }
 compileJava.dependsOn antlr4
-sourceSets.main.java.srcDirs += "$buildDir/generated-src"
+sourceSets.main.java.srcDirs += "$buildDir/generated/antlr"
 
+// Inflect test model
+task( compileTestTaxonomiesInflection, dependsOn: compileTestModelJava, type: JavaExec ) {
+	main = "ch.liquidmind.inflection.compiler.InflectionCompiler"
+	classpath = sourceSets.main.runtimeClasspath + sourceSets.testModel.runtimeClasspath
+	jvmArgs '-ea'
+	args "${buildDir}/resources/testModel", "BOOTSTRAP"
+	sourceSets.test.resources.each {
+		if ( it.name.endsWith('.inflect') )
+			args it
+	}
+}
+
+// Proxify test taxonomies
+task( proxifyTestTaxonomies, dependsOn: compileTestTaxonomiesInflection, type: JavaExec ) {
+	main = "ch.liquidmind.inflection.proxy.ProxyGenerator"
+	classpath = sourceSets.main.runtimeClasspath + sourceSets.testModel.runtimeClasspath
+	jvmArgs '-ea'
+	args "${buildDir}/generated/inflection",
+	"ch.liquidmind.inflection.test.model.FullTaxonomy",
+	"ch.liquidmind.inflection.test.model.UseCase1",
+	"ch.liquidmind.inflection.test.model.UseCase2",
+	"ch.liquidmind.inflection.test.model.UseCase3",
+	"ch.liquidmind.inflection.test.model.UseCase4"
+}
+
+// Compile test
+compileTestJava.dependsOn proxifyTestTaxonomies
+
+test {
+  testLogging.showStandardStreams = true
+}
 // Sources JAR
 task sourceJar(type: Jar, dependsOn: classes) {
     from sourceSets.main.allSource
@@ -50,6 +105,7 @@ task javadocJar(type: Jar, dependsOn: javadoc) {
     classifier = 'javadoc'
     from javadoc.destinationDir
 }
+
 
 
 publishing {
