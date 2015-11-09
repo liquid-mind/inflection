@@ -28,6 +28,12 @@ repositories {
 }
 
 sourceSets {
+	main {
+		resources {
+            srcDir "src/main/resources"
+            exclude "**/*.g4"
+		}
+	}
     testModel {
         java {
             srcDir "src/test/java"
@@ -69,11 +75,11 @@ task( compileTestTaxonomiesInflection, dependsOn: compileTestModelJava, type: Ja
 	main = "ch.liquidmind.inflection.compiler.InflectionCompiler"
 	classpath = sourceSets.main.runtimeClasspath + sourceSets.testModel.runtimeClasspath
 	jvmArgs '-ea'
-	args "${buildDir}/resources/testModel", "BOOTSTRAP"
-	sourceSets.test.resources.each {
-		if ( it.name.endsWith('.inflect') )
-			args it
-	}
+	args "${buildDir}/resources/testModel", "BOOTSTRAP", "src/test/resources/ch/liquidmind/inflection/test/model/TestModel.inflect"
+}
+
+compileTestTaxonomiesInflection.doFirst {
+	delete fileTree( dir: "build/resources/testModel" , includes: [ "**/*.tax" ] )
 }
 
 // Proxify test taxonomies
@@ -93,7 +99,8 @@ task( proxifyTestTaxonomies, dependsOn: compileTestTaxonomiesInflection, type: J
 compileTestJava.dependsOn proxifyTestTaxonomies
 
 test {
-  testLogging.showStandardStreams = true
+	// Enable this to see test output:
+	// testLogging.showStandardStreams = true
 }
 // Sources JAR
 task sourceJar(type: Jar, dependsOn: classes) {

@@ -11,7 +11,6 @@ import org.antlr.v4.runtime.tree.ParseTreeWalker;
 import __java.io.__Closeable;
 import __java.io.__FileInputStream;
 import __org.antlr.v4.runtime.__ANTLRInputStream;
-import __org.apache.commons.io.__FileUtils;
 import ch.liquidmind.inflection.compiler.CompilationJob.CompilationMode;
 import ch.liquidmind.inflection.grammar.InflectionLexer;
 import ch.liquidmind.inflection.grammar.InflectionParser;
@@ -35,11 +34,8 @@ public class InflectionCompiler
 		for ( int i = 0 ; i < sourceFiles.length ; ++i )
 			sourceFiles[ i ] = new File( args[ i + 2 ] );
 		
-		// TODO Should probably take this out at some point (should be handled by build script).
-		if ( targetDir.exists() )
-			__FileUtils.forceDelete( null, targetDir );
-		
 		CompilationJob job = new CompilationJob( TaxonomyLoader.getSystemTaxonomyLoader(), targetDir, compilationMode, sourceFiles );
+		long timeBefore = System.currentTimeMillis();
 		
 		try
 		{
@@ -49,6 +45,13 @@ public class InflectionCompiler
 		{
 			job.printFaults();
 		}
+		
+		long timeAfter = System.currentTimeMillis();
+		float timeDeltaInSecs = ( timeAfter - timeBefore ) / 1000F;
+		int compilationUnitCount = job.getCompilationUnits().size();
+		int taxonomyCount = job.getKnownTaxonomiesCompiled().size();
+		
+		System.out.format( "Compiled %d taxonomies from %d file(s) in %.3f seconds.\n", taxonomyCount, compilationUnitCount, timeDeltaInSecs );
 	}
 	
 	public static void compile( CompilationJob job )
