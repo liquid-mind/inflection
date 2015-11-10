@@ -75,7 +75,7 @@ task( compileTestTaxonomiesInflection, dependsOn: compileTestModelJava, type: Ja
 	main = "ch.liquidmind.inflection.compiler.InflectionCompiler"
 	classpath = sourceSets.main.runtimeClasspath + sourceSets.testModel.runtimeClasspath
 	jvmArgs '-ea'
-	args "${buildDir}/resources/testModel", "BOOTSTRAP", "src/test/resources/ch/liquidmind/inflection/test/model/TestModel.inflect"
+	args "${buildDir}/resources/testModel", "BOOTSTRAP", "src/test/resources/ch/liquidmind/inflection/test/model/TestModel.inflect", "src/test/resources/ch/liquidmind/inflection/test/model/BlackboxTestModel.inflect"
 }
 
 compileTestTaxonomiesInflection.doFirst {
