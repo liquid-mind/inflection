@@ -68,7 +68,7 @@ public class Pass1Listener extends AbstractInflectionListener
 
 	private void validateCorrespondsWithFileName( APackageContext aPackageContext, String packageName )
 	{
-		String fileName = getCompilationUnit().getCompilationUnitRaw().getSourceFile().getParentFile().getAbsolutePath();
+		String fileName = getCompilationUnit().getCompilationUnitRaw().getSourceFile().getParentFile().toURI().getPath().replaceAll("/+$", "");
 		String expectedFileName = packageName.replace( ".", "/" ) ;
 		
 		if ( !fileName.endsWith( expectedFileName ) )
