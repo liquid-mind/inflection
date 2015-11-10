@@ -1,5 +1,7 @@
 package ch.liquidmind.inflection.compiler;
 
+import java.io.File;
+
 import ch.liquidmind.inflection.compiler.CompilationJob.CompilationMode;
 import ch.liquidmind.inflection.compiler.CompilationUnit.CompilationUnitCompiled.PackageImport;
 import ch.liquidmind.inflection.compiler.CompilationUnit.CompilationUnitCompiled.PackageImport.PackageImportType;
@@ -68,11 +70,11 @@ public class Pass1Listener extends AbstractInflectionListener
 
 	private void validateCorrespondsWithFileName( APackageContext aPackageContext, String packageName )
 	{
-		String fileName = getCompilationUnit().getCompilationUnitRaw().getSourceFile().getParentFile().toURI().getPath().replaceAll("/+$", "");
-		String expectedFileName = packageName.replace( ".", "/" ) ;
-		
-		if ( !fileName.endsWith( expectedFileName ) )
-			reportError( aPackageContext.start, aPackageContext.stop, "Package name '" + packageName +
-				"' does not correspond with file name '" + fileName + "'." );
+			String fileName = getCompilationUnit().getCompilationUnitRaw().getSourceFile().getParentFile().getPath();
+			String expectedFileName = packageName.replace( ".", File.separator ) ;
+			
+			if ( !fileName.endsWith( expectedFileName ) )
+				reportError( aPackageContext.start, aPackageContext.stop, "Package name '" + packageName +
+					"' does not correspond with file name '" + fileName + "'." );
 	}
 }
