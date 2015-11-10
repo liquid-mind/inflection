@@ -23,6 +23,11 @@ public class InflectionPrinter
 		this( DEFAULT_PRINT_STREAM, DEFAULT_SHOW_SIMPLE_NAMES );
 	}
 	
+	public InflectionPrinter( PrintStream printStream )
+	{
+		this( printStream, DEFAULT_SHOW_SIMPLE_NAMES );
+	}
+	
 	public InflectionPrinter( PrintStream printStream, boolean showSimpleNames )
 	{
 		super();
