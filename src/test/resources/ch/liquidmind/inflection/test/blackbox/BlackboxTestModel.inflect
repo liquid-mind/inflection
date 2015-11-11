@@ -1,0 +1,14 @@
+package ch.liquidmind.inflection.test.blackbox;
+
+import ch.liquidmind.inflection.test.model.*;
+
+taxonomy BlackboxTestTaxonomy
+{
+	view Address { *; }	
+	view Person { *; }	
+}
+
+taxonomy BlackboxTestChildTaxonomy extends BlackboxTestTaxonomy
+{
+	view * { *; }	
+}
