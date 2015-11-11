@@ -9,6 +9,7 @@ plugins {
     id "idea"
     id "com.jfrog.bintray" version "1.2"
 	id "me.champeau.gradle.antlr4" version "0.1"
+	id "jacoco"
 }
 
 group = "ch.liquidmind"
@@ -102,6 +103,15 @@ test {
 	// Enable this to see test output:
 	// testLogging.showStandardStreams = true
 }
+
+jacocoTestReport {
+    reports {
+        xml.enabled = true
+        html.enabled = true
+    }
+}
+check.dependsOn jacocoTestReport
+
 // Sources JAR
 task sourceJar(type: Jar, dependsOn: classes) {
     from sourceSets.main.allSource
