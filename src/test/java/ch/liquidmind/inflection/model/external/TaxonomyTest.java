@@ -14,7 +14,7 @@ public class TaxonomyTest {
 	@Test
 	public void testSuperTaxonomy()
 	{
-		Taxonomy taxonomy = BlackboxTestUtility.getTestTaxonomy(this.getClass().getPackage().getName(), "SuperTaxonomy");
+		Taxonomy taxonomy = BlackboxTestUtility.getTestTaxonomy(this.getClass().getPackage().getName(), "TaxonomySuperTaxonomy");
 		assertNotNull("verify view exists", taxonomy.getView(Address.class.getCanonicalName()));
 	}
 	

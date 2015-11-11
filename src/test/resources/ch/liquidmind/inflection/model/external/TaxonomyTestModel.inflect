@@ -2,12 +2,12 @@ package ch.liquidmind.inflection.model.external;
 
 import ch.liquidmind.inflection.test.model.*;
 
-taxonomy SuperTaxonomy
+taxonomy TaxonomySuperTaxonomy
 {
 	view * { *; }	
 }
 
-taxonomy ExcludeTaxonomy extends SuperTaxonomy
+taxonomy ExcludeTaxonomy extends TaxonomySuperTaxonomy
 {
 	exclude view Address;
 }
@@ -38,7 +38,7 @@ taxonomy SelectorTaxonomy1
 	}
 }
 
-taxonomy SelectorTaxonomy2 extends SuperTaxonomy
+taxonomy SelectorTaxonomy2 extends TaxonomySuperTaxonomy
 {
 	exclude view A*ress;
 }

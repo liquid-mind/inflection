@@ -13,7 +13,7 @@ public class ViewTest {
 	@Test
 	public void testGetMember()
 	{
-		Taxonomy taxonomy = BlackboxTestUtility.getTestTaxonomy(this.getClass().getPackage().getName(), "MemberTaxonomy");
+		Taxonomy taxonomy = BlackboxTestUtility.getTestTaxonomy(this.getClass().getPackage().getName(), "ChildTaxonomy");
 		View view = taxonomy.getView(Address.class.getCanonicalName());
 		assertNotNull(view.getMember("street"));
 	}
@@ -21,7 +21,7 @@ public class ViewTest {
 	@Test
 	public void testGetDeclaredMember()
 	{
-		Taxonomy taxonomy = BlackboxTestUtility.getTestTaxonomy(this.getClass().getPackage().getName(), "MemberTaxonomy");
+		Taxonomy taxonomy = BlackboxTestUtility.getTestTaxonomy(this.getClass().getPackage().getName(), "ChildTaxonomy");
 		View view = taxonomy.getView(Address.class.getCanonicalName());
 		assertNotNull(view.getDeclaredMember("street"));
 	}
@@ -29,7 +29,7 @@ public class ViewTest {
 	@Test
 	public void testGetSuperMember()
 	{
-		Taxonomy taxonomy = BlackboxTestUtility.getTestTaxonomy(this.getClass().getPackage().getName(), "MemberTaxonomy");
+		Taxonomy taxonomy = BlackboxTestUtility.getTestTaxonomy(this.getClass().getPackage().getName(), "ChildTaxonomy");
 		View view = taxonomy.getView(Address.class.getCanonicalName());
 		assertNotNull(view.getMember("id"));
 	}
