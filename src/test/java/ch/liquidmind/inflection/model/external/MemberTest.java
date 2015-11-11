@@ -11,7 +11,7 @@ import ch.liquidmind.inflection.test.model.Address;
 public class MemberTest {
 		
 	@Test
-	public void testSelector2()
+	public void testSelector()
 	{
 		Taxonomy taxonomy = BlackboxTestUtility.getTestTaxonomy(this.getClass().getPackage().getName(), "MemberTaxonomy");
 		View view = taxonomy.getView(Address.class.getCanonicalName());
