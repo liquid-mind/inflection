@@ -7,7 +7,6 @@ import static org.junit.Assert.assertNotNull;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.junit.Assert;
 import org.junit.Test;
 
 import ch.liquidmind.inflection.proxy.ProxyRegistry;
