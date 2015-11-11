@@ -1,4 +1,4 @@
-package ch.liquidmind.inflection.proxy;
+package ch.liquidmind.inflection.compiler;
 
 import ch.liquidmind.inflection.test.model.*;
 
