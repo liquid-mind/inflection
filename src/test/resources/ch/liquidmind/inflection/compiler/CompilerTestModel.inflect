@@ -1,0 +1,13 @@
+package ch.liquidmind.inflection.proxy;
+
+import ch.liquidmind.inflection.test.model.*;
+
+taxonomy CompilerTestSuperTaxonomy
+{
+	view Address { *; }	
+}
+
+taxonomy CompilerTestChildTaxonomy extends CompilerTestTypoSuperTaxonomy
+{
+	view * { *; }	
+}

@@ -1,0 +1,13 @@
+package ch.liquidmind.inflection.proxy;
+
+import ch.liquidmind.inflection.test.model.*;
+
+taxonomy ProxyGeneratorSuperTaxonomy
+{
+	view Address { *; }	
+}
+
+taxonomy ProxyGeneratorChildTaxonomy extends ProxyGeneratorSuperTaxonomy
+{
+	view * { *; }	
+}
