@@ -4,7 +4,7 @@ import ch.liquidmind.inflection.test.model.*;
 
 taxonomy TaxonomySuperTaxonomy
 {
-	view * { *; }	
+	view Address { *; }	
 }
 
 taxonomy ExcludeTaxonomy extends TaxonomySuperTaxonomy
