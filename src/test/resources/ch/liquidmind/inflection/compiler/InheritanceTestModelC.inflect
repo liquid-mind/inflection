@@ -1,0 +1,6 @@
+package ch.liquidmind.inflection.compiler;
+
+taxonomy InheritanceTestModelCTaxonomy extends InheritanceTestModelATaxonomy
+{
+	view * {}		// legal, but doesn’t refer to Address (but rather to all classes in this package)
+}

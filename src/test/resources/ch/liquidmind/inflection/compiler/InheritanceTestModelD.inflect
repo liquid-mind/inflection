@@ -1,0 +1,6 @@
+package ch.liquidmind.inflection.compiler;
+
+taxonomy InheritanceTestModelDTaxonomy extends InheritanceTestModelATaxonomy
+{
+	exclude view Address;		// illegal, since Address cannot be resolved (despite being included in super taxonomy)
+}
