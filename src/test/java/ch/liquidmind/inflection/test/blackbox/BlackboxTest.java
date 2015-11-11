@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import org.junit.Ignore;
 import org.junit.Test;
 
 import ch.liquidmind.inflection.proxy.ProxyRegistry;
@@ -45,7 +46,7 @@ public class BlackboxTest {
 	}
 	
 	@Test
-	public void testList() throws Exception {
+	public void testList1() throws Exception {
 		BlackboxTestTaxonomy_Person personProxy = new BlackboxTestTaxonomy_Person();
 		Person personObject = ProxyRegistry.getContextProxyRegistry().getObject(personProxy);
 		
@@ -61,6 +62,14 @@ public class BlackboxTest {
 		
 		addressProxy.setCity(TESTSTRING2);
 		assertEquals("City was updated", TESTSTRING2, address.getCity());
+	}
+	
+	@Test
+	@Ignore("size() not yet implemented on proxy")
+	public void testList2() throws Exception {
+		BlackboxTestTaxonomy_Person personProxy = new BlackboxTestTaxonomy_Person();
+		personProxy.getAddresses().add(new BlackboxTestTaxonomy_Address());
+		assertEquals(1, personProxy.getAddresses().size());
 	}
 	
 }
