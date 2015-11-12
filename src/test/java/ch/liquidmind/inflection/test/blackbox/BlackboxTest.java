@@ -12,6 +12,7 @@ import org.junit.Ignore;
 import org.junit.Test;
 
 import ch.liquidmind.inflection.proxy.ProxyRegistry;
+import ch.liquidmind.inflection.test.blackbox.BlackboxTestCalculatedTaxonomy.ch.liquidmind.inflection.test.model.BlackboxTestCalculatedTaxonomy_Person;
 import ch.liquidmind.inflection.test.blackbox.BlackboxTestTaxonomy.ch.liquidmind.inflection.test.model.BlackboxTestTaxonomy_Address;
 import ch.liquidmind.inflection.test.blackbox.BlackboxTestTaxonomy.ch.liquidmind.inflection.test.model.BlackboxTestTaxonomy_Person;
 import ch.liquidmind.inflection.test.model.Address;
@@ -70,6 +71,15 @@ public class BlackboxTest {
 		BlackboxTestTaxonomy_Person personProxy = new BlackboxTestTaxonomy_Person();
 		personProxy.getAddresses().add(new BlackboxTestTaxonomy_Address());
 		assertEquals(1, personProxy.getAddresses().size());
+	}
+	
+	@Test
+	public void testCalculated() throws Exception {
+		BlackboxTestCalculatedTaxonomy_Person personProxy = new BlackboxTestCalculatedTaxonomy_Person();
+		Date date = new Date();
+		personProxy.setDateOfBirth(date);
+		int age = personProxy.getAge();
+		assertEquals(0, age);
 	}
 	
 }

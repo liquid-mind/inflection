@@ -12,3 +12,8 @@ taxonomy BlackboxTestChildTaxonomy extends BlackboxTestTaxonomy
 {
 	view * { *; }	
 }
+
+taxonomy BlackboxTestCalculatedTaxonomy extends BlackboxTestTaxonomy
+{
+	view Person use CalculatedMembers { *; }
+}
