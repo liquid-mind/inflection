@@ -13,8 +13,8 @@ import java.util.Map;
 import java.util.Set;
 
 import org.antlr.v4.runtime.ParserRuleContext;
-import org.reflections.Reflections;
-import org.reflections.scanners.SubTypesScanner;
+
+import com.google.common.reflect.ClassPath.ClassInfo;
 
 import ch.liquidmind.inflection.compiler.CompilationUnit.CompilationUnitCompiled.PackageImport;
 import ch.liquidmind.inflection.compiler.CompilationUnit.CompilationUnitCompiled.PackageImport.PackageImportType;
@@ -59,6 +59,7 @@ import ch.liquidmind.inflection.model.compiled.MemberCompiled;
 import ch.liquidmind.inflection.model.compiled.TaxonomyCompiled;
 import ch.liquidmind.inflection.model.compiled.ViewCompiled;
 import ch.liquidmind.inflection.model.external.Taxonomy;
+import ch.liquidmind.inflection.util.ExceptionWrapper;
 
 // TODO There is a bug when the same view is defined more than once in the same taxonomy;
 // instead of the second definition taking precedence over the first, the view incorrectly
@@ -321,7 +322,7 @@ public class Pass2Listener extends AbstractInflectionListener
 		ParserRuleContext simpleClassSelectorContext = ( simpleTypeContext == null ? wildcardSimpleTypeContext : simpleTypeContext );
 		APackageContext packageContext = getRuleContextRecursive( classSelectorContext, APackageContext.class );
 		String packagePrefix = ( packageContext == null ? DEFAULT_PACKAGE_NAME : packageContext.getText() + "." );
-		String packagePrefixRegEx = ( packagePrefix.equals( DEFAULT_PACKAGE_NAME ) ? "[a-zA-Z0-9_$.]*?" : packagePrefix.replace( ".", "\\." ) );
+		String packagePrefixRegEx = ( packagePrefix.equals( DEFAULT_PACKAGE_NAME ) ? "([a-zA-Z0-9_$.]*?\\.)?" : packagePrefix.replace( ".", "\\." ) );
 		String classSelector = simpleClassSelectorContext.getText();
 		String classSelectorRegEx = packagePrefixRegEx + classSelector.replace( ".", "\\." ).replace( "*", "[a-zA-Z0-9_$]*?" );
 		
@@ -401,12 +402,11 @@ public class Pass2Listener extends AbstractInflectionListener
 	{
 		Set< String > matchingClasses = new HashSet< String >();
 		
-		Reflections reflections = new Reflections( "", getTaxonomyLoader().getClassLoader(), new SubTypesScanner( false ) );
-		Set< String > typesInPackage = reflections.getAllTypes();
+		Set< ClassInfo > allClasses = ExceptionWrapper.ClassPath_from( getTaxonomyLoader().getClassLoader() ).getAllClasses();
 		
-		for ( String typeInPackage : typesInPackage )
-			if ( typeInPackage.matches( packageRegEx ) )
-				matchingClasses.add( typeInPackage );
+		for ( ClassInfo aClass : allClasses )
+			if ( aClass.getName().matches( packageRegEx ) )
+				matchingClasses.add( aClass.getName() );
 		
 		return matchingClasses;
 	}
