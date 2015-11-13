@@ -29,6 +29,7 @@ taxonomy UseCase2 extends FullTaxonomy
 		
 		// ...or this syntax, which is not yet operational:
 		// Person.*;
+		// exclude Person.dateOfBirth;
 		// CalculatedMembers.age;
 	}
 }
@@ -41,8 +42,6 @@ taxonomy UseCase3 extends FullTaxonomy
 	}
 }
 
-// Note: for some reason the compiler is not creating an instance of
-// MemberCompiled for Address...
 taxonomy UseCase4 extends FullTaxonomy
 {
 	view Address { *; }

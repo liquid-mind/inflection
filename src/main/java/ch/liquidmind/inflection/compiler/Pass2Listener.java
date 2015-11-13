@@ -79,6 +79,10 @@ public class Pass2Listener extends AbstractInflectionListener
 		super( compilationUnit );
 	}
 
+	///////////
+	// PREAMBLE
+	///////////
+
 	@Override
 	public void exitCompilationUnit( CompilationUnitContext compilationUnitContext )
 	{
@@ -90,10 +94,6 @@ public class Pass2Listener extends AbstractInflectionListener
 			if ( !packageImport.getWasReferenced() && packageImport.getType().equals( PackageImportType.OTHER_PACKAGE ) && !packageImport.getName().equals( DEFAULT_PACKAGE_NAME ) )
 				reportWarning( packageImport.getParserRuleContext().start, packageImport.getParserRuleContext().stop, "Unused import." );
 	}
-
-	//////////
-	// IMPORTS
-	//////////
 	
 	@Override
 	public void enterPackageImport( PackageImportContext packageImportContext )
@@ -297,21 +297,24 @@ public class Pass2Listener extends AbstractInflectionListener
 		for ( ViewCompiled currentViewCompiled : currentViewsCompiled )
 		{
 			currentViewCompiled.getAnnotationsCompiled().addAll( currentAnnotationsCompiled );
-			currentViewCompiled.setSelectionType( currentViewSelectionType );
 		}
 	}
 	
 	@Override
 	public void enterIncludableClassSelector( IncludableClassSelectorContext includableClassSelectorContext )
 	{
-		Set< String > matchingClasses = getMatchingClasses( includableClassSelectorContext );
-		setupViewsCompiled( matchingClasses );
+		enterClassSelector( includableClassSelectorContext );
 	}
 
 	@Override
 	public void enterExcludableClassSelector( ExcludableClassSelectorContext excludableClassSelectorContext )
 	{
-		Set< String > matchingClasses = getMatchingClasses( excludableClassSelectorContext );
+		enterClassSelector( excludableClassSelectorContext );
+	}
+	
+	private void enterClassSelector( ParserRuleContext classSelectorContext )
+	{
+		Set< String > matchingClasses = getMatchingClasses( classSelectorContext );
 		setupViewsCompiled( matchingClasses );
 	}
 	
@@ -410,30 +413,36 @@ public class Pass2Listener extends AbstractInflectionListener
 		
 		return matchingClasses;
 	}
-	
+
 	private void setupViewsCompiled( Set< String > matchingClasses )
 	{
 		for ( String matchingClass : matchingClasses )
 		{
-			ViewCompiled viewCompiled = null;
-			
-			for ( ViewCompiled existingViewCompiled : currentTaxonomyCompiled.getViewsCompiled() )
-			{
-				if ( existingViewCompiled.getName().equals( matchingClass ) )
-				{
-					viewCompiled = existingViewCompiled;
-					break;
-				}
-			}
-			
-			if ( viewCompiled == null )
-			{
-				viewCompiled = new ViewCompiled( matchingClass );
-				currentTaxonomyCompiled.getViewsCompiled().add( viewCompiled );
-			}
-			
-			currentViewsCompiled.add( viewCompiled );
+			ViewCompiled matchingView = new ViewCompiled( matchingClass );
+			matchingView.setSelectionType( currentViewSelectionType );
+			addOrOverrideView( currentTaxonomyCompiled.getViewsCompiled(), matchingView );
+			addOrOverrideView( currentViewsCompiled, matchingView );
 		}
+	}
+	
+	private void addOrOverrideView( List< ViewCompiled > overridableViews, ViewCompiled newView )
+	{
+		boolean viewOverriden = false;
+		
+		for ( int i = 0 ; i < overridableViews.size() ; ++i )
+		{
+			ViewCompiled overridableView = overridableViews.get( i );
+			
+			if ( overridableView.getName().equals( newView.getName() ) && overridableView.getSelectionType().equals( newView.getSelectionType() ) )
+			{
+				overridableViews.set( i, newView );
+				viewOverriden = true;
+				break;
+			}
+		}
+		
+		if ( !viewOverriden )
+			overridableViews.add( newView );
 	}
 
 	@Override
