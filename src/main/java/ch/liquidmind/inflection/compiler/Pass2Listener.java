@@ -13,8 +13,8 @@ import java.util.Map;
 import java.util.Set;
 
 import org.antlr.v4.runtime.ParserRuleContext;
-import org.reflections.Reflections;
-import org.reflections.scanners.SubTypesScanner;
+
+import com.google.common.reflect.ClassPath.ClassInfo;
 
 import ch.liquidmind.inflection.compiler.CompilationUnit.CompilationUnitCompiled.PackageImport;
 import ch.liquidmind.inflection.compiler.CompilationUnit.CompilationUnitCompiled.PackageImport.PackageImportType;
@@ -59,6 +59,7 @@ import ch.liquidmind.inflection.model.compiled.MemberCompiled;
 import ch.liquidmind.inflection.model.compiled.TaxonomyCompiled;
 import ch.liquidmind.inflection.model.compiled.ViewCompiled;
 import ch.liquidmind.inflection.model.external.Taxonomy;
+import ch.liquidmind.inflection.util.ExceptionWrapper;
 
 // TODO There is a bug when the same view is defined more than once in the same taxonomy;
 // instead of the second definition taking precedence over the first, the view incorrectly
@@ -78,6 +79,10 @@ public class Pass2Listener extends AbstractInflectionListener
 		super( compilationUnit );
 	}
 
+	///////////
+	// PREAMBLE
+	///////////
+
 	@Override
 	public void exitCompilationUnit( CompilationUnitContext compilationUnitContext )
 	{
@@ -89,10 +94,6 @@ public class Pass2Listener extends AbstractInflectionListener
 			if ( !packageImport.getWasReferenced() && packageImport.getType().equals( PackageImportType.OTHER_PACKAGE ) && !packageImport.getName().equals( DEFAULT_PACKAGE_NAME ) )
 				reportWarning( packageImport.getParserRuleContext().start, packageImport.getParserRuleContext().stop, "Unused import." );
 	}
-
-	//////////
-	// IMPORTS
-	//////////
 	
 	@Override
 	public void enterPackageImport( PackageImportContext packageImportContext )
@@ -296,21 +297,24 @@ public class Pass2Listener extends AbstractInflectionListener
 		for ( ViewCompiled currentViewCompiled : currentViewsCompiled )
 		{
 			currentViewCompiled.getAnnotationsCompiled().addAll( currentAnnotationsCompiled );
-			currentViewCompiled.setSelectionType( currentViewSelectionType );
 		}
 	}
 	
 	@Override
 	public void enterIncludableClassSelector( IncludableClassSelectorContext includableClassSelectorContext )
 	{
-		Set< String > matchingClasses = getMatchingClasses( includableClassSelectorContext );
-		setupViewsCompiled( matchingClasses );
+		enterClassSelector( includableClassSelectorContext );
 	}
 
 	@Override
 	public void enterExcludableClassSelector( ExcludableClassSelectorContext excludableClassSelectorContext )
 	{
-		Set< String > matchingClasses = getMatchingClasses( excludableClassSelectorContext );
+		enterClassSelector( excludableClassSelectorContext );
+	}
+	
+	private void enterClassSelector( ParserRuleContext classSelectorContext )
+	{
+		Set< String > matchingClasses = getMatchingClasses( classSelectorContext );
 		setupViewsCompiled( matchingClasses );
 	}
 	
@@ -321,7 +325,7 @@ public class Pass2Listener extends AbstractInflectionListener
 		ParserRuleContext simpleClassSelectorContext = ( simpleTypeContext == null ? wildcardSimpleTypeContext : simpleTypeContext );
 		APackageContext packageContext = getRuleContextRecursive( classSelectorContext, APackageContext.class );
 		String packagePrefix = ( packageContext == null ? DEFAULT_PACKAGE_NAME : packageContext.getText() + "." );
-		String packagePrefixRegEx = ( packagePrefix.equals( DEFAULT_PACKAGE_NAME ) ? "[a-zA-Z0-9_$.]*?" : packagePrefix.replace( ".", "\\." ) );
+		String packagePrefixRegEx = ( packagePrefix.equals( DEFAULT_PACKAGE_NAME ) ? "([a-zA-Z0-9_$.]*?\\.)?" : packagePrefix.replace( ".", "\\." ) );
 		String classSelector = simpleClassSelectorContext.getText();
 		String classSelectorRegEx = packagePrefixRegEx + classSelector.replace( ".", "\\." ).replace( "*", "[a-zA-Z0-9_$]*?" );
 		
@@ -401,39 +405,45 @@ public class Pass2Listener extends AbstractInflectionListener
 	{
 		Set< String > matchingClasses = new HashSet< String >();
 		
-		Reflections reflections = new Reflections( "", getTaxonomyLoader().getClassLoader(), new SubTypesScanner( false ) );
-		Set< String > typesInPackage = reflections.getAllTypes();
+		Set< ClassInfo > allClasses = ExceptionWrapper.ClassPath_from( getTaxonomyLoader().getClassLoader() ).getAllClasses();
+		// TODO: classes from rt.jar (bootstrap class loader) are not being included.
 		
-		for ( String typeInPackage : typesInPackage )
-			if ( typeInPackage.matches( packageRegEx ) )
-				matchingClasses.add( typeInPackage );
+		for ( ClassInfo aClass : allClasses )
+			if ( aClass.getName().matches( packageRegEx ) )
+				matchingClasses.add( aClass.getName() );
 		
 		return matchingClasses;
 	}
-	
+
 	private void setupViewsCompiled( Set< String > matchingClasses )
 	{
 		for ( String matchingClass : matchingClasses )
 		{
-			ViewCompiled viewCompiled = null;
-			
-			for ( ViewCompiled existingViewCompiled : currentTaxonomyCompiled.getViewsCompiled() )
-			{
-				if ( existingViewCompiled.getName().equals( matchingClass ) )
-				{
-					viewCompiled = existingViewCompiled;
-					break;
-				}
-			}
-			
-			if ( viewCompiled == null )
-			{
-				viewCompiled = new ViewCompiled( matchingClass );
-				currentTaxonomyCompiled.getViewsCompiled().add( viewCompiled );
-			}
-			
-			currentViewsCompiled.add( viewCompiled );
+			ViewCompiled matchingView = new ViewCompiled( matchingClass );
+			matchingView.setSelectionType( currentViewSelectionType );
+			addOrOverrideView( currentTaxonomyCompiled.getViewsCompiled(), matchingView );
+			addOrOverrideView( currentViewsCompiled, matchingView );
 		}
+	}
+	
+	private void addOrOverrideView( List< ViewCompiled > overridableViews, ViewCompiled newView )
+	{
+		boolean viewOverriden = false;
+		
+		for ( int i = 0 ; i < overridableViews.size() ; ++i )
+		{
+			ViewCompiled overridableView = overridableViews.get( i );
+			
+			if ( overridableView.getName().equals( newView.getName() ) && overridableView.getSelectionType().equals( newView.getSelectionType() ) )
+			{
+				overridableViews.set( i, newView );
+				viewOverriden = true;
+				break;
+			}
+		}
+		
+		if ( !viewOverriden )
+			overridableViews.add( newView );
 	}
 
 	@Override

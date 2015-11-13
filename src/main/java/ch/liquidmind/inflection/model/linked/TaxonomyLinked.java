@@ -271,4 +271,13 @@ public class TaxonomyLinked extends AnnotatableElementLinked implements Taxonomy
 	{
 		return getSimpleName( getName() );
 	}
+
+	@Override
+	public View getSuperview( View view )
+	{
+		Class< ? > superclass = view.getViewedClass().getSuperclass();
+		View superview = resolveView( superclass );
+		
+		return superview;
+	}
 }

@@ -1,5 +1,5 @@
 // For debugging:
-// '-agentlib:jdwp=transport=dt_socket,address=8000,server=y,suspend=y'
+// '-agentlib:jdwp=transport=dt_socket,address=9009,server=y,suspend=y'
 
 plugins {
     id "java"
@@ -59,7 +59,6 @@ dependencies {
 	compile "__org.antlr:antlr4:4.5"
 	compile "com.google.guava:guava:19.0-rc2"
 	compile "junit:junit:4.12"
-	compile 'org.reflections:reflections:0.9.10'
 	compile 'org.codehaus.jackson:jackson-mapper-asl:1.9.13'
 }
 
@@ -112,7 +111,7 @@ compileTestJava.dependsOn proxifyTestTaxonomies
 
 test {
 	// Enable this to see test output:
-	// testLogging.showStandardStreams = true
+	testLogging.showStandardStreams = true
 }
 
 jacocoTestReport {
@@ -134,7 +133,10 @@ task javadocJar(type: Jar, dependsOn: javadoc) {
     from javadoc.destinationDir
 }
 
-
+artifacts {
+    archives sourceJar
+    archives javadocJar
+}
 
 publishing {
     publications {

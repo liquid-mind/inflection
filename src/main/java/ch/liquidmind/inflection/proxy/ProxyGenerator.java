@@ -113,7 +113,7 @@ public class ProxyGenerator
 	private String getSuperClassName( View view )
 	{
 		String superClassName;
-		View superView = view.getSuperview();
+		View superView = taxonomy.getSuperview( view );
 		
 		if ( superView != null )
 			superClassName = getFullyQualifiedViewName( taxonomy, superView );
