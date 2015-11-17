@@ -3,7 +3,6 @@ package ch.liquidmind.inflection.model.external;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 
-import org.junit.Ignore;
 import org.junit.Test;
 
 import ch.liquidmind.inflection.test.blackbox.BlackboxTestUtility;
@@ -40,7 +39,6 @@ public class TaxonomyTest {
 	}
 	
 	@Test
-	@Ignore("check if real error? Assumption: First all includes, then all excludes, regardless of definition in file")
 	public void testGetView_IncludeExcludeOrderExcludeFirst_ViewDoesNotExist()
 	{
 		Taxonomy taxonomy = BlackboxTestUtility.getTestTaxonomy(this.getClass().getPackage().getName(), "GetView_IncludeExcludeOrderExcludeFirstTaxonomy");

@@ -31,7 +31,7 @@ taxonomy GetView_IncludeExcludeOrderIncludeFirstTaxonomy
 taxonomy GetView_IncludeExcludeOrderExcludeFirstTaxonomy 
 {
 	exclude view A;
-	include view A {}
+	include view A {} // reverse order should not matter
 }
 
 taxonomy GetView_IncludeWithSelectorTaxonomy
