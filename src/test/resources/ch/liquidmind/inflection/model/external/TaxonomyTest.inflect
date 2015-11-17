@@ -22,24 +22,24 @@ taxonomy TaxonomyTest_GetView_ExcludeViewTaxonomy extends TaxonomyTestTaxonomy
 	exclude view A;
 }
 
-taxonomy GetView_IncludeExcludeOrderIncludeFirstTaxonomy 
+taxonomy TaxonomyTest_GetView_IncludeExcludeOrderIncludeFirstTaxonomy 
 {
 	include view A {}
 	exclude view A;
 }
 
-taxonomy GetView_IncludeExcludeOrderExcludeFirstTaxonomy 
+taxonomy TaxonomyTest_GetView_IncludeExcludeOrderExcludeFirstTaxonomy 
 {
 	exclude view A;
 	include view A {} // reverse order should not matter
 }
 
-taxonomy GetView_IncludeWithSelectorTaxonomy
+taxonomy TaxonomyTest_GetView_IncludeWithSelectorTaxonomy
 {
 	include view A* {}
 }
 
-taxonomy GetView_ExcludeWithSelectorTaxonomy extends TaxonomyTestTaxonomy
+taxonomy TaxonomyTest_GetView_ExcludeWithSelectorTaxonomy extends TaxonomyTestTaxonomy
 {
 	exclude view A*;
 }
