@@ -4,16 +4,16 @@ import ch.liquidmind.inflection.test.model.*;
 
 taxonomy BlackboxTestTaxonomy
 {
-	view Address { *; }	
-	view Person { *; }	
+	view B1 { *; }	
 }
 
-taxonomy BlackboxTestChildTaxonomy extends BlackboxTestTaxonomy
+taxonomy BlackboxTestChildTaxonomy extends BlackboxTestTaxonomy 
 {
 	view * { *; }	
 }
 
 taxonomy BlackboxTestCalculatedTaxonomy extends BlackboxTestTaxonomy
 {
-	view Person use CalculatedMembers { *; }
+	// view B1 use B1CalculatedMembers { *; }
+	view B1 { *; }
 }

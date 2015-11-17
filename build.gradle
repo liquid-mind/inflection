@@ -77,7 +77,7 @@ task( compileTestTaxonomiesInflection, dependsOn: compileTestModelJava, type: Ja
 	jvmArgs '-ea'
 	args "${buildDir}/resources/testModel", "BOOTSTRAP", 
 	"src/test/resources/ch/liquidmind/inflection/test/model/TestModel.inflect", 
-	"src/test/resources/ch/liquidmind/inflection/test/blackbox/BlackboxTestModel.inflect", 
+	"src/test/resources/ch/liquidmind/inflection/test/blackbox/BlackboxTest.inflect", 
 	"src/test/resources/ch/liquidmind/inflection/model/external/TaxonomyTest.inflect",
 	"src/test/resources/ch/liquidmind/inflection/model/external/ViewTest.inflect",
 	"src/test/resources/ch/liquidmind/inflection/model/external/MemberTest.inflect",
@@ -100,10 +100,7 @@ task( proxifyTestTaxonomies, dependsOn: compileTestTaxonomiesInflection, type: J
 	"ch.liquidmind.inflection.test.model.UseCase3",
 	"ch.liquidmind.inflection.test.model.UseCase4",
 	"ch.liquidmind.inflection.test.blackbox.BlackboxTestTaxonomy",
-	"ch.liquidmind.inflection.test.blackbox.BlackboxTestCalculatedTaxonomy",
-	"ch.liquidmind.inflection.model.external.TaxonomyTestTaxonomy",
-	"ch.liquidmind.inflection.model.external.ViewTestTaxonomy",
-	"ch.liquidmind.inflection.model.external.MemberTestTaxonomy"
+	"ch.liquidmind.inflection.test.blackbox.BlackboxTestCalculatedTaxonomy"
 }
 
 // Compile test

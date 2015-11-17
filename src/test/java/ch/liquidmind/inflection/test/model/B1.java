@@ -1,10 +1,7 @@
 package ch.liquidmind.inflection.test.model;
 
-import java.util.Collection;
-import java.util.Iterator;
+import java.util.Date;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 public class B1 extends A {
 
@@ -18,13 +15,10 @@ public class B1 extends A {
 
 	private String stringMember;
 	private Object objectMember;
-
-	private List<String> listMember;
-	private Collection<String> collectionMember;
-	private Iterator<String> iteratorMember;
-	private List<String> listStringMember;
-	private Map<String, String> mapStringMember;
-	private Set<String> setMember;
+	private Date dateMember;
+	
+	private TestEnum enumMember;
+	private List<B1> listMember;
 
 	public long getLongMember() {
 		return longMember;
@@ -97,53 +91,29 @@ public class B1 extends A {
 	public void setObjectMember(Object objectMember) {
 		this.objectMember = objectMember;
 	}
-
-	public List<String> getListMember() {
+	
+	public Date getDateMember() {
+		return dateMember;
+	}
+	
+	public void setDateMember(Date dateMember) {
+		this.dateMember = dateMember;
+	}
+	
+	public TestEnum getEnumMember() {
+		return enumMember;
+	}
+	
+	public void setEnumMember(TestEnum enumMember) {
+		this.enumMember = enumMember;
+	}
+	
+	public List<B1> getListMember() {
 		return listMember;
 	}
-
-	public void setListMember(List<String> listMember) {
+	
+	public void setListMember(List<B1> listMember) {
 		this.listMember = listMember;
-	}
-
-	public Collection<String> getCollectionMember() {
-		return collectionMember;
-	}
-
-	public void setCollectionMember(Collection<String> collectionMember) {
-		this.collectionMember = collectionMember;
-	}
-
-	public Iterator<String> getIteratorMember() {
-		return iteratorMember;
-	}
-
-	public void setIteratorMember(Iterator<String> iteratorMember) {
-		this.iteratorMember = iteratorMember;
-	}
-
-	public List<String> getListStringMember() {
-		return listStringMember;
-	}
-
-	public void setListStringMember(List<String> listStringMember) {
-		this.listStringMember = listStringMember;
-	}
-
-	public Map<String, String> getMapStringMember() {
-		return mapStringMember;
-	}
-
-	public void setMapStringMember(Map<String, String> mapStringMember) {
-		this.mapStringMember = mapStringMember;
-	}
-
-	public Set<String> getSetMember() {
-		return setMember;
-	}
-
-	public void setSetMember(Set<String> setMember) {
-		this.setMember = setMember;
 	}
 
 }
