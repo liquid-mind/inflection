@@ -79,7 +79,7 @@ task( compileTestTaxonomiesInflection, dependsOn: compileTestModelJava, type: Ja
 	"src/test/resources/ch/liquidmind/inflection/test/model/TestModel.inflect", 
 	"src/test/resources/ch/liquidmind/inflection/test/blackbox/BlackboxTestModel.inflect", 
 	"src/test/resources/ch/liquidmind/inflection/model/external/TaxonomyTest.inflect",
-	"src/test/resources/ch/liquidmind/inflection/model/external/ViewTestModel.inflect",
+	"src/test/resources/ch/liquidmind/inflection/model/external/ViewTest.inflect",
 	"src/test/resources/ch/liquidmind/inflection/model/external/MemberTestModel.inflect",
 	"src/test/resources/ch/liquidmind/inflection/proxy/ProxyGeneratorTestModel.inflect"
 }
@@ -102,7 +102,7 @@ task( proxifyTestTaxonomies, dependsOn: compileTestTaxonomiesInflection, type: J
 	"ch.liquidmind.inflection.test.blackbox.BlackboxTestTaxonomy",
 	"ch.liquidmind.inflection.test.blackbox.BlackboxTestCalculatedTaxonomy",
 	"ch.liquidmind.inflection.model.external.TaxonomyTestTaxonomy",
-	"ch.liquidmind.inflection.model.external.ViewSuperTaxonomy",
+	"ch.liquidmind.inflection.model.external.ViewTestTaxonomy",
 	"ch.liquidmind.inflection.model.external.MemberSuperTaxonomy"
 }
 
