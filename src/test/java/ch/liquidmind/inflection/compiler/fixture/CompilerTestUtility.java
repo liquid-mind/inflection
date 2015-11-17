@@ -1,4 +1,4 @@
-package ch.liquidmind.inflection.compiler;
+package ch.liquidmind.inflection.compiler.fixture;
 
 import java.io.File;
 import java.net.URISyntaxException;
@@ -8,6 +8,7 @@ import java.util.List;
 
 import com.google.common.io.Files;
 
+import ch.liquidmind.inflection.compiler.CompilationJob;
 import ch.liquidmind.inflection.compiler.CompilationJob.CompilationMode;
 import ch.liquidmind.inflection.loader.TaxonomyLoader;
 
@@ -18,7 +19,7 @@ public final class CompilerTestUtility {
 		for (URL url : urls) {
 			files.add(new File(url.toURI()));
 		}
-		return new CompilationJob(TaxonomyLoader.getSystemTaxonomyLoader(), Files.createTempDir(), mode, files.toArray(new File [0]));
+		return new CompilationJob(TaxonomyLoader.getSystemTaxonomyLoader(), Files.createTempDir(), mode, files.toArray(new File [files.size()]));
 	}
 	
 }

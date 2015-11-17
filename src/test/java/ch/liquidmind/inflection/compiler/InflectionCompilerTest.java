@@ -8,46 +8,48 @@ import org.junit.Ignore;
 import org.junit.Test;
 
 import ch.liquidmind.inflection.compiler.CompilationJob.CompilationMode;
+import ch.liquidmind.inflection.compiler.fixture.CompilerTestUtility;
 
 public class InflectionCompilerTest {
 
 	@Test
-	public void testCompile() throws Exception {
-		CompilationJob job = CompilerTestUtility.createCompilationJob(CompilationMode.NORMAL, 
-				this.getClass().getResource("CompilerTestModel.inflect"));
+	public void testCompile_ValidFile_SuccessfulCompilation() throws Exception {
+		CompilationJob job = CompilerTestUtility.createCompilationJob(CompilationMode.BOOTSTRAP, 
+				this.getClass().getResource("InflectionCompilerTest_ValidFile.inflect"));
 		InflectionCompiler.compile(job);
-		assertFalse(job.getCompilationUnits().isEmpty());
+		assertFalse("Compilation units must exist", job.getCompilationUnits().isEmpty());
+		assertTrue("Compilation errors must not exist", job.getCompilationFaults().isEmpty());
 	}
 	
 	@Test
-	@Ignore("IndexOutOfBoundsException is thrown")
-	public void testMessage() throws Exception {
+	@Ignore("IndexOutOfBoundsException is thrown when creating fault message")
+	public void testCompile_InvalidFile_SuccessfulFaultMessageGeneration() throws Exception {
 		CompilationJob job = CompilerTestUtility.createCompilationJob(CompilationMode.BOOTSTRAP, 
-				this.getClass().getResource("CompilerTestModel.inflect"));
+				this.getClass().getResource("InflectionCompilerTest_InvalidFile.inflect"));
 		InflectionCompiler.compile(job);
-		assertFalse(job.getCompilationFaults().isEmpty());
+		assertFalse("Compilation errors must not exist", job.getCompilationFaults().isEmpty());
 		String message = job.getCompilationFaults().get(0).createFaultMessage();
-		assertNotNull(message != null);
-		assertTrue(message.length() > 0);
+		assertNotNull("Fault message must exist", message != null);
+		assertTrue("", message.length() > 0);
 	}
 	
 	@Test
-	@Ignore("Should not compile")
-	public void testInheritance1() throws Exception {
+	@Ignore("Should not compile because child does not import view A")
+	public void testCompile_InheritanceAndImports_IllegalImport() throws Exception {
 		CompilationJob job = CompilerTestUtility.createCompilationJob(CompilationMode.BOOTSTRAP, 
-				this.getClass().getResource("InheritanceTestModelA.inflect"), 
-				this.getClass().getResource("InheritanceTestModelB.inflect"));
+				this.getClass().getResource("InflectionCompilerTest_InheritanceAndImports_Parent.inflect"), 
+				this.getClass().getResource("InflectionCompilerTest_InheritanceAndImports_IllegalChildImport.inflect"));
 		InflectionCompiler.compile(job);
-		assertFalse(job.getCompilationFaults().isEmpty());
+		assertFalse("compile errors expected since A cannot be resolved", job.getCompilationFaults().isEmpty());
 	}
 	
 	@Test
-	public void testInheritance2() throws Exception {
+	public void testCompile_InheritanceAndImports_SuccessfulCompilation() throws Exception {
 		CompilationJob job = CompilerTestUtility.createCompilationJob(CompilationMode.BOOTSTRAP, 
-				this.getClass().getResource("InheritanceTestModelC.inflect"), 
-				this.getClass().getResource("InheritanceTestModelD.inflect"));
+				this.getClass().getResource("InflectionCompilerTest_InheritanceAndImports_Parent.inflect"), 
+				this.getClass().getResource("InflectionCompilerTest_InheritanceAndImports_LegalChildImport.inflect"));
 		InflectionCompiler.compile(job);
-		assertFalse(job.getCompilationFaults().isEmpty());
+		assertTrue("successful compilation expected", job.getCompilationFaults().isEmpty());
 	}
 	
 }

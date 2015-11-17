@@ -1,0 +1,14 @@
+package ch.liquidmind.inflection.compiler;
+
+import ch.liquidmind.inflection.test.model.*;
+
+taxonomy InflectionCompilerTest_InvalidFileTaxonomy
+{
+	view A { *; }
+}
+
+// typo when extending: invalid file
+taxonomy InflectionCompilerTest_InvalidFileChildTaxonomy extends InflectionCompilerTestTYPO_InvalidFileTaxonomy
+{
+	view * { *; }	
+}

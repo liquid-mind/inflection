@@ -2,7 +2,7 @@ package ch.liquidmind.inflection.compiler;
 
 import ch.liquidmind.inflection.test.model.*;
 
-taxonomy InheritanceTestModelATaxonomy
+taxonomy InflectionCompilerTest_InheritanceAndImports_ParentTaxonomy
 {
-	view Address {}		
+	view A {}		
 }

@@ -1,0 +1,6 @@
+package ch.liquidmind.inflection.compiler;
+
+taxonomy InflectionCompilerTest_InheritanceAndImports_IllegalChildImportTaxonomy extends InflectionCompilerTest_InheritanceAndImports_ParentTaxonomy
+{
+	exclude view A;		// illegal, since A cannot be resolved (despite being included in super taxonomy)
+}
