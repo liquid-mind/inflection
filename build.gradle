@@ -54,11 +54,23 @@ sourceSets {
 }
 
 dependencies {
-	compile "__commons-io:commons-io:2.4"
-	compile "__org.antlr:antlr4:4.5"
-	compile "com.google.guava:guava:19.0-rc2"
-	compile "junit:junit:4.12"
-	compile 'org.codehaus.jackson:jackson-mapper-asl:1.9.13'
+	compile( "commons-io:commons-io:2.4" ) { transitive = false }
+	compile( "__commons-io:commons-io:2.4" ) { transitive = false }
+	compile( "org.antlr:antlr4:4.5" ) { transitive = false }
+	compile( "__org.antlr:antlr4:4.5" ) { transitive = false }
+	compile( "com.google.guava:guava:19.0-rc2" ) { transitive = false }
+	compile( "org.codehaus.jackson:jackson-mapper-asl:1.9.13" ) { transitive = false }
+	compile( '__java:rt:1.8' ) { transitive = false }
+	testCompile( "junit:junit:4.12" ) { transitive = false }
+
+	runtime "commons-io:commons-io:2.4"
+	runtime "__commons-io:commons-io:2.4"
+	runtime "org.antlr:antlr4:4.5"
+	runtime "__org.antlr:antlr4:4.5"
+	runtime "com.google.guava:guava:19.0-rc2"
+	runtime "org.codehaus.jackson:jackson-mapper-asl:1.9.13"
+	runtime '__java:rt:1.8'
+	testRuntime "junit:junit:4.12"
 }
 
 // Antlr
@@ -104,6 +116,7 @@ test {
 
 // Sources JAR
 task sourceJar(type: Jar, dependsOn: classes) {
+	classifier = 'source'
     from sourceSets.main.allSource
 }
 
