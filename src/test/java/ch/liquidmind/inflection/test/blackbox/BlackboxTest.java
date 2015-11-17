@@ -18,14 +18,14 @@ import ch.liquidmind.inflection.test.model.TestEnum;
 
 public class BlackboxTest {
 
-	private static final String TESTSTRING = "city";
-	private static final String TESTSTRING2 = "city2";
+	private static final String TESTSTRING = "abcdef";
+	private static final String TESTSTRING2 = "123456";
 
 	@Test
 	public void testSetGetString() throws Exception {
 		BlackboxTestTaxonomy_B1 b1 = new BlackboxTestTaxonomy_B1();
 		b1.setStringMember(TESTSTRING);
-		assertEquals(TESTSTRING, b1.getStringMember());
+		assertEquals("String was updated by proxy", TESTSTRING, b1.getStringMember());
 	}
 	
 	@Test
@@ -33,14 +33,14 @@ public class BlackboxTest {
 		BlackboxTestTaxonomy_B1 person = new BlackboxTestTaxonomy_B1();
 		Date date = new Date();
 		person.setDateMember(date);
-		assertEquals(date, person.getDateMember());
+		assertEquals("Date was updated by proxy", date, person.getDateMember());
 	}
 	
 	@Test
 	public void testSetGetEnum() throws Exception {
 		BlackboxTestTaxonomy_B1 person = new BlackboxTestTaxonomy_B1();
 		person.setEnumMember(TestEnum.VALUE1);
-		assertEquals(TestEnum.VALUE1, person.getEnumMember());
+		assertEquals("Enum was updated by proxy", TestEnum.VALUE1, person.getEnumMember());
 	}
 	
 	@Test
@@ -59,7 +59,7 @@ public class BlackboxTest {
 		assertEquals(TESTSTRING, b1ListProxy.getStringMember());
 		
 		b1ListProxy.setStringMember(TESTSTRING2);
-		assertEquals("String was updated", TESTSTRING2, b1.getStringMember());
+		assertEquals("String was updated by proxy", TESTSTRING2, b1.getStringMember());
 	}
 	
 	@Test
@@ -67,7 +67,7 @@ public class BlackboxTest {
 	public void testGetListSize() throws Exception {
 		BlackboxTestTaxonomy_B1 b1Proxy = new BlackboxTestTaxonomy_B1();
 		b1Proxy.getListMember().add(new BlackboxTestTaxonomy_B1());
-		assertEquals(1, b1Proxy.getListMember().size());
+		assertEquals("size() == 1 after inserting one element", 1, b1Proxy.getListMember().size());
 	}
 	
 	@Test
