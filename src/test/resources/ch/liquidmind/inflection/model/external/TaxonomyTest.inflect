@@ -1,0 +1,45 @@
+package ch.liquidmind.inflection.model.external;
+
+import ch.liquidmind.inflection.test.model.*;
+
+taxonomy TaxonomyTestTaxonomy
+{
+	include view A {}
+}
+
+taxonomy TaxonomyTest_GetView_IncludeViewWithoutIncludeTaxonomy 
+{
+	view A {}
+}
+
+taxonomy TaxonomyTest_GetView_IncludeViewWithIncludeTaxonomy 
+{
+	include view A {}
+}
+
+taxonomy TaxonomyTest_GetView_ExcludeViewTaxonomy extends TaxonomyTestTaxonomy
+{
+	exclude view A;
+}
+
+taxonomy GetView_IncludeExcludeOrderIncludeFirstTaxonomy 
+{
+	include view A {}
+	exclude view A;
+}
+
+taxonomy GetView_IncludeExcludeOrderExcludeFirstTaxonomy 
+{
+	exclude view A;
+	include view A {}
+}
+
+taxonomy GetView_IncludeWithSelectorTaxonomy
+{
+	include view A* {}
+}
+
+taxonomy GetView_ExcludeWithSelectorTaxonomy extends TaxonomyTestTaxonomy
+{
+	exclude view A*;
+}

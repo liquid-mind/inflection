@@ -7,58 +7,58 @@ import org.junit.Ignore;
 import org.junit.Test;
 
 import ch.liquidmind.inflection.test.blackbox.BlackboxTestUtility;
-import ch.liquidmind.inflection.test.model.Address;
+import ch.liquidmind.inflection.test.model.A;
 
 public class TaxonomyTest {
 	
 	@Test
-	public void testSuperTaxonomy()
+	public void testGetView_IncludeViewWithoutInclude_ViewExists()
 	{
-		Taxonomy taxonomy = BlackboxTestUtility.getTestTaxonomy(this.getClass().getPackage().getName(), "TaxonomySuperTaxonomy");
-		assertNotNull("verify view exists", taxonomy.getView(Address.class.getCanonicalName()));
+		Taxonomy taxonomy = BlackboxTestUtility.getTestTaxonomy(this.getClass().getPackage().getName(), "TaxonomyTest_GetView_IncludeViewWithoutIncludeTaxonomy");
+		assertNotNull("view must exist", taxonomy.getView(A.class.getCanonicalName()));
 	}
 	
 	@Test
-	public void testExcludeView()
+	public void testGetView_IncludeViewWithInclude_ViewExists()
 	{
-		Taxonomy taxonomy = BlackboxTestUtility.getTestTaxonomy(this.getClass().getPackage().getName(), "ExcludeTaxonomy");
-		assertNull("verify view does not exist", taxonomy.getView(Address.class.getCanonicalName()));
+		Taxonomy taxonomy = BlackboxTestUtility.getTestTaxonomy(this.getClass().getPackage().getName(), "TaxonomyTest_GetView_IncludeViewWithIncludeTaxonomy");
+		assertNotNull("view must exist", taxonomy.getView(A.class.getCanonicalName()));
 	}
 	
 	@Test
-	public void testIncludeView()
+	public void testGetView_ExcludeView_ViewDoesNotExist()
 	{
-		Taxonomy taxonomy = BlackboxTestUtility.getTestTaxonomy(this.getClass().getPackage().getName(), "IncludeTaxonomy");
-		assertNotNull("verify view exists", taxonomy.getView(Address.class.getCanonicalName()));
+		Taxonomy taxonomy = BlackboxTestUtility.getTestTaxonomy(this.getClass().getPackage().getName(), "TaxonomyTest_GetView_ExcludeViewTaxonomy");
+		assertNull("view must not exist", taxonomy.getView(A.class.getCanonicalName()));
 	}
-	
+		
 	@Test
-	public void testIncludeExcludeOrder1()
+	public void testGetView_IncludeExcludeOrderIncludeFirst_ViewDoesNotExist()
 	{
-		Taxonomy taxonomy = BlackboxTestUtility.getTestTaxonomy(this.getClass().getPackage().getName(), "IncludeExcludeOrderTaxonomy1");
-		assertNull("verify view does not exist", taxonomy.getView(Address.class.getCanonicalName()));
+		Taxonomy taxonomy = BlackboxTestUtility.getTestTaxonomy(this.getClass().getPackage().getName(), "GetView_IncludeExcludeOrderIncludeFirstTaxonomy");
+		assertNull("view must not exist", taxonomy.getView(A.class.getCanonicalName()));
 	}
 	
 	@Test
 	@Ignore("check if real error? Assumption: First all includes, then all excludes, regardless of definition in file")
-	public void testIncludeExcludeOrder2()
+	public void testGetView_IncludeExcludeOrderExcludeFirst_ViewDoesNotExist()
 	{
-		Taxonomy taxonomy = BlackboxTestUtility.getTestTaxonomy(this.getClass().getPackage().getName(), "IncludeExcludeOrderTaxonomy2");
-		assertNull("verify view does not exist", taxonomy.getView(Address.class.getCanonicalName()));
+		Taxonomy taxonomy = BlackboxTestUtility.getTestTaxonomy(this.getClass().getPackage().getName(), "GetView_IncludeExcludeOrderExcludeFirstTaxonomy");
+		assertNull("view must not exist", taxonomy.getView(A.class.getCanonicalName()));
 	}
 	
 	@Test
-	public void testSelector1()
+	public void testGetView_IncludeWithSelector_ViewDoesExist()
 	{
-		Taxonomy taxonomy = BlackboxTestUtility.getTestTaxonomy(this.getClass().getPackage().getName(), "SelectorTaxonomy1");
-		assertNotNull("verify view exists", taxonomy.getView(Address.class.getCanonicalName()));
+		Taxonomy taxonomy = BlackboxTestUtility.getTestTaxonomy(this.getClass().getPackage().getName(), "GetView_IncludeWithSelectorTaxonomy");
+		assertNotNull("view must exist", taxonomy.getView(A.class.getCanonicalName()));
 	}
 	
 	@Test
-	public void testSelector2()
+	public void testGetView_ExcludeWithSelector_ViewDoesNotExist()
 	{
-		Taxonomy taxonomy = BlackboxTestUtility.getTestTaxonomy(this.getClass().getPackage().getName(), "SelectorTaxonomy2");
-		assertNull("verify view does not exist", taxonomy.getView(Address.class.getCanonicalName()));
+		Taxonomy taxonomy = BlackboxTestUtility.getTestTaxonomy(this.getClass().getPackage().getName(), "GetView_ExcludeWithSelectorTaxonomy");
+		assertNull("view must not exist", taxonomy.getView(A.class.getCanonicalName()));
 	}
 		
 }
