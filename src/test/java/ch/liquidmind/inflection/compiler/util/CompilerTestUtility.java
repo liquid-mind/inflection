@@ -12,14 +12,15 @@ import ch.liquidmind.inflection.compiler.CompilationJob;
 import ch.liquidmind.inflection.compiler.CompilationJob.CompilationMode;
 import ch.liquidmind.inflection.loader.TaxonomyLoader;
 
-public final class CompilerTestUtility {
+public final class CompilerTestUtility
+{
 
-	public static CompilationJob createCompilationJob(CompilationMode mode, URL... urls) throws URISyntaxException {
-		List<File> files = new ArrayList<>();
-		for (URL url : urls) {
-			files.add(new File(url.toURI()));
-		}
-		return new CompilationJob(TaxonomyLoader.getSystemTaxonomyLoader(), Files.createTempDir(), mode, files.toArray(new File [files.size()]));
+	public static CompilationJob createCompilationJob( CompilationMode mode, URL... urls ) throws URISyntaxException
+	{
+		List< File > files = new ArrayList< >();
+		for ( URL url : urls )
+			files.add( new File( url.toURI() ) );
+		return new CompilationJob( TaxonomyLoader.getSystemTaxonomyLoader(), Files.createTempDir(), mode, files.toArray( new File[ files.size() ] ) );
 	}
-	
+
 }
