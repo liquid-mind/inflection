@@ -40,10 +40,7 @@ public class ProxyGenerator
 		for ( String taxonomyName : taxonomyNames )
 		{
 			Taxonomy taxonomy = TaxonomyLoader.getContextTaxonomyLoader().loadTaxonomy( taxonomyName );
-			if (taxonomy == null) {
-				System.err.println("Failed loading taxonomy " + taxonomyName);
-				System.exit(1);
-			}
+			// TODO handle if taxonomy is null
 			new ProxyGenerator( baseDir, taxonomy ).generateTaxonomy();
 		}
 	}
