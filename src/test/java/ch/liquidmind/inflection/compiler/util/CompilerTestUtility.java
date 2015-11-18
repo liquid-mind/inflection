@@ -14,13 +14,17 @@ import ch.liquidmind.inflection.loader.TaxonomyLoader;
 
 public final class CompilerTestUtility
 {
-
-	public static CompilationJob createCompilationJob( CompilationMode mode, URL... urls ) throws URISyntaxException
-	{
+	
+	public static CompilationJob createCompilationJob( Class<?> testClass, String... resources ) throws URISyntaxException {
+		if (testClass == null) {
+			throw new IllegalArgumentException("testClass must not be null");
+		}
 		List< File > files = new ArrayList< >();
-		for ( URL url : urls )
+		for (String resource : resources) {
+			URL url = testClass.getResource( resource );
 			files.add( new File( url.toURI() ) );
-		return new CompilationJob( TaxonomyLoader.getSystemTaxonomyLoader(), Files.createTempDir(), mode, files.toArray( new File[ files.size() ] ) );
+		}
+		return new CompilationJob( TaxonomyLoader.getSystemTaxonomyLoader(), Files.createTempDir(), CompilationMode.BOOTSTRAP, files.toArray( new File[ files.size() ] ) );
 	}
 
 }
