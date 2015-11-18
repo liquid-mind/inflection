@@ -8,7 +8,7 @@ import org.junit.Ignore;
 import org.junit.Test;
 
 import ch.liquidmind.inflection.compiler.CompilationJob.CompilationMode;
-import ch.liquidmind.inflection.compiler.fixture.CompilerTestUtility;
+import ch.liquidmind.inflection.compiler.util.CompilerTestUtility;
 
 public class InflectionCompilerTest {
 
@@ -22,7 +22,7 @@ public class InflectionCompilerTest {
 	}
 	
 	@Test
-	@Ignore("IndexOutOfBoundsException is thrown when creating fault message")
+	@Ignore("IndexOutOfBoundsException is thrown when creating fault message") // TODO failing test
 	public void testCompile_InvalidFile_SuccessfulFaultMessageGeneration() throws Exception {
 		CompilationJob job = CompilerTestUtility.createCompilationJob(CompilationMode.BOOTSTRAP, 
 				this.getClass().getResource("InflectionCompilerTest_InvalidFile.inflect"));
@@ -34,7 +34,7 @@ public class InflectionCompilerTest {
 	}
 	
 	@Test
-	@Ignore("Should not compile because child does not import view A")
+	@Ignore("Should not compile because child does not import view A") // TODO failing test
 	public void testCompile_InheritanceAndImports_IllegalImport() throws Exception {
 		CompilationJob job = CompilerTestUtility.createCompilationJob(CompilationMode.BOOTSTRAP, 
 				this.getClass().getResource("InflectionCompilerTest_InheritanceAndImports_Parent.inflect"), 

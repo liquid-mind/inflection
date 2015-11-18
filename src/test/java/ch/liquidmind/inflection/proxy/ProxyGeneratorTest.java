@@ -6,7 +6,7 @@ import org.junit.Test;
 import com.google.common.io.Files;
 
 import ch.liquidmind.inflection.model.external.Taxonomy;
-import ch.liquidmind.inflection.test.blackbox.BlackboxTestUtility;
+import ch.liquidmind.inflection.test.blackbox.util.BlackboxTestUtility;
 
 public class ProxyGeneratorTest {
 

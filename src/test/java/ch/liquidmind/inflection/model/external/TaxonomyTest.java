@@ -5,7 +5,7 @@ import static org.junit.Assert.assertNull;
 
 import org.junit.Test;
 
-import ch.liquidmind.inflection.test.blackbox.BlackboxTestUtility;
+import ch.liquidmind.inflection.test.blackbox.util.BlackboxTestUtility;
 import ch.liquidmind.inflection.test.model.A;
 
 public class TaxonomyTest {

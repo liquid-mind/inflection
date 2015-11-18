@@ -1,4 +1,4 @@
-package ch.liquidmind.inflection.compiler.fixture;
+package ch.liquidmind.inflection.compiler.util;
 
 import java.io.File;
 import java.net.URISyntaxException;

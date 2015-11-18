@@ -63,21 +63,11 @@ public class BlackboxTest {
 	}
 	
 	@Test
-	@Ignore("size() not yet implemented on proxy")
+	@Ignore("size() not yet implemented on proxy") // TODO failing test
 	public void testGetListSize() throws Exception {
 		BlackboxTestTaxonomy_B1 b1Proxy = new BlackboxTestTaxonomy_B1();
 		b1Proxy.getListMember().add(new BlackboxTestTaxonomy_B1());
 		assertEquals("size() == 1 after inserting one element", 1, b1Proxy.getListMember().size());
 	}
-	
-	@Test
-	@Ignore
-	public void testGetCalculated() throws Exception {
-//		BlackboxTestCalculatedTaxonomy_Person personProxy = new BlackboxTestCalculatedTaxonomy_Person();
-//		Date date = new Date();
-//		personProxy.setDateOfBirth(date);
-//		int age = personProxy.getAge();
-//		assertEquals(0, age);
-	}
-	
+		
 }
