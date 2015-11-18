@@ -22,7 +22,7 @@ public class InflectionCompilerTest {
 	}
 	
 	@Test
-	@Ignore("IndexOutOfBoundsException is thrown when creating fault message") // TODO failing test
+	@Ignore("IndexOutOfBoundsException is thrown when creating fault message (probably only on Windows using Unix style newlines)") // TODO failing test
 	public void testCompile_InvalidFile_SuccessfulFaultMessageGeneration() throws Exception {
 		CompilationJob job = CompilerTestUtility.createCompilationJob(CompilationMode.BOOTSTRAP, 
 				this.getClass().getResource("InflectionCompilerTest_InvalidFile.inflect"));
