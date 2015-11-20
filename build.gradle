@@ -1,6 +1,3 @@
-// For debugging:
-// '-agentlib:jdwp=transport=dt_socket,address=9009,server=y,suspend=y'
-
 plugins {
     id "java"
     id "maven"
@@ -81,11 +78,21 @@ antlr4 {
 compileJava.dependsOn antlr4
 sourceSets.main.java.srcDirs += "$buildDir/generated/antlr"
 
+// Debugging
+def debugInflectionCompiler="";
+def debugProxyGenerator="";
+if (this.hasProperty("debugInflectionCompilerAddress")) {
+    debugInflectionCompiler="-agentlib:jdwp=transport=dt_socket,address=$debugInflectionCompilerAddress,server=y,suspend=y";	
+}
+if (this.hasProperty("debugProxyGeneratorAddress")) {
+    debugProxyGenerator="-agentlib:jdwp=transport=dt_socket,address=$debugProxyGeneratorAddress,server=y,suspend=y";	
+}
+
 // Inflect test model
 task( compileTestTaxonomiesInflection, dependsOn: compileTestModelJava, type: JavaExec ) {
 	main = "ch.liquidmind.inflection.compiler.InflectionCompiler"
 	classpath = sourceSets.main.runtimeClasspath + sourceSets.testModel.runtimeClasspath
-	jvmArgs '-ea'
+	jvmArgs '-ea', debugInflectionCompiler
 	args "${buildDir}/resources/testModel", "BOOTSTRAP", "src/test/resources/ch/liquidmind/inflection/test/model/TestModel.inflect"
 }
 
@@ -97,7 +104,7 @@ compileTestTaxonomiesInflection.doFirst {
 task( proxifyTestTaxonomies, dependsOn: compileTestTaxonomiesInflection, type: JavaExec ) {
 	main = "ch.liquidmind.inflection.proxy.ProxyGenerator"
 	classpath = sourceSets.main.runtimeClasspath + sourceSets.testModel.runtimeClasspath
-	jvmArgs '-ea'
+	jvmArgs '-ea', debugProxyGenerator
 	args "${buildDir}/generated/inflection",
 	"ch.liquidmind.inflection.test.model.FullTaxonomy",
 	"ch.liquidmind.inflection.test.model.UseCase1",
