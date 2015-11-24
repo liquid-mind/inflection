@@ -60,6 +60,7 @@ dependencies {
 	compile( "__org.antlr:antlr4:4.5" ) { transitive = false }
 	compile( "com.google.guava:guava:19.0-rc2" ) { transitive = false }
 	compile( "org.codehaus.jackson:jackson-mapper-asl:1.9.13" ) { transitive = false }
+	compile( "org.codehaus.jackson:jackson-core-asl:1.9.13" ) { transitive = false }
 	compile( '__java:rt:1.8' ) { transitive = false }
 	testCompile( "junit:junit:4.12" ) { transitive = false }
 
@@ -116,7 +117,7 @@ test {
 
 // Sources JAR
 task sourceJar(type: Jar, dependsOn: classes) {
-	classifier = 'source'
+	classifier = 'sources'
     from sourceSets.main.allSource
 }
 
@@ -129,6 +130,14 @@ task javadocJar(type: Jar, dependsOn: javadoc) {
 artifacts {
     archives sourceJar
     archives javadocJar
+}
+
+eclipse {
+	classpath {
+		plusConfigurations = [ configurations.compile, configurations.testCompile ]
+		downloadSources = true
+		downloadJavadoc = true
+	}
 }
 
 publishing {

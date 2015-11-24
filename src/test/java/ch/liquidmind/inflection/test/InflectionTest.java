@@ -1,11 +1,8 @@
 package ch.liquidmind.inflection.test;
 
-import java.io.IOException;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 
-import org.codehaus.jackson.JsonGenerationException;
-import org.codehaus.jackson.map.JsonMappingException;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.map.ObjectWriter;
 import org.junit.Test;
@@ -40,7 +37,7 @@ public class InflectionTest
 	}
 
 	@Test
-	public void testProxies() throws JsonGenerationException, JsonMappingException, IOException
+	public void testProxies() throws Throwable
 	{
 		Calendar cal = new GregorianCalendar();
 		cal.set( 1972, 8, 8 );
