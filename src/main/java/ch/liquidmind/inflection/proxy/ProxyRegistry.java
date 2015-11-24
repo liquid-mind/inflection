@@ -227,12 +227,12 @@ public class ProxyRegistry
 		if ( proxy == null )
 			return null;
 		
-		PairTables pairTables = pairTablesByTaxonomy.get( Proxy.getTaxonomy( proxy ) );
+		PairTables pairTables = pairTablesByTaxonomy.get( ProxyHelper.getTaxonomy( proxy ) );
 		
 		if ( pairTables == null )
 		{
 			pairTables = new PairTables();
-			pairTablesByTaxonomy.put( Proxy.getTaxonomy( proxy ), pairTables );
+			pairTablesByTaxonomy.put( ProxyHelper.getTaxonomy( proxy ), pairTables );
 		}
 		
 		Set< ProxyObjectPair > proxyObjectPairs = pairTables.getPairsByProxyHashcode().get( proxy.hashCode() );
@@ -273,7 +273,7 @@ public class ProxyRegistry
 		Class< ? > objectClass = collectionsByProxy.get( proxy.getClass() );
 		
 		if ( objectClass == null )
-			objectClass = Proxy.getView( proxy ).getViewedClass();
+			objectClass = ProxyHelper.getView( proxy ).getViewedClass();
 		
 		return (T)__Class.newInstance( objectClass );
 	}
