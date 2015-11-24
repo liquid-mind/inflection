@@ -9,7 +9,7 @@ import org.junit.Test;
 
 import ch.liquidmind.inflection.loader.TaxonomyLoader;
 import ch.liquidmind.inflection.model.external.Taxonomy;
-import ch.liquidmind.inflection.proxy.Proxy;
+import ch.liquidmind.inflection.proxy.ProxyHelper;
 import ch.liquidmind.inflection.test.model.Address;
 import ch.liquidmind.inflection.test.model.Gender;
 import ch.liquidmind.inflection.test.model.Person;
@@ -46,11 +46,11 @@ public class InflectionTest
 		person.getAddresses().add( address );
 		address.getPeople().add( person );
 		
-		FullTaxonomy_Person fullTaxonomyPerson = Proxy.getProxy( "ch.liquidmind.inflection.test.model.FullTaxonomy", person );
-		UseCase1_Person useCase1Person = Proxy.getProxy( "ch.liquidmind.inflection.test.model.UseCase1", person );
-		UseCase2_Person useCase2Person = Proxy.getProxy( "ch.liquidmind.inflection.test.model.UseCase2", person );
-		UseCase3_Person useCase3Person = Proxy.getProxy( "ch.liquidmind.inflection.test.model.UseCase3", person );
-		UseCase4_Address useCase4Address = Proxy.getProxy( "ch.liquidmind.inflection.test.model.UseCase4", address );
+		FullTaxonomy_Person fullTaxonomyPerson = ProxyHelper.getProxy( "ch.liquidmind.inflection.test.model.FullTaxonomy", person );
+		UseCase1_Person useCase1Person = ProxyHelper.getProxy( "ch.liquidmind.inflection.test.model.UseCase1", person );
+		UseCase2_Person useCase2Person = ProxyHelper.getProxy( "ch.liquidmind.inflection.test.model.UseCase2", person );
+		UseCase3_Person useCase3Person = ProxyHelper.getProxy( "ch.liquidmind.inflection.test.model.UseCase3", person );
+		UseCase4_Address useCase4Address = ProxyHelper.getProxy( "ch.liquidmind.inflection.test.model.UseCase4", address );
 		
 		ObjectMapper mapper = new ObjectMapper();
 		ObjectWriter writer = mapper.writerWithDefaultPrettyPrinter();

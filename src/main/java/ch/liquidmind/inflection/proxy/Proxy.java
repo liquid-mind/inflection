@@ -15,19 +15,6 @@ public class Proxy
 	private Taxonomy taxonomy;
 	private View view;
 
-	public static < T extends Proxy > T getProxy( String taxonomyName, Object viewableObject )
-	{
-		Taxonomy fullTaxonomy = TaxonomyLoader.getContextTaxonomyLoader().loadTaxonomy( taxonomyName );
-		T proxy = ProxyRegistry.getContextProxyRegistry().getProxy( fullTaxonomy, viewableObject );
-		
-		return proxy;
-	}
-	
-	public < T extends Object > T getObject()
-	{
-		return ProxyRegistry.getContextProxyRegistry().getObject( this );
-	}
-	
 	// Constructor for collection proxies.
 	protected Proxy( String taxonomyName )
 	{
@@ -42,28 +29,16 @@ public class Proxy
         this.view = taxonomy.getView( viewName );
 	}
 
-	private Taxonomy getTaxonomy()
+	Taxonomy getTaxonomy()
 	{
 		return taxonomy;
 	}
 
-	private View getView()
+	View getView()
 	{
 		return view;
 	}
 
-	// TODO: should probably put these accessors in a different place altogether,
-	// to avoid any confusion, esp. with frameworks.
-	public static Taxonomy getTaxonomy( Proxy proxy )
-	{
-		return proxy.getTaxonomy();
-	}
-
-	public static View getView( Proxy proxy )
-	{
-		return proxy.getView();
-	}
-	
 	protected Method getMethod( String name, Class< ? >[] paramTypes )
 	{
 		return __Class.getDeclaredMethod( this.getClass(), name, paramTypes );

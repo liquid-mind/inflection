@@ -32,7 +32,7 @@ public class CollectionProxyHandler implements InvocationHandler
 		Method viewableMethod = collection.getClass().getMethod( method.getName(), method.getParameterTypes() );
 		viewableMethod.setAccessible( true );
 		Object viewableRetVal = viewableMethod.invoke( collection, viewableArgs.toArray() );
-		Object proxyRetVal = getProxyObject( Proxy.getTaxonomy( proxy ), viewableRetVal );
+		Object proxyRetVal = getProxyObject( ProxyHelper.getTaxonomy( proxy ), viewableRetVal );
 
 		return proxyRetVal;
 	}
