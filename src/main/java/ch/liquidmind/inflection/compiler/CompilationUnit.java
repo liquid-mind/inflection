@@ -73,7 +73,7 @@ public class CompilationUnit
 			if ( sourceFileContent == null )
 			{
 				String sourceFileAsString = tokens.getTokenSource().getInputStream().toString();
-				sourceFileContent = sourceFileAsString.split( System.lineSeparator() );
+				sourceFileContent = sourceFileAsString.split( "\r?\n|\r" );
 			}
 			
 			return sourceFileContent;
