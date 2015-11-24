@@ -15,6 +15,19 @@ public class Proxy
 	private Taxonomy taxonomy;
 	private View view;
 
+	public static < T extends Proxy > T getProxy( String taxonomyName, Object viewableObject )
+	{
+		Taxonomy fullTaxonomy = TaxonomyLoader.getContextTaxonomyLoader().loadTaxonomy( taxonomyName );
+		T proxy = ProxyRegistry.getContextProxyRegistry().getProxy( fullTaxonomy, viewableObject );
+		
+		return proxy;
+	}
+	
+	public < T extends Object > T getObject()
+	{
+		return ProxyRegistry.getContextProxyRegistry().getObject( this );
+	}
+	
 	// Constructor for collection proxies.
 	protected Proxy( String taxonomyName )
 	{
