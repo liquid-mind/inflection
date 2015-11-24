@@ -22,6 +22,8 @@ import ch.liquidmind.inflection.model.external.Taxonomy;
 import ch.liquidmind.inflection.model.external.View;
 import ch.liquidmind.inflection.model.linked.NamedElementLinked;
 
+// TODO Proxies of abstract classes should be abstract themselves (since it doesn't
+// make sense to be able to instantiate a view of an un-instantiable class).
 public class ProxyGenerator
 {
 	private File baseDir;
