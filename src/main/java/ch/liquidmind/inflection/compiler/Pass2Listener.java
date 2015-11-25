@@ -68,7 +68,8 @@ public class Pass2Listener extends AbstractInflectionListener
 {
 	private TaxonomyCompiled currentTaxonomyCompiled;
 	private List< ViewCompiled > currentViewsCompiled;
-	private List< MemberCompiled > currentMembersCompiled;
+//	private List< MemberCompiled > currentMembersCompiled;
+	private Map< ViewCompiled, List< MemberCompiled > > currentMembersCompiled;
 	private List< AnnotationCompiled > currentAnnotationsCompiled;
 	private SelectionType currentViewSelectionType;
 	private SelectionType currentMemberSelectionType;
@@ -157,6 +158,7 @@ public class Pass2Listener extends AbstractInflectionListener
 		currentAnnotationsCompiled = new ArrayList< AnnotationCompiled >();
 	}
 	
+	@Override
 	public void exitTaxonomyDeclaration( TaxonomyDeclarationContext taxonomyDeclarationContext )
 	{
 		currentTaxonomyCompiled.getAnnotationsCompiled().addAll( currentAnnotationsCompiled );
@@ -419,7 +421,7 @@ public class Pass2Listener extends AbstractInflectionListener
 	{
 		for ( String matchingClass : matchingClasses )
 		{
-			ViewCompiled matchingView = new ViewCompiled( matchingClass );
+			ViewCompiled matchingView = new ViewCompiled( matchingClass, currentTaxonomyCompiled );
 			matchingView.setSelectionType( currentViewSelectionType );
 			addOrOverrideView( currentTaxonomyCompiled.getViewsCompiled(), matchingView );
 			addOrOverrideView( currentViewsCompiled, matchingView );
@@ -563,7 +565,11 @@ public class Pass2Listener extends AbstractInflectionListener
 	@Override
 	public void enterMemberDeclaration( MemberDeclarationContext memberDeclarationContext )
 	{
-		currentMembersCompiled = new ArrayList< MemberCompiled >();
+		currentMembersCompiled = new HashMap< ViewCompiled, List< MemberCompiled > >();
+		
+		for ( ViewCompiled currentViewCompiled : currentViewsCompiled )
+			currentMembersCompiled.put( currentViewCompiled, new ArrayList< MemberCompiled >() );
+		
 		currentAnnotationsCompiled = new ArrayList< AnnotationCompiled >();
 		currentAccessType = null;
 	}
@@ -571,11 +577,14 @@ public class Pass2Listener extends AbstractInflectionListener
 	@Override
 	public void exitMemberDeclaration( MemberDeclarationContext memberDeclarationContext )
 	{
-		for ( MemberCompiled currentMemberCompiled : currentMembersCompiled )
+		for ( List< MemberCompiled > currentMembersCompiledOfView : currentMembersCompiled.values() )
 		{
-			currentMemberCompiled.getAnnotationsCompiled().addAll( currentAnnotationsCompiled );
-			currentMemberCompiled.setSelectionType( currentMemberSelectionType );
-			currentMemberCompiled.setAccessType( currentAccessType );
+			for ( MemberCompiled currentMemberCompiled : currentMembersCompiledOfView )
+			{
+				currentMemberCompiled.getAnnotationsCompiled().addAll( currentAnnotationsCompiled );
+				currentMemberCompiled.setSelectionType( currentMemberSelectionType );
+				currentMemberCompiled.setAccessType( currentAccessType );
+			}
 		}
 	}
 
@@ -598,9 +607,30 @@ public class Pass2Listener extends AbstractInflectionListener
 		for ( ViewCompiled currentViewCompiled : currentViewsCompiled )
 		{
 			List< String > matchingMembers = getMatchingMembers( currentViewCompiled, effectiveAccessType, memberSelectorContext );
-			List< MemberCompiled > membersCompiled = getMembersCompiled( matchingMembers );
-			currentViewCompiled.getMembersCompiled().addAll( membersCompiled );
-			currentMembersCompiled.addAll( membersCompiled );
+			List< MemberCompiled > membersCompiled = getMembersCompiled( currentViewCompiled, matchingMembers );
+			addMembersCompiled( currentViewCompiled.getMembersCompiled(), membersCompiled );
+			addMembersCompiled( currentMembersCompiled.get( currentViewCompiled ), membersCompiled );
+		}
+	}
+	
+	private void addMembersCompiled( List< MemberCompiled > membersCompiledA, List< MemberCompiled > membersCompiledB )
+	{
+		for ( MemberCompiled memberCompiledB : membersCompiledB )
+		{
+			boolean foundMemberCompiled = false;
+			
+			for ( int i = 0 ; i < membersCompiledA.size() ; ++i )
+			{
+				if ( membersCompiledA.get( i ).getName().equals( memberCompiledB.getName() ) )
+				{
+					membersCompiledA.set( i, memberCompiledB );
+					foundMemberCompiled = true;
+					break;
+				}
+			}
+			
+			if ( !foundMemberCompiled )
+				membersCompiledA.add( memberCompiledB );
 		}
 	}
 	
@@ -808,12 +838,12 @@ public class Pass2Listener extends AbstractInflectionListener
 		// TODO: implement
 	}
 	
-	private List< MemberCompiled > getMembersCompiled( List< String > matchingMembers )
+	private List< MemberCompiled > getMembersCompiled( ViewCompiled currentViewCompiled, List< String > matchingMembers )
 	{
 		List< MemberCompiled > membersCompiled = new ArrayList< MemberCompiled >();
 		
 		for ( String matchingMember : matchingMembers )
-			membersCompiled.add( new MemberCompiled( matchingMember ) );
+			membersCompiled.add( new MemberCompiled( matchingMember, currentViewCompiled ) );
 		
 		return membersCompiled;
 	}
@@ -828,12 +858,15 @@ public class Pass2Listener extends AbstractInflectionListener
 		String fqAlias = ( getPackageName().equals( DEFAULT_PACKAGE_NAME ) ? alias : getPackageName() + "." + alias );
 		validateAliasNameNotInConflict( aliasContext, fqAlias );
 		
-		for ( MemberCompiled currentMemberCompiled : currentMembersCompiled )
+		for ( List< MemberCompiled > currentMembersCompiledOfView : currentMembersCompiled.values() )
 		{
-			if ( currentMemberCompiled.getName().toLowerCase().equals( memberName.toLowerCase() ) )
+			for ( MemberCompiled currentMemberCompiled : currentMembersCompiledOfView )
 			{
-				currentMemberCompiled.setAlias( alias );
-				break;
+				if ( currentMemberCompiled.getName().toLowerCase().equals( memberName.toLowerCase() ) )
+				{
+					currentMemberCompiled.setAlias( alias );
+					break;
+				}
 			}
 		}
 	}

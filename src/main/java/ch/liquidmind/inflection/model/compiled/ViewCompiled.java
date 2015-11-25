@@ -11,9 +11,10 @@ public class ViewCompiled extends AliasableElementCompiled
 	private List< MemberCompiled > membersCompiled = new ArrayList< MemberCompiled >();
 	private TaxonomyCompiled parentTaxonomyCompiled;
 	
-	public ViewCompiled( String name )
+	public ViewCompiled( String name, TaxonomyCompiled parentTaxonomyCompiled )
 	{
 		super( name );
+		this.parentTaxonomyCompiled = parentTaxonomyCompiled;
 	}
 
 	public List< String > getUsedClasses()
