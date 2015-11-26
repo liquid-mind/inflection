@@ -129,7 +129,7 @@ compileTestJava.dependsOn proxifyTestTaxonomies
 
 test {
 	// Enable this to see test output:
-	testLogging.showStandardStreams = false
+	testLogging.showStandardStreams = true
 }
 
 // Sources JAR

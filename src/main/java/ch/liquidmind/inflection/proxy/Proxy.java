@@ -47,7 +47,33 @@ public class Proxy
 	@SuppressWarnings( "unchecked" )
 	protected < T extends Object > T invoke( String methodName, Class< ? >[] paramTypes, Object[] params ) throws Throwable
 	{
-		Method method = getDeclaredMethodRecursive( this.getClass(), methodName, paramTypes );
+		Method method = getDeclaredMethodRecursive( view.getViewedClass(), methodName, paramTypes );
+		
+		if ( method == null )
+		{
+			for ( Class< ? > usedClass : view.getUsedClasses() )
+			{
+				for ( Method usedMethod : usedClass.getMethods() )
+				{
+					// TODO: This is a very ugly work-around: we really should be looking for the method
+					// by its full signature, not just by the name (which can be overloaded). I'm
+					// only leaving this in for now because the proxy generator and associated classes
+					// need to be completely rewritten anyway.
+					if ( usedMethod.getName().equals( methodName ) )
+					{
+						method = usedMethod;
+						break;
+					}
+				}
+				
+				if ( method != null )
+					break;
+			}
+		}
+		
+		if ( method == null )
+			throw new IllegalStateException( "Unable to resolve method: " + methodName );
+		
 		Object retVal = ProxyHandler.getContextProxyHandler().invoke( this, method, params );
 		
 		return (T)retVal;
@@ -68,15 +94,19 @@ public class Proxy
 	{
 		Method method = null;
 		
-		try
+		for ( Method declaredMethod : aClass.getDeclaredMethods() )
 		{
-			method = __Class.getDeclaredMethod( aClass, methodName, paramTypes );
+			// TODO: Another ugly work-around: as I've already written, we will have to completely
+			// rewrite the proxy generator and associated classes soon.
+			if ( declaredMethod.getName().equals( methodName ) )
+			{
+				method = declaredMethod;
+				break;
+			}
 		}
-		catch ( __NoSuchMethodException e )
-		{
-			if ( aClass.getSuperclass() != null )
-				method = getDeclaredMethodRecursive( aClass.getSuperclass(), methodName, paramTypes );
-		}
+		
+		if ( method == null && aClass.getSuperclass() != null )
+			method = getDeclaredMethodRecursive( aClass.getSuperclass(), methodName, paramTypes );
 		
 		return method;
 	}
