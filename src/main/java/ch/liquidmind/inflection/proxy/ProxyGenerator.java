@@ -169,7 +169,7 @@ public class ProxyGenerator
 	{
 		generateProperty( proxyGetMethodName, property.getReadMethod(), property.getAnnotations() );
 		printWriter.println();
-		generateProperty( proxySetMethodName, property.getWriteMethod(), property.getAnnotations() );
+		generateProperty( proxySetMethodName, property.getWriteMethod(), new ArrayList< Annotation >() );
 	}
 	
 	private void generateProperty( String proxyMethodName, Method targetMethod, List< Annotation > annotations )
@@ -194,7 +194,7 @@ public class ProxyGenerator
 		String name = field.getName();
 		String capName = name.substring( 0, 1 ).toUpperCase() + name.substring( 1 ); 
 		generateMethod( proxyGetMethodName, new Class< ? >[]{}, field.getAnnotations(), "get" + capName, new Class< ? >[]{}, field.getField().getType(), new Class< ? >[]{} );
-		generateMethod( proxySetMethodName, new Class< ? >[]{ field.getField().getType() }, field.getAnnotations(), "set" + capName, new Class< ? >[]{ field.getField().getType() }, void.class, new Class< ? >[]{} );
+		generateMethod( proxySetMethodName, new Class< ? >[]{ field.getField().getType() }, new ArrayList< Annotation >(), "set" + capName, new Class< ? >[]{ field.getField().getType() }, void.class, new Class< ? >[]{} );
 	}
 
 	private void generateMethod( String proxyMethodName, Type[] proxyParamTypes, List< Annotation > annotations, String targetMethodName, Type[] targetParamTypes, Type retType, Class< ? >[] exTypes )
