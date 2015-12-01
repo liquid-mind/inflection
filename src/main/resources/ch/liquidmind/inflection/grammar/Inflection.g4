@@ -65,7 +65,11 @@ packageImport
 // TAXONOMY
 
 taxonomyDeclaration
-	:	annotation* TAXONOMY taxonomyName taxonomyExtensions taxonomyBody
+	:	taxonomyAnnotation* TAXONOMY taxonomyName taxonomyExtensions taxonomyBody
+	;
+	
+taxonomyAnnotation
+	:	annotation
 	;
 	
 taxonomyName
@@ -93,8 +97,12 @@ defaultAccessMethodModifier
 // VIEW
 
 viewDeclaration
-	:	annotation* includeViewModifier VIEW includableClassSelector ( COMMA includableClassSelector )* ( USE usedClassSelector ( COMMA usedClassSelector )* )? viewBody
-	|	annotation* excludeViewModifier VIEW excludableClassSelector ( COMMA excludableClassSelector )* SEMICOLON
+	:	viewAnnotation* includeViewModifier VIEW includableClassSelector ( COMMA includableClassSelector )* ( USE usedClassSelector ( COMMA usedClassSelector )* )? viewBody
+	|	viewAnnotation* excludeViewModifier VIEW excludableClassSelector ( COMMA excludableClassSelector )* SEMICOLON
+	;
+	
+viewAnnotation
+	:	annotation
 	;
 	
 includeViewModifier
@@ -137,8 +145,12 @@ wildcardClassSelector
 // MEMBER
 
 memberDeclaration
-	:	annotation* includeMemberModifier accessMethodModifier includableMemberSelector ( COMMA includableMemberSelector )* SEMICOLON
-	|	annotation* excludeMemberModifier accessMethodModifier excludableMemberSelector ( COMMA excludableMemberSelector )* SEMICOLON
+	:	memberAnnotation* includeMemberModifier accessMethodModifier includableMemberSelector ( COMMA includableMemberSelector )* SEMICOLON
+	|	memberAnnotation* excludeMemberModifier accessMethodModifier excludableMemberSelector ( COMMA excludableMemberSelector )* SEMICOLON
+	;
+	
+memberAnnotation
+	:	annotation
 	;
 	
 includeMemberModifier
@@ -188,7 +200,11 @@ excludeModifier
 	;
 
 annotation
-	:	ANNOTATION
+	:	AT annotationClass ANNOTATION_BODY?
+	;
+	
+annotationClass
+	:	type
 	;
 	
 type
@@ -226,8 +242,8 @@ wildcardIdentifier
 // TOKENS
 
 // TODO: introduce support for nested annotations, or; introduce full support for annotations.
-ANNOTATION
-	:	'@' IDENTIFIER ( '(' .*? ')' )?
+ANNOTATION_BODY
+	:	'(' .*? ')'
 	;
 	
 MULTI_LINE_COMMENT
@@ -277,6 +293,7 @@ WILDCARD_IDENTIFIER
 	:	[a-zA-Z_$*] [a-zA-Z_$*0-9]*
 	;
 
+AT					: '@';
 SEMICOLON			: ';';
 COLON				: ':';
 DOT					: '.';

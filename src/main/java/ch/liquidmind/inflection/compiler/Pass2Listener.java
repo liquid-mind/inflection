@@ -24,6 +24,7 @@ import ch.liquidmind.inflection.grammar.InflectionParser.AccessMethodModifierCon
 import ch.liquidmind.inflection.grammar.InflectionParser.AliasContext;
 import ch.liquidmind.inflection.grammar.InflectionParser.AliasableClassSelectorContext;
 import ch.liquidmind.inflection.grammar.InflectionParser.AliasableMemberSelectorContext;
+import ch.liquidmind.inflection.grammar.InflectionParser.AnnotationClassContext;
 import ch.liquidmind.inflection.grammar.InflectionParser.AnnotationContext;
 import ch.liquidmind.inflection.grammar.InflectionParser.ClassSelectorContext;
 import ch.liquidmind.inflection.grammar.InflectionParser.CompilationUnitContext;
@@ -38,16 +39,19 @@ import ch.liquidmind.inflection.grammar.InflectionParser.IncludableClassSelector
 import ch.liquidmind.inflection.grammar.InflectionParser.IncludableMemberSelectorContext;
 import ch.liquidmind.inflection.grammar.InflectionParser.IncludeMemberModifierContext;
 import ch.liquidmind.inflection.grammar.InflectionParser.IncludeViewModifierContext;
+import ch.liquidmind.inflection.grammar.InflectionParser.MemberAnnotationContext;
 import ch.liquidmind.inflection.grammar.InflectionParser.MemberDeclarationContext;
 import ch.liquidmind.inflection.grammar.InflectionParser.MemberSelectorContext;
 import ch.liquidmind.inflection.grammar.InflectionParser.PackageImportContext;
 import ch.liquidmind.inflection.grammar.InflectionParser.SimpleTypeContext;
+import ch.liquidmind.inflection.grammar.InflectionParser.TaxonomyAnnotationContext;
 import ch.liquidmind.inflection.grammar.InflectionParser.TaxonomyDeclarationContext;
 import ch.liquidmind.inflection.grammar.InflectionParser.TaxonomyExtensionsContext;
 import ch.liquidmind.inflection.grammar.InflectionParser.TaxonomyNameContext;
 import ch.liquidmind.inflection.grammar.InflectionParser.TypeContext;
 import ch.liquidmind.inflection.grammar.InflectionParser.TypeImportContext;
 import ch.liquidmind.inflection.grammar.InflectionParser.UsedClassSelectorContext;
+import ch.liquidmind.inflection.grammar.InflectionParser.ViewAnnotationContext;
 import ch.liquidmind.inflection.grammar.InflectionParser.ViewDeclarationContext;
 import ch.liquidmind.inflection.grammar.InflectionParser.WildcardIdentifierContext;
 import ch.liquidmind.inflection.grammar.InflectionParser.WildcardSimpleTypeContext;
@@ -66,11 +70,13 @@ import ch.liquidmind.inflection.util.ExceptionWrapper;
 // gets the union of both sets of members.
 public class Pass2Listener extends AbstractInflectionListener
 {
+	private String currentAnnotationUnparsed;
 	private TaxonomyCompiled currentTaxonomyCompiled;
+	private List< AnnotationCompiled > currentTaxonomyAnnotationsCompiled;
 	private List< ViewCompiled > currentViewsCompiled;
-//	private List< MemberCompiled > currentMembersCompiled;
+	private List< AnnotationCompiled > currentViewAnnotationsCompiled;
 	private Map< ViewCompiled, List< MemberCompiled > > currentMembersCompiled;
-	private List< AnnotationCompiled > currentAnnotationsCompiled;
+	private List< AnnotationCompiled > currentMemberAnnotationsCompiled;
 	private SelectionType currentViewSelectionType;
 	private SelectionType currentMemberSelectionType;
 	private AccessType currentAccessType;
@@ -155,14 +161,20 @@ public class Pass2Listener extends AbstractInflectionListener
 	@Override
 	public void enterTaxonomyDeclaration( TaxonomyDeclarationContext taxonomyDeclarationContext )
 	{
-		currentAnnotationsCompiled = new ArrayList< AnnotationCompiled >();
+		currentTaxonomyAnnotationsCompiled = new ArrayList< AnnotationCompiled >();
 	}
 	
 	@Override
 	public void exitTaxonomyDeclaration( TaxonomyDeclarationContext taxonomyDeclarationContext )
 	{
-		currentTaxonomyCompiled.getAnnotationsCompiled().addAll( currentAnnotationsCompiled );
+		currentTaxonomyCompiled.getAnnotationsCompiled().addAll( currentTaxonomyAnnotationsCompiled );
 		currentTaxonomyCompiled.setDefaultAccessType( currentAccessType );
+	}
+
+	@Override
+	public void exitTaxonomyAnnotation( TaxonomyAnnotationContext taxonomyAnnotationContext )
+	{
+		currentTaxonomyAnnotationsCompiled.add( new AnnotationCompiled( currentAnnotationUnparsed ) );
 	}
 	
 	@Override
@@ -289,7 +301,7 @@ public class Pass2Listener extends AbstractInflectionListener
 	@Override
 	public void enterViewDeclaration( ViewDeclarationContext viewDeclarationContext )
 	{
-		currentAnnotationsCompiled = new ArrayList< AnnotationCompiled >();
+		currentViewAnnotationsCompiled = new ArrayList< AnnotationCompiled >();
 		currentViewsCompiled = new ArrayList< ViewCompiled >();
 	}
 	
@@ -298,8 +310,14 @@ public class Pass2Listener extends AbstractInflectionListener
 	{
 		for ( ViewCompiled currentViewCompiled : currentViewsCompiled )
 		{
-			currentViewCompiled.getAnnotationsCompiled().addAll( currentAnnotationsCompiled );
+			currentViewCompiled.getAnnotationsCompiled().addAll( currentViewAnnotationsCompiled );
 		}
+	}
+
+	@Override
+	public void exitViewAnnotation( ViewAnnotationContext viewAnnotationContext )
+	{
+		currentViewAnnotationsCompiled.add( new AnnotationCompiled( currentAnnotationUnparsed ) );
 	}
 	
 	@Override
@@ -570,7 +588,7 @@ public class Pass2Listener extends AbstractInflectionListener
 		for ( ViewCompiled currentViewCompiled : currentViewsCompiled )
 			currentMembersCompiled.put( currentViewCompiled, new ArrayList< MemberCompiled >() );
 		
-		currentAnnotationsCompiled = new ArrayList< AnnotationCompiled >();
+		currentMemberAnnotationsCompiled = new ArrayList< AnnotationCompiled >();
 		currentAccessType = null;
 	}
 	
@@ -581,11 +599,17 @@ public class Pass2Listener extends AbstractInflectionListener
 		{
 			for ( MemberCompiled currentMemberCompiled : currentMembersCompiledOfView )
 			{
-				currentMemberCompiled.getAnnotationsCompiled().addAll( currentAnnotationsCompiled );
+				currentMemberCompiled.getAnnotationsCompiled().addAll( currentMemberAnnotationsCompiled );
 				currentMemberCompiled.setSelectionType( currentMemberSelectionType );
 				currentMemberCompiled.setAccessType( currentAccessType );
 			}
 		}
+	}
+
+	@Override
+	public void exitMemberAnnotation( MemberAnnotationContext memberAnnotationContext )
+	{
+		currentMemberAnnotationsCompiled.add( new AnnotationCompiled( currentAnnotationUnparsed ) );
 	}
 
 	@Override
@@ -890,9 +914,29 @@ public class Pass2Listener extends AbstractInflectionListener
 	@Override
 	public void enterAnnotation( AnnotationContext annotationContext )
 	{
-		currentAnnotationsCompiled.add( new AnnotationCompiled( annotationContext.getText() ) );
+		AnnotationClassContext annotationClassContext = (AnnotationClassContext)annotationContext.getChild( 1 );
+		Set< String > matchingClasses = getMatchingClasses( annotationClassContext );
+		validateAnnotationClass( annotationClassContext, matchingClasses );
+		
+		String atSymbol = annotationContext.getChild( 0 ).getText();
+		String fqAnnotationName = matchingClasses.iterator().next();
+		String annotationBody = ( annotationContext.getChildCount() == 3 ? annotationContext.getChild( 2 ).getText() : "" );
+		
+		currentAnnotationUnparsed = atSymbol + fqAnnotationName + annotationBody;
 	}
 
+	private void validateAnnotationClass( AnnotationClassContext annotationClassContext, Set< String > matchingClasses )
+	{
+		if ( matchingClasses.size() == 0 )
+		{
+			reportError( annotationClassContext.start, annotationClassContext.stop, "Could not find referenced annotation (Did you misspell? Or forget an import?)." );
+		}
+		else if ( matchingClasses.size() > 1 )
+		{
+			throw new IllegalStateException();
+		}
+	}
+	
 	@Override
 	public void enterAccessMethodModifier( AccessMethodModifierContext accessMethodModifierContext )
 	{

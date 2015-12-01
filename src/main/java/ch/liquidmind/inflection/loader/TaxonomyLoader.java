@@ -242,13 +242,15 @@ public class TaxonomyLoader
 		memberLinked.setAlias( memberCompiled.getAlias() );
 		memberLinked.setSelectionType( memberCompiled.getSelectionType() );
 		
+		defineAnnotations( memberCompiled, memberLinked );
+		
 		return memberLinked;
 	}
 	
 	private void defineAnnotations( AnnotatableElementCompiled annotatableElementCompiled, AnnotatableElementLinked annotatableElementLinked )
 	{
 		for ( AnnotationCompiled annotationCompiled : annotatableElementCompiled.getAnnotationsCompiled() )
-			annotatableElementLinked.getAnnotations().add( createUnparsedAnnotation( annotationCompiled.getUnparsedAnnotation() ) );
+			annotatableElementLinked.getAnnotationsInternal().add( createUnparsedAnnotation( annotationCompiled.getUnparsedAnnotation() ) );
 	}
 	
 	private UnparsedAnnotation createUnparsedAnnotation( String value )

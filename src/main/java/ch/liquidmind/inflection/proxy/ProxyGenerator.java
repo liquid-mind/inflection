@@ -3,6 +3,7 @@ package ch.liquidmind.inflection.proxy;
 import java.io.File;
 import java.io.OutputStream;
 import java.io.PrintWriter;
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.ParameterizedType;
@@ -21,9 +22,11 @@ import ch.liquidmind.inflection.model.external.Property;
 import ch.liquidmind.inflection.model.external.Taxonomy;
 import ch.liquidmind.inflection.model.external.View;
 import ch.liquidmind.inflection.model.linked.NamedElementLinked;
+import ch.liquidmind.inflection.model.linked.UnparsedAnnotation;
 
 // TODO Proxies of abstract classes should be abstract themselves (since it doesn't
 // make sense to be able to instantiate a view of an un-instantiable class).
+// TODO Make ProxyGenerator work like InflectionCompiler, i.e., introduce a ProxyGeneratorJob, etc.
 public class ProxyGenerator
 {
 	private File baseDir;
@@ -98,6 +101,7 @@ public class ProxyGenerator
 		printWriter.println( "package " + NamedElementLinked.getPackageName( fqViewName ) + ";" );
 		printWriter.println();
 		
+		printWriter.println( String.join( " ", getAnnotations( view.getAnnotations() ) ) );
 		printWriter.println( "public class " + NamedElementLinked.getSimpleName( fqViewName ) + " extends " + getSuperClassName( view ) );
 		printWriter.println( "{" );
 		
@@ -163,12 +167,12 @@ public class ProxyGenerator
 	
 	private void generateProperty( String proxyGetMethodName, String proxySetMethodName, Property property )
 	{
-		generateProperty( proxyGetMethodName, property.getReadMethod() );
+		generateProperty( proxyGetMethodName, property.getReadMethod(), property.getAnnotations() );
 		printWriter.println();
-		generateProperty( proxySetMethodName, property.getWriteMethod() );
+		generateProperty( proxySetMethodName, property.getWriteMethod(), property.getAnnotations() );
 	}
 	
-	private void generateProperty( String proxyMethodName, Method targetMethod )
+	private void generateProperty( String proxyMethodName, Method targetMethod, List< Annotation > annotations )
 	{
 		if ( targetMethod == null )
 			return;
@@ -182,25 +186,27 @@ public class ProxyGenerator
 		Type[] targetParamTypesAsArray = targetParamTypes.toArray( new Type[ targetParamTypes.size() ] );
 		Type[] proxyParamTypesAsArray = proxyParamTypes.toArray( new Type[ proxyParamTypes.size() ] );
 		
-		generateMethod( proxyMethodName, proxyParamTypesAsArray, targetMethod.getName(), targetParamTypesAsArray, targetMethod.getGenericReturnType(), targetMethod.getExceptionTypes() );
+		generateMethod( proxyMethodName, proxyParamTypesAsArray, annotations, targetMethod.getName(), targetParamTypesAsArray, targetMethod.getGenericReturnType(), targetMethod.getExceptionTypes() );
 	}
 	
 	private void generateField( String proxyGetMethodName, String proxySetMethodName, Field field )
 	{
 		String name = field.getName();
 		String capName = name.substring( 0, 1 ).toUpperCase() + name.substring( 1 ); 
-		generateMethod( proxyGetMethodName, new Class< ? >[]{}, "get" + capName, new Class< ? >[]{}, field.getField().getType(), new Class< ? >[]{} );
-		generateMethod( proxySetMethodName, new Class< ? >[]{ field.getField().getType() }, "set" + capName, new Class< ? >[]{ field.getField().getType() }, void.class, new Class< ? >[]{} );
+		generateMethod( proxyGetMethodName, new Class< ? >[]{}, field.getAnnotations(), "get" + capName, new Class< ? >[]{}, field.getField().getType(), new Class< ? >[]{} );
+		generateMethod( proxySetMethodName, new Class< ? >[]{ field.getField().getType() }, field.getAnnotations(), "set" + capName, new Class< ? >[]{ field.getField().getType() }, void.class, new Class< ? >[]{} );
 	}
 
-	private void generateMethod( String proxyMethodName, Type[] proxyParamTypes, String targetMethodName, Type[] targetParamTypes, Type retType, Class< ? >[] exTypes )
+	private void generateMethod( String proxyMethodName, Type[] proxyParamTypes, List< Annotation > annotations, String targetMethodName, Type[] targetParamTypes, Type retType, Class< ? >[] exTypes )
 	{
+		String flatAnnotations = String.join( " ", getAnnotations( annotations ) );
 		String retTypeName = getTypeName( retType );
 		String parameters = String.join( ", ", getParameters( proxyParamTypes ) );
 		String exceptions = String.join( ", ", getExceptions( exTypes ) );
 		String paramsWithParens = ( parameters.isEmpty() ? "()" : "( " + parameters + " )" );
 		String execptionsWithThrows = ( exceptions.isEmpty() ? "" : " throws " + exceptions );
 		
+		printWriter.println( "    " + flatAnnotations );
 		printWriter.println( "    public " + retTypeName + " " + proxyMethodName + paramsWithParens + execptionsWithThrows );
 		printWriter.println( "    {" );
 		
@@ -231,6 +237,18 @@ public class ProxyGenerator
 		printWriter.println( "        }" );
 		
 		printWriter.println( "    }" );
+	}
+	
+	@SuppressWarnings( "unchecked" )
+	private String[] getAnnotations( List< Annotation > annotations )
+	{
+		List< UnparsedAnnotation > unparsedAnnotations = (List< UnparsedAnnotation >)(Object)annotations;
+		List< String > annotationsAsText = new ArrayList< String >();
+		
+		for ( UnparsedAnnotation unparsedAnnotation : unparsedAnnotations )
+			annotationsAsText.add( unparsedAnnotation.value() );
+		
+		return annotationsAsText.toArray( new String[ annotationsAsText.size() ] );
 	}
 
 	private void generateInvocation( String targetMethodName, Type[] proxyParamTypes, Type[] targetParamTypes, Type retType, Class< ? >[] exTypes )

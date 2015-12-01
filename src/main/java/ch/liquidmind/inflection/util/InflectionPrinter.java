@@ -1,6 +1,7 @@
 package ch.liquidmind.inflection.util;
 
 import java.io.PrintStream;
+import java.lang.annotation.Annotation;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -9,6 +10,7 @@ import ch.liquidmind.inflection.model.external.Taxonomy;
 import ch.liquidmind.inflection.model.external.View;
 import ch.liquidmind.inflection.model.linked.FieldLinked;
 import ch.liquidmind.inflection.model.linked.PropertyLinked;
+import ch.liquidmind.inflection.model.linked.UnparsedAnnotation;
 
 public class InflectionPrinter
 {
@@ -42,6 +44,7 @@ public class InflectionPrinter
 	
 	public void printTaxonomy( Taxonomy taxonomy, PrintStream printStream )
 	{
+		printAnnotations( taxonomy.getAnnotations() );
 		printWriter.print( "taxonomy " + getTypeName( taxonomy.getName() ) );
 		List< String > taxonomyNames = new ArrayList< String >();
 		
@@ -68,6 +71,7 @@ public class InflectionPrinter
 		{
 			View view = views.get( i );
 			
+			printAnnotations( view.getAnnotations() );
 			printWriter.print( "view " + getTypeName( view.getName() ) );
 			
 			if ( view.getAlias() != null )
@@ -110,6 +114,7 @@ public class InflectionPrinter
 					
 					String alias = ( member.getAlias() == null ? "" : " as " + member.getAlias() );
 					
+					printAnnotations( member.getAnnotations() );
 					printWriter.println( accessType + " " + member.getName() + alias + ";" );
 				}
 				
@@ -124,6 +129,15 @@ public class InflectionPrinter
 		printWriter.decreaseIndent();
 		printWriter.println( "}" );
 		printWriter.flush();
+	}
+	
+	private void printAnnotations( List< Annotation > annotations )
+	{
+		for ( Annotation annotation : annotations )
+		{
+			UnparsedAnnotation unparsedAnnotation = (UnparsedAnnotation)annotation;
+			printWriter.println( unparsedAnnotation.value() );				
+		}
 	}
 	
 	private String getTypeName( String fqTypeName )
