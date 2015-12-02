@@ -2,7 +2,7 @@
 \lyxformat 474
 \begin_document
 \begin_header
-\textclass sigplanconf
+\textclass extbook
 \begin_preamble
 \makeatletter
 \def\@copyrightspace{\relax}
@@ -87,11 +87,11 @@ John Brush, ZHAW, brsh@zhaw.ch
  December 2015
 \end_layout
 
-\begin_layout Section
+\begin_layout Chapter
 Language
 \end_layout
 
-\begin_layout Subsection
+\begin_layout Section
 Lexical Structure
 \begin_inset CommandInset label
 LatexCommand label
@@ -329,7 +329,7 @@ status open
 .
 \end_layout
 
-\begin_layout Subsection
+\begin_layout Section
 Compilation Units
 \begin_inset CommandInset label
 LatexCommand label
@@ -564,7 +564,7 @@ status open
  files in regards to packaging and linking/loading.
 \end_layout
 
-\begin_layout Subsection
+\begin_layout Section
 Taxonomies
 \begin_inset CommandInset label
 LatexCommand label
@@ -912,7 +912,7 @@ name "enu:Default-access-method"
 
 \end_layout
 
-\begin_layout Subsection
+\begin_layout Section
 Views
 \begin_inset CommandInset label
 LatexCommand label
@@ -1052,15 +1052,15 @@ A single view declaration may result in zero, one or more views in the compiled
  taxonomy.
 \end_layout
 
-\begin_layout Subsection
+\begin_layout Section
 Members
 \end_layout
 
-\begin_layout Subsection
+\begin_layout Section
 Annotations
 \end_layout
 
-\begin_layout Subsection
+\begin_layout Section
 Type References
 \begin_inset CommandInset label
 LatexCommand label
@@ -1071,7 +1071,7 @@ name "sub:Type-References"
 
 \end_layout
 
-\begin_layout Subsubsection
+\begin_layout Subsection
 Specific Type References
 \end_layout
 
@@ -1090,7 +1090,7 @@ Any error occurs of the simple name matches more than one type.
 \end_layout
 
 \end_deeper
-\begin_layout Subsubsection
+\begin_layout Subsection
 Type Selectors
 \end_layout
 
@@ -1131,11 +1131,11 @@ Type selectors may match zero, one or more types.
 \end_layout
 
 \end_deeper
-\begin_layout Section
+\begin_layout Chapter
 Errors and Warnings
 \end_layout
 
-\begin_layout Subsection
+\begin_layout Section
 Errors
 \end_layout
 
@@ -1156,11 +1156,11 @@ status open
  ().
 \end_layout
 
-\begin_layout Subsection
+\begin_layout Section
 Warnings
 \end_layout
 
-\begin_layout Section
+\begin_layout Chapter
 Tests
 \end_layout
 
