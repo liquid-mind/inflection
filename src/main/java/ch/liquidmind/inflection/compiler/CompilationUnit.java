@@ -18,6 +18,8 @@ public class CompilationUnit
 {
 	public static class CompilationUnitRaw
 	{
+		// TODO: should be using streams instead of files (allows for
+		// other sources of source code).
 		private File sourceFile;
 
 		public CompilationUnitRaw( File sourceFile )

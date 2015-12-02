@@ -1,0 +1,1415 @@
+#LyX 2.1 created this file. For more info see http://www.lyx.org/
+\lyxformat 474
+\begin_document
+\begin_header
+\textclass sigplanconf
+\begin_preamble
+\makeatletter
+\def\@copyrightspace{\relax}
+\makeatother
+\end_preamble
+\use_default_options true
+\maintain_unincluded_children false
+\language english
+\language_package default
+\inputencoding auto
+\fontencoding global
+\font_roman default
+\font_sans default
+\font_typewriter default
+\font_math auto
+\font_default_family default
+\use_non_tex_fonts false
+\font_sc false
+\font_osf false
+\font_sf_scale 100
+\font_tt_scale 100
+\graphics default
+\default_output_format default
+\output_sync 0
+\bibtex_command default
+\index_command default
+\paperfontsize default
+\spacing single
+\use_hyperref false
+\papersize default
+\use_geometry false
+\use_package amsmath 1
+\use_package amssymb 1
+\use_package cancel 1
+\use_package esint 1
+\use_package mathdots 1
+\use_package mathtools 1
+\use_package mhchem 1
+\use_package stackrel 1
+\use_package stmaryrd 1
+\use_package undertilde 1
+\cite_engine basic
+\cite_engine_type default
+\biblio_style plain
+\use_bibtopic false
+\use_indices false
+\paperorientation portrait
+\suppress_date false
+\justification true
+\use_refstyle 1
+\index Index
+\shortcut idx
+\color #008000
+\end_index
+\secnumdepth 3
+\tocdepth 3
+\paragraph_separation indent
+\paragraph_indentation default
+\quotes_language english
+\papercolumns 1
+\papersides 1
+\paperpagestyle default
+\tracking_changes false
+\output_changes false
+\html_math_output 0
+\html_css_as_file 0
+\html_be_strict false
+\end_header
+
+\begin_body
+
+\begin_layout Title
+The Inflection Language Specification
+\end_layout
+
+\begin_layout Author
+John Brush, ZHAW, brsh@zhaw.ch
+\end_layout
+
+\begin_layout Date
+1.
+ December 2015
+\end_layout
+
+\begin_layout Section
+Language
+\end_layout
+
+\begin_layout Subsection
+Lexical Structure
+\begin_inset CommandInset label
+LatexCommand label
+name "sub:Lexical-Structure"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+The lexical structure generally follows the Java conventions.
+\end_layout
+
+\begin_layout Enumerate
+White space as described in 
+\begin_inset CommandInset citation
+LatexCommand cite
+key "Gossling-2013"
+
+\end_inset
+
+, §3.6.
+\end_layout
+
+\begin_layout Enumerate
+Comments as described in 
+\begin_inset CommandInset citation
+LatexCommand cite
+key "Gossling-2013"
+
+\end_inset
+
+, §3.7.
+\begin_inset CommandInset label
+LatexCommand label
+name "enu:Comments"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Enumerate
+Identifiers as described in 
+\begin_inset CommandInset citation
+LatexCommand cite
+key "Gossling-2013"
+
+\end_inset
+
+, §3.8.
+\begin_inset CommandInset label
+LatexCommand label
+name "enu:Identifiers"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Enumerate
+Keywords include all Java keywords (see 
+\begin_inset CommandInset citation
+LatexCommand cite
+key "Gossling-2013"
+
+\end_inset
+
+, §3.9) as well as the following keywords exclusive to Inflection: 
+\begin_inset listings
+lstparams "basicstyle={\ttfamily}"
+inline true
+status open
+
+\begin_layout Plain Layout
+
+default
+\end_layout
+
+\end_inset
+
+, 
+\begin_inset listings
+lstparams "basicstyle={\ttfamily}"
+inline true
+status open
+
+\begin_layout Plain Layout
+
+taxonomy
+\end_layout
+
+\end_inset
+
+, 
+\begin_inset listings
+lstparams "basicstyle={\ttfamily}"
+inline true
+status open
+
+\begin_layout Plain Layout
+
+view
+\end_layout
+
+\end_inset
+
+, 
+\begin_inset listings
+lstparams "basicstyle={\ttfamily}"
+inline true
+status open
+
+\begin_layout Plain Layout
+
+use
+\end_layout
+
+\end_inset
+
+, 
+\begin_inset listings
+lstparams "basicstyle={\ttfamily}"
+inline true
+status open
+
+\begin_layout Plain Layout
+
+property
+\end_layout
+
+\end_inset
+
+, 
+\begin_inset listings
+lstparams "basicstyle={\ttfamily}"
+inline true
+status open
+
+\begin_layout Plain Layout
+
+field
+\end_layout
+
+\end_inset
+
+, 
+\begin_inset listings
+lstparams "basicstyle={\ttfamily}"
+inline true
+status open
+
+\begin_layout Plain Layout
+
+include
+\end_layout
+
+\end_inset
+
+, 
+\begin_inset listings
+lstparams "basicstyle={\ttfamily}"
+inline true
+status open
+
+\begin_layout Plain Layout
+
+exclude
+\end_layout
+
+\end_inset
+
+, 
+\begin_inset listings
+lstparams "basicstyle={\ttfamily}"
+inline true
+status open
+
+\begin_layout Plain Layout
+
+as
+\end_layout
+
+\end_inset
+
+.
+\begin_inset CommandInset label
+LatexCommand label
+name "enu:Keywords"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Enumerate
+Separators are a subset of 
+\begin_inset CommandInset citation
+LatexCommand cite
+key "Gossling-2013"
+
+\end_inset
+
+, §3.11: 
+\begin_inset listings
+lstparams "basicstyle={\ttfamily}"
+inline true
+status open
+
+\begin_layout Plain Layout
+
+( ) { } ; , .
+\end_layout
+
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Enumerate
+There is a single operator, the wildcard operator 
+\begin_inset listings
+lstparams "basicstyle={\ttfamily}"
+inline true
+status open
+
+\begin_layout Plain Layout
+
+*
+\end_layout
+
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Subsection
+Compilation Units
+\begin_inset CommandInset label
+LatexCommand label
+name "sub:Compilation-Units"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Enumerate
+Compilation units are defined in files ending in 
+\begin_inset listings
+lstparams "basicstyle={\ttfamily}"
+inline true
+status open
+
+\begin_layout Plain Layout
+
+.inflect
+\end_layout
+
+\end_inset
+
+ (TBD: clarify this).
+\begin_inset CommandInset label
+LatexCommand label
+name "enu:Files-end-in-inflect"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Enumerate
+Each compilation unit is structured as zero or one 
+\begin_inset listings
+lstparams "basicstyle={\ttfamily}"
+inline true
+status open
+
+\begin_layout Plain Layout
+
+package
+\end_layout
+
+\end_inset
+
+ declarations, followed by zero or more 
+\begin_inset listings
+lstparams "basicstyle={\ttfamily}"
+inline true
+status open
+
+\begin_layout Plain Layout
+
+import
+\end_layout
+
+\end_inset
+
+ declarations, followed by zero or more 
+\begin_inset listings
+lstparams "basicstyle={\ttfamily}"
+inline true
+status open
+
+\begin_layout Plain Layout
+
+taxonomy
+\end_layout
+
+\end_inset
+
+ declarations.
+\begin_inset CommandInset label
+LatexCommand label
+name "enu:Compilation-unit-syntax"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Enumerate
+The name specified by the 
+\begin_inset listings
+lstparams "basicstyle={\ttfamily}"
+inline true
+status open
+
+\begin_layout Plain Layout
+
+package
+\end_layout
+
+\end_inset
+
+ declaration must correspond to the file name as described in 
+\begin_inset CommandInset citation
+LatexCommand cite
+key "Gossling-2013"
+
+\end_inset
+
+, §7.2 (TBD: clarify this).
+\begin_inset CommandInset label
+LatexCommand label
+name "enu:package-to-file-name-correlation"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Enumerate
+Inflection also supports unnamed packages as described in 
+\begin_inset CommandInset citation
+LatexCommand cite
+key "Gossling-2013"
+
+\end_inset
+
+, §7.4.2.
+\begin_inset CommandInset label
+LatexCommand label
+name "enu:unnamed-package"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Enumerate
+Inflection supports Single-Type-Import and Type-Import-On-Demand declarations
+ as described in 
+\begin_inset CommandInset citation
+LatexCommand cite
+key "Gossling-2013"
+
+\end_inset
+
+, §7.5.1 and §7.5.2, respectively.
+\begin_inset CommandInset label
+LatexCommand label
+name "enu:imports"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Enumerate
+Single-Type-Imports may not point to types in different packages that share
+ a common same simple name.
+\begin_inset CommandInset label
+LatexCommand label
+name "enu:Single-Type-Imports"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Enumerate
+As in Java, the unnamed and the 
+\begin_inset listings
+lstparams "basicstyle={\ttfamily}"
+inline true
+status open
+
+\begin_layout Plain Layout
+
+java.lang
+\end_layout
+
+\end_inset
+
+ packages are always automatically imported.
+ Additionally the package 
+\begin_inset listings
+lstparams "basicstyle={\ttfamily}"
+inline true
+status open
+
+\begin_layout Plain Layout
+
+ch.liquidmind.inflection
+\end_layout
+
+\end_inset
+
+ is also always automatically imported.
+ These reserved package prefixes cannot be used for user taxonomies.
+\begin_inset CommandInset label
+LatexCommand label
+name "enu:Reserved-packages"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Enumerate
+Compilation units result in zero or more compiled taxonomies, each in its
+ own 
+\begin_inset listings
+lstparams "basicstyle={\ttfamily}"
+inline true
+status open
+
+\begin_layout Plain Layout
+
+.tax
+\end_layout
+
+\end_inset
+
+ file; these files are analogous to 
+\begin_inset listings
+lstparams "basicstyle={\ttfamily}"
+inline true
+status open
+
+\begin_layout Plain Layout
+
+.class
+\end_layout
+
+\end_inset
+
+ files in regards to packaging and linking/loading.
+\end_layout
+
+\begin_layout Subsection
+Taxonomies
+\begin_inset CommandInset label
+LatexCommand label
+name "sub:Taxonomies"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Enumerate
+Taxonomy names must follow the rules for identifiers (§
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "sub:Lexical-Structure"
+
+\end_inset
+
+, 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "enu:Identifiers"
+
+\end_inset
+
+).
+\end_layout
+
+\begin_layout Enumerate
+Taxonomy names must be unique within the package of the compilation unit.
+\begin_inset CommandInset label
+LatexCommand label
+name "enu:Taxonomy-names-must-unique"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Enumerate
+Taxonomies may declare zero or more 
+\emph on
+views
+\emph default
+ (§
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "sub:Views"
+
+\end_inset
+
+).
+\begin_inset CommandInset label
+LatexCommand label
+name "enu:View-multiplicity"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Enumerate
+
+\end_layout
+
+\begin_layout Enumerate
+Taxonomies may inherit from one or more other taxonomies.
+ The syntax is 
+\begin_inset listings
+lstparams "basicstyle={\ttfamily}"
+inline true
+status open
+
+\begin_layout Plain Layout
+
+extends T1, T2, ...
+ Tn
+\end_layout
+
+\end_inset
+
+, where 
+\begin_inset listings
+lstparams "basicstyle={\ttfamily}"
+inline true
+status open
+
+\begin_layout Plain Layout
+
+T1
+\end_layout
+
+\end_inset
+
+ to 
+\begin_inset listings
+lstparams "basicstyle={\ttfamily}"
+inline true
+status open
+
+\begin_layout Plain Layout
+
+T2
+\end_layout
+
+\end_inset
+
+ are super-taxonomies.
+ If no specific super-taxonomy is specified then the default is the root
+ taxonomy 
+\begin_inset listings
+lstparams "basicstyle={\ttfamily}"
+inline true
+status open
+
+\begin_layout Plain Layout
+
+ch.liquidmind.inflection.Taxonomy
+\end_layout
+
+\end_inset
+
+.
+ The order of taxonomies in the declaration is directly related to the precedenc
+e of inheritence, thus: given the features 
+\begin_inset listings
+lstparams "basicstyle={\ttfamily}"
+inline true
+status open
+
+\begin_layout Plain Layout
+
+f1
+\end_layout
+
+\end_inset
+
+ in 
+\begin_inset listings
+lstparams "basicstyle={\ttfamily}"
+inline true
+status open
+
+\begin_layout Plain Layout
+
+T1
+\end_layout
+
+\end_inset
+
+ and 
+\begin_inset listings
+lstparams "basicstyle={\ttfamily}"
+inline true
+status open
+
+\begin_layout Plain Layout
+
+f2
+\end_layout
+
+\end_inset
+
+ in 
+\begin_inset listings
+lstparams "basicstyle={\ttfamily}"
+inline true
+status open
+
+\begin_layout Plain Layout
+
+T2
+\end_layout
+
+\end_inset
+
+, where 
+\begin_inset listings
+lstparams "basicstyle={\ttfamily}"
+inline true
+status open
+
+\begin_layout Plain Layout
+
+f1
+\end_layout
+
+\end_inset
+
+ and 
+\begin_inset listings
+lstparams "basicstyle={\ttfamily}"
+inline true
+status open
+
+\begin_layout Plain Layout
+
+f2
+\end_layout
+
+\end_inset
+
+ refer to the same thing (i.e., same view or are both default declarations),
+ 
+\begin_inset listings
+lstparams "basicstyle={\ttfamily}"
+inline true
+status open
+
+\begin_layout Plain Layout
+
+f1
+\end_layout
+
+\end_inset
+
+ takes precedence because 
+\begin_inset listings
+lstparams "basicstyle={\ttfamily}"
+inline true
+status open
+
+\begin_layout Plain Layout
+
+T1
+\end_layout
+
+\end_inset
+
+ is listed before 
+\begin_inset listings
+lstparams "basicstyle={\ttfamily}"
+inline true
+status open
+
+\begin_layout Plain Layout
+
+T2
+\end_layout
+
+\end_inset
+
+.
+\begin_inset CommandInset label
+LatexCommand label
+name "enu:Taxonomies-inheritence"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Enumerate
+Taxonomies may define a default 
+\emph on
+access method
+\emph default
+ (
+\begin_inset listings
+lstparams "basicstyle={\ttfamily}"
+inline true
+status open
+
+\begin_layout Plain Layout
+
+property
+\end_layout
+
+\end_inset
+
+|
+\begin_inset listings
+lstparams "basicstyle={\ttfamily}"
+inline true
+status open
+
+\begin_layout Plain Layout
+
+field
+\end_layout
+
+\end_inset
+
+) for members occuring within it.
+ The syntax is 
+\begin_inset listings
+lstparams "basicstyle={\ttfamily}"
+inline true
+status open
+
+\begin_layout Plain Layout
+
+default (property|field);
+\end_layout
+
+\end_inset
+
+.
+ Taxonomies that do not declare a default inherit the default of the first
+ super-taxonomy.
+ The default of the root taxonomy is 
+\begin_inset listings
+lstparams "basicstyle={\ttfamily}"
+inline true
+status open
+
+\begin_layout Plain Layout
+
+property
+\end_layout
+
+\end_inset
+
+.
+\begin_inset CommandInset label
+LatexCommand label
+name "enu:Default-access-method"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsection
+Views
+\begin_inset CommandInset label
+LatexCommand label
+name "sub:Views"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Enumerate
+View declarations specify one or more referenced classes using the syntax
+ 
+\begin_inset listings
+lstparams "basicstyle={\ttfamily}"
+inline true
+status open
+
+\begin_layout Plain Layout
+
+view R1, R2, ...
+ Rn
+\end_layout
+
+\end_inset
+
+, where 
+\begin_inset listings
+lstparams "basicstyle={\ttfamily}"
+inline true
+status open
+
+\begin_layout Plain Layout
+
+R1
+\end_layout
+
+\end_inset
+
+ to 
+\begin_inset listings
+lstparams "basicstyle={\ttfamily}"
+inline true
+status open
+
+\begin_layout Plain Layout
+
+Rn
+\end_layout
+
+\end_inset
+
+ are either specific class references or class selectors (§
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "sub:Type-References"
+
+\end_inset
+
+).
+\end_layout
+
+\begin_layout Enumerate
+The sets of classes specified by the references may overlap; in this case
+ precedence is determined by the order in the declaration.
+ For example, if class 
+\begin_inset listings
+lstparams "basicstyle={\ttfamily}"
+inline true
+status open
+
+\begin_layout Plain Layout
+
+C1
+\end_layout
+
+\end_inset
+
+ occurs in 
+\begin_inset listings
+lstparams "basicstyle={\ttfamily}"
+inline true
+status open
+
+\begin_layout Plain Layout
+
+R1
+\end_layout
+
+\end_inset
+
+ and 
+\begin_inset listings
+lstparams "basicstyle={\ttfamily}"
+inline true
+status open
+
+\begin_layout Plain Layout
+
+R2
+\end_layout
+
+\end_inset
+
+, then 
+\begin_inset listings
+lstparams "basicstyle={\ttfamily}"
+inline true
+status open
+
+\begin_layout Plain Layout
+
+C1
+\end_layout
+
+\end_inset
+
+ from 
+\begin_inset listings
+lstparams "basicstyle={\ttfamily}"
+inline true
+status open
+
+\begin_layout Plain Layout
+
+R1
+\end_layout
+
+\end_inset
+
+ has precedence.
+ This is particularly relevant for aliases (§TBD).
+\end_layout
+
+\begin_layout Enumerate
+A single view declaration may result in zero, one or more views in the compiled
+ taxonomy.
+\end_layout
+
+\begin_layout Subsection
+Members
+\end_layout
+
+\begin_layout Subsection
+Annotations
+\end_layout
+
+\begin_layout Subsection
+Type References
+\begin_inset CommandInset label
+LatexCommand label
+name "sub:Type-References"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsubsection
+Specific Type References
+\end_layout
+
+\begin_layout Enumerate
+Analogous to Java type references; resolution of unqualified (simple) type
+ names is performed by comparing that name with any imported types or packages:
+\end_layout
+
+\begin_deeper
+\begin_layout Enumerate
+An error occurs if the simple name does not match any type.
+\end_layout
+
+\begin_layout Enumerate
+Any error occurs of the simple name matches more than one type.
+\end_layout
+
+\end_deeper
+\begin_layout Subsubsection
+Type Selectors
+\end_layout
+
+\begin_layout Enumerate
+Similar to Java type references, but includes the use of the 
+\emph on
+wildcard operator
+\emph default
+ (
+\begin_inset listings
+lstparams "basicstyle={\ttfamily}"
+inline true
+status open
+
+\begin_layout Plain Layout
+
+*
+\end_layout
+
+\end_inset
+
+):
+\end_layout
+
+\begin_deeper
+\begin_layout Enumerate
+Imported packages are first resolved into (virtually) imported types by
+ identifying any matching types found amoung the set of known types (i.e.,
+ compiled types from the class path or uncompiled types in the (known) source
+ code).
+ These virtual imported types are combined with the non-virtual imported
+ types, and the results are compared one by one with the type selector,
+ resulting in a set of matching types.
+\end_layout
+
+\begin_layout Enumerate
+Type selectors may match zero, one or more types.
+\end_layout
+
+\end_deeper
+\begin_layout Section
+Errors and Warnings
+\end_layout
+
+\begin_layout Subsection
+Errors
+\end_layout
+
+\begin_layout Enumerate
+If the file name of the compilation unit does not end with 
+\begin_inset listings
+lstparams "basicstyle={\ttfamily}"
+inline true
+status open
+
+\begin_layout Plain Layout
+
+.inflect
+\end_layout
+
+\end_inset
+
+ ().
+\end_layout
+
+\begin_layout Subsection
+Warnings
+\end_layout
+
+\begin_layout Section
+Tests
+\end_layout
+
+\begin_layout Enumerate
+Test single- and multi-line comments (§
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "sub:Lexical-Structure"
+
+\end_inset
+
+, 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "enu:Comments"
+
+\end_inset
+
+).
+\end_layout
+
+\begin_layout Enumerate
+Test identifiers (§
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "sub:Lexical-Structure"
+
+\end_inset
+
+, 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "enu:Identifiers"
+
+\end_inset
+
+).
+\end_layout
+
+\begin_layout Enumerate
+Test reserved keywords (parameterized tests) (§
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "sub:Lexical-Structure"
+
+\end_inset
+
+, 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "enu:Keywords"
+
+\end_inset
+
+).
+\end_layout
+
+\begin_layout Enumerate
+Test empty compilation unit (should 
+\begin_inset Quotes eld
+\end_inset
+
+compile
+\begin_inset Quotes erd
+\end_inset
+
+) (§
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "sub:Compilation-Units"
+
+\end_inset
+
+, 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "enu:Compilation-unit-syntax"
+
+\end_inset
+
+).
+\end_layout
+
+\begin_layout Enumerate
+Look into how javac handles suffixes and package to file name correlations
+ and formulate tests correspondingly (§
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "sub:Compilation-Units"
+
+\end_inset
+
+, 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "enu:Files-end-in-inflect"
+
+\end_inset
+
+ & 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "enu:package-to-file-name-correlation"
+
+\end_inset
+
+).
+\end_layout
+
+\begin_layout Enumerate
+Test unnamed package (§
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "sub:Compilation-Units"
+
+\end_inset
+
+, 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "enu:unnamed-package"
+
+\end_inset
+
+); create taxonomy in unnamed package and reference from a) taxonomy in
+ named package and b) taxonmy in unnamed package.
+ What happens when two taxonomies with the same simple name are in both
+ named and unnamed packages? Which has precedence? Does this cause an error
+ due to ambiguity? What does the Java spec say?
+\end_layout
+
+\begin_layout Enumerate
+Test single-type-import naming conflicts (§
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "sub:Compilation-Units"
+
+\end_inset
+
+, 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "enu:Single-Type-Imports"
+
+\end_inset
+
+).
+\end_layout
+
+\begin_layout Enumerate
+Test resolution of specific type references:
+\end_layout
+
+\begin_deeper
+\begin_layout Enumerate
+Resolution of simple names versus fully-qualified names.
+\end_layout
+
+\begin_layout Enumerate
+Resolution in conjunction with type imports versus package imports.
+\end_layout
+
+\begin_layout Enumerate
+Resolution of compiled (class path) versus uncompiled types (compilation
+ units).
+\end_layout
+
+\end_deeper
+\begin_layout Enumerate
+Test automatic imports and reserved package names (§
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "sub:Compilation-Units"
+
+\end_inset
+
+, 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "enu:Single-Type-Imports"
+
+\end_inset
+
+).
+ Consider introducing mechanism for taking source code from test classes
+ directly (see 
+\begin_inset listings
+lstparams "basicstyle={\ttfamily}"
+inline true
+status open
+
+\begin_layout Plain Layout
+
+IndentingPrintWriter
+\end_layout
+
+\end_inset
+
+ ).
+\end_layout
+
+\begin_layout Enumerate
+Test taxonomy name uniqueness (§
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "sub:Taxonomies"
+
+\end_inset
+
+, 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "enu:Taxonomy-names-must-unique"
+
+\end_inset
+
+).
+ Taxonomy must be unique across compiled (class path) and uncompiled types
+ (compilation units).
+\end_layout
+
+\begin_layout Enumerate
+Test empty taxonomy (§
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "sub:Taxonomies"
+
+\end_inset
+
+, 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "enu:View-multiplicity"
+
+\end_inset
+
+).
+\end_layout
+
+\begin_layout Enumerate
+Test taxonomy inheritence (including views and default access method) (§
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "sub:Taxonomies"
+
+\end_inset
+
+, 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "enu:Taxonomies-inheritence"
+
+\end_inset
+
+ & 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "enu:Default-access-method"
+
+\end_inset
+
+).
+\end_layout
+
+\begin_layout Bibliography
+\begin_inset CommandInset bibitem
+LatexCommand bibitem
+key "Gossling-2013"
+
+\end_inset
+
+The Java Language Specificiation (Java SE 7 Edition), Gosling et al., 
+\end_layout
+
+\end_body
+\end_document

@@ -91,7 +91,7 @@ taxonomyBody
 
 defaultAccessMethodModifier
 	:	DEFAULT accessMethodModifier SEMICOLON
-	|	// default is INHERITED
+	|	// default is null
 	;
 
 // VIEW
@@ -164,7 +164,7 @@ excludeMemberModifier
 accessMethodModifier
 	:	PROPERTY
 	|	FIELD
-	|	// default is INHERITED
+	|	// default is null
 	;
 
 includableMemberSelector
@@ -263,7 +263,6 @@ VIEW		: 'view';
 USE			: 'use';
 PROPERTY	: 'property';
 FIELD		: 'field';
-INHERITED	: 'inherited';
 INCLUDE		: 'include';
 EXCLUDE		: 'exclude';
 AS			: 'as';

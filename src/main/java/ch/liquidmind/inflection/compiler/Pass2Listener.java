@@ -81,6 +81,11 @@ public class Pass2Listener extends AbstractInflectionListener
 	private SelectionType currentMemberSelectionType;
 	private AccessType currentAccessType;
 	
+	// TODO: I think there may be a bug with the currentAccessType similar to what we
+	// had with currentAnnotation: since the variable is being using in various contexts,
+	// it may yield incorrect values for higher productions if lower productions have
+	// overwritten it.
+	
 	public Pass2Listener( CompilationUnit compilationUnit )
 	{
 		super( compilationUnit );
