@@ -9,9 +9,10 @@ public class MemberCompiled extends AliasableElementCompiled
 	private AccessType accessType;
 	private ViewCompiled parentViewCompiled;
 	
-	public MemberCompiled( String name )
+	public MemberCompiled( String name, ViewCompiled parentViewCompiled )
 	{
 		super( name );
+		this.parentViewCompiled = parentViewCompiled;
 	}
 
 	public AccessType getAccessType()

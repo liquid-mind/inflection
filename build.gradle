@@ -51,6 +51,11 @@ sourceSets {
     }
 }
 
+def debugLevelArg = "source,lines,vars";
+compileJava.options.debugOptions.debugLevel = debugLevelArg;
+compileTestModelJava.options.debugOptions.debugLevel = debugLevelArg;
+compileTestJava.options.debugOptions.debugLevel = debugLevelArg;
+
 dependencies {
 	compile( "commons-io:commons-io:2.4" ) { transitive = false }
 	compile( "__commons-io:commons-io:2.4" ) { transitive = false }
@@ -81,21 +86,26 @@ compileJava.dependsOn antlr4
 sourceSets.main.java.srcDirs += "$buildDir/generated/antlr"
 
 // Debugging
-def debugInflectionCompiler="";
-def debugProxyGenerator="";
-if (this.hasProperty("debugInflectionCompilerAddress")) {
-    debugInflectionCompiler="-agentlib:jdwp=transport=dt_socket,address=$debugInflectionCompilerAddress,server=y,suspend=y";	
-}
-if (this.hasProperty("debugProxyGeneratorAddress")) {
-    debugProxyGenerator="-agentlib:jdwp=transport=dt_socket,address=$debugProxyGeneratorAddress,server=y,suspend=y";	
-}
+def debugInflectionCompilerArg;
+def debugProxyGeneratorArg;
+def debugArg = "-agentlib:jdwp=transport=dt_socket,address=9009,server=y,suspend=y";
+def dummyArg = "-DdummyArg";	// necessary if Mac OS X (other UNIX variants?)
+
+if ( this.hasProperty( "debugInflectionCompiler" ) )
+    debugInflectionCompilerArg = debugArg;
+else
+	debugInflectionCompilerArg = dummyArg;
+if ( this.hasProperty( "debugProxyGenerator" ) )
+    debugProxyGeneratorArg = debugArg;
+else
+	debugProxyGeneratorArg = dummyArg;
 
 // Inflect test model
 task( compileTestTaxonomiesInflection, dependsOn: compileTestModelJava, type: JavaExec ) {
 	main = "ch.liquidmind.inflection.compiler.InflectionCompiler"
 	classpath = sourceSets.main.runtimeClasspath + sourceSets.testModel.runtimeClasspath
-	jvmArgs '-ea', debugInflectionCompiler
-	args "${buildDir}/resources/testModel", "BOOTSTRAP", "src/test/resources/ch/liquidmind/inflection/test/model/TestModel.inflect"
+	jvmArgs = [ "-ea", "$debugInflectionCompilerArg" ]
+	args = [ "${buildDir}/resources/testModel", "BOOTSTRAP", "src/test/resources/ch/liquidmind/inflection/test/model/TestModel.inflect" ]
 }
 
 compileTestTaxonomiesInflection.doFirst {
@@ -106,13 +116,13 @@ compileTestTaxonomiesInflection.doFirst {
 task( proxifyTestTaxonomies, dependsOn: compileTestTaxonomiesInflection, type: JavaExec ) {
 	main = "ch.liquidmind.inflection.proxy.ProxyGenerator"
 	classpath = sourceSets.main.runtimeClasspath + sourceSets.testModel.runtimeClasspath
-	jvmArgs '-ea', debugProxyGenerator
-	args "${buildDir}/generated/inflection",
+	jvmArgs = [ "-ea", "$debugProxyGeneratorArg" ]
+	args = [ "${buildDir}/generated/inflection",
 	"ch.liquidmind.inflection.test.model.FullTaxonomy",
 	"ch.liquidmind.inflection.test.model.UseCase1",
 	"ch.liquidmind.inflection.test.model.UseCase2",
 	"ch.liquidmind.inflection.test.model.UseCase3",
-	"ch.liquidmind.inflection.test.model.UseCase4"
+	"ch.liquidmind.inflection.test.model.UseCase4" ]
 }
 
 // Compile test

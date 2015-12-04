@@ -88,7 +88,7 @@ public class ViewLinked extends AliasableElementLinked implements View
 		return members;
 	}
 
-	@SuppressWarnings( "unchecked" )
+	@SuppressWarnings( { "unchecked" } )
 	@Override
 	public List< Member > getDeclaredMembers()
 	{
