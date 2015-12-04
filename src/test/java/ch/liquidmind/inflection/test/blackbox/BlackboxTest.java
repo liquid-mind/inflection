@@ -19,6 +19,7 @@ import ch.liquidmind.inflection.model.external.util.TaxonomyTestUtility;
 import ch.liquidmind.inflection.proxy.Proxy;
 import ch.liquidmind.inflection.proxy.ProxyRegistry;
 import ch.liquidmind.inflection.proxy.util.ProxyGeneratorTestUtility;
+import ch.liquidmind.inflection.test.InflectionFileMock;
 import ch.liquidmind.inflection.test.TestUtility;
 import ch.liquidmind.inflection.test.model.B1;
 import ch.liquidmind.inflection.test.model.TestEnum;
@@ -35,7 +36,24 @@ public class BlackboxTest
 	@BeforeClass
 	public static void beforeClass() throws Exception
 	{
-		compiledTaxonomyDir = InflectionCompilerTestUtility.compileInflectionFile( BlackboxTest.class, "BlackboxTest.inflect" );
+		StringBuilder builder = new StringBuilder();
+		builder.append( "package ch.liquidmind.inflection.test.blackbox;" );
+		builder.append( "import ch.liquidmind.inflection.test.model.*;" );
+		builder.append( "taxonomy BlackboxTestTaxonomy" );
+		builder.append( "{" );
+		builder.append( "	view B1 { *; }	" );
+		builder.append( "}" );
+		builder.append( "taxonomy BlackboxTestChildTaxonomy extends BlackboxTestTaxonomy " );
+		builder.append( "{" );
+		builder.append( "	view * { *; }	" );
+		builder.append( "}" );
+		builder.append( "taxonomy BlackboxTestCalculatedTaxonomy extends BlackboxTestTaxonomy" );
+		builder.append( "{" );
+		// view B1 use B1CalculatedMembers { *; }
+		builder.append( "	view B1 { *; }" );
+		builder.append( "}" );
+
+		compiledTaxonomyDir = InflectionCompilerTestUtility.compileInflection( new InflectionFileMock("ch.liquidmind.inflection.test.blackbox", builder.toString()) );
 		Taxonomy taxonomy = TaxonomyTestUtility.getTestTaxonomy( compiledTaxonomyDir, BlackboxTest.class.getPackage().getName(), "BlackboxTestTaxonomy" );
 		View view = taxonomy.getView( B1.class.getName() );
 		compiledProxyDir = ProxyGeneratorTestUtility.createProxy( taxonomy, view );
@@ -84,17 +102,21 @@ public class BlackboxTest
 		Object result = TestUtility.invokeMethod( b1Proxy, "getListMember" );
 		assertNotNull( result );
 		// TODO currently not working due to classloading issues
-//		Object b1ListProxyElement = ( (ListProxy< ? >)result ).get( 0 );
-//		assertNotNull( b1ListProxyElement );
-//		assertEquals( TESTSTRING, TestUtility.invokeMethod( b1ListProxyElement, "getStringMember" ) );
-//
-//		TestUtility.invokeMethod( b1ListProxyElement, "setStringMember", TESTSTRING2 );
-//		assertEquals( "String was updated by proxy", TESTSTRING2, TestUtility.invokeMethod( b1, "getStringMember" ) );
+		// Object b1ListProxyElement = ( (ListProxy< ? >)result ).get( 0 );
+		// assertNotNull( b1ListProxyElement );
+		// assertEquals( TESTSTRING, TestUtility.invokeMethod(
+		// b1ListProxyElement, "getStringMember" ) );
+		//
+		// TestUtility.invokeMethod( b1ListProxyElement, "setStringMember",
+		// TESTSTRING2 );
+		// assertEquals( "String was updated by proxy", TESTSTRING2,
+		// TestUtility.invokeMethod( b1, "getStringMember" ) );
 	}
 
 	private Proxy createTestViewB1() throws ClassNotFoundException, IOException, InstantiationException, IllegalAccessException
 	{
-		Proxy proxy = ProxyGeneratorTestUtility.loadProxy( compiledTaxonomyDir, compiledProxyDir, "ch.liquidmind.inflection.test.blackbox.BlackboxTestTaxonomy.ch.liquidmind.inflection.test.model.BlackboxTestTaxonomy_B1" );
+		Proxy proxy = ProxyGeneratorTestUtility
+			.loadProxy( compiledTaxonomyDir, compiledProxyDir, "ch.liquidmind.inflection.test.blackbox.BlackboxTestTaxonomy.ch.liquidmind.inflection.test.model.BlackboxTestTaxonomy_B1" );
 		return proxy;
 	}
 
