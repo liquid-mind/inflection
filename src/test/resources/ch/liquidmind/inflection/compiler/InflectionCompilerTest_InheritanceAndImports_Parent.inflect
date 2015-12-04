@@ -1,8 +1,0 @@
-package ch.liquidmind.inflection.compiler;
-
-import ch.liquidmind.inflection.test.model.*;
-
-taxonomy InflectionCompilerTest_InheritanceAndImports_ParentTaxonomy
-{
-	view A {}		
-}

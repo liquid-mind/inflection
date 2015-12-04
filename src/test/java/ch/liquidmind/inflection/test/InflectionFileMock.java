@@ -6,6 +6,12 @@ public class InflectionFileMock
 	private String packageName;
 	private String content;
 
+	/**
+	 * Simulates an *.inflect file for unit testing
+	 * 
+	 * @param packageName the target directory location (written as package name)
+	 * @param content the file content (including package name)
+	 */
 	public InflectionFileMock( String packageName, String content )
 	{
 		super();

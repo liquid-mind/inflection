@@ -45,6 +45,7 @@ public final class InflectionCompilerTestUtility
 		}
 		File root = Files.createTempDir();
 		List<File> inflectFileList = new ArrayList<>();
+		int c = 0;
 		for (InflectionFileMock mock : inflectionFileMocks) {
 			File dir = root;
 			String[] parts = mock.getPackageName().split( "\\." );
@@ -52,7 +53,7 @@ public final class InflectionCompilerTestUtility
 				dir = new File( dir, part );
 				dir.mkdir();
 			}
-			File inflectFile = new File( dir.getAbsolutePath() + File.separatorChar + "temp.inflect" );
+			File inflectFile = new File( dir.getAbsolutePath() + File.separatorChar + c + ".inflect" );
 			try {
 				__File.createNewFile( inflectFile );
 				FileWriter fileWriter = new FileWriter( inflectFile ); 
@@ -62,6 +63,7 @@ public final class InflectionCompilerTestUtility
 			} catch (IOException exception) {
 				throw new RuntimeException( exception );
 			} 
+			c++;
 		}
 		return new CompilationJob( TaxonomyLoader.getSystemTaxonomyLoader(), Files.createTempDir(), CompilationMode.BOOTSTRAP, inflectFileList.toArray( new File[inflectFileList.size()] ) );
 	}

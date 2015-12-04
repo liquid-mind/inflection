@@ -1,6 +1,0 @@
-package ch.liquidmind.inflection.compiler;
-
-taxonomy InflectionCompilerTest_InheritanceAndImports_LegalChildImportTaxonomy extends InflectionCompilerTest_InheritanceAndImports_ParentTaxonomy
-{
-	view * {}		// legal, but doesn’t refer to A (but rather to all classes in this package)
-}

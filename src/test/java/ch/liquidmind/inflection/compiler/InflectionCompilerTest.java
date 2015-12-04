@@ -4,6 +4,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
+import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
 
@@ -12,6 +13,21 @@ import ch.liquidmind.inflection.test.InflectionFileMock;
 
 public class InflectionCompilerTest
 {
+
+	private static String parentTaxonomy;
+
+	@BeforeClass
+	public static void beforeClass() throws Exception
+	{
+		StringBuilder parentTaxonomyBuilder = new StringBuilder();
+		parentTaxonomyBuilder.append( "package ch.liquidmind.inflection.compiler;" );
+		parentTaxonomyBuilder.append( "import ch.liquidmind.inflection.test.model.*;" );
+		parentTaxonomyBuilder.append( "taxonomy InflectionCompilerTest_InheritanceAndImports_ParentTaxonomy" );
+		parentTaxonomyBuilder.append( "{" );
+		parentTaxonomyBuilder.append( "	view A {}	" );
+		parentTaxonomyBuilder.append( "}" );
+		parentTaxonomy = parentTaxonomyBuilder.toString();
+	}
 
 	@Test
 	public void testCompile_ValidFile_SuccessfulCompilation() throws Exception
@@ -31,7 +47,7 @@ public class InflectionCompilerTest
 		builder.append( "	view * { *; }" );
 		builder.append( "}" );
 
-		CompilationJob job = InflectionCompilerTestUtility.createCompilationJob( new InflectionFileMock("ch.liquidmind.inflection.compiler", builder.toString()) );
+		CompilationJob job = InflectionCompilerTestUtility.createCompilationJob( new InflectionFileMock( "ch.liquidmind.inflection.compiler", builder.toString() ) );
 		InflectionCompiler.compile( job );
 		assertFalse( "Compilation units must exist", job.getCompilationUnits().isEmpty() );
 		assertTrue( "Compilation errors must not exist", job.getCompilationFaults().isEmpty() );
@@ -58,7 +74,7 @@ public class InflectionCompilerTest
 		builder.append( "	view * { *; }" );
 		builder.append( "}" );
 
-		CompilationJob job = InflectionCompilerTestUtility.createCompilationJob(new InflectionFileMock( "ch.liquidmind.inflection.model.external", builder.toString()) );
+		CompilationJob job = InflectionCompilerTestUtility.createCompilationJob( new InflectionFileMock( "ch.liquidmind.inflection.model.external", builder.toString() ) );
 		InflectionCompiler.compile( job );
 		assertFalse( "Compilation errors must not exist", job.getCompilationFaults().isEmpty() );
 		String message = job.getCompilationFaults().get( 0 ).createFaultMessage();
@@ -71,8 +87,15 @@ public class InflectionCompilerTest
 	// TODO failing test
 	public void testCompile_InheritanceAndImports_IllegalImport() throws Exception
 	{
-		CompilationJob job = InflectionCompilerTestUtility
-			.createCompilationJob( this.getClass(), "InflectionCompilerTest_InheritanceAndImports_Parent.inflect", "InflectionCompilerTest_InheritanceAndImports_IllegalChildImport.inflect" );
+		StringBuilder builder = new StringBuilder();
+
+		builder.append( "package ch.liquidmind.inflection.compiler;" );
+		builder.append( "taxonomy InflectionCompilerTest_InheritanceAndImports_IllegalChildImportTaxonomy extends InflectionCompilerTest_InheritanceAndImports_ParentTaxonomy" );
+		builder.append( "{" );
+		builder.append( "	exclude view A;	" ); // illegal, since A cannot be resolved (despite being included in super taxonomy)
+		builder.append( "}" );
+
+		CompilationJob job = InflectionCompilerTestUtility.createCompilationJob( new InflectionFileMock( "ch.liquidmind.inflection.compiler", parentTaxonomy ), new InflectionFileMock( "ch.liquidmind.inflection.compiler", builder.toString() ) );
 		InflectionCompiler.compile( job );
 		assertFalse( "compile errors expected since A cannot be resolved", job.getCompilationFaults().isEmpty() );
 	}
@@ -80,8 +103,15 @@ public class InflectionCompilerTest
 	@Test
 	public void testCompile_InheritanceAndImports_SuccessfulCompilation() throws Exception
 	{
-		CompilationJob job = InflectionCompilerTestUtility
-			.createCompilationJob( this.getClass(), "InflectionCompilerTest_InheritanceAndImports_Parent.inflect", "InflectionCompilerTest_InheritanceAndImports_LegalChildImport.inflect" );
+		StringBuilder builder = new StringBuilder();
+
+		builder.append( "package ch.liquidmind.inflection.compiler;" );
+		builder.append( "taxonomy InflectionCompilerTest_InheritanceAndImports_LegalChildImportTaxonomy extends InflectionCompilerTest_InheritanceAndImports_ParentTaxonomy" );
+		builder.append( "{" );
+		builder.append( "	view * {}" ); // legal, but doesn’t refer to A (but rather to all classes in this package)
+		builder.append( "}" );
+
+		CompilationJob job = InflectionCompilerTestUtility.createCompilationJob( new InflectionFileMock( "ch.liquidmind.inflection.compiler", parentTaxonomy ), new InflectionFileMock( "ch.liquidmind.inflection.compiler", builder.toString() ) );
 		InflectionCompiler.compile( job );
 		assertTrue( "successful compilation expected", job.getCompilationFaults().isEmpty() );
 	}
