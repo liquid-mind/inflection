@@ -17,6 +17,7 @@ import ch.liquidmind.inflection.compiler.CompilationJob;
 import ch.liquidmind.inflection.compiler.CompilationJob.CompilationMode;
 import ch.liquidmind.inflection.compiler.InflectionCompiler;
 import ch.liquidmind.inflection.loader.TaxonomyLoader;
+import ch.liquidmind.inflection.test.InflectionFileMock;
 
 public final class InflectionCompilerTestUtility
 {
@@ -38,32 +39,31 @@ public final class InflectionCompilerTestUtility
 		return new CompilationJob( TaxonomyLoader.getSystemTaxonomyLoader(), Files.createTempDir(), CompilationMode.BOOTSTRAP, files.toArray( new File[ files.size() ] ) );
 	}
 	
-	/**
-	 * @param inflection defining the content of an *.inflect file
-	 */
-	public static CompilationJob createCompilationJob( String pakkage, String inflection ) {
-		if (pakkage == null) {
-			throw new IllegalArgumentException("package must not be null");
+	public static CompilationJob createCompilationJob( InflectionFileMock... inflectionFileMocks ) {
+		if (inflectionFileMocks == null) {
+			throw new IllegalArgumentException("inflectionFileMocks must not be null");
 		}
-		if (inflection == null) {
-			throw new IllegalArgumentException("inflection must not be null");
+		File root = Files.createTempDir();
+		List<File> inflectFileList = new ArrayList<>();
+		for (InflectionFileMock mock : inflectionFileMocks) {
+			File dir = root;
+			String[] parts = mock.getPackageName().split( "\\." );
+			for (String part : parts) {
+				dir = new File( dir, part );
+				dir.mkdir();
+			}
+			File inflectFile = new File( dir.getAbsolutePath() + File.separatorChar + "temp.inflect" );
+			try {
+				__File.createNewFile( inflectFile );
+				FileWriter fileWriter = new FileWriter( inflectFile ); 
+				fileWriter.write( mock.getContent() );
+				fileWriter.close();
+				inflectFileList.add( inflectFile );
+			} catch (IOException exception) {
+				throw new RuntimeException( exception );
+			} 
 		}
-		File dir = Files.createTempDir();
-		String[] parts = pakkage.split( "\\." );
-		for (String part : parts) {
-			dir = new File( dir, part );
-			dir.mkdir();
-		}
-		File inflectFile = new File( dir.getAbsolutePath() + File.separatorChar + "temp.inflect" );
-		try {
-			__File.createNewFile( inflectFile );
-			FileWriter fileWriter = new FileWriter( inflectFile ); 
-			fileWriter.write( inflection );
-			fileWriter.close();
-		} catch (IOException exception) {
-			throw new RuntimeException( exception );
-		} 
-		return new CompilationJob( TaxonomyLoader.getSystemTaxonomyLoader(), Files.createTempDir(), CompilationMode.BOOTSTRAP, inflectFile );
+		return new CompilationJob( TaxonomyLoader.getSystemTaxonomyLoader(), Files.createTempDir(), CompilationMode.BOOTSTRAP, inflectFileList.toArray( new File[inflectFileList.size()] ) );
 	}
 	
 	/**
@@ -81,13 +81,8 @@ public final class InflectionCompilerTestUtility
 		return compiledTaxonomyDir;
 	}
 	
-	/**
-	 * @param testClass defining the location of *.inflect files
-	 * @param inflectFilenames 
-	 * @return directory with compiled *.tax files
-	 */
-	public static File compileInflection(String pakkage, String inflection) {
-		CompilationJob job = createCompilationJob( pakkage, inflection );
+	public static File compileInflection(InflectionFileMock... inflectionFileMocks) {
+		CompilationJob job = createCompilationJob( inflectionFileMocks );
 		InflectionCompiler.compile( job );
 		File compiledTaxonomyDir = job.getTargetDirectory();
 		assertTrue( compiledTaxonomyDir.exists() );

@@ -8,6 +8,7 @@ import org.junit.Ignore;
 import org.junit.Test;
 
 import ch.liquidmind.inflection.compiler.util.InflectionCompilerTestUtility;
+import ch.liquidmind.inflection.test.InflectionFileMock;
 
 public class InflectionCompilerTest
 {
@@ -30,7 +31,7 @@ public class InflectionCompilerTest
 		builder.append( "	view * { *; }" );
 		builder.append( "}" );
 
-		CompilationJob job = InflectionCompilerTestUtility.createCompilationJob( "ch.liquidmind.inflection.compiler", builder.toString() );
+		CompilationJob job = InflectionCompilerTestUtility.createCompilationJob( new InflectionFileMock("ch.liquidmind.inflection.compiler", builder.toString()) );
 		InflectionCompiler.compile( job );
 		assertFalse( "Compilation units must exist", job.getCompilationUnits().isEmpty() );
 		assertTrue( "Compilation errors must not exist", job.getCompilationFaults().isEmpty() );
@@ -57,7 +58,7 @@ public class InflectionCompilerTest
 		builder.append( "	view * { *; }" );
 		builder.append( "}" );
 
-		CompilationJob job = InflectionCompilerTestUtility.createCompilationJob( "ch.liquidmind.inflection.model.external", builder.toString() );
+		CompilationJob job = InflectionCompilerTestUtility.createCompilationJob(new InflectionFileMock( "ch.liquidmind.inflection.model.external", builder.toString()) );
 		InflectionCompiler.compile( job );
 		assertFalse( "Compilation errors must not exist", job.getCompilationFaults().isEmpty() );
 		String message = job.getCompilationFaults().get( 0 ).createFaultMessage();
