@@ -14,13 +14,23 @@ import ch.liquidmind.inflection.test.model.A;
 
 public class MemberTest
 {
-	
+
 	private static File compiledTaxonomyDir;
-	
+
 	@BeforeClass
 	public static void beforeClass() throws Exception
 	{
-		compiledTaxonomyDir = InflectionCompilerTestUtility.compileInflectionFile( MemberTest.class, "MemberTest.inflect" );
+
+		StringBuilder builder = new StringBuilder();
+		builder.append( "package ch.liquidmind.inflection.model.external;" );
+		builder.append( "import ch.liquidmind.inflection.test.model.*;" );
+		builder.append( "taxonomy MemberTestTaxonomy {}" );
+		builder.append( "taxonomy MemberTest_GetSelectionTypeTaxonomy extends MemberTestTaxonomy" );
+		builder.append( "{" );
+		builder.append( "	view A { *; }" );
+		builder.append( "}" );
+
+		compiledTaxonomyDir = InflectionCompilerTestUtility.compileInflection( "ch.liquidmind.inflection.model.external", builder.toString() );
 	}
 
 	@Test
