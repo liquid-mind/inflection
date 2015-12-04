@@ -16,13 +16,61 @@ public class TaxonomyTest
 {
 
 	private static File compiledTaxonomyDir;
-	
+
 	@BeforeClass
 	public static void beforeClass() throws Exception
 	{
-		compiledTaxonomyDir = InflectionCompilerTestUtility.compileInflectionFile( TaxonomyTest.class, "TaxonomyTest.inflect" );
+		StringBuilder builder = new StringBuilder();
+
+		builder.append( "package ch.liquidmind.inflection.model.external; " );
+
+		builder.append( "import ch.liquidmind.inflection.test.model.*; " );
+
+		builder.append( "taxonomy TaxonomyTestTaxonomy " );
+		builder.append( "{ " );
+		builder.append( "include view A {} " );
+		builder.append( "} " );
+
+		builder.append( "taxonomy TaxonomyTest_GetView_IncludeViewWithoutIncludeTaxonomy  " );
+		builder.append( "{ " );
+		builder.append( "	view A {} " );
+		builder.append( "} " );
+
+		builder.append( "taxonomy TaxonomyTest_GetView_IncludeViewWithIncludeTaxonomy  " );
+		builder.append( "{ " );
+		builder.append( "	include view A {} " );
+		builder.append( "} " );
+
+		builder.append( "taxonomy TaxonomyTest_GetView_ExcludeViewTaxonomy extends TaxonomyTestTaxonomy " );
+		builder.append( "{ " );
+		builder.append( "	exclude view A; " );
+		builder.append( "} " );
+
+		builder.append( "taxonomy TaxonomyTest_GetView_IncludeExcludeOrderIncludeFirstTaxonomy  " );
+		builder.append( "{ " );
+		builder.append( "	include view A {} " );
+		builder.append( "	exclude view A; " );
+		builder.append( "} " );
+
+		builder.append( "taxonomy TaxonomyTest_GetView_IncludeExcludeOrderExcludeFirstTaxonomy  " );
+		builder.append( "{ " );
+		builder.append( "	exclude view A; " );
+		builder.append( "	include view A {} " ); // reverse order should not matter
+		builder.append( "} " );
+
+		builder.append( "taxonomy TaxonomyTest_GetView_IncludeWithSelectorTaxonomy " );
+		builder.append( "{ " );
+		builder.append( "	include view A* {} " );
+		builder.append( "} " );
+
+		builder.append( "taxonomy TaxonomyTest_GetView_ExcludeWithSelectorTaxonomy extends TaxonomyTestTaxonomy " );
+		builder.append( "{ " );
+		builder.append( "	exclude view A*; " );
+		builder.append( "}		 " );
+
+		compiledTaxonomyDir = InflectionCompilerTestUtility.compileInflection( "ch.liquidmind.inflection.model.external", builder.toString() );
 	}
-	
+
 	@Test
 	public void testGetView_IncludeViewWithoutInclude_ViewExists() throws Exception
 	{

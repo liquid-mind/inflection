@@ -20,7 +20,6 @@ public class MemberTest
 	@BeforeClass
 	public static void beforeClass() throws Exception
 	{
-
 		StringBuilder builder = new StringBuilder();
 		builder.append( "package ch.liquidmind.inflection.model.external;" );
 		builder.append( "import ch.liquidmind.inflection.test.model.*;" );

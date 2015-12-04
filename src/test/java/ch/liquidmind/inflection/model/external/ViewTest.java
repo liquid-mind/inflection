@@ -15,13 +15,39 @@ import ch.liquidmind.inflection.test.model.B1;
 
 public class ViewTest
 {
-	
+
 	private static File compiledTaxonomyDir;
-	
+
 	@BeforeClass
 	public static void beforeClass() throws Exception
 	{
-		compiledTaxonomyDir = InflectionCompilerTestUtility.compileInflectionFile( ViewTest.class, "ViewTest.inflect" );
+		StringBuilder builder = new StringBuilder();
+
+		builder.append( "package ch.liquidmind.inflection.model.external; " );
+		builder.append( "import ch.liquidmind.inflection.test.model.*;" );
+
+		builder.append( "taxonomy ViewTestTaxonomy {" );
+		builder.append( "	view A { *; }" );
+		builder.append( "}" );
+
+		builder.append( "taxonomy ViewTest_GetMember_DeclaredMemberTaxonomy extends ViewTestTaxonomy" );
+		builder.append( "{" );
+		builder.append( "	view B1 { *; }	" );
+		builder.append( "}" );
+
+		builder.append( "taxonomy ViewTest_GetDeclaredMember_DeclaredMemberTaxonomy extends ViewTestTaxonomy" );
+		builder.append( "{" );
+		builder.append( "	view B1 { *; }	" );
+		builder.append( "}" );
+
+		builder.append( "taxonomy ViewTest_GetMember_InheritedMemberTaxonomy extends ViewTestTaxonomy {}" );
+
+		builder.append( "taxonomy ViewTest_GetParentTaxonomy extends ViewTestTaxonomy" );
+		builder.append( "{" );
+		builder.append( "	view B1 { *; }	" );
+		builder.append( "}" );
+
+		compiledTaxonomyDir = InflectionCompilerTestUtility.compileInflection(  "ch.liquidmind.inflection.model.external", builder.toString() );
 	}
 
 	@Test
