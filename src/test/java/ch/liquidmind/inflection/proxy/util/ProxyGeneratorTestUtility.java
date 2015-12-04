@@ -25,7 +25,7 @@ import ch.liquidmind.inflection.test.TestUtility;
 public final class ProxyGeneratorTestUtility
 {
 
-	public static File createProxy(File compiledTaxonomyDir, Taxonomy taxonomy, View view) {
+	public static File createProxy(Taxonomy taxonomy, View view) {
 		// Generate proxy
 		File proxyDirs = Files.createTempDir();
 		ProxyGenerator gen = new ProxyGenerator( proxyDirs, taxonomy );

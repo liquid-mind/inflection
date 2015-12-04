@@ -38,7 +38,7 @@ public class BlackboxTest
 		compiledTaxonomyDir = InflectionCompilerTestUtility.compileInflectionFile( BlackboxTest.class, "BlackboxTest.inflect" );
 		Taxonomy taxonomy = TaxonomyTestUtility.getTestTaxonomy( compiledTaxonomyDir, BlackboxTest.class.getPackage().getName(), "BlackboxTestTaxonomy" );
 		View view = taxonomy.getView( B1.class.getName() );
-		compiledProxyDir = ProxyGeneratorTestUtility.createProxy( compiledTaxonomyDir, taxonomy, view );
+		compiledProxyDir = ProxyGeneratorTestUtility.createProxy( taxonomy, view );
 	}
 
 	@Test
