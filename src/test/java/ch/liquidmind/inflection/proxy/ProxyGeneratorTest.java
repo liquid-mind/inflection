@@ -24,6 +24,7 @@ public class ProxyGeneratorTest
 
 		builder.append( "package ch.liquidmind.inflection.proxy;" );
 		builder.append( "import ch.liquidmind.inflection.test.model.*;" );
+		
 		builder.append( "taxonomy ProxyGeneratorSuperTaxonomy" );
 		builder.append( "{" );
 		builder.append( "	view A { *; }" );

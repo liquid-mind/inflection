@@ -24,7 +24,6 @@ public class TaxonomyTest
 		StringBuilder builder = new StringBuilder();
 
 		builder.append( "package ch.liquidmind.inflection.model.external; " );
-
 		builder.append( "import ch.liquidmind.inflection.test.model.*; " );
 
 		builder.append( "taxonomy TaxonomyTestTaxonomy " );

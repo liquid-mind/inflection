@@ -24,7 +24,7 @@ public class InflectionCompilerTest
 		parentTaxonomyBuilder.append( "import ch.liquidmind.inflection.test.model.*;" );
 		parentTaxonomyBuilder.append( "taxonomy InflectionCompilerTest_InheritanceAndImports_ParentTaxonomy" );
 		parentTaxonomyBuilder.append( "{" );
-		parentTaxonomyBuilder.append( "	view A {}	" );
+		parentTaxonomyBuilder.append( "	view A {}" );
 		parentTaxonomyBuilder.append( "}" );
 		parentTaxonomy = parentTaxonomyBuilder.toString();
 	}
@@ -34,14 +34,13 @@ public class InflectionCompilerTest
 	{
 		StringBuilder builder = new StringBuilder();
 		builder.append( "package ch.liquidmind.inflection.compiler;" );
-
 		builder.append( "import ch.liquidmind.inflection.test.model.*;" );
-
+		
 		builder.append( "taxonomy InflectionCompilerTest_ValidFileTaxonomy" );
 		builder.append( "{" );
 		builder.append( "	view A { *; }" );
 		builder.append( "}" );
-
+		
 		builder.append( "taxonomy InflectionCompilerTest_ValidFileChildTaxonomy extends InflectionCompilerTest_ValidFileTaxonomy" );
 		builder.append( "{" );
 		builder.append( "	view * { *; }" );
@@ -60,16 +59,14 @@ public class InflectionCompilerTest
 	{
 		StringBuilder builder = new StringBuilder();
 		builder.append( "package ch.liquidmind.inflection.compiler;" );
-
 		builder.append( "import ch.liquidmind.inflection.test.model.*;" );
-
+		
 		builder.append( "taxonomy InflectionCompilerTest_InvalidFileTaxonomy" );
 		builder.append( "{" );
 		builder.append( "	view A { *; }" );
 		builder.append( "}" );
-
-		// typo when extending: invalid file
-		builder.append( "taxonomy InflectionCompilerTest_InvalidFileChildTaxonomy extends InflectionCompilerTestTYPO_InvalidFileTaxonomy" );
+		
+		builder.append( "taxonomy InflectionCompilerTest_InvalidFileChildTaxonomy extends InflectionCompilerTestTYPO_InvalidFileTaxonomy" ); // typo when extending: invalid file
 		builder.append( "{" );
 		builder.append( "	view * { *; }" );
 		builder.append( "}" );
