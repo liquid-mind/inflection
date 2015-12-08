@@ -8,13 +8,11 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 
-import ch.liquidmind.inflection.compiler.CompilationJob;
-import ch.liquidmind.inflection.compiler.InflectionCompiler;
 import ch.liquidmind.inflection.compiler.util.InflectionCompilerTestUtility;
-import ch.liquidmind.inflection.test.InflectionFileMock;
+import ch.liquidmind.inflection.test.AbstractInflectionTest;
 
 @RunWith( Parameterized.class )
-public class GrammarCommentTest
+public class GrammarCommentTest extends AbstractInflectionTest
 {
 
 	@Parameters( name = "{index}: File content: {0}, expected compilation: {1}" )
@@ -65,16 +63,16 @@ public class GrammarCommentTest
 	@Test
 	public void test()
 	{
-		CompilationJob job = InflectionCompilerTestUtility.createCompilationJob( new InflectionFileMock( fileContent.toString() ) );
-		InflectionCompiler.compile( job );
-		if ( successful )
-		{
-			InflectionCompilerTestUtility.assertSuccessfulCompilation( job );
-		}
-		else
-		{
-			InflectionCompilerTestUtility.assertCompilationFailure( job );
-		}
+		doTest( job -> {
+			if ( successful )
+			{
+				InflectionCompilerTestUtility.assertSuccessfulCompilation( job );
+			}
+			else
+			{
+				InflectionCompilerTestUtility.assertCompilationFailure( job );
+			}
+		} , createInflectionFileMock( fileContent ) );
 	}
 
 }

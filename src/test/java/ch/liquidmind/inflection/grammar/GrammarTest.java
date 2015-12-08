@@ -2,75 +2,52 @@ package ch.liquidmind.inflection.grammar;
 
 import org.junit.Test;
 
-import ch.liquidmind.inflection.compiler.CompilationJob;
-import ch.liquidmind.inflection.compiler.InflectionCompiler;
 import ch.liquidmind.inflection.compiler.util.InflectionCompilerTestUtility;
-import ch.liquidmind.inflection.test.InflectionFileMock;
+import ch.liquidmind.inflection.test.AbstractInflectionTest;
 
-public class GrammarTest
+public class GrammarTest extends AbstractInflectionTest
 {
 
 	@Test
-	// TODO compiler outputs line 1:0 token recognition error at: '// comment'
+	// TODO <inflection-error/> compiler outputs line 1:0 token recognition error at: '// comment'
 	public void testSingleLineComment_CommentOnlyFile_SuccessfulCompilation() throws Exception
 	{
-		StringBuilder builder = new StringBuilder();
-		builder.append( "// comment" );
-		
-		CompilationJob job = InflectionCompilerTestUtility.createCompilationJob( new InflectionFileMock( builder.toString() ) );
-		InflectionCompiler.compile( job );
-		InflectionCompilerTestUtility.assertSuccessfulCompilation( job );
+		doTest( job -> {
+			InflectionCompilerTestUtility.assertSuccessfulCompilation( job );
+		} , createInflectionFileMock( "// comment" ) );
 	}
-	
+
 	@Test
 	public void testMultiLineCommentOneLine_CommentOnlyFile_SuccessfulCompilation() throws Exception
 	{
-		StringBuilder builder = new StringBuilder();
-		builder.append( "/* comment */" );
-		
-		CompilationJob job = InflectionCompilerTestUtility.createCompilationJob( new InflectionFileMock( builder.toString() ) );
-		InflectionCompiler.compile( job );
-		InflectionCompilerTestUtility.assertSuccessfulCompilation( job );
+		doTest( job -> {
+			InflectionCompilerTestUtility.assertSuccessfulCompilation( job );
+		} , createInflectionFileMock( "/* comment */" ) );
 	}
-	
+
 	@Test
 	public void testMultiLineCommentOneLine_CommentOnlyFile_UnexpectedEndOfComment() throws Exception
 	{
-		StringBuilder builder = new StringBuilder();
-		builder.append( "/* comment" );
-		
-		CompilationJob job = InflectionCompilerTestUtility.createCompilationJob( new InflectionFileMock( builder.toString() ) );
-		// TODO should fail because end of comment is missing
-		// InflectionCompilerTestUtility.assertCompilationFailure( job );
-		InflectionCompilerTestUtility.assertSuccessfulCompilation( job );
+		// TODO <inflection-error/> should fail because end of comment is missing
+		doTest( job -> {
+			InflectionCompilerTestUtility.assertSuccessfulCompilation( job );
+		} , createInflectionFileMock( "/* comment" ) );
 	}
-		
+
 	@Test
 	public void testMultiLineCommentMultipleLines_CommentOnlyFile_SuccessfulCompilation() throws Exception
 	{
-		StringBuilder builder = new StringBuilder();
-		builder.append( "/* comment begin" );
-		builder.append( System.lineSeparator() );
-		builder.append( "comment end */" );
-		
-		CompilationJob job = InflectionCompilerTestUtility.createCompilationJob( new InflectionFileMock( builder.toString() ) );
-		InflectionCompiler.compile( job );
-		InflectionCompilerTestUtility.assertSuccessfulCompilation( job );
-	}	
-	
+		doTest( job -> {
+			InflectionCompilerTestUtility.assertSuccessfulCompilation( job );
+		} , createInflectionFileMock( "/* comment begin" + System.lineSeparator() + "comment end */" ) );
+	}
+
 	@Test
 	public void testMultiLineCommentMultipleLines_CommentOnlyFile_UnexpectedEndOfComment() throws Exception
 	{
-		StringBuilder builder = new StringBuilder();
-		builder.append( "/* comment begin" );
-		builder.append( System.lineSeparator() );
-		builder.append( "comment end" );
-		
-		CompilationJob job = InflectionCompilerTestUtility.createCompilationJob( new InflectionFileMock( builder.toString() ) );
-		InflectionCompiler.compile( job );
-		// TODO should fail because end of comment is missing
-		// InflectionCompilerTestUtility.assertCompilationFailure( job );
-		InflectionCompilerTestUtility.assertSuccessfulCompilation( job );
-	}	
-		
+		doTest( job -> {
+			InflectionCompilerTestUtility.assertSuccessfulCompilation( job );
+		} , createInflectionFileMock( "/* comment begin" + System.lineSeparator() + "comment end" ) );
+	}
+
 }
