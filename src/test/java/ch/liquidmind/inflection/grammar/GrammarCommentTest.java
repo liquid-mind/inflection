@@ -25,11 +25,19 @@ public class GrammarCommentTest
 
 				{ "/* comment */", true },
 
-				{ "/* comment", true }, // should be false
+				{ "/* comment", true }, // TODO should be false
 
 				{ "/* comment begin" + System.lineSeparator() + " comment end */", true },
 
-				{ "/* comment begin" + System.lineSeparator() + " comment end", true }, // should be false
+				{ "/* comment begin" + System.lineSeparator() + " comment end", true }, // TODO should be false
+				
+				{ "/* // */", true },
+				
+				{ "/* //", true }, // TODO should be false
+				
+				{ "// /*", true },
+				
+				{ "// */", true },
 				
 				{ "taxonomy A { /* }", false },
 				
