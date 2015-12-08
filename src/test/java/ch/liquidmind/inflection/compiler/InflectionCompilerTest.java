@@ -52,7 +52,7 @@ public class InflectionCompilerTest
 
 	@Test
 	@Ignore( "IndexOutOfBoundsException is thrown when creating fault message (probably only on Windows using Unix style newlines)" )
-	// TODO failing test
+	// TODO <inflection-error/> failing test
 	public void testCompile_InvalidFile_SuccessfulFaultMessageGeneration() throws Exception
 	{
 		StringBuilder builder = new StringBuilder();
@@ -76,7 +76,7 @@ public class InflectionCompilerTest
 
 	@Test
 	@Ignore( "Should not compile because child does not import view A" )
-	// TODO failing test
+	// TODO <inflection-error/> failing test
 	public void testCompile_InheritanceAndImports_IllegalImport() throws Exception
 	{
 		StringBuilder builder = new StringBuilder();

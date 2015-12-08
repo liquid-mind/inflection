@@ -25,15 +25,15 @@ public class GrammarCommentTest
 
 				{ "/* comment */", true },
 
-				{ "/* comment", true }, // TODO should be false
+				{ "/* comment", true }, // TODO <inflection-error/> should not compile: true -> false
 
 				{ "/* comment begin" + System.lineSeparator() + " comment end */", true },
 
-				{ "/* comment begin" + System.lineSeparator() + " comment end", true }, // TODO should be false
+				{ "/* comment begin" + System.lineSeparator() + " comment end", true }, // TODO <inflection-error/> should not compile: true -> false
 				
 				{ "/* // */", true },
 				
-				{ "/* //", true }, // TODO should be false
+				{ "/* //", true }, // TODO <inflection-error/> should not compile: true -> false
 				
 				{ "// /*", true },
 				
