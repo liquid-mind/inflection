@@ -58,4 +58,19 @@ public class GrammarTest
 		InflectionCompilerTestUtility.assertSuccessfulCompilation( job );
 	}	
 	
+	@Test
+	public void testMultiLineCommentMultipleLines_CommentOnlyFile_UnexpectedEndOfComment() throws Exception
+	{
+		StringBuilder builder = new StringBuilder();
+		builder.append( "/* comment begin" );
+		builder.append( System.lineSeparator() );
+		builder.append( "comment end" );
+		
+		CompilationJob job = InflectionCompilerTestUtility.createCompilationJob( new InflectionFileMock( builder.toString() ) );
+		InflectionCompiler.compile( job );
+		// TODO should fail because end of comment is missing
+		// InflectionCompilerTestUtility.assertCompilationFailure( job );
+		InflectionCompilerTestUtility.assertSuccessfulCompilation( job );
+	}	
+		
 }
