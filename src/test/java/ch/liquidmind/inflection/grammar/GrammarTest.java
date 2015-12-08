@@ -26,12 +26,10 @@ public class GrammarTest
 	public void testMultiLineCommentOneLine_CommentOnlyFile_SuccessfulCompilation() throws Exception
 	{
 		StringBuilder builder = new StringBuilder();
-		builder.append( "/* comment" );
+		builder.append( "/* comment */" );
 		
 		CompilationJob job = InflectionCompilerTestUtility.createCompilationJob( new InflectionFileMock( builder.toString() ) );
 		InflectionCompiler.compile( job );
-		// TODO should fail because end of comment is missing
-		// InflectionCompilerTestUtility.assertCompilationFailure( job );
 		InflectionCompilerTestUtility.assertSuccessfulCompilation( job );
 	}
 	
@@ -42,6 +40,8 @@ public class GrammarTest
 		builder.append( "/* comment" );
 		
 		CompilationJob job = InflectionCompilerTestUtility.createCompilationJob( new InflectionFileMock( builder.toString() ) );
+		// TODO should fail because end of comment is missing
+		// InflectionCompilerTestUtility.assertCompilationFailure( job );
 		InflectionCompilerTestUtility.assertSuccessfulCompilation( job );
 	}
 		
