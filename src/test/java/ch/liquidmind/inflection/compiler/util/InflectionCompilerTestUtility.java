@@ -3,14 +3,13 @@ package ch.liquidmind.inflection.compiler.util;
 import static org.junit.Assert.assertTrue;
 
 import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.attribute.FileAttribute;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.google.common.io.Files;
-
-import __java.io.__File;
+import __java.nio.file.__Files;
 import ch.liquidmind.inflection.compiler.CompilationJob;
 import ch.liquidmind.inflection.compiler.CompilationJob.CompilationMode;
 import ch.liquidmind.inflection.compiler.InflectionCompiler;
@@ -24,30 +23,21 @@ public final class InflectionCompilerTestUtility
 		if (inflectionFileMocks == null) {
 			throw new IllegalArgumentException("inflectionFileMocks must not be null");
 		}
-		File root = Files.createTempDir();
+		File rootDir = __Files.createTempDirectory( null, "inflect", new FileAttribute<?>[0] ).toFile();
 		List<File> inflectFileList = new ArrayList<>();
 		int c = 0;
 		for (InflectionFileMock mock : inflectionFileMocks) {
-			File dir = root;
+			File currentDir = rootDir;
 			String[] parts = mock.getPackageName().split( "\\." );
 			for (String part : parts) {
-				dir = new File( dir, part );
-				dir.mkdir();
+				currentDir = new File( currentDir, part );
+				currentDir.mkdir();
 			}
-			File inflectFile = new File( dir.getAbsolutePath() + File.separatorChar + c + ".inflect" );
-			// TODO how can I use __FileWriter?
-			try {
-				__File.createNewFile( inflectFile );
-				FileWriter fileWriter = new FileWriter( inflectFile ); 
-				fileWriter.write( mock.getContent() );
-				fileWriter.close();
-				inflectFileList.add( inflectFile );
-			} catch (IOException exception) {
-				throw new RuntimeException( exception );
-			} 
+			Path file = __Files.write(null, Paths.get(currentDir.getAbsolutePath() + File.separatorChar + c + ".inflect"), mock.getContent().getBytes());
+			inflectFileList.add( file.toFile() );
 			c++;
 		}
-		return new CompilationJob( TaxonomyLoader.getSystemTaxonomyLoader(), Files.createTempDir(), CompilationMode.BOOTSTRAP, inflectFileList.toArray( new File[inflectFileList.size()] ) );
+		return new CompilationJob( TaxonomyLoader.getSystemTaxonomyLoader(), __Files.createTempDirectory( null, "tax", new FileAttribute<?>[0] ).toFile(), CompilationMode.BOOTSTRAP, inflectFileList.toArray( new File[inflectFileList.size()] ) );
 	}
 		
 	public static File compileInflection(InflectionFileMock... inflectionFileMocks) {

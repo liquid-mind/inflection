@@ -1,5 +1,8 @@
 package ch.liquidmind.inflection.test;
 
+/**
+ * Simulates an *.inflect file for unit testing
+**/
 public class InflectionFileMock
 {
 
