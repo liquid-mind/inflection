@@ -35,6 +35,10 @@ public class GrammarCommentTest
 				
 				{ "taxonomy A { /* */ }", true },
 				
+				{ "taxonomy A { /* " + System.lineSeparator() + " */ }", true },
+				
+				{ "taxonomy A { /* " + System.lineSeparator()+ "}", false },
+				
 				{ "taxonomy A { // }", false },
 				
 				{ "taxonomy A { // " + System.lineSeparator() + "}", true }
