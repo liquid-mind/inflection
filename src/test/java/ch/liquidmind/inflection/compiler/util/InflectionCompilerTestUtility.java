@@ -23,17 +23,17 @@ public final class InflectionCompilerTestUtility
 		if (inflectionFileMocks == null) {
 			throw new IllegalArgumentException("inflectionFileMocks must not be null");
 		}
-		File rootDir = __Files.createTempDirectory( null, "inflect", new FileAttribute<?>[0] ).toFile();
+		Path rootDir = __Files.createTempDirectory( null, "inflect", new FileAttribute<?>[0] );
 		List<File> inflectFileList = new ArrayList<>();
 		int c = 0;
 		for (InflectionFileMock mock : inflectionFileMocks) {
-			File currentDir = rootDir;
+			Path currentDir = rootDir;
 			String[] parts = mock.getPackageName().split( "\\." );
 			for (String part : parts) {
-				currentDir = new File( currentDir, part );
-				currentDir.mkdir();
+				currentDir = new File( currentDir.toFile(), part ).toPath();
+				currentDir.toFile().mkdirs();
 			}
-			Path file = __Files.write(null, Paths.get(currentDir.getAbsolutePath() + File.separatorChar + c + ".inflect"), mock.getContent().getBytes());
+			Path file = __Files.write(null, Paths.get(currentDir.toFile().getAbsolutePath(),c + ".inflect"), mock.getContent().getBytes());
 			inflectFileList.add( file.toFile() );
 			c++;
 		}
