@@ -29,7 +29,15 @@ public class GrammarCommentTest
 
 				{ "/* comment begin" + System.lineSeparator() + " comment end */", true },
 
-				{ "/* comment begin" + System.lineSeparator() + " comment end", true } // should be false
+				{ "/* comment begin" + System.lineSeparator() + " comment end", true }, // should be false
+				
+				{ "taxonomy A { /* }", false },
+				
+				{ "taxonomy A { /* */ }", true },
+				
+				{ "taxonomy A { // }", false },
+				
+				{ "taxonomy A { // " + System.lineSeparator() + "}", true }
 		} );
 	}
 
