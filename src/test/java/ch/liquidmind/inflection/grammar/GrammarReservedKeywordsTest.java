@@ -39,7 +39,7 @@ public class GrammarReservedKeywordsTest extends AbstractInflectionTest
 	}
 
 	@Test
-	public void test()
+	public void testReservedKeyword()
 	{
 		doTest( job -> {
 			InflectionCompilerTestUtility.assertCompilationFailure( job );

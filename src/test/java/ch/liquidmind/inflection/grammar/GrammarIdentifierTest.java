@@ -51,7 +51,7 @@ public class GrammarIdentifierTest extends AbstractInflectionTest
 	}
 
 	@Test
-	public void test()
+	public void testIdentifier()
 	{
 		doTest( job -> {
 			if ( successful )
