@@ -1,5 +1,7 @@
 package ch.liquidmind.inflection.compiler.util;
 
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import java.io.File;
@@ -28,10 +30,12 @@ public final class InflectionCompilerTestUtility
 		int c = 0;
 		for (InflectionFileMock mock : inflectionFileMocks) {
 			Path currentDir = rootDir;
-			String[] parts = mock.getPackageName().split( "\\." );
-			for (String part : parts) {
-				currentDir = new File( currentDir.toFile(), part ).toPath();
-				currentDir.toFile().mkdirs();
+			if (mock.getPackageName() != null) {
+				String[] parts = mock.getPackageName().split( "\\." );
+				for (String part : parts) {
+					currentDir = new File( currentDir.toFile(), part ).toPath();
+					currentDir.toFile().mkdirs();
+				}
 			}
 			Path file = __Files.write(null, Paths.get(currentDir.toFile().getAbsolutePath(),c + ".inflect"), mock.getContent().getBytes());
 			inflectFileList.add( file.toFile() );
@@ -47,6 +51,19 @@ public final class InflectionCompilerTestUtility
 		assertTrue( compiledTaxonomyDir.exists() );
 		assertTrue( job.getCompilationFaults().isEmpty() );
 		return compiledTaxonomyDir;
+	}
+	
+	public static void assertSuccessfulCompilation(CompilationJob job) {
+		assertFalse( "Compilation units must exist", job.getCompilationUnits().isEmpty() );
+		assertTrue( "Compilation errors must not exist", job.getCompilationFaults().isEmpty() );		
+	}
+	
+	public static void assertCompilationFailure(CompilationJob job) {
+		assertTrue( job.hasCompilationErrors() );
+		assertFalse( "Compilation errors must not exist", job.getCompilationFaults().isEmpty() );
+		String message = job.getCompilationFaults().get( 0 ).getMessage();
+		assertNotNull( "Fault message must exist", message != null );
+		assertTrue( "", message.length() > 0 );		
 	}
 
 }

@@ -24,6 +24,20 @@ public class InflectionFileMock
 		this.packageName = packageName;
 		this.content = content;
 	}
+	
+	/**
+	 * Simulates an *.inflect file for unit testing in default package
+	 * 
+	 * @param content the file content (including package name)
+	 */
+	public InflectionFileMock( String content )
+	{
+		super();
+		if (content == null) {
+			throw new IllegalArgumentException("content must not be null");
+		}
+		this.content = content;
+	}
 
 	public String getPackageName()
 	{

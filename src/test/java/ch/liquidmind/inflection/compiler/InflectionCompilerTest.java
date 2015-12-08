@@ -1,7 +1,6 @@
 package ch.liquidmind.inflection.compiler;
 
 import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import org.junit.BeforeClass;
@@ -48,8 +47,7 @@ public class InflectionCompilerTest
 
 		CompilationJob job = InflectionCompilerTestUtility.createCompilationJob( new InflectionFileMock( "ch.liquidmind.inflection.compiler", builder.toString() ) );
 		InflectionCompiler.compile( job );
-		assertFalse( "Compilation units must exist", job.getCompilationUnits().isEmpty() );
-		assertTrue( "Compilation errors must not exist", job.getCompilationFaults().isEmpty() );
+		InflectionCompilerTestUtility.assertSuccessfulCompilation( job );
 	}
 
 	@Test
@@ -73,10 +71,7 @@ public class InflectionCompilerTest
 
 		CompilationJob job = InflectionCompilerTestUtility.createCompilationJob( new InflectionFileMock( "ch.liquidmind.inflection.model.external", builder.toString() ) );
 		InflectionCompiler.compile( job );
-		assertFalse( "Compilation errors must not exist", job.getCompilationFaults().isEmpty() );
-		String message = job.getCompilationFaults().get( 0 ).createFaultMessage();
-		assertNotNull( "Fault message must exist", message != null );
-		assertTrue( "", message.length() > 0 );
+		InflectionCompilerTestUtility.assertCompilationFailure( job );
 	}
 
 	@Test
