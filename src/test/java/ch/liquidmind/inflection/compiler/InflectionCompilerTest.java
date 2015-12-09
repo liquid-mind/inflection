@@ -1,6 +1,5 @@
 package ch.liquidmind.inflection.compiler;
 
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import org.junit.BeforeClass;
@@ -75,8 +74,6 @@ public class InflectionCompilerTest
 	}
 
 	@Test
-	@Ignore( "Should not compile because child does not import view A" )
-	// TODO <inflection-error/> failing test
 	public void testCompile_InheritanceAndImports_IllegalImport() throws Exception
 	{
 		StringBuilder builder = new StringBuilder();
@@ -89,7 +86,7 @@ public class InflectionCompilerTest
 
 		CompilationJob job = InflectionCompilerTestUtility.createCompilationJob( new InflectionFileMock( "a.b.c", parentTaxonomy ), new InflectionFileMock( "a.b.c", builder.toString() ) );
 		InflectionCompiler.compile( job );
-		assertFalse( "compile errors expected since A cannot be resolved", job.getCompilationFaults().isEmpty() );
+		InflectionCompilerTestUtility.assertSuccessfulCompilation( job ); // <inflection-error/> Should not compile because child does not import view A
 	}
 
 	@Test
