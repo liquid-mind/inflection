@@ -19,6 +19,11 @@ public abstract class AbstractInflectionTest
 		
 		assertCompilationResult.doAssert( job );
 	}
+	
+	public InflectionFileMock createInflectionFileMock( String fileName, String packageName, String content )
+	{
+		return new InflectionFileMock( fileName, packageName, content );
+	}
 
 	public InflectionFileMock createInflectionFileMock( String packageName, String content )
 	{

@@ -31,13 +31,13 @@ public class IdentifierTest extends AbstractInflectionTest
 				
 				{ "A1", true },
 				
-				{ "1A", true }, // <inflection-error/> 1A is an illegal identifier, should not compile
+				{ "1A", true }, // <inflection-error/> 1A is a reserved literal value, should not compile
 				
-				{ "true", true }, // <inflection-error/> true is an illegal identifier, should not compile
+				{ "true", true }, // <inflection-error/> true is a reserved literal value, should not compile
 				
-				{ "false", true }, // <inflection-error/> false is an illegal identifier, should not compile
+				{ "false", true }, // <inflection-error/> false is a reserved literal value, should not compile
 				
-				{ "null", true } // <inflection-error/> null is an illegal identifier, should not compile
+				{ "null", true } // <inflection-error/> null is a reserved literal value, should not compile
 		} );
 	}
 

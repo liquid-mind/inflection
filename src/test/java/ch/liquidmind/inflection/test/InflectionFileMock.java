@@ -6,9 +6,28 @@ package ch.liquidmind.inflection.test;
 public class InflectionFileMock
 {
 
+	private String fileName;
 	private String packageName;
 	private String content;
 
+	/**
+	 * Simulates an *.inflect file for unit testing
+	 * 
+	 * @param fileName the file name to be used including *.inflect suffix
+	 * @param packageName the target directory location (written as package name)
+	 * @param content the file content (including package name)
+	 */
+	public InflectionFileMock( String fileName, String packageName, String content )
+	{
+		super();
+		if (content == null) {
+			throw new IllegalArgumentException("content must not be null");
+		}
+		this.packageName = packageName;
+		this.content = content;
+		this.fileName = fileName;
+	}	
+	
 	/**
 	 * Simulates an *.inflect file for unit testing
 	 * 
@@ -17,26 +36,17 @@ public class InflectionFileMock
 	 */
 	public InflectionFileMock( String packageName, String content )
 	{
-		super();
-		if (packageName == null || content == null) {
-			throw new IllegalArgumentException("arguments must not be null");
-		}
-		this.packageName = packageName;
-		this.content = content;
+		this( null, packageName, content );
 	}
 	
 	/**
-	 * Simulates an *.inflect file for unit testing in default package
+	 * Simulates an *.inflect file for unit testing in unnamed package
 	 * 
 	 * @param content the file content (including package name)
 	 */
 	public InflectionFileMock( String content )
 	{
-		super();
-		if (content == null) {
-			throw new IllegalArgumentException("content must not be null");
-		}
-		this.content = content;
+		this( null, null, content );
 	}
 
 	public String getPackageName()
@@ -44,19 +54,14 @@ public class InflectionFileMock
 		return packageName;
 	}
 
-	public void setPackageName( String packageName )
-	{
-		this.packageName = packageName;
-	}
-
 	public String getContent()
 	{
 		return content;
 	}
-
-	public void setContent( String content )
+	
+	public String getFileName()
 	{
-		this.content = content;
+		return fileName;
 	}
 
 }

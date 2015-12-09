@@ -23,15 +23,15 @@ public class CommentTest extends AbstractInflectionTest
 
 				{ "/* comment */", true },
 
-				{ "/* comment", true }, // TODO <inflection-error/> should not compile: true -> false
+				{ "/* comment", true }, // TODO <inflection-error/> missing comment end, should not compile: true -> false
 
 				{ "/* comment begin" + System.lineSeparator() + " comment end */", true },
 
-				{ "/* comment begin" + System.lineSeparator() + " comment end", true }, // TODO <inflection-error/> should not compile: true -> false
+				{ "/* comment begin" + System.lineSeparator() + " comment end", true }, // TODO <inflection-error/> missing comment end, should not compile: true -> false
 				
 				{ "/* // */", true },
 				
-				{ "/* //", true }, // TODO <inflection-error/> should not compile: true -> false
+				{ "/* //", true }, // TODO <inflection-error/> missing comment end, should not compile: true -> false
 				
 				{ "// /*", true },
 				

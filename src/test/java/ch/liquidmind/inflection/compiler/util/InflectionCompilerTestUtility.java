@@ -37,7 +37,11 @@ public final class InflectionCompilerTestUtility
 					currentDir.toFile().mkdirs();
 				}
 			}
-			Path file = __Files.write(null, Paths.get(currentDir.toFile().getAbsolutePath(),c + ".inflect"), mock.getContent().getBytes());
+			String fileName = mock.getFileName();
+			if (fileName == null) {
+				fileName = c + ".inflect";
+			}
+			Path file = __Files.write(null, Paths.get(currentDir.toFile().getAbsolutePath(),fileName), mock.getContent().getBytes());
 			inflectFileList.add( file.toFile() );
 			c++;
 		}
