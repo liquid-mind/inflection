@@ -64,7 +64,7 @@ public class TypeReferenceResolutionTest extends AbstractInflectionTest
 	}
 	
 	@Test
-	public void testTypeReferenceResolution_ClasspathResolution_SuccessfulCompilation() throws Exception
+	public void testTypeReferenceResolution_FullyQualifiedClasspathResolution_SuccessfulCompilation() throws Exception
 	{
 		InflectionFileMock[] classpath = { createInflectionFileMock( "a", "package a; taxonomy A {}" ) };
 		
@@ -74,7 +74,27 @@ public class TypeReferenceResolutionTest extends AbstractInflectionTest
 	}
 	
 	@Test
-	public void testTypeReferenceResolution_IllegalClasspathResolution_CompilationFailure() throws Exception
+	public void testTypeReferenceResolution_SimpleNameClasspathResolutionPackageImport_SuccessfulCompilation() throws Exception
+	{
+		InflectionFileMock[] classpath = { createInflectionFileMock( "a", "package a; taxonomy A {}" ) };
+		
+		doTest( job -> {
+			InflectionCompilerTestUtility.assertSuccessfulCompilation( job );
+		} , classpath, createInflectionFileMock( "b", "package b; import a.*; taxonomy B extends A {}" ) );
+	}
+	
+	@Test
+	public void testTypeReferenceResolution_SimpleNameClasspathResolutionTypeImport_SuccessfulCompilation() throws Exception
+	{
+		InflectionFileMock[] classpath = { createInflectionFileMock( "a", "package a; taxonomy A {}" ) };
+		
+		doTest( job -> {
+			InflectionCompilerTestUtility.assertSuccessfulCompilation( job );
+		} , classpath, createInflectionFileMock( "b", "package b; import a.A; taxonomy B extends A {}" ) );
+	}
+	
+	@Test
+	public void testTypeReferenceResolution_IllegalSimpleNameClasspathResolution_CompilationFailure() throws Exception
 	{
 		InflectionFileMock[] classpath = { createInflectionFileMock( "a", "package a; taxonomy A {}" ) };
 		
