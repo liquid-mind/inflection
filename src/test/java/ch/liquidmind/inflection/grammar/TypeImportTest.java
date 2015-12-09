@@ -13,8 +13,8 @@ public class TypeImportTest extends AbstractInflectionTest
 	{
 		doTest( job -> {
 			InflectionCompilerTestUtility.assertSuccessfulCompilation( job );
-		} , createInflectionFileMock( "A.inflect", "a", "package a; taxonomy A {}" ), 
-			createInflectionFileMock( "B.inflect", "b", "package b; import a.A;" ) );
+		} , createInflectionFileMock( "a", "package a; taxonomy A {}" ), 
+			createInflectionFileMock( "b", "package b; import a.A;" ) );
 	}
 	
 	@Test
