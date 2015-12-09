@@ -2,10 +2,11 @@ package ch.liquidmind.inflection.grammar;
 
 import org.junit.Test;
 
+import ch.liquidmind.inflection.compiler.AbstractInflectionListener;
 import ch.liquidmind.inflection.compiler.util.InflectionCompilerTestUtility;
 import ch.liquidmind.inflection.test.AbstractInflectionTest;
 
-public class AutomaticImportTest extends AbstractInflectionTest
+public class AutomaticImportAndReservedPackagesTest extends AbstractInflectionTest
 {
 	
 	@Test
@@ -38,6 +39,22 @@ public class AutomaticImportTest extends AbstractInflectionTest
 		doTest( job -> {
 			InflectionCompilerTestUtility.assertSuccessfulCompilation( job ); // <inflection-error/> should not compile, class does not exist
 		} , createInflectionFileMock( "taxonomy A { view DoesNotExist {} }" ) );
+	}
+	
+	@Test
+	public void testReservedPackage_JavaLangNotAllowed_CompilationFailure() throws Exception
+	{
+		doTest( job -> {
+			InflectionCompilerTestUtility.assertCompilationFailure( job );
+		} , createInflectionFileMock( AbstractInflectionListener.JAVA_LANG_PACKAGE, "package " + AbstractInflectionListener.JAVA_LANG_PACKAGE + "; taxonomy A {}" ) );
+	}
+	
+	@Test
+	public void testReservedPackage_InflectionNotAllowed_CompilationFailure() throws Exception
+	{
+		doTest( job -> {
+			InflectionCompilerTestUtility.assertCompilationFailure( job );
+		} , createInflectionFileMock( AbstractInflectionListener.CH_LIQUIDMIND_INFLECTION_PACKAGE, "package " + AbstractInflectionListener.CH_LIQUIDMIND_INFLECTION_PACKAGE + "; taxonomy A {}" ) );
 	}
 
 }
