@@ -24,7 +24,7 @@ public class ViewTest
 	{
 		StringBuilder builder = new StringBuilder();
 
-		builder.append( "package ch.liquidmind.inflection.model.external; " );
+		builder.append( "package a.b.c; " );
 		builder.append( "import ch.liquidmind.inflection.test.model.*;" );
 
 		builder.append( "taxonomy ViewTestTaxonomy {" );
@@ -48,13 +48,13 @@ public class ViewTest
 		builder.append( "	view B1 { *; }	" );
 		builder.append( "}" );
 
-		compiledTaxonomyDir = InflectionCompilerTestUtility.compileInflection( new InflectionFileMock( "ch.liquidmind.inflection.model.external", builder.toString() ));
+		compiledTaxonomyDir = InflectionCompilerTestUtility.compileInflection( new InflectionFileMock( "a.b.c", builder.toString() ));
 	}
 
 	@Test
 	public void testGetMember_DeclaredMember_MemberExists() throws Exception
 	{
-		Taxonomy taxonomy = TaxonomyTestUtility.getTestTaxonomy( compiledTaxonomyDir, this.getClass().getPackage().getName(), "ViewTest_GetMember_DeclaredMemberTaxonomy" );
+		Taxonomy taxonomy = TaxonomyTestUtility.getTestTaxonomy( compiledTaxonomyDir, "a.b.c", "ViewTest_GetMember_DeclaredMemberTaxonomy" );
 		View view = taxonomy.getView( B1.class.getCanonicalName() );
 		assertNotNull( view.getMember( "longMember" ) );
 	}
@@ -62,7 +62,7 @@ public class ViewTest
 	@Test
 	public void testGetDeclaredMember_DeclaredMember_MemberExists() throws Exception
 	{
-		Taxonomy taxonomy = TaxonomyTestUtility.getTestTaxonomy( compiledTaxonomyDir, this.getClass().getPackage().getName(), "ViewTest_GetDeclaredMember_DeclaredMemberTaxonomy" );
+		Taxonomy taxonomy = TaxonomyTestUtility.getTestTaxonomy( compiledTaxonomyDir, "a.b.c", "ViewTest_GetDeclaredMember_DeclaredMemberTaxonomy" );
 		View view = taxonomy.getView( B1.class.getCanonicalName() );
 		assertNotNull( view.getDeclaredMember( "longMember" ) );
 	}
@@ -70,7 +70,7 @@ public class ViewTest
 	@Test
 	public void testMember_InheritedMember_MemberExists() throws Exception
 	{
-		Taxonomy taxonomy = TaxonomyTestUtility.getTestTaxonomy( compiledTaxonomyDir, this.getClass().getPackage().getName(), "ViewTest_GetMember_InheritedMemberTaxonomy" );
+		Taxonomy taxonomy = TaxonomyTestUtility.getTestTaxonomy( compiledTaxonomyDir, "a.b.c", "ViewTest_GetMember_InheritedMemberTaxonomy" );
 		View view = taxonomy.getView( A.class.getCanonicalName() );
 		assertNotNull( view.getMember( "id" ) );
 	}
@@ -78,7 +78,7 @@ public class ViewTest
 	@Test
 	public void testGetParentTaxonomy_ChildView_ParentExists() throws Exception
 	{
-		Taxonomy taxonomy = TaxonomyTestUtility.getTestTaxonomy( compiledTaxonomyDir, this.getClass().getPackage().getName(), "ViewTest_GetParentTaxonomy" );
+		Taxonomy taxonomy = TaxonomyTestUtility.getTestTaxonomy( compiledTaxonomyDir, "a.b.c", "ViewTest_GetParentTaxonomy" );
 		View view = taxonomy.getView( B1.class.getCanonicalName() );
 		Taxonomy currentParent = view.getParentTaxonomy();
 		assertNotNull( currentParent );

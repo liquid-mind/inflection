@@ -37,7 +37,7 @@ public class BlackboxTest
 	public static void beforeClass() throws Exception
 	{
 		StringBuilder builder = new StringBuilder();
-		builder.append( "package ch.liquidmind.inflection.test.blackbox;" );
+		builder.append( "package a.b.c;" );
 		builder.append( "import ch.liquidmind.inflection.test.model.*;" );
 		builder.append( "taxonomy BlackboxTestTaxonomy" );
 		builder.append( "{" );
@@ -53,8 +53,8 @@ public class BlackboxTest
 		builder.append( "	view B1 { *; }" );
 		builder.append( "}" );
 
-		compiledTaxonomyDir = InflectionCompilerTestUtility.compileInflection( new InflectionFileMock("ch.liquidmind.inflection.test.blackbox", builder.toString()) );
-		Taxonomy taxonomy = TaxonomyTestUtility.getTestTaxonomy( compiledTaxonomyDir, BlackboxTest.class.getPackage().getName(), "BlackboxTestTaxonomy" );
+		compiledTaxonomyDir = InflectionCompilerTestUtility.compileInflection( new InflectionFileMock("a.b.c", builder.toString()) );
+		Taxonomy taxonomy = TaxonomyTestUtility.getTestTaxonomy( compiledTaxonomyDir, "a.b.c", "BlackboxTestTaxonomy" );
 		View view = taxonomy.getView( B1.class.getName() );
 		compiledProxyDir = ProxyGeneratorTestUtility.createProxy( taxonomy, view );
 	}
@@ -116,7 +116,7 @@ public class BlackboxTest
 	private Proxy createTestViewB1() throws ClassNotFoundException, IOException, InstantiationException, IllegalAccessException
 	{
 		Proxy proxy = ProxyGeneratorTestUtility
-			.loadProxy( compiledTaxonomyDir, compiledProxyDir, "ch.liquidmind.inflection.test.blackbox.BlackboxTestTaxonomy.ch.liquidmind.inflection.test.model.BlackboxTestTaxonomy_B1" );
+			.loadProxy( compiledTaxonomyDir, compiledProxyDir, "a.b.c.BlackboxTestTaxonomy.ch.liquidmind.inflection.test.model.BlackboxTestTaxonomy_B1" );
 		return proxy;
 	}
 

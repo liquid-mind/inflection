@@ -48,7 +48,7 @@ public final class InflectionCompilerTestUtility
 			inflectFileList.add( file.toFile() );
 			c++;
 		}
-		return new CompilationJob( taxonomyLoader, __Files.createTempDirectory( null, "tax", new FileAttribute<?>[0] ).toFile(), CompilationMode.BOOTSTRAP, inflectFileList.toArray( new File[inflectFileList.size()] ) );
+		return new CompilationJob( taxonomyLoader, __Files.createTempDirectory( null, "tax", new FileAttribute<?>[0] ).toFile(), CompilationMode.NORMAL, inflectFileList.toArray( new File[inflectFileList.size()] ) );
 	}
 		
 	public static File compileInflection(InflectionFileMock... inflectionFileMocks) {

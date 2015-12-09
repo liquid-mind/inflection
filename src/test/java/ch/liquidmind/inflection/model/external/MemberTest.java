@@ -22,7 +22,7 @@ public class MemberTest
 	public static void beforeClass() throws Exception
 	{
 		StringBuilder builder = new StringBuilder();
-		builder.append( "package ch.liquidmind.inflection.model.external;" );
+		builder.append( "package a.b.c;" );
 		builder.append( "import ch.liquidmind.inflection.test.model.*;" );
 		builder.append( "taxonomy MemberTestTaxonomy {}" );
 		builder.append( "taxonomy MemberTest_GetSelectionTypeTaxonomy extends MemberTestTaxonomy" );
@@ -30,13 +30,13 @@ public class MemberTest
 		builder.append( "	view A { *; }" );
 		builder.append( "}" );
 
-		compiledTaxonomyDir = InflectionCompilerTestUtility.compileInflection( new InflectionFileMock( "ch.liquidmind.inflection.model.external", builder.toString() ));
+		compiledTaxonomyDir = InflectionCompilerTestUtility.compileInflection( new InflectionFileMock( "a.b.c", builder.toString() ));
 	}
 
 	@Test
 	public void testGetSelectionType_Include_CorrectType() throws Exception
 	{
-		Taxonomy taxonomy = TaxonomyTestUtility.getTestTaxonomy( compiledTaxonomyDir, this.getClass().getPackage().getName(), "MemberTest_GetSelectionTypeTaxonomy" );
+		Taxonomy taxonomy = TaxonomyTestUtility.getTestTaxonomy( compiledTaxonomyDir, "a.b.c", "MemberTest_GetSelectionTypeTaxonomy" );
 		View view = taxonomy.getView( A.class.getCanonicalName() );
 		Member member = view.getDeclaredMember( "id" );
 		assertEquals( SelectionType.INCLUDE, member.getSelectionType() );

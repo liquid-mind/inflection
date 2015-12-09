@@ -22,7 +22,7 @@ public class ProxyGeneratorTest
 	{
 		StringBuilder builder = new StringBuilder();
 
-		builder.append( "package ch.liquidmind.inflection.proxy;" );
+		builder.append( "package a.b.c;" );
 		builder.append( "import ch.liquidmind.inflection.test.model.*;" );
 		
 		builder.append( "taxonomy ProxyGeneratorSuperTaxonomy" );
@@ -35,13 +35,13 @@ public class ProxyGeneratorTest
 		builder.append( "	view * { *; }" );
 		builder.append( "}" );
 
-		compiledTaxonomyDir = InflectionCompilerTestUtility.compileInflection( new InflectionFileMock( "ch.liquidmind.inflection.proxy", builder.toString() ) );
+		compiledTaxonomyDir = InflectionCompilerTestUtility.compileInflection( new InflectionFileMock( "a.b.c", builder.toString() ) );
 	}
 
 	@Test
 	public void testGenerate() throws Exception
 	{
-		Taxonomy taxonomy = TaxonomyTestUtility.getTestTaxonomy( compiledTaxonomyDir, this.getClass().getPackage().getName(), "ProxyGeneratorSuperTaxonomy" );
+		Taxonomy taxonomy = TaxonomyTestUtility.getTestTaxonomy( compiledTaxonomyDir, "a.b.c", "ProxyGeneratorSuperTaxonomy" );
 		ProxyGenerator generator = new ProxyGenerator( Files.createTempDir(), taxonomy );
 		generator.generateTaxonomy();
 	}
