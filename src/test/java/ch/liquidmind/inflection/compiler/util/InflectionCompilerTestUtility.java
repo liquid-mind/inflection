@@ -59,7 +59,7 @@ public final class InflectionCompilerTestUtility
 	
 	public static void assertSuccessfulCompilation(CompilationJob job) {
 		assertFalse( "Compilation units must exist", job.getCompilationUnits().isEmpty() );
-		assertTrue( "Compilation errors must not exist", job.getCompilationFaults().isEmpty() );		
+		assertFalse( "Compilation errors must not exist", job.hasCompilationErrors() );		
 	}
 	
 	public static void assertCompilationFailure(CompilationJob job) {
