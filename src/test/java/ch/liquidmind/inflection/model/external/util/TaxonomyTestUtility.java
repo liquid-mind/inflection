@@ -2,7 +2,6 @@ package ch.liquidmind.inflection.model.external.util;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.URL;
 import java.net.URLClassLoader;
 
 import ch.liquidmind.inflection.loader.TaxonomyLoader;
@@ -12,16 +11,17 @@ import ch.liquidmind.inflection.test.TestUtility;
 public final class TaxonomyTestUtility
 {
 
-	public static Taxonomy getTestTaxonomy( File compiledTaxonomyDir, String packageName, String taxonomyName ) throws IOException 
+	public static Taxonomy getTestTaxonomy( File compiledTaxonomyDirectory, String packageName, String taxonomyName ) throws IOException 
 	{
-		URL[] compiledTaxonomyDirs = TestUtility.convertToURLArray( compiledTaxonomyDir );
-		URLClassLoader taxonomyClassLoader = new URLClassLoader( compiledTaxonomyDirs , ClassLoader.getSystemClassLoader() );
-		TaxonomyLoader taxonomyLoader = new TaxonomyLoader( TaxonomyLoader.getSystemTaxonomyLoader(), taxonomyClassLoader );
+		TaxonomyLoader taxonomyLoader = createTaxonomyLoader( compiledTaxonomyDirectory );
 		Taxonomy taxonomy = taxonomyLoader.loadTaxonomy( packageName + "." + taxonomyName );
-		taxonomyClassLoader.close();
 		return taxonomy;
 	}
 	
-	
+	public static TaxonomyLoader createTaxonomyLoader(File... compiledTaxonomyDirectories) {
+		URLClassLoader taxonomyClassLoader = new URLClassLoader( TestUtility.convertToURLArray( compiledTaxonomyDirectories ) , ClassLoader.getSystemClassLoader() );
+		TaxonomyLoader taxonomyLoader = new TaxonomyLoader( TaxonomyLoader.getSystemTaxonomyLoader(), taxonomyClassLoader );
+		return taxonomyLoader;
+	}
 
 }

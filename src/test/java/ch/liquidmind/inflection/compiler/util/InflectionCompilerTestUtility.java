@@ -20,8 +20,11 @@ import ch.liquidmind.inflection.test.InflectionFileMock;
 
 public final class InflectionCompilerTestUtility
 {
-		
 	public static CompilationJob createCompilationJob( InflectionFileMock... inflectionFileMocks ) {
+		return createCompilationJob( TaxonomyLoader.getSystemTaxonomyLoader(), inflectionFileMocks );
+	}
+	
+	public static CompilationJob createCompilationJob( TaxonomyLoader taxonomyLoader, InflectionFileMock... inflectionFileMocks ) {
 		if (inflectionFileMocks == null) {
 			throw new IllegalArgumentException("inflectionFileMocks must not be null");
 		}
@@ -45,7 +48,7 @@ public final class InflectionCompilerTestUtility
 			inflectFileList.add( file.toFile() );
 			c++;
 		}
-		return new CompilationJob( TaxonomyLoader.getSystemTaxonomyLoader(), __Files.createTempDirectory( null, "tax", new FileAttribute<?>[0] ).toFile(), CompilationMode.BOOTSTRAP, inflectFileList.toArray( new File[inflectFileList.size()] ) );
+		return new CompilationJob( taxonomyLoader, __Files.createTempDirectory( null, "tax", new FileAttribute<?>[0] ).toFile(), CompilationMode.BOOTSTRAP, inflectFileList.toArray( new File[inflectFileList.size()] ) );
 	}
 		
 	public static File compileInflection(InflectionFileMock... inflectionFileMocks) {

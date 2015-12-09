@@ -3,6 +3,7 @@ package ch.liquidmind.inflection.test;
 import ch.liquidmind.inflection.compiler.CompilationJob;
 import ch.liquidmind.inflection.compiler.InflectionCompiler;
 import ch.liquidmind.inflection.compiler.util.InflectionCompilerTestUtility;
+import ch.liquidmind.inflection.loader.TaxonomyLoader;
 
 public abstract class AbstractInflectionTest
 {
@@ -14,7 +15,13 @@ public abstract class AbstractInflectionTest
 
 	public void doTest( AssertCompilationResult assertCompilationResult, InflectionFileMock... inflectionFileMocks )
 	{
-		CompilationJob job = InflectionCompilerTestUtility.createCompilationJob( inflectionFileMocks );
+		doTest( assertCompilationResult, TaxonomyLoader.getSystemTaxonomyLoader(), inflectionFileMocks );
+	}
+	
+	
+	public void doTest( AssertCompilationResult assertCompilationResult, TaxonomyLoader taxonomyLoader, InflectionFileMock... inflectionFileMocks )
+	{
+		CompilationJob job = InflectionCompilerTestUtility.createCompilationJob( taxonomyLoader, inflectionFileMocks );
 		InflectionCompiler.compile( job );
 		
 		assertCompilationResult.doAssert( job );

@@ -18,6 +18,7 @@ import com.google.common.io.Files;
 import ch.liquidmind.inflection.loader.TaxonomyLoader;
 import ch.liquidmind.inflection.model.external.Taxonomy;
 import ch.liquidmind.inflection.model.external.View;
+import ch.liquidmind.inflection.model.external.util.TaxonomyTestUtility;
 import ch.liquidmind.inflection.proxy.Proxy;
 import ch.liquidmind.inflection.proxy.ProxyGenerator;
 import ch.liquidmind.inflection.test.TestUtility;
@@ -47,9 +48,8 @@ public final class ProxyGeneratorTestUtility
         return outputDir;
 	}
 	
-	public static Proxy loadProxy(File compileTaxonomyDir, File compiledProxyDir, String fullyQualifiedClassName) throws ClassNotFoundException, IOException, InstantiationException, IllegalAccessException {
-		URLClassLoader taxonomyClassLoader = new URLClassLoader( TestUtility.convertToURLArray( compileTaxonomyDir ) , ClassLoader.getSystemClassLoader() );
-		TaxonomyLoader taxonomyLoader = new TaxonomyLoader( TaxonomyLoader.getSystemTaxonomyLoader(), taxonomyClassLoader );
+	public static Proxy loadProxy(File compiledTaxonomyDirectory, File compiledProxyDir, String fullyQualifiedClassName) throws ClassNotFoundException, IOException, InstantiationException, IllegalAccessException {
+		TaxonomyLoader taxonomyLoader = TaxonomyTestUtility.createTaxonomyLoader( compiledTaxonomyDirectory );
 		
         // Load proxy
 		URLClassLoader proxyClassLoader = new URLClassLoader( TestUtility.convertToURLArray( compiledProxyDir ), ClassLoader.getSystemClassLoader() );
