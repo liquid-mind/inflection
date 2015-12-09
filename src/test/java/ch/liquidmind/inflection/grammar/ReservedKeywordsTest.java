@@ -12,7 +12,7 @@ import ch.liquidmind.inflection.compiler.util.InflectionCompilerTestUtility;
 import ch.liquidmind.inflection.test.AbstractInflectionTest;
 
 @RunWith( Parameterized.class )
-public class GrammarReservedKeywordsTest extends AbstractInflectionTest
+public class ReservedKeywordsTest extends AbstractInflectionTest
 {
 
 	private static String[] reservedKeywords = new String[] { "abstract", "continue", "for", "new", "switch", "assert", "default", "goto", "package", 
@@ -33,7 +33,7 @@ public class GrammarReservedKeywordsTest extends AbstractInflectionTest
 
 	private final String reservedKeyword;
 
-	public GrammarReservedKeywordsTest( String reservedKeyword )
+	public ReservedKeywordsTest( String reservedKeyword )
 	{
 		this.reservedKeyword = reservedKeyword;
 	}

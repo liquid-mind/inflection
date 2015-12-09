@@ -4,7 +4,7 @@ import ch.liquidmind.inflection.compiler.CompilationJob;
 import ch.liquidmind.inflection.compiler.InflectionCompiler;
 import ch.liquidmind.inflection.compiler.util.InflectionCompilerTestUtility;
 
-public class AbstractInflectionTest
+public abstract class AbstractInflectionTest
 {
 
 	public static interface AssertCompilationResult

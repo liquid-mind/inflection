@@ -12,7 +12,7 @@ import ch.liquidmind.inflection.compiler.util.InflectionCompilerTestUtility;
 import ch.liquidmind.inflection.test.AbstractInflectionTest;
 
 @RunWith( Parameterized.class )
-public class GrammarIdentifierTest extends AbstractInflectionTest
+public class IdentifierTest extends AbstractInflectionTest
 {
 
 	@Parameters( name = "{index}: Identifier: {0}, expected compilation: {1}" )
@@ -44,7 +44,7 @@ public class GrammarIdentifierTest extends AbstractInflectionTest
 	private final String identifier;
 	private final boolean successful;
 
-	public GrammarIdentifierTest( String identifier, boolean successful )
+	public IdentifierTest( String identifier, boolean successful )
 	{
 		this.identifier = identifier;
 		this.successful = successful;

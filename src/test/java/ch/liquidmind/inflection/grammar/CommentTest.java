@@ -12,7 +12,7 @@ import ch.liquidmind.inflection.compiler.util.InflectionCompilerTestUtility;
 import ch.liquidmind.inflection.test.AbstractInflectionTest;
 
 @RunWith( Parameterized.class )
-public class GrammarCommentTest extends AbstractInflectionTest
+public class CommentTest extends AbstractInflectionTest
 {
 
 	@Parameters( name = "{index}: File content: {0}, expected compilation: {1}" )
@@ -54,14 +54,14 @@ public class GrammarCommentTest extends AbstractInflectionTest
 	private final String fileContent;
 	private final boolean successful;
 
-	public GrammarCommentTest( String fileContent, boolean successful )
+	public CommentTest( String fileContent, boolean successful )
 	{
 		this.fileContent = fileContent;
 		this.successful = successful;
 	}
 
 	@Test
-	public void test()
+	public void testComment()
 	{
 		doTest( job -> {
 			if ( successful )
