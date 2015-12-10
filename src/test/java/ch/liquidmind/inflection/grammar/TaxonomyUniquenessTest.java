@@ -10,7 +10,7 @@ public class TaxonomyUniquenessTest extends AbstractInflectionTest
 {
 	
 	@Test
-	public void testTaxonomyUniqueness_DuplicateTaxonomyInSameFile_CompilationFailure() throws Exception
+	public void testTaxonomyUniqueness_DuplicateTaxonomyNamedPackageInSameFile_CompilationFailure() throws Exception
 	{
 		doTest( job -> {
 			InflectionCompilerTestUtility.assertCompilationFailure( job );
@@ -18,7 +18,7 @@ public class TaxonomyUniquenessTest extends AbstractInflectionTest
 	}
 	
 	@Test
-	public void testTaxonomyUniqueness_DuplicateTaxonomyInDifferentFiles_CompilationFailure() throws Exception
+	public void testTaxonomyUniqueness_DuplicateTaxonomyNamedPackageInDifferentFiles_CompilationFailure() throws Exception
 	{
 		doTest( job -> {
 			InflectionCompilerTestUtility.assertCompilationFailure( job );
@@ -27,7 +27,33 @@ public class TaxonomyUniquenessTest extends AbstractInflectionTest
 	}
 	
 	@Test
-	public void testTaxonomyUniqueness_DuplicateTaxonomyOnClasspath_CompilationFailure() throws Exception
+	public void testTaxonomyUniqueness_DuplicateTaxonomyUnnamedPackageInDifferentFiles_CompilationFailure() throws Exception
+	{
+		doTest( job -> {
+			InflectionCompilerTestUtility.assertCompilationFailure( job );
+		} , createInflectionFileMock( "taxonomy A {}" ), 
+			createInflectionFileMock( "taxonomy A {}" ) );
+	}
+	
+	@Test
+	public void testTaxonomyUniqueness_DuplicateTaxonomyUnnamedPackageInSameFile_CompilationFailure() throws Exception
+	{
+		doTest( job -> {
+			InflectionCompilerTestUtility.assertCompilationFailure( job );
+		} , createInflectionFileMock( "taxonomy A {} taxonomy A {}" ) );
+	}
+	
+	@Test
+	public void testTaxonomyUniqueness_DuplicateTaxonomyNamedAndUnnamedPackageInDifferentFiles_SuccessfulCompilation() throws Exception
+	{
+		doTest( job -> {
+			InflectionCompilerTestUtility.assertSuccessfulCompilation( job );
+		} , createInflectionFileMock( "a", "package a; taxonomy A {}" ), 
+			createInflectionFileMock( "taxonomy A {}" ) );
+	}
+		
+	@Test
+	public void testTaxonomyUniqueness_DuplicateTaxonomyNamedPackageOnClasspath_CompilationFailure() throws Exception
 	{
 		InflectionFileMock[] classpath = { createInflectionFileMock( "a", "package a; taxonomy A {}" ) };
 		
@@ -37,7 +63,17 @@ public class TaxonomyUniquenessTest extends AbstractInflectionTest
 	}
 	
 	@Test
-	public void testTaxonomyUniqueness_DifferentTaxonomiesInSameFile_SuccessfulCompilation() throws Exception
+	public void testTaxonomyUniqueness_DuplicateTaxonomyUnnamedPackageOnClasspath_SuccessfulCompilation() throws Exception
+	{
+		InflectionFileMock[] classpath = { createInflectionFileMock( "taxonomy A {}" ) };
+		
+		doTest( job -> {
+			InflectionCompilerTestUtility.assertSuccessfulCompilation( job );
+		} , classpath, createInflectionFileMock( "a", "package a; taxonomy A {}" ) );
+	}
+	
+	@Test
+	public void testTaxonomyUniqueness_DifferentTaxonomiesNamedPackageInSameFile_SuccessfulCompilation() throws Exception
 	{
 		doTest( job -> {
 			InflectionCompilerTestUtility.assertSuccessfulCompilation( job );
@@ -45,7 +81,15 @@ public class TaxonomyUniquenessTest extends AbstractInflectionTest
 	}
 	
 	@Test
-	public void testTaxonomyUniqueness_DifferentTaxonomiesInDifferentFiles_SuccessfulCompilation() throws Exception
+	public void testTaxonomyUniqueness_DifferentTaxonomiesUnnamedPackageInSameFile_SuccessfulCompilation() throws Exception
+	{
+		doTest( job -> {
+			InflectionCompilerTestUtility.assertSuccessfulCompilation( job );
+		} , createInflectionFileMock( "taxonomy A {} taxonomy B {}" ) );
+	}
+	
+	@Test
+	public void testTaxonomyUniqueness_DifferentTaxonomiesNamedPackageInDifferentFiles_SuccessfulCompilation() throws Exception
 	{
 		doTest( job -> {
 			InflectionCompilerTestUtility.assertSuccessfulCompilation( job );
@@ -54,13 +98,32 @@ public class TaxonomyUniquenessTest extends AbstractInflectionTest
 	}
 	
 	@Test
-	public void testTaxonomyUniqueness_DifferentTaxonomiesOnClasspath_SuccessfulCompilation() throws Exception
+	public void testTaxonomyUniqueness_DifferentTaxonomiesUnnamedPackageInDifferentFiles_SuccessfulCompilation() throws Exception
+	{
+		doTest( job -> {
+			InflectionCompilerTestUtility.assertSuccessfulCompilation( job );
+		} , createInflectionFileMock( "taxonomy A {}" ), 
+			createInflectionFileMock( "taxonomy B {}" ) );
+	}
+	
+	@Test
+	public void testTaxonomyUniqueness_DifferentTaxonomiesNamedPackageOnClasspath_SuccessfulCompilation() throws Exception
 	{
 		InflectionFileMock[] classpath = { createInflectionFileMock( "a", "package a; taxonomy A {}" ) };
 		
 		doTest( job -> {
 			InflectionCompilerTestUtility.assertSuccessfulCompilation( job );
 		} , classpath, createInflectionFileMock( "a", "package a; taxonomy B {}" ) );
+	}
+	
+	@Test
+	public void testTaxonomyUniqueness_DifferentTaxonomiesUnnamedPackageOnClasspath_SuccessfulCompilation() throws Exception
+	{
+		InflectionFileMock[] classpath = { createInflectionFileMock( "taxonomy A {}" ) };
+		
+		doTest( job -> {
+			InflectionCompilerTestUtility.assertSuccessfulCompilation( job );
+		} , classpath, createInflectionFileMock( "taxonomy B {}" ) );
 	}
 
 }
