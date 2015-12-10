@@ -29,14 +29,13 @@ public abstract class AbstractInflectionTest
 			javaClassLoader = InflectionCompilerTestUtility.compileJava( javaFileMocksOnClasspath );
 		}
 
-		ClassLoader classLoader = ClassLoader.getSystemClassLoader();
 		if ( inflectionFileMocksOnClasspath != null )
 		{
 			TaxonomyLoader taxonomyLoader = InflectionCompilerTestUtility.compileInflection( javaClassLoader, inflectionFileMocksOnClasspath );
-			classLoader = taxonomyLoader.getClassLoader();
+			javaClassLoader = taxonomyLoader.getClassLoader();
 		}
 
-		CompilationJob job = InflectionCompilerTestUtility.createCompilationJob( classLoader, inflectionFileMocks );
+		CompilationJob job = InflectionCompilerTestUtility.createCompilationJob( javaClassLoader, inflectionFileMocks );
 		InflectionCompiler.compile( job );
 
 		assertCompilationResult.doAssert( job );
