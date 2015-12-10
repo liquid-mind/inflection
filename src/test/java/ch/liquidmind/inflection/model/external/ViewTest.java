@@ -10,11 +10,12 @@ import org.junit.Test;
 
 import ch.liquidmind.inflection.compiler.util.InflectionCompilerTestUtility;
 import ch.liquidmind.inflection.model.external.util.TaxonomyTestUtility;
-import ch.liquidmind.inflection.test.InflectionFileMock;
+import ch.liquidmind.inflection.test.AbstractInflectionTest;
+import ch.liquidmind.inflection.test.mock.InflectionFileMock;
 import ch.liquidmind.inflection.test.model.A;
 import ch.liquidmind.inflection.test.model.B1;
 
-public class ViewTest
+public class ViewTest extends AbstractInflectionTest
 {
 
 	private static File compiledTaxonomyDir;
@@ -48,7 +49,7 @@ public class ViewTest
 		builder.append( "	view B1 { *; }	" );
 		builder.append( "}" );
 
-		compiledTaxonomyDir = InflectionCompilerTestUtility.compileInflection( new InflectionFileMock( "a.b.c", builder.toString() ));
+		compiledTaxonomyDir = InflectionCompilerTestUtility.compileInflection( new InflectionFileMock( "a.b.c", builder.toString() ) );
 	}
 
 	@Test

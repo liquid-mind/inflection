@@ -18,25 +18,24 @@ public class IdentifierTest extends AbstractInflectionTest
 	@Parameters( name = "{index}: Identifier: {0}, expected compilation: {1}" )
 	public static Collection< Object[] > data()
 	{
-		return Arrays.asList( new Object[][] { 
-			    { "A", true },
-			    
+		return Arrays.asList( new Object[][] { { "A", true },
+
 				{ "_A", true },
-				
+
 				{ "A_", true },
-				
+
 				{ "$A", true },
-				
+
 				{ "A$", true },
-				
+
 				{ "A1", true },
-				
+
 				{ "1A", true }, // <inflection-error/> 1A is a reserved literal value, should not compile
-				
+
 				{ "true", true }, // <inflection-error/> true is a reserved literal value, should not compile
-				
+
 				{ "false", true }, // <inflection-error/> false is a reserved literal value, should not compile
-				
+
 				{ "null", true } // <inflection-error/> null is a reserved literal value, should not compile
 		} );
 	}
@@ -62,7 +61,7 @@ public class IdentifierTest extends AbstractInflectionTest
 			{
 				InflectionCompilerTestUtility.assertCompilationFailure( job );
 			}
-		} , createInflectionFileMock( "taxonomy " + identifier + " {}") );
+		} , createInflectionFileMock( "taxonomy " + identifier + " {}" ) );
 	}
 
 }

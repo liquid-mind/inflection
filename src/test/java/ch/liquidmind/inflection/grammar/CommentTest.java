@@ -18,8 +18,7 @@ public class CommentTest extends AbstractInflectionTest
 	@Parameters( name = "{index}: File content: {0}, expected compilation: {1}" )
 	public static Collection< Object[] > data()
 	{
-		return Arrays.asList( new Object[][] { { 
-			    "// comment", true },
+		return Arrays.asList( new Object[][] { { "// comment", true },
 
 				{ "/* comment */", true },
 
@@ -28,25 +27,25 @@ public class CommentTest extends AbstractInflectionTest
 				{ "/* comment begin" + System.lineSeparator() + " comment end */", true },
 
 				{ "/* comment begin" + System.lineSeparator() + " comment end", true }, // TODO <inflection-error/> missing comment end, should not compile: true -> false
-				
+
 				{ "/* // */", true },
-				
+
 				{ "/* //", true }, // TODO <inflection-error/> missing comment end, should not compile: true -> false
-				
+
 				{ "// /*", true },
-				
+
 				{ "// */", true },
-				
+
 				{ "taxonomy A { /* }", false },
-				
+
 				{ "taxonomy A { /* */ }", true },
-				
+
 				{ "taxonomy A { /* " + System.lineSeparator() + " */ }", true },
-				
-				{ "taxonomy A { /* " + System.lineSeparator()+ "}", false },
-				
+
+				{ "taxonomy A { /* " + System.lineSeparator() + "}", false },
+
 				{ "taxonomy A { // }", false },
-				
+
 				{ "taxonomy A { // " + System.lineSeparator() + "}", true }
 		} );
 	}

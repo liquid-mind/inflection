@@ -26,42 +26,45 @@ import ch.liquidmind.inflection.test.TestUtility;
 public final class ProxyGeneratorTestUtility
 {
 
-	public static File createProxy(Taxonomy taxonomy, View view) {
+	public static File createProxy( Taxonomy taxonomy, View view )
+	{
 		// Generate proxy
 		File proxyDirs = Files.createTempDir();
 		ProxyGenerator gen = new ProxyGenerator( proxyDirs, taxonomy );
 		gen.generateTaxonomy();
 
-	    String path = proxyDirs.toURI().getPath() + ProxyGenerator.getFullyQualifiedViewName( taxonomy, view ).replace( ".", File.separator ) + ".java";
-	    File file = new File( path );
-	    
-	    // Compile proxy
-	    File outputDir = Files.createTempDir();
-	    JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
-	    DiagnosticCollector<JavaFileObject> diagnostics = new DiagnosticCollector<JavaFileObject>();
-	    StandardJavaFileManager fileManager = compiler.getStandardFileManager(diagnostics, null, null);
-	    Iterable<? extends JavaFileObject> compilationUnits = fileManager.getJavaFileObjects( file );
-        Iterable<String> options = Arrays.asList("-d", outputDir.getAbsolutePath());
-	    JavaCompiler.CompilationTask task = compiler.getTask(null, fileManager, diagnostics, options, null, compilationUnits);
-        Boolean result = task.call();
-        assertTrue("Successful Proxy Compilation",  result );
-        return outputDir;
+		String path = proxyDirs.toURI().getPath() + ProxyGenerator.getFullyQualifiedViewName( taxonomy, view ).replace( ".", File.separator ) + ".java";
+		File file = new File( path );
+
+		// Compile proxy
+		File outputDir = Files.createTempDir();
+		JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
+		DiagnosticCollector< JavaFileObject > diagnostics = new DiagnosticCollector< JavaFileObject >();
+		StandardJavaFileManager fileManager = compiler.getStandardFileManager( diagnostics, null, null );
+		Iterable< ? extends JavaFileObject > compilationUnits = fileManager.getJavaFileObjects( file );
+		Iterable< String > options = Arrays.asList( "-d", outputDir.getAbsolutePath() );
+		JavaCompiler.CompilationTask task = compiler.getTask( null, fileManager, diagnostics, options, null, compilationUnits );
+		Boolean result = task.call();
+		assertTrue( "Successful Proxy Compilation", result );
+		return outputDir;
 	}
-	
-	public static Proxy loadProxy(File compiledTaxonomyDirectory, File compiledProxyDir, String fullyQualifiedClassName) throws ClassNotFoundException, IOException, InstantiationException, IllegalAccessException {
-		TaxonomyLoader taxonomyLoader = TaxonomyTestUtility.createTaxonomyLoader( compiledTaxonomyDirectory );
-		
-        // Load proxy
+
+	public static Proxy loadProxy( File compiledTaxonomyDirectory, File compiledProxyDir, String fullyQualifiedClassName )
+			throws ClassNotFoundException, IOException, InstantiationException, IllegalAccessException
+	{
+		TaxonomyLoader taxonomyLoader = TaxonomyTestUtility.createTaxonomyLoader( ClassLoader.getSystemClassLoader(), compiledTaxonomyDirectory );
+
+		// Load proxy
 		URLClassLoader proxyClassLoader = new URLClassLoader( TestUtility.convertToURLArray( compiledProxyDir ), ClassLoader.getSystemClassLoader() );
-		Class<?> proxy = proxyClassLoader.loadClass( fullyQualifiedClassName );
+		Class< ? > proxy = proxyClassLoader.loadClass( fullyQualifiedClassName );
 		proxyClassLoader.close();
 
 		// Instantiate proxy
 		TaxonomyLoader.setContextTaxonomyLoader( taxonomyLoader );
 		Object proxyObject = proxy.newInstance();
-		
+
 		assertTrue( "must be instance of proxy", proxyObject instanceof Proxy );
-		return (Proxy) proxyObject;
+		return (Proxy)proxyObject;
 	}
-	
+
 }

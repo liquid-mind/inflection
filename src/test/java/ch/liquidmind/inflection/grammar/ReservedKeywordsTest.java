@@ -15,10 +15,7 @@ import ch.liquidmind.inflection.test.AbstractInflectionTest;
 public class ReservedKeywordsTest extends AbstractInflectionTest
 {
 
-	private static String[] reservedKeywords = new String[] { "abstract", "continue", "for", "new", "switch", "assert", "default", "goto", "package", 
-			"synchronized", "boolean", "do", "if", "private", "this", "break", "double", "implements", "protected", "throw", "byte", "else", 
-			"import", "public", "throws", "case", "enum", "instanceof", "return", "transient", "catch", "extends", "int", "short", "try", "char", 
-			"final", "interface", "static", "void", "class", "finally", "long", "strictfp", "volatile", "const", "float", "native", "super", "while" };
+	private static String[] reservedKeywords = new String[] { "abstract", "continue", "for", "new", "switch", "assert", "default", "goto", "package", "synchronized", "boolean", "do", "if", "private", "this", "break", "double", "implements", "protected", "throw", "byte", "else", "import", "public", "throws", "case", "enum", "instanceof", "return", "transient", "catch", "extends", "int", "short", "try", "char", "final", "interface", "static", "void", "class", "finally", "long", "strictfp", "volatile", "const", "float", "native", "super", "while" };
 
 	@Parameters( name = "{index}: Reserved keyword: {0}" )
 	public static Collection< Object[] > data()

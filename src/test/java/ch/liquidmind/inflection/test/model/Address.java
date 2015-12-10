@@ -7,12 +7,12 @@ public class Address extends IdentifiableObject
 {
 	private String street, city, zip, country;
 	private List< Person > people = new ArrayList< Person >();
-	
+
 	public Address()
 	{
 		super();
 	}
-	
+
 	public Address( long id, String street, String city, String zip, String country )
 	{
 		super( id );

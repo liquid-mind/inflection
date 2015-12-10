@@ -19,8 +19,8 @@ import ch.liquidmind.inflection.model.external.util.TaxonomyTestUtility;
 import ch.liquidmind.inflection.proxy.Proxy;
 import ch.liquidmind.inflection.proxy.ProxyRegistry;
 import ch.liquidmind.inflection.proxy.util.ProxyGeneratorTestUtility;
-import ch.liquidmind.inflection.test.InflectionFileMock;
 import ch.liquidmind.inflection.test.TestUtility;
+import ch.liquidmind.inflection.test.mock.InflectionFileMock;
 import ch.liquidmind.inflection.test.model.B1;
 import ch.liquidmind.inflection.test.model.TestEnum;
 
@@ -53,7 +53,7 @@ public class BlackboxTest
 		builder.append( "	view B1 { *; }" );
 		builder.append( "}" );
 
-		compiledTaxonomyDir = InflectionCompilerTestUtility.compileInflection( new InflectionFileMock("a.b.c", builder.toString()) );
+		compiledTaxonomyDir = InflectionCompilerTestUtility.compileInflection( new InflectionFileMock( "a.b.c", builder.toString() ) );
 		Taxonomy taxonomy = TaxonomyTestUtility.getTestTaxonomy( compiledTaxonomyDir, "a.b.c", "BlackboxTestTaxonomy" );
 		View view = taxonomy.getView( B1.class.getName() );
 		compiledProxyDir = ProxyGeneratorTestUtility.createProxy( taxonomy, view );

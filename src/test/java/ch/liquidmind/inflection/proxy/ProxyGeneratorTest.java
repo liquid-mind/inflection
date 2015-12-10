@@ -10,7 +10,7 @@ import com.google.common.io.Files;
 import ch.liquidmind.inflection.compiler.util.InflectionCompilerTestUtility;
 import ch.liquidmind.inflection.model.external.Taxonomy;
 import ch.liquidmind.inflection.model.external.util.TaxonomyTestUtility;
-import ch.liquidmind.inflection.test.InflectionFileMock;
+import ch.liquidmind.inflection.test.mock.InflectionFileMock;
 
 public class ProxyGeneratorTest
 {
@@ -24,7 +24,7 @@ public class ProxyGeneratorTest
 
 		builder.append( "package a.b.c;" );
 		builder.append( "import ch.liquidmind.inflection.test.model.*;" );
-		
+
 		builder.append( "taxonomy ProxyGeneratorSuperTaxonomy" );
 		builder.append( "{" );
 		builder.append( "	view A { *; }" );
