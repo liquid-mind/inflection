@@ -3,12 +3,15 @@ package ch.liquidmind.inflection.test;
 import java.io.File;
 import java.lang.reflect.Method;
 import java.net.URL;
+import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.List;
 
 import __java.io.__File;
 import __java.lang.__Class;
 import __java.lang.reflect.__Method;
+import ch.liquidmind.inflection.compiler.CompilationJob;
+import ch.liquidmind.inflection.loader.TaxonomyLoader;
 
 public final class TestUtility
 {
@@ -33,6 +36,10 @@ public final class TestUtility
 		}
 		Method method = __Class.getMethod( p.getClass(), methodName, paramClasses.toArray( new Class< ? >[ paramClasses.size() ] ) );
 		return __Method.invoke( method, p, params );
+	}
+	
+	public static TaxonomyLoader getTaxonomyLoader(CompilationJob job) {
+		return new TaxonomyLoader( TaxonomyLoader.getSystemTaxonomyLoader(), new URLClassLoader( TestUtility.convertToURLArray( job.getTargetDirectory() ), job.getTaxonomyLoader().getClassLoader() ) );
 	}
 
 	public static String generateMember( String type, String name )
