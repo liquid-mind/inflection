@@ -1,13 +1,9 @@
 package ch.liquidmind.inflection.test;
 
-import java.io.File;
-import java.net.URLClassLoader;
-
 import ch.liquidmind.inflection.compiler.CompilationJob;
 import ch.liquidmind.inflection.compiler.InflectionCompiler;
 import ch.liquidmind.inflection.compiler.util.InflectionCompilerTestUtility;
 import ch.liquidmind.inflection.loader.TaxonomyLoader;
-import ch.liquidmind.inflection.model.external.util.TaxonomyTestUtility;
 import ch.liquidmind.inflection.test.mock.InflectionFileMock;
 import ch.liquidmind.inflection.test.mock.JavaFileMock;
 
@@ -30,18 +26,17 @@ public abstract class AbstractInflectionTest
 		ClassLoader javaClassLoader = ClassLoader.getSystemClassLoader();
 		if ( javaFileMocksOnClasspath != null )
 		{
-			File compiledJavaDir = InflectionCompilerTestUtility.compileJava( javaFileMocksOnClasspath );
-			javaClassLoader = new URLClassLoader( TestUtility.convertToURLArray( compiledJavaDir ), null );
+			javaClassLoader = InflectionCompilerTestUtility.compileJava( javaFileMocksOnClasspath );
 		}
 
-		TaxonomyLoader inflectionTaxonomyLoader = TaxonomyLoader.getSystemTaxonomyLoader();
+		ClassLoader classLoader = ClassLoader.getSystemClassLoader();
 		if ( inflectionFileMocksOnClasspath != null )
 		{
-			File compiledTaxonomyDirectory = InflectionCompilerTestUtility.compileInflection( inflectionFileMocksOnClasspath );
-			inflectionTaxonomyLoader = TaxonomyTestUtility.createTaxonomyLoader( javaClassLoader, compiledTaxonomyDirectory );
+			TaxonomyLoader taxonomyLoader = InflectionCompilerTestUtility.compileInflection( javaClassLoader, inflectionFileMocksOnClasspath );
+			classLoader = taxonomyLoader.getClassLoader();
 		}
 
-		CompilationJob job = InflectionCompilerTestUtility.createCompilationJob( inflectionTaxonomyLoader, inflectionFileMocks );
+		CompilationJob job = InflectionCompilerTestUtility.createCompilationJob( classLoader, inflectionFileMocks );
 		InflectionCompiler.compile( job );
 
 		assertCompilationResult.doAssert( job );

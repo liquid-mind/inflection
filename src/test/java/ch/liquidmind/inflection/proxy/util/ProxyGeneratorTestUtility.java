@@ -18,7 +18,6 @@ import com.google.common.io.Files;
 import ch.liquidmind.inflection.loader.TaxonomyLoader;
 import ch.liquidmind.inflection.model.external.Taxonomy;
 import ch.liquidmind.inflection.model.external.View;
-import ch.liquidmind.inflection.model.external.util.TaxonomyTestUtility;
 import ch.liquidmind.inflection.proxy.Proxy;
 import ch.liquidmind.inflection.proxy.ProxyGenerator;
 import ch.liquidmind.inflection.test.TestUtility;
@@ -42,17 +41,19 @@ public final class ProxyGeneratorTestUtility
 		DiagnosticCollector< JavaFileObject > diagnostics = new DiagnosticCollector< JavaFileObject >();
 		StandardJavaFileManager fileManager = compiler.getStandardFileManager( diagnostics, null, null );
 		Iterable< ? extends JavaFileObject > compilationUnits = fileManager.getJavaFileObjects( file );
-		Iterable< String > options = Arrays.asList( "-d", outputDir.getAbsolutePath() );
+		Iterable< String > options = Arrays.asList( "-d", outputDir.getAbsolutePath(), "-classpath", System.getProperty("java.class.path") );
 		JavaCompiler.CompilationTask task = compiler.getTask( null, fileManager, diagnostics, options, null, compilationUnits );
 		Boolean result = task.call();
-		assertTrue( "Successful Proxy Compilation", result );
+		assertTrue( "Successful Proxy Compilation: " + diagnostics.getDiagnostics().toString(), result );
 		return outputDir;
 	}
 
-	public static Proxy loadProxy( File compiledTaxonomyDirectory, File compiledProxyDir, String fullyQualifiedClassName )
+	public static Proxy loadProxy( File compiledProxyDir, String fullyQualifiedClassName )
 			throws ClassNotFoundException, IOException, InstantiationException, IllegalAccessException
 	{
-		TaxonomyLoader taxonomyLoader = TaxonomyTestUtility.createTaxonomyLoader( ClassLoader.getSystemClassLoader(), compiledTaxonomyDirectory );
+		if (TaxonomyLoader.getContextTaxonomyLoader() == null) {
+			throw new UnsupportedOperationException( "ContextTaxonomyLoader must be set before calling this method" );
+		}
 
 		// Load proxy
 		URLClassLoader proxyClassLoader = new URLClassLoader( TestUtility.convertToURLArray( compiledProxyDir ), ClassLoader.getSystemClassLoader() );
@@ -60,7 +61,6 @@ public final class ProxyGeneratorTestUtility
 		proxyClassLoader.close();
 
 		// Instantiate proxy
-		TaxonomyLoader.setContextTaxonomyLoader( taxonomyLoader );
 		Object proxyObject = proxy.newInstance();
 
 		assertTrue( "must be instance of proxy", proxyObject instanceof Proxy );

@@ -5,6 +5,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import java.io.File;
+import java.net.URLClassLoader;
 import java.nio.file.Path;
 import java.nio.file.attribute.FileAttribute;
 import java.util.ArrayList;
@@ -24,50 +25,47 @@ import ch.liquidmind.inflection.compiler.CompilationJob;
 import ch.liquidmind.inflection.compiler.CompilationJob.CompilationMode;
 import ch.liquidmind.inflection.compiler.InflectionCompiler;
 import ch.liquidmind.inflection.loader.TaxonomyLoader;
+import ch.liquidmind.inflection.test.TestUtility;
 import ch.liquidmind.inflection.test.mock.AbstractFileMock;
 import ch.liquidmind.inflection.test.mock.InflectionFileMock;
 import ch.liquidmind.inflection.test.mock.JavaFileMock;
 
 public final class InflectionCompilerTestUtility
 {
-	public static CompilationJob createCompilationJob( InflectionFileMock... inflectionFileMocks )
-	{
-		return createCompilationJob( TaxonomyLoader.getSystemTaxonomyLoader(), inflectionFileMocks );
-	}
-
-	public static CompilationJob createCompilationJob( TaxonomyLoader taxonomyLoader, InflectionFileMock... inflectionFileMocks )
+	public static CompilationJob createCompilationJob( ClassLoader modelClassLoader, InflectionFileMock... inflectionFileMocks )
 	{
 		if ( inflectionFileMocks == null )
 		{
 			throw new IllegalArgumentException( "inflectionFileMocks must not be null" );
 		}
 		File[] inflectionFileArray = writeFileMocksToFiles( inflectionFileMocks );
+		TaxonomyLoader taxonomyLoader = createTaxonomyLoader( modelClassLoader );
 		return new CompilationJob( taxonomyLoader, __Files.createTempDirectory( null, "tax", new FileAttribute< ? >[ 0 ] ).toFile(), CompilationMode.NORMAL, inflectionFileArray );
 	}
-
+	
 	/**
 	 * Compiles *.inflect files to *.tax files
 	 * 
 	 * @param inflectionFileMocks
-	 * @return directory location with compiled *.tax files
+	 * @return {@link TaxonomyLoader} with compiled *.tax files
 	 */
-	public static File compileInflection( InflectionFileMock... inflectionFileMocks )
+	public static TaxonomyLoader compileInflection( ClassLoader modelClassLoader, InflectionFileMock... inflectionFileMocks )
 	{
-		CompilationJob job = createCompilationJob( inflectionFileMocks );
+		CompilationJob job = createCompilationJob( modelClassLoader, inflectionFileMocks );
 		InflectionCompiler.compile( job );
 		File compiledTaxonomyDir = job.getTargetDirectory();
 		assertTrue( compiledTaxonomyDir.exists() );
 		assertTrue( job.getCompilationFaults().isEmpty() );
-		return compiledTaxonomyDir;
+		return createTaxonomyLoader( new URLClassLoader( TestUtility.convertToURLArray( compiledTaxonomyDir ), modelClassLoader ));
 	}
 
 	/**
 	 * Compiles *.java files to *.class files
 	 * 
 	 * @param javaFileMocks
-	 * @return directory location with compiled *.class files
+	 * @return {@link URLClassLoader} with compiled *.class files
 	 */
-	public static File compileJava( JavaFileMock... javaFileMocks )
+	public static URLClassLoader compileJava( JavaFileMock... javaFileMocks )
 	{
 		if ( javaFileMocks == null )
 		{
@@ -81,8 +79,8 @@ public final class InflectionCompilerTestUtility
 		Iterable< String > options = Arrays.asList( "-d", outputDir.getAbsolutePath() );
 		JavaCompiler.CompilationTask task = compiler.getTask( null, fileManager, diagnostics, options, null, compilationUnits );
 		Boolean result = task.call();
-		assertTrue( "Successful Java Compilation", result );
-		return outputDir;
+		assertTrue( "Successful Java Compilation: " + diagnostics.getDiagnostics().toString(), result );
+		return new URLClassLoader( TestUtility.convertToURLArray( outputDir ), null );
 	}
 
 	private static File[] writeFileMocksToFiles( AbstractFileMock... fileMock )
@@ -96,6 +94,12 @@ public final class InflectionCompilerTestUtility
 		}
 		File[] inflectionFileArray = inflectFileList.toArray( new File[ inflectFileList.size() ] );
 		return inflectionFileArray;
+	}
+	
+	private static TaxonomyLoader createTaxonomyLoader( ClassLoader classLoader )
+	{
+		TaxonomyLoader taxonomyLoader = new TaxonomyLoader( TaxonomyLoader.getSystemTaxonomyLoader(), classLoader );
+		return taxonomyLoader;
 	}
 
 	public static void assertSuccessfulCompilation( CompilationJob job )

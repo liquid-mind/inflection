@@ -10,7 +10,7 @@ import __java.io.__File;
 import __java.lang.__Class;
 import __java.lang.reflect.__Method;
 
-public class TestUtility
+public final class TestUtility
 {
 
 	public static URL[] convertToURLArray( File... files )
@@ -35,4 +35,18 @@ public class TestUtility
 		return __Method.invoke( method, p, params );
 	}
 
+	public static String generateMember( String type, String name )
+	{
+		String initCap = capitalize( name );
+		String string = "private {0} {1}; public {0} get{2}() { return {1}; }; public void set{2}({0} {1}) { this.{1} = {1}; };";
+		string = string.replace( "{0}", type );
+		string = string.replace( "{1}", name );
+		string = string.replace( "{2}", initCap );
+		return string;
+	}
+
+	private static String capitalize( final String line )
+	{
+		return Character.toUpperCase( line.charAt( 0 ) ) + line.substring( 1 );
+	}
 }

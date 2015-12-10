@@ -1,6 +1,6 @@
 package ch.liquidmind.inflection.proxy;
 
-import java.io.File;
+import java.net.URLClassLoader;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -8,26 +8,35 @@ import org.junit.Test;
 import com.google.common.io.Files;
 
 import ch.liquidmind.inflection.compiler.util.InflectionCompilerTestUtility;
+import ch.liquidmind.inflection.loader.TaxonomyLoader;
 import ch.liquidmind.inflection.model.external.Taxonomy;
-import ch.liquidmind.inflection.model.external.util.TaxonomyTestUtility;
 import ch.liquidmind.inflection.test.mock.InflectionFileMock;
+import ch.liquidmind.inflection.test.mock.JavaFileMock;
 
 public class ProxyGeneratorTest
 {
 
-	private static File compiledTaxonomyDir;
+	private static TaxonomyLoader taxonomyLoader;
+	private static URLClassLoader modelClassLoader;
 
 	@BeforeClass
 	public static void beforeClass() throws Exception
 	{
+		StringBuilder javaContent = new StringBuilder();
+		javaContent.append( "package v.w.x;" );
+		javaContent.append( "public class V { private int id; public int getId() { return id; }; }" );
+		JavaFileMock javaFileMock = new JavaFileMock( "V.java", "v.w.x", javaContent.toString() );
+		modelClassLoader = InflectionCompilerTestUtility.compileJava( new JavaFileMock[] { javaFileMock } );
+		
+		
 		StringBuilder builder = new StringBuilder();
 
 		builder.append( "package a.b.c;" );
-		builder.append( "import ch.liquidmind.inflection.test.model.*;" );
+		builder.append( "import v.w.x.*;" );
 
 		builder.append( "taxonomy ProxyGeneratorSuperTaxonomy" );
 		builder.append( "{" );
-		builder.append( "	view A { *; }" );
+		builder.append( "	view V { *; }" );
 		builder.append( "}" );
 
 		builder.append( "taxonomy ProxyGeneratorChildTaxonomy extends ProxyGeneratorSuperTaxonomy" );
@@ -35,13 +44,13 @@ public class ProxyGeneratorTest
 		builder.append( "	view * { *; }" );
 		builder.append( "}" );
 
-		compiledTaxonomyDir = InflectionCompilerTestUtility.compileInflection( new InflectionFileMock( "a.b.c", builder.toString() ) );
+		taxonomyLoader = InflectionCompilerTestUtility.compileInflection( modelClassLoader, new InflectionFileMock( "a.b.c", builder.toString() ) );
 	}
 
 	@Test
 	public void testGenerate() throws Exception
 	{
-		Taxonomy taxonomy = TaxonomyTestUtility.getTestTaxonomy( compiledTaxonomyDir, "a.b.c", "ProxyGeneratorSuperTaxonomy" );
+		Taxonomy taxonomy = taxonomyLoader.loadTaxonomy( "a.b.c.ProxyGeneratorSuperTaxonomy" );
 		ProxyGenerator generator = new ProxyGenerator( Files.createTempDir(), taxonomy );
 		generator.generateTaxonomy();
 	}
