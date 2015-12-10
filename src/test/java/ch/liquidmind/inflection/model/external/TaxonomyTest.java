@@ -7,7 +7,6 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import ch.liquidmind.inflection.compiler.util.InflectionCompilerTestUtility;
-import ch.liquidmind.inflection.loader.TaxonomyLoader;
 import ch.liquidmind.inflection.test.AbstractInflectionTest;
 import ch.liquidmind.inflection.test.TestUtility;
 import ch.liquidmind.inflection.test.mock.InflectionFileMock;
@@ -16,7 +15,7 @@ import ch.liquidmind.inflection.test.mock.JavaFileMock;
 public class TaxonomyTest extends AbstractInflectionTest
 {
 
-	private static TaxonomyLoader taxonomyLoader;
+	private static JavaFileMock[] javaModel;
 
 	@BeforeClass
 	public static void beforeClass() throws Exception
@@ -26,106 +25,128 @@ public class TaxonomyTest extends AbstractInflectionTest
 		javaContent.append( "public class V {" );
 		javaContent.append( TestUtility.generateMember( "int", "id" ) );
 		javaContent.append( "}" );
-		JavaFileMock javaFileMock = new JavaFileMock( "V.java", "v.w.x", javaContent.toString() );
-		ClassLoader modelClassLoader = InflectionCompilerTestUtility.compileJava( new JavaFileMock[] { javaFileMock } );
-		
-		StringBuilder builder = new StringBuilder();
-
-		builder.append( "package a.b.c; " );
-		builder.append( "import v.w.x.*; " );
-
-		builder.append( "taxonomy TaxonomyTestTaxonomy " );
-		builder.append( "{ " );
-		builder.append( "include view V {} " );
-		builder.append( "} " );
-
-		builder.append( "taxonomy TaxonomyTest_GetView_IncludeViewWithoutIncludeTaxonomy  " );
-		builder.append( "{ " );
-		builder.append( "	view V {} " );
-		builder.append( "} " );
-
-		builder.append( "taxonomy TaxonomyTest_GetView_IncludeViewWithIncludeTaxonomy  " );
-		builder.append( "{ " );
-		builder.append( "	include view V {} " );
-		builder.append( "} " );
-
-		builder.append( "taxonomy TaxonomyTest_GetView_ExcludeViewTaxonomy extends TaxonomyTestTaxonomy " );
-		builder.append( "{ " );
-		builder.append( "	exclude view V; " );
-		builder.append( "} " );
-
-		builder.append( "taxonomy TaxonomyTest_GetView_IncludeExcludeOrderIncludeFirstTaxonomy  " );
-		builder.append( "{ " );
-		builder.append( "	include view V {} " );
-		builder.append( "	exclude view V; " );
-		builder.append( "} " );
-
-		builder.append( "taxonomy TaxonomyTest_GetView_IncludeExcludeOrderExcludeFirstTaxonomy  " );
-		builder.append( "{ " );
-		builder.append( "	exclude view V; " );
-		builder.append( "	include view V {} " ); // reverse order should not matter
-		builder.append( "} " );
-
-		builder.append( "taxonomy TaxonomyTest_GetView_IncludeWithSelectorTaxonomy " );
-		builder.append( "{ " );
-		builder.append( "	include view V* {} " );
-		builder.append( "} " );
-
-		builder.append( "taxonomy TaxonomyTest_GetView_ExcludeWithSelectorTaxonomy extends TaxonomyTestTaxonomy " );
-		builder.append( "{ " );
-		builder.append( "	exclude view V*; " );
-		builder.append( "}		 " );
-
-		taxonomyLoader = InflectionCompilerTestUtility.compileInflection( modelClassLoader , new InflectionFileMock( "a.b.c", builder.toString() ) );
+		javaModel = new JavaFileMock[] { new JavaFileMock( "V.java", "v.w.x", javaContent.toString() ) };
 	}
 
 	@Test
 	public void testGetView_IncludeViewWithoutInclude_ViewExists() throws Exception
 	{
-		Taxonomy taxonomy = taxonomyLoader.loadTaxonomy( "a.b.c.TaxonomyTest_GetView_IncludeViewWithoutIncludeTaxonomy" );
-		assertNotNull( "view must exist", taxonomy.getView( "v.w.x.V" ) );
+		StringBuilder builder = new StringBuilder();
+		builder.append( "package a.b.c; " );
+		builder.append( "import v.w.x.*; " );
+		builder.append( "taxonomy A  " );
+		builder.append( "{ " );
+		builder.append( "	view V {} " );
+		builder.append( "} " );
+
+		doTest( job -> {
+			Taxonomy taxonomy = TestUtility.getTaxonomyLoader( job ).loadTaxonomy( "a.b.c.A" );
+			assertNotNull( "view must exist", taxonomy.getView( "v.w.x.V" ) );
+		} , javaModel, null, createInflectionFileMock( "a.b.c", builder.toString() ) );
 	}
 
 	@Test
 	public void testGetView_IncludeViewWithInclude_ViewExists() throws Exception
 	{
-		Taxonomy taxonomy = taxonomyLoader.loadTaxonomy( "a.b.c.TaxonomyTest_GetView_IncludeViewWithIncludeTaxonomy" );
-		assertNotNull( "view must exist", taxonomy.getView( "v.w.x.V" ) );
+		StringBuilder builder = new StringBuilder();
+		builder.append( "package a.b.c; " );
+		builder.append( "import v.w.x.*; " );
+		builder.append( "taxonomy A  " );
+		builder.append( "{ " );
+		builder.append( "	include view V {} " );
+		builder.append( "} " );
+		
+		doTest( job -> {
+			Taxonomy taxonomy = TestUtility.getTaxonomyLoader( job ).loadTaxonomy( "a.b.c.A" );
+			assertNotNull( "view must exist", taxonomy.getView( "v.w.x.V" ) );
+		} , javaModel, null, createInflectionFileMock( "a.b.c", builder.toString() ) );
 	}
 
 	@Test
 	public void testGetView_ExcludeView_ViewDoesNotExist() throws Exception
 	{
-		Taxonomy taxonomy = taxonomyLoader.loadTaxonomy( "a.b.c.TaxonomyTest_GetView_ExcludeViewTaxonomy" );
-		assertNull( "view must not exist", taxonomy.getView( "V" ) );
+		StringBuilder builder = new StringBuilder();
+		builder.append( "package a.b.c; " );
+		builder.append( "import v.w.x.*; " );
+		builder.append( "taxonomy A  " );
+		builder.append( "{ " );
+		builder.append( "	exclude view V; " );
+		builder.append( "} " );
+		
+		doTest( job -> {
+			Taxonomy taxonomy = TestUtility.getTaxonomyLoader( job ).loadTaxonomy( "a.b.c.A" );
+			assertNull( "view must not exist", taxonomy.getView( "V" ) );
+		} , javaModel, null, createInflectionFileMock( "a.b.c", builder.toString() ) );
 	}
 
 	@Test
 	public void testGetView_IncludeExcludeOrderIncludeFirst_ViewDoesNotExist() throws Exception
 	{
-		Taxonomy taxonomy = taxonomyLoader.loadTaxonomy( "a.b.c.TaxonomyTest_GetView_IncludeExcludeOrderIncludeFirstTaxonomy" );
-		assertNull( "view must not exist", taxonomy.getView( "V" ) );
+		StringBuilder builder = new StringBuilder();
+		builder.append( "package a.b.c; " );
+		builder.append( "import v.w.x.*; " );
+		builder.append( "taxonomy A  " );
+		builder.append( "{ " );
+		builder.append( "	include view V {} " );
+		builder.append( "	exclude view V; " );
+		builder.append( "} " );
+		
+		doTest( job -> {
+			Taxonomy taxonomy = TestUtility.getTaxonomyLoader( job ).loadTaxonomy( "a.b.c.A" );
+			assertNull( "view must not exist", taxonomy.getView( "V" ) );
+		} , javaModel, null, createInflectionFileMock( "a.b.c", builder.toString() ) );
 	}
 
 	@Test
 	public void testGetView_IncludeExcludeOrderExcludeFirst_ViewDoesNotExist() throws Exception
 	{
-		Taxonomy taxonomy = taxonomyLoader.loadTaxonomy( "a.b.c.TaxonomyTest_GetView_IncludeExcludeOrderExcludeFirstTaxonomy" );
-		assertNull( "view must not exist", taxonomy.getView( "V" ) );
+		StringBuilder builder = new StringBuilder();
+		builder.append( "package a.b.c; " );
+		builder.append( "import v.w.x.*; " );
+		builder.append( "taxonomy A  " );
+		builder.append( "{ " );
+		builder.append( "	exclude view V; " );
+		builder.append( "	include view V {} " ); // reverse order should not matter
+		builder.append( "} " );
+		
+		doTest( job -> {
+			Taxonomy taxonomy = TestUtility.getTaxonomyLoader( job ).loadTaxonomy( "a.b.c.A" );
+			assertNull( "view must not exist", taxonomy.getView( "V" ) );
+		} , javaModel, null, createInflectionFileMock( "a.b.c", builder.toString() ) );
 	}
 
 	@Test
 	public void testGetView_IncludeWithSelector_ViewDoesExist() throws Exception
 	{
-		Taxonomy taxonomy = taxonomyLoader.loadTaxonomy( "a.b.c.TaxonomyTest_GetView_IncludeWithSelectorTaxonomy" );
-		assertNotNull( "view must exist", taxonomy.getView( "v.w.x.V" ) );
+		StringBuilder builder = new StringBuilder();
+		builder.append( "package a.b.c; " );
+		builder.append( "import v.w.x.*; " );
+		builder.append( "taxonomy A  " );
+		builder.append( "{ " );
+		builder.append( "	include view V* {} " );
+		builder.append( "} " );
+		
+		doTest( job -> {
+			Taxonomy taxonomy = TestUtility.getTaxonomyLoader( job ).loadTaxonomy( "a.b.c.A" );
+			assertNotNull( "view must exist", taxonomy.getView( "v.w.x.V" ) );
+		} , javaModel, null, createInflectionFileMock( "a.b.c", builder.toString() ) );
 	}
 
 	@Test
 	public void testGetView_ExcludeWithSelector_ViewDoesNotExist() throws Exception
 	{
-		Taxonomy taxonomy = taxonomyLoader.loadTaxonomy( "a.b.c.TaxonomyTest_GetView_ExcludeWithSelectorTaxonomy" );
-		assertNull( "view must not exist", taxonomy.getView( "V" ) );
+		StringBuilder builder = new StringBuilder();
+		builder.append( "package a.b.c; " );
+		builder.append( "import v.w.x.*; " );
+		builder.append( "taxonomy A  " );
+		builder.append( "{ " );
+		builder.append( "	exclude view V*; " );
+		builder.append( "}" );
+		
+		doTest( job -> {
+			Taxonomy taxonomy = TestUtility.getTaxonomyLoader( job ).loadTaxonomy( "a.b.c.A" );
+			assertNull( "view must not exist", taxonomy.getView( "V" ) );
+		} , javaModel, null, createInflectionFileMock( "a.b.c", builder.toString() ) );
 	}
 
 	@Test
