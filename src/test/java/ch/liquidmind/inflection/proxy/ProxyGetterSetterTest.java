@@ -32,17 +32,17 @@ public class ProxyGetterSetterTest extends AbstractInflectionTest
 		javaClassV.append( TestUtility.generateMember( "int", "id" ) );
 		javaClassV.append( " }" );
 		JavaFileMock javaFileMockV = new JavaFileMock( "V.java", "v.w.x", javaClassV.toString() );
-		
+
 		StringBuilder javaClassW = new StringBuilder();
 		javaClassW.append( "package v.w.x;" );
 		javaClassW.append( "import java.util.Date;" );
-		javaClassW.append( "public class W extends V { ");
+		javaClassW.append( "public class W extends V { " );
 		javaClassW.append( TestUtility.generateMember( "Long", "longMember" ) );
 		javaClassW.append( TestUtility.generateMember( "String", "stringMember" ) );
 		javaClassW.append( TestUtility.generateMember( "Date", "dateMember" ) );
 		javaClassW.append( " }" );
 		JavaFileMock javaFileMockW = new JavaFileMock( "W.java", "v.w.x", javaClassW.toString() );
-		
+
 		javaModel = new JavaFileMock[] { javaFileMockV, javaFileMockW };
 	}
 
@@ -56,9 +56,9 @@ public class ProxyGetterSetterTest extends AbstractInflectionTest
 		builder.append( "{" );
 		builder.append( "	view W { *; }	" );
 		builder.append( "}" );
-		
+
 		doTest( job -> {
-			Proxy b1 = createTestViewProxy( TestUtility.getTaxonomyLoader( job ), "a.b.c.A", "v.w.x.W");
+			Proxy b1 = createTestViewProxy( TestUtility.getTaxonomyLoader( job ), "a.b.c.A", "v.w.x.W" );
 			TestUtility.invokeMethod( b1, "setStringMember", TESTSTRING );
 			Object result = TestUtility.invokeMethod( b1, "getStringMember" );
 			assertEquals( "String was updated by proxy", TESTSTRING, result );
@@ -75,9 +75,9 @@ public class ProxyGetterSetterTest extends AbstractInflectionTest
 		builder.append( "{" );
 		builder.append( "	view W { *; }	" );
 		builder.append( "}" );
-		
+
 		doTest( job -> {
-			Proxy b1 = createTestViewProxy(TestUtility.getTaxonomyLoader( job ), "a.b.c.A", "v.w.x.W");
+			Proxy b1 = createTestViewProxy( TestUtility.getTaxonomyLoader( job ), "a.b.c.A", "v.w.x.W" );
 			Date date = new Date();
 			TestUtility.invokeMethod( b1, "setDateMember", date );
 			Object result = TestUtility.invokeMethod( b1, "getDateMember" );
@@ -85,7 +85,7 @@ public class ProxyGetterSetterTest extends AbstractInflectionTest
 		} , javaModel, null, createInflectionFileMock( "a.b.c", builder.toString() ) );
 	}
 
-	private Proxy createTestViewProxy(TaxonomyLoader taxonomyLoader, String taxonomyName, String viewName) 
+	private Proxy createTestViewProxy( TaxonomyLoader taxonomyLoader, String taxonomyName, String viewName )
 	{
 		TaxonomyLoader.setContextTaxonomyLoader( taxonomyLoader );
 		Taxonomy taxonomy = taxonomyLoader.loadTaxonomy( taxonomyName );

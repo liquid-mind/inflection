@@ -23,14 +23,14 @@ public class ViewTest extends AbstractInflectionTest
 		javaContent.append( TestUtility.generateMember( "int", "id" ) );
 		javaContent.append( "}" );
 		JavaFileMock javaFileMock = new JavaFileMock( "V.java", "v.w.x", javaContent.toString() );
-		
+
 		StringBuilder javaContent2 = new StringBuilder();
 		javaContent2.append( "package v.w.x;" );
 		javaContent2.append( "public class W extends V {" );
 		javaContent2.append( TestUtility.generateMember( "long", "longMember" ) );
 		javaContent2.append( "}" );
 		JavaFileMock javaFileMock2 = new JavaFileMock( "W.java", "v.w.x", javaContent2.toString() );
-		
+
 		javaModel = new JavaFileMock[] { javaFileMock, javaFileMock2 };
 	}
 
@@ -47,7 +47,7 @@ public class ViewTest extends AbstractInflectionTest
 		builder.append( "{" );
 		builder.append( "	view W { *; }	" );
 		builder.append( "}" );
-		
+
 		doTest( job -> {
 			Taxonomy taxonomy = TestUtility.getTaxonomyLoader( job ).loadTaxonomy( "a.b.c.B" );
 			View view = taxonomy.getView( "v.w.x.W" );
@@ -68,7 +68,7 @@ public class ViewTest extends AbstractInflectionTest
 		builder.append( "{" );
 		builder.append( "	view W { *; }	" );
 		builder.append( "}" );
-		
+
 		doTest( job -> {
 			Taxonomy taxonomy = TestUtility.getTaxonomyLoader( job ).loadTaxonomy( "a.b.c.B" );
 			View view = taxonomy.getView( "v.w.x.W" );
@@ -86,7 +86,7 @@ public class ViewTest extends AbstractInflectionTest
 		builder.append( "	view V { *; }" );
 		builder.append( "}" );
 		builder.append( "taxonomy B extends A {}" );
-		
+
 		doTest( job -> {
 			Taxonomy taxonomy = TestUtility.getTaxonomyLoader( job ).loadTaxonomy( "a.b.c.B" );
 			View view = taxonomy.getView( "v.w.x.V" );
@@ -107,7 +107,7 @@ public class ViewTest extends AbstractInflectionTest
 		builder.append( "{" );
 		builder.append( "	view W { *; }	" );
 		builder.append( "}" );
-		
+
 		doTest( job -> {
 			Taxonomy taxonomy = TestUtility.getTaxonomyLoader( job ).loadTaxonomy( "a.b.c.B" );
 			View view = taxonomy.getView( "v.w.x.W" );

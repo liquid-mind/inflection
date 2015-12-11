@@ -41,7 +41,7 @@ public final class ProxyGeneratorTestUtility
 		DiagnosticCollector< JavaFileObject > diagnostics = new DiagnosticCollector< JavaFileObject >();
 		StandardJavaFileManager fileManager = compiler.getStandardFileManager( diagnostics, null, null );
 		Iterable< ? extends JavaFileObject > compilationUnits = fileManager.getJavaFileObjects( file );
-		Iterable< String > options = Arrays.asList( "-d", outputDir.getAbsolutePath(), "-classpath", System.getProperty("java.class.path") );
+		Iterable< String > options = Arrays.asList( "-d", outputDir.getAbsolutePath(), "-classpath", System.getProperty( "java.class.path" ) );
 		JavaCompiler.CompilationTask task = compiler.getTask( null, fileManager, diagnostics, options, null, compilationUnits );
 		Boolean result = task.call();
 		assertTrue( "Successful Proxy Compilation: " + diagnostics.getDiagnostics().toString(), result );
@@ -50,7 +50,8 @@ public final class ProxyGeneratorTestUtility
 
 	public static Proxy loadProxy( File compiledProxyDir, String fullyQualifiedClassName )
 	{
-		if (TaxonomyLoader.getContextTaxonomyLoader() == null) {
+		if ( TaxonomyLoader.getContextTaxonomyLoader() == null )
+		{
 			throw new UnsupportedOperationException( "ContextTaxonomyLoader must be set before calling this method" );
 		}
 		Proxy proxyObject = null;
@@ -68,7 +69,7 @@ public final class ProxyGeneratorTestUtility
 		}
 		catch ( ClassNotFoundException | IOException | InstantiationException | IllegalAccessException e )
 		{
-			throw new RuntimeException( e.getMessage() );
+			throw new RuntimeException( e );
 		}
 		return proxyObject;
 	}

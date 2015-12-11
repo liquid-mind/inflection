@@ -55,7 +55,7 @@ public class TaxonomyTest extends AbstractInflectionTest
 		builder.append( "{ " );
 		builder.append( "	include view V {} " );
 		builder.append( "} " );
-		
+
 		doTest( job -> {
 			Taxonomy taxonomy = TestUtility.getTaxonomyLoader( job ).loadTaxonomy( "a.b.c.A" );
 			assertNotNull( "view must exist", taxonomy.getView( "v.w.x.V" ) );
@@ -72,7 +72,7 @@ public class TaxonomyTest extends AbstractInflectionTest
 		builder.append( "{ " );
 		builder.append( "	exclude view V; " );
 		builder.append( "} " );
-		
+
 		doTest( job -> {
 			Taxonomy taxonomy = TestUtility.getTaxonomyLoader( job ).loadTaxonomy( "a.b.c.A" );
 			assertNull( "view must not exist", taxonomy.getView( "V" ) );
@@ -90,7 +90,7 @@ public class TaxonomyTest extends AbstractInflectionTest
 		builder.append( "	include view V {} " );
 		builder.append( "	exclude view V; " );
 		builder.append( "} " );
-		
+
 		doTest( job -> {
 			Taxonomy taxonomy = TestUtility.getTaxonomyLoader( job ).loadTaxonomy( "a.b.c.A" );
 			assertNull( "view must not exist", taxonomy.getView( "V" ) );
@@ -108,7 +108,7 @@ public class TaxonomyTest extends AbstractInflectionTest
 		builder.append( "	exclude view V; " );
 		builder.append( "	include view V {} " ); // reverse order should not matter
 		builder.append( "} " );
-		
+
 		doTest( job -> {
 			Taxonomy taxonomy = TestUtility.getTaxonomyLoader( job ).loadTaxonomy( "a.b.c.A" );
 			assertNull( "view must not exist", taxonomy.getView( "V" ) );
@@ -125,7 +125,7 @@ public class TaxonomyTest extends AbstractInflectionTest
 		builder.append( "{ " );
 		builder.append( "	include view V* {} " );
 		builder.append( "} " );
-		
+
 		doTest( job -> {
 			Taxonomy taxonomy = TestUtility.getTaxonomyLoader( job ).loadTaxonomy( "a.b.c.A" );
 			assertNotNull( "view must exist", taxonomy.getView( "v.w.x.V" ) );
@@ -142,7 +142,7 @@ public class TaxonomyTest extends AbstractInflectionTest
 		builder.append( "{ " );
 		builder.append( "	exclude view V*; " );
 		builder.append( "}" );
-		
+
 		doTest( job -> {
 			Taxonomy taxonomy = TestUtility.getTaxonomyLoader( job ).loadTaxonomy( "a.b.c.A" );
 			assertNull( "view must not exist", taxonomy.getView( "V" ) );

@@ -45,7 +45,7 @@ public class ProxyGeneratorTest extends AbstractInflectionTest
 			File targetDirectory = Files.createTempDir();
 			ProxyGenerator generator = new ProxyGenerator( targetDirectory, taxonomy );
 			generator.generateTaxonomy();
-			assertTrue( "Proxy file generated in directory " + targetDirectory.getAbsolutePath(), new File(targetDirectory, "a\\b\\c\\A\\v\\w\\x\\A_V.java").exists() );
+			assertTrue( "Proxy file generated in directory " + targetDirectory.getAbsolutePath(), new File( targetDirectory, "a\\b\\c\\A\\v\\w\\x\\A_V.java" ).exists() );
 		} , javaModel, null, createInflectionFileMock( "a.b.c", builder.toString() ) );
 	}
 

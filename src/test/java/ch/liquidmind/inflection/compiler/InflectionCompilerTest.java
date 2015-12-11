@@ -22,7 +22,7 @@ public class InflectionCompilerTest extends AbstractInflectionTest
 		viewBuilder.append( "package v.w.x;" );
 		viewBuilder.append( "public class V {}" );
 		javaModel = new JavaFileMock[] { new JavaFileMock( "V.java", "v.w.x", viewBuilder.toString() ) };
-		
+
 		StringBuilder parentTaxonomyBuilder = new StringBuilder();
 		parentTaxonomyBuilder.append( "package a.b.c;" );
 		parentTaxonomyBuilder.append( "import v.w.x.*;" );
@@ -33,7 +33,7 @@ public class InflectionCompilerTest extends AbstractInflectionTest
 		parentTaxonomy = new InflectionFileMock( "a.b.c", parentTaxonomyBuilder.toString() );
 
 	}
-	
+
 	@Test
 	public void testCompile_InheritanceAndImports_IllegalImport() throws Exception
 	{

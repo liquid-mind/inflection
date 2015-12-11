@@ -37,16 +37,20 @@ public final class TestUtility
 		Method method = __Class.getMethod( p.getClass(), methodName, paramClasses.toArray( new Class< ? >[ paramClasses.size() ] ) );
 		return __Method.invoke( method, p, params );
 	}
-	
-	public static TaxonomyLoader getTaxonomyLoader(CompilationJob job) {
-		return new TaxonomyLoader( TaxonomyLoader.getSystemTaxonomyLoader(), new URLClassLoader( TestUtility.convertToURLArray( job.getTargetDirectory() ), job.getTaxonomyLoader().getClassLoader() ) );
+
+	public static TaxonomyLoader getTaxonomyLoader( CompilationJob job )
+	{
+		URLClassLoader classLoader = new URLClassLoader( TestUtility.convertToURLArray( job.getTargetDirectory() ), job.getTaxonomyLoader().getClassLoader() );
+		return new TaxonomyLoader( TaxonomyLoader.getSystemTaxonomyLoader(), classLoader );
 	}
 
 	/**
 	 * Generate source code text for member, getter and setter
 	 * 
-	 * @param type the desired type, e.g. {@link Long}
-	 * @param name the member name (starting with lowercase letters), e.g. member
+	 * @param type
+	 *            the desired type, e.g. {@link Long}
+	 * @param name
+	 *            the member name (starting with lowercase letters), e.g. member
 	 * @return
 	 */
 	public static String generateMember( final String type, final String name )

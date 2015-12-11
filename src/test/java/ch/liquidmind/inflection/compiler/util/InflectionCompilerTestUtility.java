@@ -42,7 +42,7 @@ public final class InflectionCompilerTestUtility
 		TaxonomyLoader taxonomyLoader = createTaxonomyLoader( modelClassLoader );
 		return new CompilationJob( taxonomyLoader, __Files.createTempDirectory( null, "tax", new FileAttribute< ? >[ 0 ] ).toFile(), CompilationMode.NORMAL, inflectionFileArray );
 	}
-	
+
 	/**
 	 * Compiles *.inflect files to *.tax files
 	 * 
@@ -56,7 +56,7 @@ public final class InflectionCompilerTestUtility
 		File compiledTaxonomyDir = job.getTargetDirectory();
 		assertTrue( compiledTaxonomyDir.exists() );
 		assertTrue( job.getCompilationFaults().isEmpty() );
-		return createTaxonomyLoader( new URLClassLoader( TestUtility.convertToURLArray( compiledTaxonomyDir ), modelClassLoader ));
+		return createTaxonomyLoader( new URLClassLoader( TestUtility.convertToURLArray( compiledTaxonomyDir ), modelClassLoader ) );
 	}
 
 	/**
@@ -95,7 +95,7 @@ public final class InflectionCompilerTestUtility
 		File[] inflectionFileArray = inflectFileList.toArray( new File[ inflectFileList.size() ] );
 		return inflectionFileArray;
 	}
-	
+
 	private static TaxonomyLoader createTaxonomyLoader( ClassLoader classLoader )
 	{
 		TaxonomyLoader taxonomyLoader = new TaxonomyLoader( TaxonomyLoader.getSystemTaxonomyLoader(), classLoader );
