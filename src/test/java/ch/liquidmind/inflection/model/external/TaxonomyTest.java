@@ -1,5 +1,6 @@
 package ch.liquidmind.inflection.model.external;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 
@@ -262,7 +263,7 @@ public class TaxonomyTest extends AbstractInflectionTest
 	}
 
 	@Test
-	public void testViewHierarchy_ExistingHierarchy_ViewExists() throws Exception
+	public void testViewHierarchy_ExistingHierarchy_ParentViewExists() throws Exception
 	{
 		StringBuilder javaSuperClass = new StringBuilder();
 		javaSuperClass.append( "package v.w.x;" );
@@ -285,7 +286,38 @@ public class TaxonomyTest extends AbstractInflectionTest
 			View view = taxomomy.getView( "v.w.x.W" );
 			assertNotNull( view );
 			View parentView = view.getSuperview();
-			assertNotNull( parentView );
+			assertEquals( "V", parentView.getSimpleName() );
+			assertNotNull( "parent view is used in taxonomy A, must exist", parentView );
+		} , javaFileMocks, null, createInflectionFileMock( "a.b.c", taxonomy.toString() ) );
+	}
+	
+	@Test
+	public void testViewHierarchy_MissingHierarchy_ParentViewExists() throws Exception
+	{
+		StringBuilder javaSuperClass = new StringBuilder();
+		javaSuperClass.append( "package v.w.x;" );
+		javaSuperClass.append( "public class V {}" );
+
+		StringBuilder javaChildClass = new StringBuilder();
+		javaChildClass.append( "package v.w.x;" );
+		javaChildClass.append( "public class W extends V {}" );
+
+		JavaFileMock[] javaFileMocks = new JavaFileMock[] { createJavaFileMock( "V.java", "v.w.x", javaSuperClass.toString() ), createJavaFileMock( "W.java", "v.w.x", javaChildClass.toString() ) };
+
+		StringBuilder taxonomy = new StringBuilder();
+		taxonomy.append( "package a.b.c; " );
+		taxonomy.append( "import v.w.x.*; " );
+		taxonomy.append( "taxonomy A { view W {} } " );
+
+		doTest( job -> {
+			InflectionCompilerTestUtility.assertSuccessfulCompilation( job );
+			Taxonomy taxomomy = TestUtility.getTaxonomyLoader( job ).loadTaxonomy( "a.b.c.A" );
+			View view = taxomomy.getView( "v.w.x.W" );
+			assertNotNull( view );
+			View parentView = view.getSuperview();
+			assertNull( parentView ); // TODO <inflection-error/> parent view should be automatically inserted by the compiler
+			// assertEquals( "V", parentView.getSimpleName() );
+			// assertNotNull( "parent view is NOT used in taxonomy A, but must exist", parentView );
 		} , javaFileMocks, null, createInflectionFileMock( "a.b.c", taxonomy.toString() ) );
 	}
 
