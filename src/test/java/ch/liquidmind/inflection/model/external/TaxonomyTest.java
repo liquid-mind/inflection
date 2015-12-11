@@ -3,6 +3,7 @@ package ch.liquidmind.inflection.model.external;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -319,6 +320,16 @@ public class TaxonomyTest extends AbstractInflectionTest
 			// assertEquals( "V", parentView.getSimpleName() );
 			// assertNotNull( "parent view is NOT used in taxonomy A, but must exist", parentView );
 		} , javaFileMocks, null, createInflectionFileMock( "a.b.c", taxonomy.toString() ) );
+	}
+	
+	@Test
+	public void testEmptyTaxonomy_NoViews_ViewsDoNotExist() throws Exception
+	{
+		doTest( job -> {
+			InflectionCompilerTestUtility.assertSuccessfulCompilation( job );
+			Taxonomy taxomomy = TestUtility.getTaxonomyLoader( job ).loadTaxonomy( "a.A" );
+			assertTrue( "Views must not exist", taxomomy.getViews().isEmpty() );
+		} , createInflectionFileMock( "a", "package a; taxonomy A {}" ) );
 	}
 
 }
