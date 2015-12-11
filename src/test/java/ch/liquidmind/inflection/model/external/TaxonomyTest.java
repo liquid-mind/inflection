@@ -316,7 +316,7 @@ public class TaxonomyTest extends AbstractInflectionTest
 			View view = taxomomy.getView( "v.w.x.W" );
 			assertNotNull( view );
 			View parentView = view.getSuperview();
-			assertNull( parentView ); // TODO <inflection-error/> parent view should be automatically inserted by the compiler
+			assertNull( parentView ); // <inflection-error/> parent view should be automatically inserted by the compiler
 			// assertEquals( "V", parentView.getSimpleName() );
 			// assertNotNull( "parent view is NOT used in taxonomy A, but must exist", parentView );
 		} , javaFileMocks, null, createInflectionFileMock( "a.b.c", taxonomy.toString() ) );
