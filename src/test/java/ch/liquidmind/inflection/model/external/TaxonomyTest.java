@@ -261,4 +261,32 @@ public class TaxonomyTest extends AbstractInflectionTest
 		} , null, classpath, createInflectionFileMock( "taxonomy B {}" ) );
 	}
 
+	@Test
+	public void testViewHierarchy_ExistingHierarchy_ViewExists() throws Exception
+	{
+		StringBuilder javaSuperClass = new StringBuilder();
+		javaSuperClass.append( "package v.w.x;" );
+		javaSuperClass.append( "public class V {}" );
+
+		StringBuilder javaChildClass = new StringBuilder();
+		javaChildClass.append( "package v.w.x;" );
+		javaChildClass.append( "public class W extends V {}" );
+
+		JavaFileMock[] javaFileMocks = new JavaFileMock[] { createJavaFileMock( "V.java", "v.w.x", javaSuperClass.toString() ), createJavaFileMock( "W.java", "v.w.x", javaChildClass.toString() ) };
+
+		StringBuilder taxonomy = new StringBuilder();
+		taxonomy.append( "package a.b.c; " );
+		taxonomy.append( "import v.w.x.*; " );
+		taxonomy.append( "taxonomy A { view V {} view W {} } " );
+
+		doTest( job -> {
+			InflectionCompilerTestUtility.assertSuccessfulCompilation( job );
+			Taxonomy taxomomy = TestUtility.getTaxonomyLoader( job ).loadTaxonomy( "a.b.c.A" );
+			View view = taxomomy.getView( "v.w.x.W" );
+			assertNotNull( view );
+			View parentView = view.getSuperview();
+			assertNotNull( parentView );
+		} , javaFileMocks, null, createInflectionFileMock( "a.b.c", taxonomy.toString() ) );
+	}
+
 }
