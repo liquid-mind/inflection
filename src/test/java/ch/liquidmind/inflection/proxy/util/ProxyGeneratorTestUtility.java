@@ -3,7 +3,6 @@ package ch.liquidmind.inflection.proxy.util;
 import static org.junit.Assert.assertTrue;
 
 import java.io.File;
-import java.io.IOException;
 import java.net.URLClassLoader;
 import java.util.Arrays;
 
@@ -15,6 +14,9 @@ import javax.tools.ToolProvider;
 
 import com.google.common.io.Files;
 
+import __java.lang.__Class;
+import __java.lang.__ClassLoader;
+import __java.net.__URLClassLoader;
 import ch.liquidmind.inflection.loader.TaxonomyLoader;
 import ch.liquidmind.inflection.model.external.Taxonomy;
 import ch.liquidmind.inflection.model.external.View;
@@ -54,24 +56,16 @@ public final class ProxyGeneratorTestUtility
 		{
 			throw new UnsupportedOperationException( "ContextTaxonomyLoader must be set before calling this method" );
 		}
-		Proxy proxyObject = null;
+		// Load proxy
+		URLClassLoader proxyClassLoader = new URLClassLoader( TestUtility.convertToURLArray( compiledProxyDir ), ClassLoader.getSystemClassLoader() );
+		Class< ? > proxy = __ClassLoader.loadClass( proxyClassLoader, fullyQualifiedClassName );
+		__URLClassLoader.close( proxyClassLoader );
 
-		try
-		{
-			// Load proxy
-			URLClassLoader proxyClassLoader = new URLClassLoader( TestUtility.convertToURLArray( compiledProxyDir ), ClassLoader.getSystemClassLoader() );
-			Class< ? > proxy = proxyClassLoader.loadClass( fullyQualifiedClassName );
-			proxyClassLoader.close();
+		// Instantiate proxy
+		Object proxyObject = __Class.newInstance( proxy );
+		assertTrue( "must be instance of proxy", proxyObject instanceof Proxy );
 
-			// Instantiate proxy
-			assertTrue( "must be instance of proxy", proxyObject instanceof Proxy );
-			proxyObject = (Proxy)proxy.newInstance();
-		}
-		catch ( ClassNotFoundException | IOException | InstantiationException | IllegalAccessException e )
-		{
-			throw new RuntimeException( e );
-		}
-		return proxyObject;
+		return (Proxy)proxyObject;
 	}
 
 }
