@@ -104,6 +104,7 @@ public class TaxomomyInheritanceAndAccessTypeTest extends AbstractInflectionTest
 			InflectionCompilerTestUtility.assertSuccessfulCompilation( job );
 			Taxonomy taxomomy = TestUtility.getTaxonomyLoader( job ).loadTaxonomy( "a.C" );
 			assertEquals( "Access type", AccessType.FIELD, taxomomy.getDefaultAccessType() ); 
+			assertNull( "Declared access type", taxomomy.getDeclaredDefaultAccessType() );
 		} , createInflectionFileMock( "a", "package a; taxonomy A { default field; } taxonomy B { default property; } taxonomy C extends A,B { default; }" ) );
 
 	}
@@ -115,7 +116,32 @@ public class TaxomomyInheritanceAndAccessTypeTest extends AbstractInflectionTest
 			InflectionCompilerTestUtility.assertSuccessfulCompilation( job );
 			Taxonomy taxomomy = TestUtility.getTaxonomyLoader( job ).loadTaxonomy( "a.C" );
 			assertEquals( "Access type", AccessType.PROPERTY, taxomomy.getDefaultAccessType() );
+			assertNull( "Declared access type", taxomomy.getDeclaredDefaultAccessType() );
 		} , createInflectionFileMock( "a", "package a; taxonomy A { default field; } taxonomy B { default property; } taxonomy C extends B,A { default; }" ) );
+
+	}
+	
+	@Test
+	public void testDefaultAccessType_MultipleInheritanceOrderFieldOverride_AccessTypeIsNotInheritedFromFirstParent() throws Exception
+	{
+		doTest( job -> {
+			InflectionCompilerTestUtility.assertSuccessfulCompilation( job );
+			Taxonomy taxomomy = TestUtility.getTaxonomyLoader( job ).loadTaxonomy( "a.C" );
+			assertEquals( "Access type", AccessType.PROPERTY, taxomomy.getDefaultAccessType() ); 
+			assertNotNull( "Declared access type", taxomomy.getDeclaredDefaultAccessType() );
+		} , createInflectionFileMock( "a", "package a; taxonomy A { default field; } taxonomy B { default property; } taxonomy C extends A,B { default property; }" ) );
+
+	}
+	
+	@Test
+	public void testDefaultAccessType_MultipleInheritanceOrderPropertyOverride_AccessTypeIsNotInheritedFromFirstParent() throws Exception
+	{
+		doTest( job -> {
+			InflectionCompilerTestUtility.assertSuccessfulCompilation( job );
+			Taxonomy taxomomy = TestUtility.getTaxonomyLoader( job ).loadTaxonomy( "a.C" );
+			assertEquals( "Access type", AccessType.FIELD, taxomomy.getDefaultAccessType() );
+			assertNotNull( "Declared access type", taxomomy.getDeclaredDefaultAccessType() );
+		} , createInflectionFileMock( "a", "package a; taxonomy A { default field; } taxonomy B { default property; } taxonomy C extends B,A { default field; }" ) );
 
 	}
 
