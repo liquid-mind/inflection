@@ -6,18 +6,13 @@ import static org.junit.Assert.assertNotNull;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import ch.liquidmind.inflection.compiler.util.InflectionCompilerTestUtility;
-import ch.liquidmind.inflection.loader.TaxonomyLoader;
 import ch.liquidmind.inflection.test.AbstractInflectionTest;
 import ch.liquidmind.inflection.test.TestUtility;
-import ch.liquidmind.inflection.test.mock.InflectionFileMock;
 import ch.liquidmind.inflection.test.mock.JavaFileMock;
 
 public class ViewTest extends AbstractInflectionTest
 {
-
-	private static TaxonomyLoader taxonomyLoader;
-	private static ClassLoader modelClassLoader;
+	private static JavaFileMock[] javaModel;
 
 	@BeforeClass
 	public static void beforeClass() throws Exception
@@ -36,70 +31,90 @@ public class ViewTest extends AbstractInflectionTest
 		javaContent2.append( "}" );
 		JavaFileMock javaFileMock2 = new JavaFileMock( "W.java", "v.w.x", javaContent2.toString() );
 		
-		modelClassLoader = InflectionCompilerTestUtility.compileJava( new JavaFileMock[] { javaFileMock, javaFileMock2 } );
-		
-		
-		StringBuilder builder = new StringBuilder();
-
-		builder.append( "package a.b.c; " );
-		builder.append( "import v.w.x.*;" );
-
-		builder.append( "taxonomy ViewTestTaxonomy {" );
-		builder.append( "	view V { *; }" );
-		builder.append( "}" );
-
-		builder.append( "taxonomy ViewTest_GetMember_DeclaredMemberTaxonomy extends ViewTestTaxonomy" );
-		builder.append( "{" );
-		builder.append( "	view W { *; }	" );
-		builder.append( "}" );
-
-		builder.append( "taxonomy ViewTest_GetDeclaredMember_DeclaredMemberTaxonomy extends ViewTestTaxonomy" );
-		builder.append( "{" );
-		builder.append( "	view W { *; }	" );
-		builder.append( "}" );
-
-		builder.append( "taxonomy ViewTest_GetMember_InheritedMemberTaxonomy extends ViewTestTaxonomy {}" );
-
-		builder.append( "taxonomy ViewTest_GetParentTaxonomy extends ViewTestTaxonomy" );
-		builder.append( "{" );
-		builder.append( "	view W { *; }	" );
-		builder.append( "}" );
-
-		taxonomyLoader = InflectionCompilerTestUtility.compileInflection( modelClassLoader, new InflectionFileMock( "a.b.c", builder.toString() ) );
+		javaModel = new JavaFileMock[] { javaFileMock, javaFileMock2 };
 	}
 
 	@Test
 	public void testGetMember_DeclaredMember_MemberExists() throws Exception
 	{
-		Taxonomy taxonomy = taxonomyLoader.loadTaxonomy( "a.b.c.ViewTest_GetMember_DeclaredMemberTaxonomy" );
-		View view = taxonomy.getView( "v.w.x.W" );
-		assertNotNull( view.getMember( "longMember" ) );
+		StringBuilder builder = new StringBuilder();
+		builder.append( "package a.b.c; " );
+		builder.append( "import v.w.x.*;" );
+		builder.append( "taxonomy A {" );
+		builder.append( "	view V { *; }" );
+		builder.append( "}" );
+		builder.append( "taxonomy B extends A" );
+		builder.append( "{" );
+		builder.append( "	view W { *; }	" );
+		builder.append( "}" );
+		
+		doTest( job -> {
+			Taxonomy taxonomy = TestUtility.getTaxonomyLoader( job ).loadTaxonomy( "a.b.c.B" );
+			View view = taxonomy.getView( "v.w.x.W" );
+			assertNotNull( view.getMember( "longMember" ) );
+		} , javaModel, null, createInflectionFileMock( "a.b.c", builder.toString() ) );
 	}
 
 	@Test
 	public void testGetDeclaredMember_DeclaredMember_MemberExists() throws Exception
 	{
-		Taxonomy taxonomy = taxonomyLoader.loadTaxonomy( "a.b.c.ViewTest_GetDeclaredMember_DeclaredMemberTaxonomy" );
-		View view = taxonomy.getView( "v.w.x.W" );
-		assertNotNull( view.getDeclaredMember( "longMember" ) );
+		StringBuilder builder = new StringBuilder();
+		builder.append( "package a.b.c; " );
+		builder.append( "import v.w.x.*;" );
+		builder.append( "taxonomy A {" );
+		builder.append( "	view V { *; }" );
+		builder.append( "}" );
+		builder.append( "taxonomy B extends A" );
+		builder.append( "{" );
+		builder.append( "	view W { *; }	" );
+		builder.append( "}" );
+		
+		doTest( job -> {
+			Taxonomy taxonomy = TestUtility.getTaxonomyLoader( job ).loadTaxonomy( "a.b.c.B" );
+			View view = taxonomy.getView( "v.w.x.W" );
+			assertNotNull( view.getDeclaredMember( "longMember" ) );
+		} , javaModel, null, createInflectionFileMock( "a.b.c", builder.toString() ) );
 	}
 
 	@Test
 	public void testMember_InheritedMember_MemberExists() throws Exception
 	{
-		Taxonomy taxonomy = taxonomyLoader.loadTaxonomy( "a.b.c.ViewTest_GetMember_InheritedMemberTaxonomy" );
-		View view = taxonomy.getView( "v.w.x.V" );
-		assertNotNull( view.getMember( "id" ) );
+		StringBuilder builder = new StringBuilder();
+		builder.append( "package a.b.c; " );
+		builder.append( "import v.w.x.*;" );
+		builder.append( "taxonomy A {" );
+		builder.append( "	view V { *; }" );
+		builder.append( "}" );
+		builder.append( "taxonomy B extends A {}" );
+		
+		doTest( job -> {
+			Taxonomy taxonomy = TestUtility.getTaxonomyLoader( job ).loadTaxonomy( "a.b.c.B" );
+			View view = taxonomy.getView( "v.w.x.V" );
+			assertNotNull( view.getMember( "id" ) );
+		} , javaModel, null, createInflectionFileMock( "a.b.c", builder.toString() ) );
 	}
 
 	@Test
 	public void testGetParentTaxonomy_ChildView_ParentExists() throws Exception
 	{
-		Taxonomy taxonomy = taxonomyLoader.loadTaxonomy( "a.b.c.ViewTest_GetParentTaxonomy" );
-		View view = taxonomy.getView( "v.w.x.W" );
-		Taxonomy currentParent = view.getParentTaxonomy();
-		assertNotNull( currentParent );
-		assertEquals( taxonomy, currentParent );
+		StringBuilder builder = new StringBuilder();
+		builder.append( "package a.b.c; " );
+		builder.append( "import v.w.x.*;" );
+		builder.append( "taxonomy A {" );
+		builder.append( "	view V { *; }" );
+		builder.append( "}" );
+		builder.append( "taxonomy B extends A" );
+		builder.append( "{" );
+		builder.append( "	view W { *; }	" );
+		builder.append( "}" );
+		
+		doTest( job -> {
+			Taxonomy taxonomy = TestUtility.getTaxonomyLoader( job ).loadTaxonomy( "a.b.c.B" );
+			View view = taxonomy.getView( "v.w.x.W" );
+			Taxonomy currentParent = view.getParentTaxonomy();
+			assertNotNull( currentParent );
+			assertEquals( taxonomy, currentParent );
+		} , javaModel, null, createInflectionFileMock( "a.b.c", builder.toString() ) );
 	}
 
 }
