@@ -49,22 +49,28 @@ public final class ProxyGeneratorTestUtility
 	}
 
 	public static Proxy loadProxy( File compiledProxyDir, String fullyQualifiedClassName )
-			throws ClassNotFoundException, IOException, InstantiationException, IllegalAccessException
 	{
 		if (TaxonomyLoader.getContextTaxonomyLoader() == null) {
 			throw new UnsupportedOperationException( "ContextTaxonomyLoader must be set before calling this method" );
 		}
+		Proxy proxyObject = null;
 
-		// Load proxy
-		URLClassLoader proxyClassLoader = new URLClassLoader( TestUtility.convertToURLArray( compiledProxyDir ), ClassLoader.getSystemClassLoader() );
-		Class< ? > proxy = proxyClassLoader.loadClass( fullyQualifiedClassName );
-		proxyClassLoader.close();
+		try
+		{
+			// Load proxy
+			URLClassLoader proxyClassLoader = new URLClassLoader( TestUtility.convertToURLArray( compiledProxyDir ), ClassLoader.getSystemClassLoader() );
+			Class< ? > proxy = proxyClassLoader.loadClass( fullyQualifiedClassName );
+			proxyClassLoader.close();
 
-		// Instantiate proxy
-		Object proxyObject = proxy.newInstance();
-
-		assertTrue( "must be instance of proxy", proxyObject instanceof Proxy );
-		return (Proxy)proxyObject;
+			// Instantiate proxy
+			proxyObject = (Proxy)proxy.newInstance();
+			assertTrue( "must be instance of proxy", proxyObject instanceof Proxy );
+		}
+		catch ( ClassNotFoundException | IOException | InstantiationException | IllegalAccessException e )
+		{
+			throw new RuntimeException( e.getMessage() );
+		}
+		return proxyObject;
 	}
 
 }

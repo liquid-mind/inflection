@@ -42,7 +42,14 @@ public final class TestUtility
 		return new TaxonomyLoader( TaxonomyLoader.getSystemTaxonomyLoader(), new URLClassLoader( TestUtility.convertToURLArray( job.getTargetDirectory() ), job.getTaxonomyLoader().getClassLoader() ) );
 	}
 
-	public static String generateMember( String type, String name )
+	/**
+	 * Generate source code text for member, getter and setter
+	 * 
+	 * @param type the desired type, e.g. {@link Long}
+	 * @param name the member name (starting with lowercase letters), e.g. member
+	 * @return
+	 */
+	public static String generateMember( final String type, final String name )
 	{
 		String initCap = capitalize( name );
 		String string = "private {0} {1}; public {0} get{2}() { return {1}; }; public void set{2}({0} {1}) { this.{1} = {1}; };";
