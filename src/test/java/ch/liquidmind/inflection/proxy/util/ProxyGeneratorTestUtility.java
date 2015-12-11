@@ -64,8 +64,8 @@ public final class ProxyGeneratorTestUtility
 			proxyClassLoader.close();
 
 			// Instantiate proxy
-			proxyObject = (Proxy)proxy.newInstance();
 			assertTrue( "must be instance of proxy", proxyObject instanceof Proxy );
+			proxyObject = (Proxy)proxy.newInstance();
 		}
 		catch ( ClassNotFoundException | IOException | InstantiationException | IllegalAccessException e )
 		{
