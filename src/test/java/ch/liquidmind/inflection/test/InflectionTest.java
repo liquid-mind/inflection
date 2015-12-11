@@ -4,6 +4,7 @@ import java.util.Calendar;
 import java.util.GregorianCalendar;
 
 import org.codehaus.jackson.map.ObjectMapper;
+import org.codehaus.jackson.map.ObjectReader;
 import org.codehaus.jackson.map.ObjectWriter;
 import org.junit.Test;
 
@@ -54,6 +55,9 @@ public class InflectionTest
 		
 		ObjectMapper mapper = new ObjectMapper();
 		ObjectWriter writer = mapper.writerWithDefaultPrettyPrinter();
+		ObjectReader reader = mapper.reader().withType( FullTaxonomy_Person.class );
+		
+		reader.readValue( writer.writeValueAsString( fullTaxonomyPerson ) );
 		
 		System.out.println( "FullTaxonomy_Person:" );
 		System.out.println( writer.writeValueAsString( fullTaxonomyPerson ) );

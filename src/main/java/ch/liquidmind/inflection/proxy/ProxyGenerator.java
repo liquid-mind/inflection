@@ -11,6 +11,7 @@ import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 import __java.io.__FileOutputStream;
 import __java.io.__OutputStream;
@@ -61,8 +62,60 @@ public class ProxyGenerator
 		if ( !baseDir.exists() )
 			__FileUtils.forceMkdir( null, baseDir );
 		
+		generateProxyCollections();
+		
 		for ( View view : taxonomy.getViews() )
 			generateView( view );
+	}
+	
+	private void generateProxyCollections()
+	{
+		generateProxyCollection( ListProxy.class );
+		generateProxyCollection( SetProxy.class );
+		generateProxyCollection( MapProxy.class );
+		generateProxyCollection( IteratorProxy.class );
+	}
+	
+	private void generateProxyCollection( Class< ? > proxyCollection )
+	{
+		String fqCollectionName = getFullyQualifiedCollectionName( taxonomy, proxyCollection );
+		String collectionFileName = fqCollectionName.replace( ".", "/" ) + ".java";
+		File collectionFile = new File( baseDir, collectionFileName );
+		
+		if ( !collectionFile.getParentFile().exists() )
+			__FileUtils.forceMkdir( null, collectionFile.getParentFile() );
+		
+		OutputStream outputStream = __FileOutputStream.__new( collectionFile );
+		printWriter = new PrintWriter( outputStream );
+		
+		try
+		{
+			generateProxyCollection( proxyCollection, fqCollectionName );
+		}
+		finally
+		{
+			printWriter.close();
+			__OutputStream.close( outputStream );
+		}
+	}
+	
+	private void generateProxyCollection( Class< ? > proxyCollection, String fqCollectionName )
+	{
+		int lastIndexOfDot = fqCollectionName.lastIndexOf( "." );
+		String packageName = fqCollectionName.substring( 0, lastIndexOfDot );
+		String simpleName = fqCollectionName.substring( lastIndexOfDot + 1 );
+		String genericType = ( Map.class.isAssignableFrom( proxyCollection ) ? "< K, V >" : "< E >" );
+		
+		printWriter.println( "package " + packageName + ";" );
+		printWriter.println();
+		
+		printWriter.println( "public class " + simpleName + genericType + " extends " + proxyCollection.getName() + genericType );
+		printWriter.println( "{" );
+		printWriter.println( "    public " + simpleName + "()");
+		printWriter.println( "    {" );
+		printWriter.println( "        super( \"" + taxonomy.getName() + "\" );" );
+		printWriter.println( "    }" );
+		printWriter.println( "}" );
 	}
 	
 	private void generateView( View view )
@@ -94,6 +147,13 @@ public class ProxyGenerator
 		String fqViewName = taxonomy.getName() + "." + view.getPackageName() + "." + taxonomy.getSimpleName() + "_" + view.getSimpleNameOrAlias();
 		
 		return fqViewName;
+	}
+	
+	public static String getFullyQualifiedCollectionName( Taxonomy taxonomy, Class< ? > collectionType )
+	{
+		String fqCollectionName = taxonomy.getName() + "." + collectionType.getPackage().getName() + "." + taxonomy.getSimpleName() + "_" + collectionType.getSimpleName();
+		
+		return fqCollectionName;
 	}
 	
 	private void generateView( View view, String fqViewName )
@@ -297,8 +357,8 @@ public class ProxyGenerator
 			String rawTypeConverted;
 			List< String > actualTypeArgumentsConverted = new ArrayList< String >();
 			
-			if ( ProxyRegistry.proxiesByCollection.containsKey( rawType ) )
-				rawTypeConverted = ProxyRegistry.proxiesByCollection.get( rawType ).getName();
+			if ( ProxyRegistry.PROXY_BASE_CLASSES.containsKey( rawType ) )
+				rawTypeConverted = getFullyQualifiedCollectionName( taxonomy, ProxyRegistry.PROXY_BASE_CLASSES.get( rawType ) );
 			else
 				throw new IllegalStateException( "No support for non-collection generic types at this time." );
 

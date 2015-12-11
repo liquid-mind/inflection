@@ -1,6 +1,5 @@
 package ch.liquidmind.inflection.proxy;
 
-import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -11,27 +10,25 @@ import java.util.Set;
 
 import __java.lang.__Class;
 import __java.lang.__ClassLoader;
-import __java.lang.reflect.__Constructor;
 import ch.liquidmind.inflection.model.external.Taxonomy;
 import ch.liquidmind.inflection.model.external.View;
 
 // TODO: look into using weak-/soft references to manage memory.
 public class ProxyRegistry
 {
-	// TODO: put this in a different location: also used by ProxyGenerator.
-	public static final Map< Class< ? >, Class< ? > > collectionsByProxy = new HashMap< Class< ? >, Class< ? > >();
-	public static final Map< Class< ? >, Class< ? > > proxiesByCollection = new HashMap< Class< ? >, Class< ? > >();
+	public static final Map< Class< ? >, Class< ? > > PROXY_BASE_CLASSES = new HashMap< Class< ? >, Class< ? > >();
+	public static final Map< Class< ? >, Class< ? > > COLLECTION_CLASSES = new HashMap< Class< ? >, Class< ? > >();
 	
 	static
 	{
-		collectionsByProxy.put( ListProxy.class, ArrayList.class );
-		collectionsByProxy.put( SetProxy.class, HashSet.class );
-		collectionsByProxy.put( MapProxy.class, HashMap.class );
+		PROXY_BASE_CLASSES.put( List.class, ListProxy.class );
+		PROXY_BASE_CLASSES.put( Set.class, SetProxy.class );
+		PROXY_BASE_CLASSES.put( Map.class, MapProxy.class );
+		PROXY_BASE_CLASSES.put( Iterator.class, IteratorProxy.class );
 		
-		proxiesByCollection.put( List.class, ListProxy.class );
-		proxiesByCollection.put( Set.class, SetProxy.class );
-		proxiesByCollection.put( Map.class, MapProxy.class );
-		proxiesByCollection.put( Iterator.class, IteratorProxy.class );
+		COLLECTION_CLASSES.put( ListProxy.class, ArrayList.class );
+		COLLECTION_CLASSES.put( SetProxy.class, HashSet.class );
+		COLLECTION_CLASSES.put( MapProxy.class, HashMap.class );
 	}
 	
 	private static ThreadLocal< ProxyRegistry > contextProxyRegistry = new ThreadLocal< ProxyRegistry >();
@@ -193,7 +190,7 @@ public class ProxyRegistry
 	{
 		T proxy = null;
 		
-		Set< Class< ? > > intersection = new HashSet< Class< ? > >( proxiesByCollection.keySet() );
+		Set< Class< ? > > intersection = new HashSet< Class< ? > >( PROXY_BASE_CLASSES.keySet() );
 		intersection.retainAll( java.util.Arrays.asList( object.getClass().getInterfaces() ) );
 		
 		if ( !intersection.isEmpty() )
@@ -201,10 +198,9 @@ public class ProxyRegistry
 			if ( intersection.size() > 1 )
 				throw new IllegalStateException( "intersection should contain exactly one element." );
 			
-			Class< ? > proxyClass = proxiesByCollection.get( intersection.iterator().next() );
-			Constructor< ? > constructor = __Class.getDeclaredConstructor( proxyClass, String.class );
-			constructor.setAccessible( true );
-			proxy = (T)__Constructor.newInstance( constructor, taxonomy.getName() );
+			String proxyClassName = ProxyGenerator.getFullyQualifiedCollectionName( taxonomy, PROXY_BASE_CLASSES.get( intersection.iterator().next() ) );
+			Class< ? > proxyClass = __ClassLoader.loadClass( Thread.currentThread().getContextClassLoader(), proxyClassName );
+			proxy = (T)__Class.newInstance( proxyClass );
 		}
 		else
 		{
@@ -270,11 +266,32 @@ public class ProxyRegistry
 	@SuppressWarnings( "unchecked" )
 	private < T > T createObject( Proxy proxy )
 	{
-		Class< ? > objectClass = collectionsByProxy.get( proxy.getClass() );
+		Class< ? > objectClass = null;
+		Set< Class< ? > > intersection = new HashSet< Class< ? > >( COLLECTION_CLASSES.keySet() );
+		intersection.retainAll( getClassesRecursive( proxy.getClass() ) );
+		
+		if ( !intersection.isEmpty() )
+		{
+			if ( intersection.size() > 1 )
+				throw new IllegalStateException( "intersection should contain exactly one element." );
+			
+			objectClass = COLLECTION_CLASSES.get( intersection.iterator().next() );
+		}
 		
 		if ( objectClass == null )
 			objectClass = ProxyHelper.getView( proxy ).getViewedClass();
 		
 		return (T)__Class.newInstance( objectClass );
+	}
+	
+	private List< Class< ? > > getClassesRecursive( Class< ? > aClass )
+	{
+		List< Class< ? > > classes = new ArrayList< Class< ? > >();
+		classes.add( aClass );
+		
+		if ( aClass.getSuperclass() != null )
+			classes.addAll( getClassesRecursive( aClass.getSuperclass() ) );
+		
+		return classes;
 	}
 }
