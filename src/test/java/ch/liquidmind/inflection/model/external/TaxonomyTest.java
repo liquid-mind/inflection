@@ -291,7 +291,7 @@ public class TaxonomyTest extends AbstractInflectionTest
 			assertNotNull( "parent view is used in taxonomy A, must exist", parentView );
 		} , javaFileMocks, null, createInflectionFileMock( "a.b.c", taxonomy.toString() ) );
 	}
-	
+
 	@Test
 	public void testViewHierarchy_MissingHierarchy_ParentViewExists() throws Exception
 	{
@@ -321,7 +321,7 @@ public class TaxonomyTest extends AbstractInflectionTest
 			// assertNotNull( "parent view is NOT used in taxonomy A, but must exist", parentView );
 		} , javaFileMocks, null, createInflectionFileMock( "a.b.c", taxonomy.toString() ) );
 	}
-	
+
 	@Test
 	public void testEmptyTaxonomy_NoViews_ViewsDoNotExist() throws Exception
 	{

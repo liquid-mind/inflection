@@ -11,8 +11,6 @@ import org.junit.Test;
 import ch.liquidmind.inflection.loader.TaxonomyLoader;
 import ch.liquidmind.inflection.model.external.Taxonomy;
 import ch.liquidmind.inflection.model.external.View;
-import ch.liquidmind.inflection.proxy.Proxy;
-import ch.liquidmind.inflection.proxy.ProxyGenerator;
 import ch.liquidmind.inflection.proxy.util.ProxyGeneratorTestUtility;
 import ch.liquidmind.inflection.test.AbstractInflectionTest;
 import ch.liquidmind.inflection.test.TestUtility;
