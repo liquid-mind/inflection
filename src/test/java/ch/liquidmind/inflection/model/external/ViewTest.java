@@ -21,16 +21,15 @@ public class ViewTest extends AbstractInflectionTest
 	{
 		StringBuilder javaSuperClass = new StringBuilder();
 		javaSuperClass.append( "package v.w.x;" );
-		javaSuperClass.append( "public class V {" );
-		javaSuperClass.append( "}" );
+		javaSuperClass.append( "public class V {}" );
 		JavaFileMock javaSuperClassFileMock = new JavaFileMock( "V.java", "v.w.x", javaSuperClass.toString() );
 
 		StringBuilder javaChildClass = new StringBuilder();
 		javaChildClass.append( "package v.w.x;" );
-		javaChildClass.append( "public class W extends V {" );
-		javaChildClass.append( "}" );
+		javaChildClass.append( "import v.w.x.*;" );
+		javaChildClass.append( "public class W extends V {}" );
 		JavaFileMock javaChildClassFileMock = new JavaFileMock( "W.java", "v.w.x", javaChildClass.toString() );
-
+		
 		javaModel = new JavaFileMock[] { javaSuperClassFileMock, javaChildClassFileMock };
 	}
 	
@@ -178,6 +177,42 @@ public class ViewTest extends AbstractInflectionTest
 		} , javaModel, null, createInflectionFileMock( "a.b.c", builder.toString() ) );
 	}
 	
+	@Test
+	public void testAlias_ViewWithDifferentAlias_AliasExistsAndNameCorrect() throws Exception
+	{
+		StringBuilder builder = new StringBuilder();
+		builder.append( "package a.b.c; " );
+		builder.append( "import v.w.x.*;" );
+		builder.append( "taxonomy A {" );
+		builder.append( "	view V as X { *; }" );
+		builder.append( "}" );
+
+		doTest( job -> {
+			Taxonomy taxonomy = TestUtility.getTaxonomyLoader( job ).loadTaxonomy( "a.b.c.A" );
+			View view = taxonomy.getView( "X" );
+			assertNotNull( view );
+			assertEquals( "v.w.x.V", view.getName() );
+		} , javaModel, null, createInflectionFileMock( "a.b.c", builder.toString() ) );
+	}
+	
+	@Test
+	public void testAlias_ViewWithSameAlias_AliasExistsAndNameCorrect() throws Exception
+	{
+		StringBuilder builder = new StringBuilder();
+		builder.append( "package a.b.c; " );
+		builder.append( "import v.w.x.*;" );
+		builder.append( "taxonomy A {" );
+		builder.append( "	view V as V { *; }" );
+		builder.append( "}" );
+
+		doTest( job -> {
+			Taxonomy taxonomy = TestUtility.getTaxonomyLoader( job ).loadTaxonomy( "a.b.c.A" );
+			View view = taxonomy.getView( "V" );
+			assertNotNull( view );
+			assertEquals( "v.w.x.V", view.getName() );
+		} , javaModel, null, createInflectionFileMock( "a.b.c", builder.toString() ) );
+	}
+		
 	@Test
 	public void testViewHierarchy_ExistingHierarchy_ParentViewExists() throws Exception
 	{
