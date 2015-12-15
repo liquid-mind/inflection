@@ -651,10 +651,6 @@ name "enu:Default-views"
 \end_layout
 
 \begin_layout Enumerate
-TBD: ABSTRACT TAXONOMIES.
-\end_layout
-
-\begin_layout Enumerate
 Taxonomies may inherit from one or more other taxonomies.
  The syntax is 
 \begin_inset listings

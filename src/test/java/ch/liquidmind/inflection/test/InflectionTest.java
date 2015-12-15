@@ -4,6 +4,7 @@ import java.util.Calendar;
 import java.util.GregorianCalendar;
 
 import org.codehaus.jackson.map.ObjectMapper;
+import org.codehaus.jackson.map.ObjectReader;
 import org.codehaus.jackson.map.ObjectWriter;
 import org.junit.Test;
 
@@ -26,7 +27,7 @@ public class InflectionTest
 	public void testPrinter()
 	{
 		String[] taxonomyNames = new String[] { "FullTaxonomy", "UseCase1", "UseCase2", "UseCase3", "UseCase4" };
-
+		
 		for ( String taxonomyName : taxonomyNames )
 		{
 			Taxonomy taxonomy = TaxonomyLoader.getContextTaxonomyLoader().loadTaxonomy( "ch.liquidmind.inflection.test.model." + taxonomyName );
@@ -45,16 +46,19 @@ public class InflectionTest
 		Address address = new Address( 43, "Feldgüetliweg 82", "Feldmeilen", "8706", "Switzerland" );
 		person.getAddresses().add( address );
 		address.getPeople().add( person );
-
+		
 		FullTaxonomy_Person fullTaxonomyPerson = ProxyHelper.getProxy( "ch.liquidmind.inflection.test.model.FullTaxonomy", person );
 		UseCase1_Person useCase1Person = ProxyHelper.getProxy( "ch.liquidmind.inflection.test.model.UseCase1", person );
 		UseCase2_Person useCase2Person = ProxyHelper.getProxy( "ch.liquidmind.inflection.test.model.UseCase2", person );
 		UseCase3_Person useCase3Person = ProxyHelper.getProxy( "ch.liquidmind.inflection.test.model.UseCase3", person );
 		UseCase4_Address useCase4Address = ProxyHelper.getProxy( "ch.liquidmind.inflection.test.model.UseCase4", address );
-
+		
 		ObjectMapper mapper = new ObjectMapper();
 		ObjectWriter writer = mapper.writerWithDefaultPrettyPrinter();
-
+		ObjectReader reader = mapper.reader().withType( FullTaxonomy_Person.class );
+		
+		reader.readValue( writer.writeValueAsString( fullTaxonomyPerson ) );
+		
 		System.out.println( "FullTaxonomy_Person:" );
 		System.out.println( writer.writeValueAsString( fullTaxonomyPerson ) );
 		System.out.println();

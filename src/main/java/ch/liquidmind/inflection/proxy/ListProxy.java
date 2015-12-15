@@ -5,6 +5,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
 
+// TODO: rename to ProxyList (analogous to ArrayList, LinkedList, etc.)
 public class ListProxy< E extends Object > extends Proxy implements List< E >
 {
 	protected ListProxy( String taxonomyName )
@@ -123,10 +124,12 @@ public class ListProxy< E extends Object > extends Proxy implements List< E >
 		return false;
 	}
 
+	@SuppressWarnings( "unused" )
 	@Override
 	public void clear()
 	{
 		// TODO Auto-generated method stub
+		int i = 0;
 	}
 
 	@Override
@@ -153,10 +156,12 @@ public class ListProxy< E extends Object > extends Proxy implements List< E >
 		return null;
 	}
 
+	@SuppressWarnings( "unused" )
 	@Override
 	public void add( int index, E element )
 	{
 		// TODO Auto-generated method stub
+		int i = 0;
 	}
 
 	@Override

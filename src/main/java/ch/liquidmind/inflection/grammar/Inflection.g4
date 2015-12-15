@@ -10,6 +10,9 @@ grammar Inflection;
  * - Includes are evaluated before excludes.
  * - Members referred to by member references must be declared in the class; they cannot be
  *   inherited from a super class.
+ * Definition of abstract taxonomy:
+ * - Views cannot be instantiated.
+ * - Cannot be proxified.
  */
  
 /*
