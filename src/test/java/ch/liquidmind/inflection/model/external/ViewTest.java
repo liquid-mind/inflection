@@ -26,7 +26,6 @@ public class ViewTest extends AbstractInflectionTest
 
 		StringBuilder javaChildClass = new StringBuilder();
 		javaChildClass.append( "package v.w.x;" );
-		javaChildClass.append( "import v.w.x.*;" );
 		javaChildClass.append( "public class W extends V {}" );
 		JavaFileMock javaChildClassFileMock = new JavaFileMock( "W.java", "v.w.x", javaChildClass.toString() );
 		
