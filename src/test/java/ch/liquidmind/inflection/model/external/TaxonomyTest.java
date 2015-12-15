@@ -5,152 +5,148 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
-import org.junit.BeforeClass;
 import org.junit.Test;
 
 import ch.liquidmind.inflection.compiler.util.InflectionCompilerTestUtility;
+import ch.liquidmind.inflection.model.AccessType;
 import ch.liquidmind.inflection.test.AbstractInflectionTest;
 import ch.liquidmind.inflection.test.TestUtility;
 import ch.liquidmind.inflection.test.mock.InflectionFileMock;
-import ch.liquidmind.inflection.test.mock.JavaFileMock;
 
 public class TaxonomyTest extends AbstractInflectionTest
 {
 
-	private static JavaFileMock[] javaModel;
-
-	@BeforeClass
-	public static void beforeClass() throws Exception
+	@Test
+	public void testDefaultAccessType_SingleTaxonomy_AccessTypeIsProperty() throws Exception
 	{
-		StringBuilder javaContent = new StringBuilder();
-		javaContent.append( "package v.w.x;" );
-		javaContent.append( "public class V {" );
-		javaContent.append( TestUtility.generateMember( "int", "id" ) );
-		javaContent.append( "}" );
-		javaModel = new JavaFileMock[] { new JavaFileMock( "V.java", "v.w.x", javaContent.toString() ) };
+		doTest( job -> {
+			InflectionCompilerTestUtility.assertSuccessfulCompilation( job );
+			Taxonomy taxomomy = TestUtility.getTaxonomyLoader( job ).loadTaxonomy( "a.A" );
+			assertNull( "Declared access type is empty", taxomomy.getDeclaredDefaultAccessType() );
+			assertEquals( "Default access type is property", AccessType.PROPERTY, taxomomy.getDefaultAccessType() );
+		} , createInflectionFileMock( "a", "package a; taxonomy A {}" ) );
+
 	}
 
 	@Test
-	public void testGetView_IncludeViewWithoutInclude_ViewExists() throws Exception
+	public void testDefaultAccessType_ChildTaxonomyWithPropertyAccessType_AccessTypeIsInherited() throws Exception
 	{
-		StringBuilder builder = new StringBuilder();
-		builder.append( "package a.b.c; " );
-		builder.append( "import v.w.x.*; " );
-		builder.append( "taxonomy A  " );
-		builder.append( "{ " );
-		builder.append( "	view V {} " );
-		builder.append( "} " );
-
 		doTest( job -> {
-			Taxonomy taxonomy = TestUtility.getTaxonomyLoader( job ).loadTaxonomy( "a.b.c.A" );
-			assertNotNull( "view must exist", taxonomy.getView( "v.w.x.V" ) );
-		} , javaModel, null, createInflectionFileMock( "a.b.c", builder.toString() ) );
+			InflectionCompilerTestUtility.assertSuccessfulCompilation( job );
+			Taxonomy taxomomy = TestUtility.getTaxonomyLoader( job ).loadTaxonomy( "a.B" );
+			assertNull( "Declared access type", taxomomy.getDeclaredDefaultAccessType() );
+			assertEquals( "Access type", AccessType.PROPERTY, taxomomy.getDefaultAccessType() );
+		} , createInflectionFileMock( "a", "package a; taxonomy A {} taxonomy B extends A {}" ) );
+
 	}
 
 	@Test
-	public void testGetView_IncludeViewWithInclude_ViewExists() throws Exception
+	public void testDefaultAccessType_ChildTaxonomyWithFieldAccessType_AccessTypeIsInherited() throws Exception
 	{
-		StringBuilder builder = new StringBuilder();
-		builder.append( "package a.b.c; " );
-		builder.append( "import v.w.x.*; " );
-		builder.append( "taxonomy A  " );
-		builder.append( "{ " );
-		builder.append( "	include view V {} " );
-		builder.append( "} " );
-
 		doTest( job -> {
-			Taxonomy taxonomy = TestUtility.getTaxonomyLoader( job ).loadTaxonomy( "a.b.c.A" );
-			assertNotNull( "view must exist", taxonomy.getView( "v.w.x.V" ) );
-		} , javaModel, null, createInflectionFileMock( "a.b.c", builder.toString() ) );
+			InflectionCompilerTestUtility.assertSuccessfulCompilation( job );
+			Taxonomy taxomomy = TestUtility.getTaxonomyLoader( job ).loadTaxonomy( "a.B" );
+			assertEquals( "Access type", AccessType.FIELD, taxomomy.getDefaultAccessType() );
+			// assertNull( "Declared access type", taxomomy.getDeclaredDefaultAccessType() );
+			// <inflection-error/> declared access type should be null
+		} , createInflectionFileMock( "a", "package a; taxonomy A { default field; } taxonomy B extends A {}" ) );
+
 	}
 
 	@Test
-	public void testGetView_ExcludeView_ViewDoesNotExist() throws Exception
+	public void testDefaultAccessType_ChildTaxonomyOverridesAccessTypeWithProperty_AccessTypeIsNotInherited() throws Exception
 	{
-		StringBuilder builder = new StringBuilder();
-		builder.append( "package a.b.c; " );
-		builder.append( "import v.w.x.*; " );
-		builder.append( "taxonomy A  " );
-		builder.append( "{ " );
-		builder.append( "	exclude view V; " );
-		builder.append( "} " );
-
 		doTest( job -> {
-			Taxonomy taxonomy = TestUtility.getTaxonomyLoader( job ).loadTaxonomy( "a.b.c.A" );
-			assertNull( "view must not exist", taxonomy.getView( "V" ) );
-		} , javaModel, null, createInflectionFileMock( "a.b.c", builder.toString() ) );
+			InflectionCompilerTestUtility.assertSuccessfulCompilation( job );
+			Taxonomy taxomomy = TestUtility.getTaxonomyLoader( job ).loadTaxonomy( "a.B" );
+			assertEquals( "Access type", AccessType.PROPERTY, taxomomy.getDefaultAccessType() );
+			assertNotNull( "Declared access type", taxomomy.getDeclaredDefaultAccessType() );
+		} , createInflectionFileMock( "a", "package a; taxonomy A { default field; } taxonomy B extends A { default property; }" ) );
+
 	}
 
 	@Test
-	public void testGetView_IncludeExcludeOrderIncludeFirst_ViewDoesNotExist() throws Exception
+	public void testDefaultAccessType_ChildTaxonomyOverridesAccessTypeWithDefault_AccessTypeIsInherited() throws Exception
 	{
-		StringBuilder builder = new StringBuilder();
-		builder.append( "package a.b.c; " );
-		builder.append( "import v.w.x.*; " );
-		builder.append( "taxonomy A  " );
-		builder.append( "{ " );
-		builder.append( "	include view V {} " );
-		builder.append( "	exclude view V; " );
-		builder.append( "} " );
-
 		doTest( job -> {
-			Taxonomy taxonomy = TestUtility.getTaxonomyLoader( job ).loadTaxonomy( "a.b.c.A" );
-			assertNull( "view must not exist", taxonomy.getView( "V" ) );
-		} , javaModel, null, createInflectionFileMock( "a.b.c", builder.toString() ) );
+			InflectionCompilerTestUtility.assertSuccessfulCompilation( job );
+			Taxonomy taxomomy = TestUtility.getTaxonomyLoader( job ).loadTaxonomy( "a.B" );
+			assertEquals( "Access type", AccessType.FIELD, taxomomy.getDefaultAccessType() );
+			assertNull( "Declared access type", taxomomy.getDeclaredDefaultAccessType() );
+		} , createInflectionFileMock( "a", "package a; taxonomy A { default field; } taxonomy B extends A { default; }" ) );
+
 	}
 
 	@Test
-	public void testGetView_IncludeExcludeOrderExcludeFirst_ViewDoesNotExist() throws Exception
+	public void testDefaultAccessType_MultipleInheritanceOrderField_AccessTypeIsInheritedFromFirstParent() throws Exception
 	{
-		StringBuilder builder = new StringBuilder();
-		builder.append( "package a.b.c; " );
-		builder.append( "import v.w.x.*; " );
-		builder.append( "taxonomy A  " );
-		builder.append( "{ " );
-		builder.append( "	exclude view V; " );
-		builder.append( "	include view V {} " ); // reverse order should not matter
-		builder.append( "} " );
-
 		doTest( job -> {
-			Taxonomy taxonomy = TestUtility.getTaxonomyLoader( job ).loadTaxonomy( "a.b.c.A" );
-			assertNull( "view must not exist", taxonomy.getView( "V" ) );
-		} , javaModel, null, createInflectionFileMock( "a.b.c", builder.toString() ) );
+			InflectionCompilerTestUtility.assertSuccessfulCompilation( job );
+			Taxonomy taxomomy = TestUtility.getTaxonomyLoader( job ).loadTaxonomy( "a.C" );
+			assertEquals( "Access type", AccessType.PROPERTY, taxomomy.getDefaultAccessType() ); // <inflection-error/> access type should be FIELD
+		} , createInflectionFileMock( "a", "package a; taxonomy A { default field; } taxonomy B { default property; } taxonomy C extends A,B { }" ) );
+
 	}
 
 	@Test
-	public void testGetView_IncludeWithSelector_ViewDoesExist() throws Exception
+	public void testDefaultAccessType_MultipleInheritanceOrderProperty_AccessTypeIsInheritedFromFirstParent() throws Exception
 	{
-		StringBuilder builder = new StringBuilder();
-		builder.append( "package a.b.c; " );
-		builder.append( "import v.w.x.*; " );
-		builder.append( "taxonomy A  " );
-		builder.append( "{ " );
-		builder.append( "	include view V* {} " );
-		builder.append( "} " );
-
 		doTest( job -> {
-			Taxonomy taxonomy = TestUtility.getTaxonomyLoader( job ).loadTaxonomy( "a.b.c.A" );
-			assertNotNull( "view must exist", taxonomy.getView( "v.w.x.V" ) );
-		} , javaModel, null, createInflectionFileMock( "a.b.c", builder.toString() ) );
+			InflectionCompilerTestUtility.assertSuccessfulCompilation( job );
+			Taxonomy taxomomy = TestUtility.getTaxonomyLoader( job ).loadTaxonomy( "a.C" );
+			assertEquals( "Access type", AccessType.PROPERTY, taxomomy.getDefaultAccessType() );
+		} , createInflectionFileMock( "a", "package a; taxonomy A { default field; } taxonomy B { default property; } taxonomy C extends B,A { }" ) );
+
 	}
 
 	@Test
-	public void testGetView_ExcludeWithSelector_ViewDoesNotExist() throws Exception
+	public void testDefaultAccessType_MultipleInheritanceOrderFieldDefault_AccessTypeIsInheritedFromFirstParent() throws Exception
 	{
-		StringBuilder builder = new StringBuilder();
-		builder.append( "package a.b.c; " );
-		builder.append( "import v.w.x.*; " );
-		builder.append( "taxonomy A  " );
-		builder.append( "{ " );
-		builder.append( "	exclude view V*; " );
-		builder.append( "}" );
-
 		doTest( job -> {
-			Taxonomy taxonomy = TestUtility.getTaxonomyLoader( job ).loadTaxonomy( "a.b.c.A" );
-			assertNull( "view must not exist", taxonomy.getView( "V" ) );
-		} , javaModel, null, createInflectionFileMock( "a.b.c", builder.toString() ) );
+			InflectionCompilerTestUtility.assertSuccessfulCompilation( job );
+			Taxonomy taxomomy = TestUtility.getTaxonomyLoader( job ).loadTaxonomy( "a.C" );
+			assertEquals( "Access type", AccessType.FIELD, taxomomy.getDefaultAccessType() );
+			assertNull( "Declared access type", taxomomy.getDeclaredDefaultAccessType() );
+		} , createInflectionFileMock( "a", "package a; taxonomy A { default field; } taxonomy B { default property; } taxonomy C extends A,B { default; }" ) );
+
 	}
 
+	@Test
+	public void testDefaultAccessType_MultipleInheritanceOrderPropertyDefault_AccessTypeIsInheritedFromFirstParent() throws Exception
+	{
+		doTest( job -> {
+			InflectionCompilerTestUtility.assertSuccessfulCompilation( job );
+			Taxonomy taxomomy = TestUtility.getTaxonomyLoader( job ).loadTaxonomy( "a.C" );
+			assertEquals( "Access type", AccessType.PROPERTY, taxomomy.getDefaultAccessType() );
+			assertNull( "Declared access type", taxomomy.getDeclaredDefaultAccessType() );
+		} , createInflectionFileMock( "a", "package a; taxonomy A { default field; } taxonomy B { default property; } taxonomy C extends B,A { default; }" ) );
+
+	}
+
+	@Test
+	public void testDefaultAccessType_MultipleInheritanceOrderFieldOverride_AccessTypeIsNotInheritedFromFirstParent() throws Exception
+	{
+		doTest( job -> {
+			InflectionCompilerTestUtility.assertSuccessfulCompilation( job );
+			Taxonomy taxomomy = TestUtility.getTaxonomyLoader( job ).loadTaxonomy( "a.C" );
+			assertEquals( "Access type", AccessType.PROPERTY, taxomomy.getDefaultAccessType() );
+			assertNotNull( "Declared access type", taxomomy.getDeclaredDefaultAccessType() );
+		} , createInflectionFileMock( "a", "package a; taxonomy A { default field; } taxonomy B { default property; } taxonomy C extends A,B { default property; }" ) );
+
+	}
+
+	@Test
+	public void testDefaultAccessType_MultipleInheritanceOrderPropertyOverride_AccessTypeIsNotInheritedFromFirstParent() throws Exception
+	{
+		doTest( job -> {
+			InflectionCompilerTestUtility.assertSuccessfulCompilation( job );
+			Taxonomy taxomomy = TestUtility.getTaxonomyLoader( job ).loadTaxonomy( "a.C" );
+			assertEquals( "Access type", AccessType.FIELD, taxomomy.getDefaultAccessType() );
+			assertNotNull( "Declared access type", taxomomy.getDeclaredDefaultAccessType() );
+		} , createInflectionFileMock( "a", "package a; taxonomy A { default field; } taxonomy B { default property; } taxonomy C extends B,A { default field; }" ) );
+
+	}
+		
 	@Test
 	public void testTaxonomyUniqueness_DuplicateTaxonomyNamedPackageInSameFile_CompilationFailure() throws Exception
 	{
@@ -261,65 +257,6 @@ public class TaxonomyTest extends AbstractInflectionTest
 		doTest( job -> {
 			InflectionCompilerTestUtility.assertSuccessfulCompilation( job );
 		} , null, classpath, createInflectionFileMock( "taxonomy B {}" ) );
-	}
-
-	@Test
-	public void testViewHierarchy_ExistingHierarchy_ParentViewExists() throws Exception
-	{
-		StringBuilder javaSuperClass = new StringBuilder();
-		javaSuperClass.append( "package v.w.x;" );
-		javaSuperClass.append( "public class V {}" );
-
-		StringBuilder javaChildClass = new StringBuilder();
-		javaChildClass.append( "package v.w.x;" );
-		javaChildClass.append( "public class W extends V {}" );
-
-		JavaFileMock[] javaFileMocks = new JavaFileMock[] { createJavaFileMock( "V.java", "v.w.x", javaSuperClass.toString() ), createJavaFileMock( "W.java", "v.w.x", javaChildClass.toString() ) };
-
-		StringBuilder taxonomy = new StringBuilder();
-		taxonomy.append( "package a.b.c; " );
-		taxonomy.append( "import v.w.x.*; " );
-		taxonomy.append( "taxonomy A { view V {} view W {} } " );
-
-		doTest( job -> {
-			InflectionCompilerTestUtility.assertSuccessfulCompilation( job );
-			Taxonomy taxomomy = TestUtility.getTaxonomyLoader( job ).loadTaxonomy( "a.b.c.A" );
-			View view = taxomomy.getView( "v.w.x.W" );
-			assertNotNull( view );
-			View parentView = view.getSuperview();
-			assertEquals( "V", parentView.getSimpleName() );
-			assertNotNull( "parent view is used in taxonomy A, must exist", parentView );
-		} , javaFileMocks, null, createInflectionFileMock( "a.b.c", taxonomy.toString() ) );
-	}
-
-	@Test
-	public void testViewHierarchy_MissingHierarchy_ParentViewExists() throws Exception
-	{
-		StringBuilder javaSuperClass = new StringBuilder();
-		javaSuperClass.append( "package v.w.x;" );
-		javaSuperClass.append( "public class V {}" );
-
-		StringBuilder javaChildClass = new StringBuilder();
-		javaChildClass.append( "package v.w.x;" );
-		javaChildClass.append( "public class W extends V {}" );
-
-		JavaFileMock[] javaFileMocks = new JavaFileMock[] { createJavaFileMock( "V.java", "v.w.x", javaSuperClass.toString() ), createJavaFileMock( "W.java", "v.w.x", javaChildClass.toString() ) };
-
-		StringBuilder taxonomy = new StringBuilder();
-		taxonomy.append( "package a.b.c; " );
-		taxonomy.append( "import v.w.x.*; " );
-		taxonomy.append( "taxonomy A { view W {} } " );
-
-		doTest( job -> {
-			InflectionCompilerTestUtility.assertSuccessfulCompilation( job );
-			Taxonomy taxomomy = TestUtility.getTaxonomyLoader( job ).loadTaxonomy( "a.b.c.A" );
-			View view = taxomomy.getView( "v.w.x.W" );
-			assertNotNull( view );
-			View parentView = view.getSuperview();
-			assertNull( parentView ); // <inflection-error/> parent view should be automatically inserted by the compiler
-			// assertEquals( "V", parentView.getSimpleName() );
-			// assertNotNull( "parent view is NOT used in taxonomy A, but must exist", parentView );
-		} , javaFileMocks, null, createInflectionFileMock( "a.b.c", taxonomy.toString() ) );
 	}
 
 	@Test
