@@ -65,11 +65,12 @@
 \papercolumns 1
 \papersides 1
 \paperpagestyle default
-\tracking_changes false
+\tracking_changes true
 \output_changes false
 \html_math_output 0
 \html_css_as_file 0
 \html_be_strict false
+\author 1082479128 "John Brush" 
 \end_header
 
 \begin_body
@@ -906,6 +907,54 @@ name "enu:Default-access-method"
 \end_inset
 
 
+\change_inserted 1082479128 1450163493
+
+\end_layout
+
+\begin_layout Enumerate
+
+\change_inserted 1082479128 1450164557
+For each view in a given taxonomy, there must be a set of views in that
+ taxonomy or some super taxonomy that refer to the set of super classes
+ of the viewed class.
+\begin_inset CommandInset label
+LatexCommand label
+name "enu:Full-hierarchy-rule"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Enumerate
+
+\change_inserted 1082479128 1450164677
+If a taxonomy is declared 
+\begin_inset listings
+lstparams "basicstyle={\ttfamily}"
+inline true
+status open
+
+\begin_layout Plain Layout
+
+\change_inserted 1082479128 1450164405
+
+abstract
+\end_layout
+
+\end_inset
+
+ then it is not possible to create instances of views of that taxonomy.
+ Furthermore, the rule defined by §
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "enu:Full-hierarchy-rule"
+
+\end_inset
+
+ is suspended.
+\change_deleted 1082479128 1450164694
+
 \end_layout
 
 \begin_layout Section
@@ -968,12 +1017,21 @@ reference "sub:Type-References"
 
 \end_inset
 
-).
+):
 \end_layout
 
 \begin_layout Enumerate
-The sets of classes specified by the references may overlap; in this case
- precedence is determined by the order in the declaration.
+The sets of classes specified by the references
+\change_inserted 1082479128 1450168287
+ in a given view declaration
+\change_unchanged
+ may overlap; in this case precedence is determined by the 
+\change_deleted 1082479128 1450168302
+order in the declaration
+\change_inserted 1082479128 1450168305
+declaration order
+\change_unchanged
+.
  For example, if class 
 \begin_inset listings
 lstparams "basicstyle={\ttfamily}"
@@ -982,12 +1040,41 @@ status open
 
 \begin_layout Plain Layout
 
-C1
+\change_inserted 1082479128 1450169322
+
+V
+\change_deleted 1082479128 1450169322
+C
+\change_unchanged
+1
 \end_layout
 
 \end_inset
 
- occurs in 
+
+\change_inserted 1082479128 1450169369
+ and 
+\begin_inset listings
+lstparams "basicstyle={\ttfamily}"
+inline true
+status open
+
+\begin_layout Plain Layout
+
+\change_inserted 1082479128 1450169371
+
+V2
+\end_layout
+
+\end_inset
+
+
+\change_unchanged
+ occur
+\change_deleted 1082479128 1450169374
+s
+\change_unchanged
+ in 
 \begin_inset listings
 lstparams "basicstyle={\ttfamily}"
 inline true
@@ -1013,6 +1100,10 @@ R2
 
 \end_inset
 
+
+\change_inserted 1082479128 1450169395
+, respectively, and refer to the same class
+\change_unchanged
 , then 
 \begin_inset listings
 lstparams "basicstyle={\ttfamily}"
@@ -1021,12 +1112,24 @@ status open
 
 \begin_layout Plain Layout
 
-C1
+\change_deleted 1082479128 1450169403
+
+C
+\change_inserted 1082479128 1450169403
+V
+\change_deleted 1082479128 1450169404
+1
+\change_inserted 1082479128 1450169404
+2
+\change_unchanged
+
 \end_layout
 
 \end_inset
 
- from 
+ 
+\change_deleted 1082479128 1450169408
+from 
 \begin_inset listings
 lstparams "basicstyle={\ttfamily}"
 inline true
@@ -1034,18 +1137,231 @@ status open
 
 \begin_layout Plain Layout
 
-R1
+R
+\change_deleted 1082479128 1450168922
+1
+\change_inserted 1082479128 1450168922
+2
+\change_unchanged
+
+\end_layout
+
+\end_inset
+
+
+\change_unchanged
+ has precedence.
+ This is particularly relevant for aliases (§
+\change_deleted 1082479128 1450168323
+TBD
+\change_inserted 1082479128 1450169368
+
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "enu:Aliases"
+
+\end_inset
+
+
+\change_unchanged
+)
+\change_inserted 1082479128 1450169368
+ and annotations (§TBD)
+\change_unchanged
+.
+\change_inserted 1082479128 1450169368
+
+\end_layout
+
+\begin_layout Enumerate
+
+\change_inserted 1082479128 1450169460
+The sets of classes specified by the references in two or more view declarations
+ may overlap; as within a single declaration, precedence is determined by
+ the order.
+ For example, given the code fragment 
+\begin_inset listings
+lstparams "basicstyle={\ttfamily}"
+inline true
+status open
+
+\begin_layout Plain Layout
+
+\change_inserted 1082479128 1450169465
+
+view V1; view V2;
+\end_layout
+
+\end_inset
+
+, where 
+\begin_inset listings
+lstparams "basicstyle={\ttfamily}"
+inline true
+status open
+
+\begin_layout Plain Layout
+
+\change_inserted 1082479128 1450169468
+
+V1
+\end_layout
+
+\end_inset
+
+ and 
+\begin_inset listings
+lstparams "basicstyle={\ttfamily}"
+inline true
+status open
+
+\begin_layout Plain Layout
+
+\change_inserted 1082479128 1450169471
+
+V2
+\end_layout
+
+\end_inset
+
+ refer to the same class, 
+\begin_inset listings
+lstparams "basicstyle={\ttfamily}"
+inline true
+status open
+
+\begin_layout Plain Layout
+
+\change_inserted 1082479128 1450169475
+
+V2
 \end_layout
 
 \end_inset
 
  has precedence.
- This is particularly relevant for aliases (§TBD).
+\change_unchanged
+
 \end_layout
 
 \begin_layout Enumerate
 A single view declaration may result in zero, one or more views in the compiled
  taxonomy.
+\change_inserted 1082479128 1450169624
+
+\end_layout
+
+\begin_layout Enumerate
+
+\change_inserted 1082479128 1450170023
+Views may use either the 
+\begin_inset listings
+lstparams "basicstyle={\ttfamily}"
+inline true
+status open
+
+\begin_layout Plain Layout
+
+\change_inserted 1082479128 1450169670
+
+include
+\end_layout
+
+\end_inset
+
+ or 
+\begin_inset listings
+lstparams "basicstyle={\ttfamily}"
+inline true
+status open
+
+\begin_layout Plain Layout
+
+\change_inserted 1082479128 1450169692
+
+exclude
+\end_layout
+
+\end_inset
+
+ modifier to specify inclusion in or exclusion from the containing taxonomy.
+ All view delcarations with the include modifier are evaluated before those
+ with the exclude modifier.
+ Excluding views cannot declare annotations (), aliases or used classes.
+\change_unchanged
+
+\end_layout
+
+\begin_layout Enumerate
+
+\change_inserted 1082479128 1450170267
+Views may declare aliases such as 
+\begin_inset listings
+lstparams "basicstyle={\ttfamily}"
+inline true
+status open
+
+\begin_layout Plain Layout
+
+\change_inserted 1082479128 1450165016
+
+view V1 as A1
+\end_layout
+
+\end_inset
+
+ where 
+\begin_inset listings
+lstparams "basicstyle={\ttfamily}"
+inline true
+status open
+
+\begin_layout Plain Layout
+
+\change_inserted 1082479128 1450165071
+
+V1
+\end_layout
+
+\end_inset
+
+ is a class reference and 
+\begin_inset listings
+lstparams "basicstyle={\ttfamily}"
+inline true
+status open
+
+\begin_layout Plain Layout
+
+\change_inserted 1082479128 1450165076
+
+A1
+\end_layout
+
+\end_inset
+
+ is a legal identifier.
+ Aliases must be defined as part of an 
+\emph on
+included
+\emph default
+ view and must be 
+\emph on
+unique
+\emph default
+ within the taxonomy hierarchy.
+ Aliases cannot be referenced within taxonomy declarations but can be used
+ to create view instances.
+ 
+\begin_inset CommandInset label
+LatexCommand label
+name "enu:Aliases"
+
+\end_inset
+
+
+\change_unchanged
+
 \end_layout
 
 \begin_layout Section
@@ -1124,9 +1440,17 @@ Imported packages are first resolved into (virtually) imported types by
 
 \begin_layout Enumerate
 Type selectors may match zero, one or more types.
+\change_inserted 1082479128 1450170297
+
 \end_layout
 
 \end_deeper
+\begin_layout Section
+
+\change_inserted 1082479128 1450170303
+View Instances
+\end_layout
+
 \begin_layout Chapter
 Errors and Warnings
 \end_layout
