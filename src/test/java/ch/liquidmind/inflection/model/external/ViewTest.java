@@ -211,6 +211,21 @@ public class ViewTest extends AbstractInflectionTest
 			assertEquals( "v.w.x.V", view.getName() );
 		} , javaModel, null, createInflectionFileMock( "a.b.c", builder.toString() ) );
 	}
+	
+	@Test
+	public void testAlias_SelectorWithAlias_CompilationFailure() throws Exception
+	{
+		StringBuilder builder = new StringBuilder();
+		builder.append( "package a.b.c; " );
+		builder.append( "import v.w.x.*;" );
+		builder.append( "taxonomy A {" );
+		builder.append( "	view V* as X { *; }" );
+		builder.append( "}" );
+
+		doTest( job -> {
+			InflectionCompilerTestUtility.assertCompilationFailure( job );
+		} , javaModel, null, createInflectionFileMock( "a.b.c", builder.toString() ) );
+	}
 		
 	@Test
 	public void testViewHierarchy_ExistingHierarchy_ParentViewExists() throws Exception
