@@ -829,6 +829,12 @@ T2
 \end_inset
 
 .
+
+\change_inserted 1082479128 1450179509
+ It is illegal to inherit from the same taxonomy more than once in a single
+ taxonomy declaration.
+\change_unchanged
+
 \begin_inset CommandInset label
 LatexCommand label
 name "enu:Taxonomies-inheritence"
@@ -928,7 +934,7 @@ name "enu:Full-hierarchy-rule"
 
 \begin_layout Enumerate
 
-\change_inserted 1082479128 1450164677
+\change_inserted 1082479128 1450181196
 If a taxonomy is declared 
 \begin_inset listings
 lstparams "basicstyle={\ttfamily}"
@@ -953,6 +959,20 @@ reference "enu:Full-hierarchy-rule"
 \end_inset
 
  is suspended.
+\end_layout
+
+\begin_layout Enumerate
+
+\change_inserted 1082479128 1450181338
+It is legal for a taxonomy's fully qualified name to be the same as a known
+ package.
+\end_layout
+
+\begin_layout Enumerate
+
+\change_inserted 1082479128 1450181395
+It is not legal for a taxonomy's fully qualified name to be the same as
+ a known type (class, interface, enum, basic type, taxonomy).
 \change_deleted 1082479128 1450164694
 
 \end_layout
@@ -1017,7 +1037,37 @@ reference "sub:Type-References"
 
 \end_inset
 
-):
+)
+\change_inserted 1082479128 1450179839
+.
+\change_deleted 1082479128 1450179838
+:
+\change_inserted 1082479128 1450179850
+
+\end_layout
+
+\begin_layout Enumerate
+
+\change_inserted 1082479128 1450180967
+Classes refered to in view declarations may generic or non-generic, static
+ or non-static, top-level or member classes and must be public
+\begin_inset Foot
+status open
+
+\begin_layout Plain Layout
+
+\change_inserted 1082479128 1450181049
+This is mainly due to the fact that views and classes can never be in the
+ same namespace, since the containing taxonomy is always part of a view's
+ namespace.
+\change_unchanged
+
+\end_layout
+
+\end_inset
+
+.
+ Local and anonymous classes as well as interfaces are not supported.
 \end_layout
 
 \begin_layout Enumerate
@@ -1253,7 +1303,7 @@ A single view declaration may result in zero, one or more views in the compiled
 
 \begin_layout Enumerate
 
-\change_inserted 1082479128 1450170023
+\change_inserted 1082479128 1450178571
 Views may use either the 
 \begin_inset listings
 lstparams "basicstyle={\ttfamily}"
@@ -1287,15 +1337,33 @@ exclude
  modifier to specify inclusion in or exclusion from the containing taxonomy.
  All view delcarations with the include modifier are evaluated before those
  with the exclude modifier.
- Excluding views cannot declare annotations (), aliases or used classes.
+ Excluding views cannot declare annotations (§
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "sec:Annotations"
+
+\end_inset
+
+), aliases (§
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "enu:Aliases"
+
+\end_inset
+
+) or used classes (§TBD).
 \change_unchanged
 
 \end_layout
 
 \begin_layout Enumerate
 
-\change_inserted 1082479128 1450170267
-Views may declare aliases such as 
+\change_inserted 1082479128 1450179067
+Views may declare 
+\emph on
+aliases
+\emph default
+ such as 
 \begin_inset listings
 lstparams "basicstyle={\ttfamily}"
 inline true
@@ -1360,6 +1428,81 @@ name "enu:Aliases"
 \end_inset
 
 
+\end_layout
+
+\begin_layout Enumerate
+
+\change_inserted 1082479128 1450179417
+Views may declare 
+\emph on
+used classes
+\emph default
+ such as 
+\begin_inset listings
+lstparams "basicstyle={\ttfamily}"
+inline true
+status open
+
+\begin_layout Plain Layout
+
+\change_inserted 1082479128 1450179136
+
+view V1 use C1
+\end_layout
+
+\end_inset
+
+ where 
+\begin_inset listings
+lstparams "basicstyle={\ttfamily}"
+inline true
+status open
+
+\begin_layout Plain Layout
+
+\change_inserted 1082479128 1450179116
+
+V1
+\end_layout
+
+\end_inset
+
+ is a class reference and 
+\begin_inset listings
+lstparams "basicstyle={\ttfamily}"
+inline true
+status open
+
+\begin_layout Plain Layout
+
+\change_inserted 1082479128 1450179122
+
+C1
+\end_layout
+
+\end_inset
+
+ is a specific type reference.
+ Used classes allow for calculated fields (§TBD).
+ Views may specify multiple used classes such as 
+\begin_inset listings
+lstparams "basicstyle={\ttfamily}"
+inline true
+status open
+
+\begin_layout Plain Layout
+
+\change_inserted 1082479128 1450179276
+
+view V1 use C1, C2, ...
+ Cn
+\end_layout
+
+\end_inset
+
+.
+ It is illegal to specify the same used class more than once in a single
+ view declaration.
 \change_unchanged
 
 \end_layout
@@ -1370,6 +1513,17 @@ Members
 
 \begin_layout Section
 Annotations
+\change_inserted 1082479128 1450170351
+
+\begin_inset CommandInset label
+LatexCommand label
+name "sec:Annotations"
+
+\end_inset
+
+
+\change_unchanged
+
 \end_layout
 
 \begin_layout Section
