@@ -97,7 +97,8 @@ public class Proxy
 		{
 			// TODO: Another ugly work-around: as I've already written, we will have to completely
 			// rewrite the proxy generator and associated classes soon.
-			if ( declaredMethod.getName().equals( methodName ) )
+			// length check: check at least parameter length, because otherwise wrong method will be randomly taken (e.g. java.util.List.add(int, E) vs. java.util.List.add(E))
+			if ( declaredMethod.getName().equals( methodName ) && declaredMethod.getParameterTypes().length == paramTypes.length )
 			{
 				method = declaredMethod;
 				break;
