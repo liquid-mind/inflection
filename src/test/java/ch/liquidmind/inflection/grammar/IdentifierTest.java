@@ -30,7 +30,7 @@ public class IdentifierTest extends AbstractInflectionTest
 
 				{ "A1", true },
 
-				{ "1A", true }, // <inflection-error/> 1A is a reserved literal value, should not compile
+				{ "1A", true }, // <inflection-error/> should not compile, leading 1 is not allowed
 
 				{ "true", true }, // <inflection-error/> true is a reserved literal value, should not compile
 
