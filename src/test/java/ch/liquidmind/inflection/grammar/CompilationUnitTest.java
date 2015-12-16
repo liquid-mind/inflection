@@ -17,14 +17,6 @@ public class CompilationUnitTest extends AbstractInflectionTest
 	}
 
 	@Test
-	public void testCompilationUnit_WhiteSpace_SuccessfulCompilation() throws Exception
-	{
-		doTest( job -> {
-			InflectionCompilerTestUtility.assertSuccessfulCompilation( job );
-		} , createInflectionFileMock( " " ) );
-	}
-
-	@Test
 	public void testCompilationUnit_MultipleTaxonomies_SuccessfulCompilation() throws Exception
 	{
 		doTest( job -> {
