@@ -1,6 +1,8 @@
 package ch.liquidmind.inflection.proxy;
 
 import java.lang.reflect.Method;
+import java.util.Arrays;
+import java.util.Collection;
 
 import __java.lang.__Class;
 import ch.liquidmind.inflection.loader.TaxonomyLoader;
@@ -97,8 +99,10 @@ public class Proxy
 		{
 			// TODO: Another ugly work-around: as I've already written, we will have to completely
 			// rewrite the proxy generator and associated classes soon.
-			// length check: check at least parameter length, because otherwise wrong method will be randomly taken (e.g. java.util.List.add(int, E) vs. java.util.List.add(E))
-			if ( declaredMethod.getName().equals( methodName ) && declaredMethod.getParameterTypes().length == paramTypes.length )
+			// Check for aClasses implementing Collection Interface: check also parameter types, 
+			// because otherwise wrong method will be randomly taken (e.g. java.util.List.add(int, E) vs. java.util.List.add(E))
+			boolean isCollectionType = Collection.class.isAssignableFrom(aClass);
+			if ( declaredMethod.getName().equals( methodName ) && ( !isCollectionType || Arrays.deepEquals( declaredMethod.getParameterTypes(), paramTypes )))
 			{
 				method = declaredMethod;
 				break;
