@@ -50,12 +50,15 @@ public final class ProxyGeneratorTestUtility
 		return outputDir;
 	}
 
+	/**
+	 * Creates a proxy instance. You may need to set a ContextTaxonomyLoader using {@link TaxonomyLoader#setContextTaxonomyLoader} before calling this method.
+	 * 
+	 * @param compiledProxyDir location of compiled proxy files
+	 * @param fullyQualifiedClassName fully qualified proxy class name
+	 * @return a proxy instance
+	 */
 	public static Proxy loadProxy( File compiledProxyDir, String fullyQualifiedClassName )
 	{
-		if ( TaxonomyLoader.getContextTaxonomyLoader() == null )
-		{
-			throw new UnsupportedOperationException( "ContextTaxonomyLoader must be set before calling this method" );
-		}
 		// Load proxy
 		URLClassLoader proxyClassLoader = new URLClassLoader( TestUtility.convertToURLArray( compiledProxyDir ), ClassLoader.getSystemClassLoader() );
 		Class< ? > proxy = __ClassLoader.loadClass( proxyClassLoader, fullyQualifiedClassName );
