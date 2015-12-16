@@ -32,31 +32,27 @@ import ch.liquidmind.inflection.test.mock.JavaFileMock;
 
 public final class InflectionCompilerTestUtility
 {
-	public static CompilationJob createCompilationJob( ClassLoader modelClassLoader, InflectionFileMock... inflectionFileMocks )
+	/**
+	 * Compiles *.inflect files to *.tax files
+	 * 
+	 * @param modelClassLoader a class loader with a java model that may be referenced in the *.inflect files
+	 * @param inflectionFileMocks inflection file mocks
+	 * @return {@link TaxonomyLoader} with compiled *.tax files
+	 */
+	public static CompilationJob compileInflection( ClassLoader modelClassLoader, InflectionFileMock... inflectionFileMocks )
 	{
 		if ( inflectionFileMocks == null )
 		{
 			throw new IllegalArgumentException( "inflectionFileMocks must not be null" );
 		}
 		File[] inflectionFileArray = writeFileMocksToFiles( inflectionFileMocks );
-		TaxonomyLoader taxonomyLoader = createTaxonomyLoader( modelClassLoader );
-		return new CompilationJob( taxonomyLoader, __Files.createTempDirectory( null, "tax", new FileAttribute< ? >[ 0 ] ).toFile(), CompilationMode.NORMAL, inflectionFileArray );
-	}
-
-	/**
-	 * Compiles *.inflect files to *.tax files
-	 * 
-	 * @param inflectionFileMocks
-	 * @return {@link TaxonomyLoader} with compiled *.tax files
-	 */
-	public static TaxonomyLoader compileInflection( ClassLoader modelClassLoader, InflectionFileMock... inflectionFileMocks )
-	{
-		CompilationJob job = createCompilationJob( modelClassLoader, inflectionFileMocks );
+		TaxonomyLoader taxonomyLoader = new TaxonomyLoader( TaxonomyLoader.getSystemTaxonomyLoader(), modelClassLoader );
+		
+		CompilationJob job = new CompilationJob( taxonomyLoader, __Files.createTempDirectory( null, "tax", new FileAttribute< ? >[ 0 ] ).toFile(), CompilationMode.NORMAL, inflectionFileArray );
 		InflectionCompiler.compile( job );
-		File compiledTaxonomyDir = job.getTargetDirectory();
-		assertTrue( compiledTaxonomyDir.exists() );
-		assertTrue( job.getCompilationFaults().isEmpty() );
-		return createTaxonomyLoader( new URLClassLoader( TestUtility.convertToURLArray( compiledTaxonomyDir ), modelClassLoader ) );
+		assertTrue( job.getTargetDirectory().exists() );
+		
+		return job;
 	}
 
 	/**
@@ -94,12 +90,6 @@ public final class InflectionCompilerTestUtility
 		}
 		File[] inflectionFileArray = inflectFileList.toArray( new File[ inflectFileList.size() ] );
 		return inflectionFileArray;
-	}
-
-	private static TaxonomyLoader createTaxonomyLoader( ClassLoader classLoader )
-	{
-		TaxonomyLoader taxonomyLoader = new TaxonomyLoader( TaxonomyLoader.getSystemTaxonomyLoader(), classLoader );
-		return taxonomyLoader;
 	}
 
 	public static void assertSuccessfulCompilation( CompilationJob job )

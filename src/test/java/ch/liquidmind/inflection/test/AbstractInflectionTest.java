@@ -1,9 +1,9 @@
 package ch.liquidmind.inflection.test;
 
+import java.net.URLClassLoader;
+
 import ch.liquidmind.inflection.compiler.CompilationJob;
-import ch.liquidmind.inflection.compiler.InflectionCompiler;
 import ch.liquidmind.inflection.compiler.util.InflectionCompilerTestUtility;
-import ch.liquidmind.inflection.loader.TaxonomyLoader;
 import ch.liquidmind.inflection.test.mock.InflectionFileMock;
 import ch.liquidmind.inflection.test.mock.JavaFileMock;
 
@@ -31,14 +31,12 @@ public abstract class AbstractInflectionTest
 
 		if ( inflectionFileMocksOnClasspath != null )
 		{
-			TaxonomyLoader taxonomyLoader = InflectionCompilerTestUtility.compileInflection( javaClassLoader, inflectionFileMocksOnClasspath );
-			javaClassLoader = taxonomyLoader.getClassLoader();
+			CompilationJob classpathJob = InflectionCompilerTestUtility.compileInflection( javaClassLoader, inflectionFileMocksOnClasspath );
+			javaClassLoader = new URLClassLoader( TestUtility.convertToURLArray( classpathJob.getTargetDirectory() ), javaClassLoader ); 
 		}
 
-		CompilationJob job = InflectionCompilerTestUtility.createCompilationJob( javaClassLoader, inflectionFileMocks );
-		InflectionCompiler.compile( job );
-
-		assertCompilationResult.doAssert( job );
+		CompilationJob mainJob = InflectionCompilerTestUtility.compileInflection( javaClassLoader, inflectionFileMocks );
+		assertCompilationResult.doAssert( mainJob );
 	}
 
 	public InflectionFileMock createInflectionFileMock( String fileName, String packageName, String content )
