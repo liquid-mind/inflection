@@ -9,6 +9,7 @@ import __java.nio.file.__Files;
 
 public abstract class AbstractFileMock
 {
+	public static final String UNNAMED_PACKAGE = null;
 
 	private String fileName;
 	private String packageName;
@@ -57,7 +58,7 @@ public abstract class AbstractFileMock
 	 */
 	public AbstractFileMock( String content )
 	{
-		this( null, null, content );
+		this( null, UNNAMED_PACKAGE, content );
 	}
 
 	public String getPackageName()

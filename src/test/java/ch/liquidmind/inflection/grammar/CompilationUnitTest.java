@@ -1,5 +1,7 @@
 package ch.liquidmind.inflection.grammar;
 
+import static ch.liquidmind.inflection.test.mock.AbstractFileMock.UNNAMED_PACKAGE;
+
 import org.junit.Test;
 
 import ch.liquidmind.inflection.compiler.util.InflectionCompilerTestUtility;
@@ -37,7 +39,7 @@ public class CompilationUnitTest extends AbstractInflectionTest
 	{
 		doTest( job -> {
 			InflectionCompilerTestUtility.assertSuccessfulCompilation( job );
-		} , createInflectionFileMock( "test.inflect", null, "taxonomy A {}" ) );
+		} , createInflectionFileMock( "test.inflect", UNNAMED_PACKAGE, "taxonomy A {}" ) );
 	}
 
 	@Test
@@ -45,7 +47,7 @@ public class CompilationUnitTest extends AbstractInflectionTest
 	{
 		doTest( job -> {
 			InflectionCompilerTestUtility.assertSuccessfulCompilation( job ); // <inflection-error/> test.other is an illegal file name suffix, should not compile
-		} , createInflectionFileMock( "test.other", null, "taxonomy A {}" ) );
+		} , createInflectionFileMock( "test.other", UNNAMED_PACKAGE, "taxonomy A {}" ) );
 	}
 
 	@Test
@@ -53,7 +55,7 @@ public class CompilationUnitTest extends AbstractInflectionTest
 	{
 		doTest( job -> {
 			InflectionCompilerTestUtility.assertCompilationFailure( job ); // <inflection-error/> should compile, does in java
-		} , createInflectionFileMock( null, "package a.b.c;" ) );
+		} , createInflectionFileMock( UNNAMED_PACKAGE, "package a.b.c;" ) );
 	}
 
 	@Test
@@ -69,7 +71,7 @@ public class CompilationUnitTest extends AbstractInflectionTest
 	{
 		doTest( job -> {
 			InflectionCompilerTestUtility.assertCompilationFailure( job ); // <inflection-error/> should compile, does in java
-		} , createInflectionFileMock( null, "package a.b.c; taxonomy A {}" ), createInflectionFileMock( null, "package a.b.c; taxonomy B {}" ) );
+		} , createInflectionFileMock( UNNAMED_PACKAGE, "package a.b.c; taxonomy A {}" ), createInflectionFileMock( UNNAMED_PACKAGE, "package a.b.c; taxonomy B {}" ) );
 	}
 
 	@Test
@@ -85,7 +87,7 @@ public class CompilationUnitTest extends AbstractInflectionTest
 	{
 		doTest( job -> {
 			InflectionCompilerTestUtility.assertCompilationFailure( job );
-		} , createInflectionFileMock( null, "package a.b.c; taxonomy A {}" ), createInflectionFileMock( null, "package a.b.c; taxonomy A {}" ) );
+		} , createInflectionFileMock( UNNAMED_PACKAGE, "package a.b.c; taxonomy A {}" ), createInflectionFileMock( UNNAMED_PACKAGE, "package a.b.c; taxonomy A {}" ) );
 	}
 
 	@Test
