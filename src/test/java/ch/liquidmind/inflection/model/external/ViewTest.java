@@ -243,7 +243,22 @@ public class ViewTest extends AbstractInflectionTest
 		builder.append( "}" );
 
 		doTest( job -> {
-			InflectionCompilerTestUtility.assertCompilationFailure( job );
+			InflectionCompilerTestUtility.assertCompilationFailure( job ); 
+		} , createSimpleHierarchicalJavaModel(), null, createInflectionFileMock( "a.b.c", builder.toString() ) );
+	}
+	
+	@Test
+	public void testViewAlias_DuplicateAlias_CompilationFailure() throws Exception
+	{
+		StringBuilder builder = new StringBuilder();
+		builder.append( "package a.b.c; " );
+		builder.append( "import v.w.x.*;" );
+		builder.append( "taxonomy A {" );
+		builder.append( "	view V as V1 {} view W as V1 {}" );
+		builder.append( "}" );
+
+		doTest( job -> {
+			InflectionCompilerTestUtility.assertSuccessfulCompilation( job ); // <inflection-error/> should not compile as alias is duplicate
 		} , createSimpleHierarchicalJavaModel(), null, createInflectionFileMock( "a.b.c", builder.toString() ) );
 	}
 
