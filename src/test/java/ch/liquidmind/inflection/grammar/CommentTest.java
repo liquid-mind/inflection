@@ -22,6 +22,10 @@ public class CommentTest extends AbstractInflectionTest
 
 				{ "/* comment */", true },
 
+				{ "/** comment **/", true },
+
+				{ "/* " + System.lineSeparator() + "*" + System.lineSeparator() + " */", true },
+
 				{ "/* comment", true }, // TODO <inflection-error/> missing comment end, should not compile: true -> false
 
 				{ "/* comment begin" + System.lineSeparator() + " comment end */", true },
@@ -35,18 +39,9 @@ public class CommentTest extends AbstractInflectionTest
 				{ "// /*", true },
 
 				{ "// */", true },
+				
+				{ "// " + System.lineSeparator() + "*" + System.lineSeparator() + " //", false },
 
-				{ "taxonomy A { /* }", false },
-
-				{ "taxonomy A { /* */ }", true },
-
-				{ "taxonomy A { /* " + System.lineSeparator() + " */ }", true },
-
-				{ "taxonomy A { /* " + System.lineSeparator() + "}", false },
-
-				{ "taxonomy A { // }", false },
-
-				{ "taxonomy A { // " + System.lineSeparator() + "}", true }
 		} );
 	}
 
