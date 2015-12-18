@@ -430,7 +430,7 @@ public class Pass2Listener extends AbstractInflectionListener
 	{
 		Set< String > matchingClasses = new HashSet< String >();
 		
-		Set< ClassInfo > allClasses = ExceptionWrapper.ClassPath_from( getTaxonomyLoader().getClassLoader() ).getAllClasses();
+		Set< ClassInfo > allClasses = getCompilationUnit().getParentCompilationJob().getAllClassesInClassPath();
 		// TODO: classes from rt.jar (bootstrap class loader) are not being included.
 		
 		for ( ClassInfo aClass : allClasses )

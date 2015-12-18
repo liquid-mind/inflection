@@ -6,11 +6,14 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.reflect.ClassPath.ClassInfo;
 
 import ch.liquidmind.inflection.loader.TaxonomyLoader;
 import ch.liquidmind.inflection.model.compiled.TaxonomyCompiled;
+import ch.liquidmind.inflection.util.ExceptionWrapper;
 
 public class CompilationJob
 {
@@ -25,6 +28,7 @@ public class CompilationJob
 	private CompilationMode compilationMode;
 	private Map< String, TaxonomyCompiled > knownTaxonomiesCompiled = new HashMap< String, TaxonomyCompiled >();
 	private List< CompilationUnit > compilationUnits = new ArrayList< CompilationUnit >();
+	private Set< ClassInfo > allClassesInClassPath;
 	
 	public CompilationJob( TaxonomyLoader taxonomyLoader, File targetDirectory, CompilationMode compilationMode, File ... sourceFiles )
 	{
@@ -86,5 +90,13 @@ public class CompilationJob
 	{
 		for ( CompilationFault fault : getCompilationFaults() )
 			fault.print( os );
+	}
+
+	Set< ClassInfo > getAllClassesInClassPath()
+	{
+		if ( allClassesInClassPath == null )
+			allClassesInClassPath = ExceptionWrapper.ClassPath_from( getTaxonomyLoader().getClassLoader() ).getAllClasses();
+		
+		return allClassesInClassPath;
 	}
 }
