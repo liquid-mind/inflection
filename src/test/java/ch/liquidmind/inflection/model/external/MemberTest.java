@@ -2,8 +2,8 @@ package ch.liquidmind.inflection.model.external;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 
-import org.junit.BeforeClass;
 import org.junit.Test;
 
 import ch.liquidmind.inflection.compiler.util.InflectionCompilerTestUtility;
@@ -14,27 +14,36 @@ import ch.liquidmind.inflection.test.mock.JavaFileMock;
 
 public class MemberTest extends AbstractInflectionTest
 {
+	
+	private JavaFileMock[] createSimpleJavaModel() 
+	{
+		StringBuilder javaClass = new StringBuilder();
+		javaClass.append( "package v.w.x;" );
+		javaClass.append( "public class V {" );
+		javaClass.append( TestUtility.generateMember( "int", "id" ) );
+		javaClass.append( "}" );
+		JavaFileMock javaFileMock = createJavaFileMock( "V.java", "v.w.x", javaClass.toString() );
 
-	private static JavaFileMock[] javaModel;
+		return new JavaFileMock[] { javaFileMock };
+	}
 
-	@BeforeClass
-	public static void beforeClass() throws Exception
+	private JavaFileMock[] createHierarchicalJavaModel() 
 	{
 		StringBuilder javaSuperClass = new StringBuilder();
 		javaSuperClass.append( "package v.w.x;" );
 		javaSuperClass.append( "public class V {" );
 		javaSuperClass.append( TestUtility.generateMember( "int", "id" ) );
 		javaSuperClass.append( "}" );
-		JavaFileMock javaSuperClassFileMock = new JavaFileMock( "V.java", "v.w.x", javaSuperClass.toString() );
+		JavaFileMock javaSuperClassFileMock = createJavaFileMock( "V.java", "v.w.x", javaSuperClass.toString() );
 
 		StringBuilder javaChildClass = new StringBuilder();
 		javaChildClass.append( "package v.w.x;" );
 		javaChildClass.append( "public class W extends V {" );
 		javaChildClass.append( TestUtility.generateMember( "long", "longMember" ) );
 		javaChildClass.append( "}" );
-		JavaFileMock javaChildClassFileMock = new JavaFileMock( "W.java", "v.w.x", javaChildClass.toString() );
+		JavaFileMock javaChildClassFileMock = createJavaFileMock( "W.java", "v.w.x", javaChildClass.toString() );
 
-		javaModel = new JavaFileMock[] { javaSuperClassFileMock, javaChildClassFileMock };
+		return new JavaFileMock[] { javaSuperClassFileMock, javaChildClassFileMock };
 	}
 
 	@Test
@@ -55,7 +64,7 @@ public class MemberTest extends AbstractInflectionTest
 			View view = taxonomy.getView( "v.w.x.V" );
 			Member member = view.getDeclaredMember( "id" );
 			assertEquals( SelectionType.INCLUDE, member.getSelectionType() );
-		} , javaModel, null, createInflectionFileMock( "a.b.c", inflectContent.toString() ) );
+		} , createSimpleJavaModel(), null, createInflectionFileMock( "a.b.c", inflectContent.toString() ) );
 	}
 	
 	@Test
@@ -67,16 +76,12 @@ public class MemberTest extends AbstractInflectionTest
 		builder.append( "taxonomy A {" );
 		builder.append( "	view V { *; }" );
 		builder.append( "}" );
-		builder.append( "taxonomy B extends A" );
-		builder.append( "{" );
-		builder.append( "	view W { *; }	" );
-		builder.append( "}" );
 
 		doTest( job -> {
-			Taxonomy taxonomy = TestUtility.getTaxonomyLoader( job ).loadTaxonomy( "a.b.c.B" );
-			View view = taxonomy.getView( "v.w.x.W" );
-			assertNotNull( view.getMember( "longMember" ) );
-		} , javaModel, null, createInflectionFileMock( "a.b.c", builder.toString() ) );
+			Taxonomy taxonomy = TestUtility.getTaxonomyLoader( job ).loadTaxonomy( "a.b.c.A" );
+			View view = taxonomy.getView( "v.w.x.V" );
+			assertNotNull( view.getMember( "id" ) );
+		} , createSimpleJavaModel(), null, createInflectionFileMock( "a.b.c", builder.toString() ) );
 	}
 
 	@Test
@@ -86,18 +91,31 @@ public class MemberTest extends AbstractInflectionTest
 		builder.append( "package a.b.c; " );
 		builder.append( "import v.w.x.*;" );
 		builder.append( "taxonomy A {" );
-		builder.append( "	view V { *; }" );
-		builder.append( "}" );
-		builder.append( "taxonomy B extends A" );
-		builder.append( "{" );
-		builder.append( "	view W { *; }	" );
+		builder.append( "	view W { *; }" );
 		builder.append( "}" );
 
 		doTest( job -> {
-			Taxonomy taxonomy = TestUtility.getTaxonomyLoader( job ).loadTaxonomy( "a.b.c.B" );
+			Taxonomy taxonomy = TestUtility.getTaxonomyLoader( job ).loadTaxonomy( "a.b.c.A" );
 			View view = taxonomy.getView( "v.w.x.W" );
-			assertNotNull( view.getDeclaredMember( "longMember" ) );
-		} , javaModel, null, createInflectionFileMock( "a.b.c", builder.toString() ) );
+			assertNull( view.getDeclaredMember( "id" ) );
+		} , createHierarchicalJavaModel(), null, createInflectionFileMock( "a.b.c", builder.toString() ) );
+	}
+	
+	@Test
+	public void testGetDeclaredMember_DeclaredMember_MemberNotExists() throws Exception
+	{
+		StringBuilder builder = new StringBuilder();
+		builder.append( "package a.b.c; " );
+		builder.append( "import v.w.x.*;" );
+		builder.append( "taxonomy A {" );
+		builder.append( "	view V { *; }" );
+		builder.append( "}" );
+
+		doTest( job -> {
+			Taxonomy taxonomy = TestUtility.getTaxonomyLoader( job ).loadTaxonomy( "a.b.c.A" );
+			View view = taxonomy.getView( "v.w.x.V" );
+			assertNotNull( view.getDeclaredMember( "id" ) );
+		} , createHierarchicalJavaModel(), null, createInflectionFileMock( "a.b.c", builder.toString() ) );
 	}
 
 	@Test
@@ -115,7 +133,7 @@ public class MemberTest extends AbstractInflectionTest
 			Taxonomy taxonomy = TestUtility.getTaxonomyLoader( job ).loadTaxonomy( "a.b.c.B" );
 			View view = taxonomy.getView( "v.w.x.V" );
 			assertNotNull( view.getMember( "id" ) );
-		} , javaModel, null, createInflectionFileMock( "a.b.c", builder.toString() ) );
+		} , createHierarchicalJavaModel(), null, createInflectionFileMock( "a.b.c", builder.toString() ) );
 	}	
 
 }

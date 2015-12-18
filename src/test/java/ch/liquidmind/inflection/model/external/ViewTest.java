@@ -15,39 +15,39 @@ import ch.liquidmind.inflection.test.mock.JavaFileMock;
 
 public class ViewTest extends AbstractInflectionTest
 {
-	private static JavaFileMock[] createSimpleJavaModel()
+	private JavaFileMock[] createSimpleJavaModel()
 	{
 		StringBuilder classV = new StringBuilder();
 		classV.append( "public class V {}" );
-		JavaFileMock v = new JavaFileMock( "V.java", UNNAMED_PACKAGE, classV.toString() );
+		JavaFileMock v = createJavaFileMock( "V.java", UNNAMED_PACKAGE, classV.toString() );
 
 		return new JavaFileMock[] { v };
 	}
 	
-	private static JavaFileMock[] createSimpleHierarchicalJavaModel()
+	private JavaFileMock[] createSimpleHierarchicalJavaModel()
 	{
 		StringBuilder javaSuperClass = new StringBuilder();
 		javaSuperClass.append( "package v.w.x;" );
 		javaSuperClass.append( "public class V {}" );
-		JavaFileMock javaSuperClassFileMock = new JavaFileMock( "V.java", "v.w.x", javaSuperClass.toString() );
+		JavaFileMock javaSuperClassFileMock = createJavaFileMock( "V.java", "v.w.x", javaSuperClass.toString() );
 
 		StringBuilder javaChildClass = new StringBuilder();
 		javaChildClass.append( "package v.w.x;" );
 		javaChildClass.append( "public class W extends V {}" );
-		JavaFileMock javaChildClassFileMock = new JavaFileMock( "W.java", "v.w.x", javaChildClass.toString() );
+		JavaFileMock javaChildClassFileMock = createJavaFileMock( "W.java", "v.w.x", javaChildClass.toString() );
 
 		return new JavaFileMock[] { javaSuperClassFileMock, javaChildClassFileMock };
 	}
 	
-	private static JavaFileMock[] createOverlappingJavaModel()
+	private JavaFileMock[] createOverlappingJavaModel()
 	{
 		StringBuilder classV1 = new StringBuilder();
 		classV1.append( "public class V1 {}" );
-		JavaFileMock v1 = new JavaFileMock( "V1.java", UNNAMED_PACKAGE, classV1.toString() );
+		JavaFileMock v1 = createJavaFileMock( "V1.java", UNNAMED_PACKAGE, classV1.toString() );
 
 		StringBuilder classV2 = new StringBuilder();
 		classV2.append( "public class V2 {}" );
-		JavaFileMock v2 = new JavaFileMock( "V2.java", UNNAMED_PACKAGE, classV2.toString() );
+		JavaFileMock v2 = createJavaFileMock( "V2.java", UNNAMED_PACKAGE, classV2.toString() );
 
 		return new JavaFileMock[] { v1, v2 };
 	}
