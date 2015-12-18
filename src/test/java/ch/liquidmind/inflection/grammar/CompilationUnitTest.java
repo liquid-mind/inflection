@@ -19,22 +19,6 @@ public class CompilationUnitTest extends AbstractInflectionTest
 	}
 
 	@Test
-	public void testCompilationUnit_MultipleTaxonomies_SuccessfulCompilation() throws Exception
-	{
-		doTest( job -> {
-			InflectionCompilerTestUtility.assertSuccessfulCompilation( job );
-		} , createInflectionFileMock( "taxonomy A {} taxonomy B {}" ) );
-	}
-
-	@Test
-	public void testCompilationUnit_DuplicateTaxonomies_CompilationFailure() throws Exception
-	{
-		doTest( job -> {
-			InflectionCompilerTestUtility.assertCompilationFailure( job );
-		} , createInflectionFileMock( "taxonomy A {} taxonomy A {}" ) );
-	}
-
-	@Test
 	public void testCompilationUnit_FileNameWithInflectSuffix_SuccessfulCompilation() throws Exception
 	{
 		doTest( job -> {
@@ -64,38 +48,6 @@ public class CompilationUnitTest extends AbstractInflectionTest
 		doTest( job -> {
 			InflectionCompilerTestUtility.assertSuccessfulCompilation( job );
 		} , createInflectionFileMock( "a.b.c", "package a.b.c;" ) );
-	}
-
-	@Test
-	public void testCompilationUnit_MultipleTaxonomiesInUnnamedPackage_SuccessfulCompilation() throws Exception
-	{
-		doTest( job -> {
-			InflectionCompilerTestUtility.assertCompilationFailure( job ); // <inflection-error/> should compile, does in java
-		} , createInflectionFileMock( UNNAMED_PACKAGE, "package a.b.c; taxonomy A {}" ), createInflectionFileMock( UNNAMED_PACKAGE, "package a.b.c; taxonomy B {}" ) );
-	}
-
-	@Test
-	public void testCompilationUnit_MultipleTaxonomiesWithinDirectoryStructure_SuccessfulCompilation() throws Exception
-	{
-		doTest( job -> {
-			InflectionCompilerTestUtility.assertSuccessfulCompilation( job );
-		} , createInflectionFileMock( "a.b.c", "package a.b.c; taxonomy A {}" ), createInflectionFileMock( "a.b.c", "package a.b.c; taxonomy B {}" ) );
-	}
-
-	@Test
-	public void testCompilationUnit_DuplicateTaxonomyInUnnamedPackage_CompilationFailure() throws Exception
-	{
-		doTest( job -> {
-			InflectionCompilerTestUtility.assertCompilationFailure( job );
-		} , createInflectionFileMock( UNNAMED_PACKAGE, "package a.b.c; taxonomy A {}" ), createInflectionFileMock( UNNAMED_PACKAGE, "package a.b.c; taxonomy A {}" ) );
-	}
-
-	@Test
-	public void testCompilationUnit_DuplicateTaxonomyWithinDirectoryStructure_CompilationFailure() throws Exception
-	{
-		doTest( job -> {
-			InflectionCompilerTestUtility.assertCompilationFailure( job );
-		} , createInflectionFileMock( "a.b.c", "package a.b.c; taxonomy A {}" ), createInflectionFileMock( "a.b.c", "package a.b.c; taxonomy A {}" ) );
 	}
 
 }
