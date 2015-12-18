@@ -5,16 +5,33 @@ import java.lang.reflect.Method;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import __java.io.__File;
 import __java.lang.__Class;
+import __java.lang.__NoSuchMethodException;
 import __java.lang.reflect.__Method;
 import ch.liquidmind.inflection.compiler.CompilationJob;
 import ch.liquidmind.inflection.loader.TaxonomyLoader;
 
 public final class TestUtility
 {
+
+	public final static Map< Class< ? >, Class< ? > > primitiveConverter = new HashMap< Class< ? >, Class< ? > >();
+
+	static
+	{
+		primitiveConverter.put( Boolean.class, boolean.class );
+		primitiveConverter.put( Byte.class, byte.class );
+		primitiveConverter.put( Short.class, short.class );
+		primitiveConverter.put( Character.class, char.class );
+		primitiveConverter.put( Integer.class, int.class );
+		primitiveConverter.put( Long.class, long.class );
+		primitiveConverter.put( Float.class, float.class );
+		primitiveConverter.put( Double.class, double.class );
+	}
 
 	public static URL[] convertToURLArray( File... files )
 	{
@@ -26,15 +43,39 @@ public final class TestUtility
 		}
 		return urls.toArray( new URL[ urls.size() ] );
 	}
+	
+	public static Object invokeMethod( Object p, String methodName ) {
+		return invokeMethod( p, methodName, new Object[] { }, new Class<?>[] { } );
+	}
+	
+	public static Object invokeMethod( Object p, String methodName, Object param, Class<?> paramType ) {
+		return invokeMethod( p, methodName, new Object[] { param }, new Class<?>[] { paramType } );
+	}
 
-	public static Object invokeMethod( Object p, String methodName, Object... params )
+	public static Object invokeMethod( Object p, String methodName, Object[] params, Class<?>[] paramTypes )
 	{
-		List< Class< ? > > paramClasses = new ArrayList< >();
-		for ( Object param : params )
+		Method method = null;
+		try
 		{
-			paramClasses.add( param.getClass() );
+			method = __Class.getMethod( p.getClass(), methodName, paramTypes );
 		}
-		Method method = __Class.getMethod( p.getClass(), methodName, paramClasses.toArray( new Class< ? >[ paramClasses.size() ] ) );
+		catch ( __NoSuchMethodException e )
+		{
+			// try to find method with primitve types instead of objects (e.g. with long instead of Long parameters)
+			List< Class< ? > > convertedParamTypes = new ArrayList< >();
+			for ( Class< ? > paramClass : paramTypes )
+			{
+				if ( primitiveConverter.containsKey( paramClass ) )
+				{
+					convertedParamTypes.add( primitiveConverter.get( paramClass ) );
+				}
+				else
+				{
+					convertedParamTypes.add( paramClass );
+				}
+			}
+			method = __Class.getMethod( p.getClass(), methodName, convertedParamTypes.toArray( new Class< ? >[ convertedParamTypes.size() ] ) );
+		}
 		return __Method.invoke( method, p, params );
 	}
 
