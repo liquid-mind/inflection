@@ -1,10 +1,10 @@
 package ch.liquidmind.inflection.model.external;
 
+import static ch.liquidmind.inflection.test.mock.AbstractFileMock.UNNAMED_PACKAGE;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 
-import org.junit.BeforeClass;
 import org.junit.Test;
 
 import ch.liquidmind.inflection.compiler.util.InflectionCompilerTestUtility;
@@ -14,10 +14,16 @@ import ch.liquidmind.inflection.test.mock.JavaFileMock;
 
 public class ViewTest extends AbstractInflectionTest
 {
-	private static JavaFileMock[] javaModel;
+	private static JavaFileMock[] createSimpleJavaModel()
+	{
+		StringBuilder classV = new StringBuilder();
+		classV.append( "public class V {}" );
+		JavaFileMock v = new JavaFileMock( "V.java", UNNAMED_PACKAGE, classV.toString() );
 
-	@BeforeClass
-	public static void beforeClass() throws Exception
+		return new JavaFileMock[] { v };
+	}
+	
+	private static JavaFileMock[] createSimpleHierarchicalJavaModel()
 	{
 		StringBuilder javaSuperClass = new StringBuilder();
 		javaSuperClass.append( "package v.w.x;" );
@@ -28,10 +34,23 @@ public class ViewTest extends AbstractInflectionTest
 		javaChildClass.append( "package v.w.x;" );
 		javaChildClass.append( "public class W extends V {}" );
 		JavaFileMock javaChildClassFileMock = new JavaFileMock( "W.java", "v.w.x", javaChildClass.toString() );
-		
-		javaModel = new JavaFileMock[] { javaSuperClassFileMock, javaChildClassFileMock };
+
+		return new JavaFileMock[] { javaSuperClassFileMock, javaChildClassFileMock };
 	}
 	
+	private static JavaFileMock[] createOverlappingJavaModel()
+	{
+		StringBuilder classV1 = new StringBuilder();
+		classV1.append( "public class V1 {}" );
+		JavaFileMock v1 = new JavaFileMock( "V1.java", UNNAMED_PACKAGE, classV1.toString() );
+
+		StringBuilder classV2 = new StringBuilder();
+		classV2.append( "public class V2 {}" );
+		JavaFileMock v2 = new JavaFileMock( "V2.java", UNNAMED_PACKAGE, classV2.toString() );
+
+		return new JavaFileMock[] { v1, v2 };
+	}
+
 	@Test
 	public void testGetView_IncludeViewWithoutInclude_ViewExists() throws Exception
 	{
@@ -46,7 +65,7 @@ public class ViewTest extends AbstractInflectionTest
 		doTest( job -> {
 			Taxonomy taxonomy = TestUtility.getTaxonomyLoader( job ).loadTaxonomy( "a.b.c.A" );
 			assertNotNull( "view must exist", taxonomy.getView( "v.w.x.V" ) );
-		} , javaModel, null, createInflectionFileMock( "a.b.c", builder.toString() ) );
+		} , createSimpleHierarchicalJavaModel(), null, createInflectionFileMock( "a.b.c", builder.toString() ) );
 	}
 
 	@Test
@@ -63,7 +82,7 @@ public class ViewTest extends AbstractInflectionTest
 		doTest( job -> {
 			Taxonomy taxonomy = TestUtility.getTaxonomyLoader( job ).loadTaxonomy( "a.b.c.A" );
 			assertNotNull( "view must exist", taxonomy.getView( "v.w.x.V" ) );
-		} , javaModel, null, createInflectionFileMock( "a.b.c", builder.toString() ) );
+		} , createSimpleHierarchicalJavaModel(), null, createInflectionFileMock( "a.b.c", builder.toString() ) );
 	}
 
 	@Test
@@ -80,7 +99,7 @@ public class ViewTest extends AbstractInflectionTest
 		doTest( job -> {
 			Taxonomy taxonomy = TestUtility.getTaxonomyLoader( job ).loadTaxonomy( "a.b.c.A" );
 			assertNull( "view must not exist", taxonomy.getView( "V" ) );
-		} , javaModel, null, createInflectionFileMock( "a.b.c", builder.toString() ) );
+		} , createSimpleHierarchicalJavaModel(), null, createInflectionFileMock( "a.b.c", builder.toString() ) );
 	}
 
 	@Test
@@ -98,7 +117,7 @@ public class ViewTest extends AbstractInflectionTest
 		doTest( job -> {
 			Taxonomy taxonomy = TestUtility.getTaxonomyLoader( job ).loadTaxonomy( "a.b.c.A" );
 			assertNull( "view must not exist", taxonomy.getView( "V" ) );
-		} , javaModel, null, createInflectionFileMock( "a.b.c", builder.toString() ) );
+		} , createSimpleHierarchicalJavaModel(), null, createInflectionFileMock( "a.b.c", builder.toString() ) );
 	}
 
 	@Test
@@ -116,7 +135,7 @@ public class ViewTest extends AbstractInflectionTest
 		doTest( job -> {
 			Taxonomy taxonomy = TestUtility.getTaxonomyLoader( job ).loadTaxonomy( "a.b.c.A" );
 			assertNull( "view must not exist", taxonomy.getView( "V" ) );
-		} , javaModel, null, createInflectionFileMock( "a.b.c", builder.toString() ) );
+		} , createSimpleHierarchicalJavaModel(), null, createInflectionFileMock( "a.b.c", builder.toString() ) );
 	}
 
 	@Test
@@ -133,7 +152,7 @@ public class ViewTest extends AbstractInflectionTest
 		doTest( job -> {
 			Taxonomy taxonomy = TestUtility.getTaxonomyLoader( job ).loadTaxonomy( "a.b.c.A" );
 			assertNotNull( "view must exist", taxonomy.getView( "v.w.x.V" ) );
-		} , javaModel, null, createInflectionFileMock( "a.b.c", builder.toString() ) );
+		} , createSimpleHierarchicalJavaModel(), null, createInflectionFileMock( "a.b.c", builder.toString() ) );
 	}
 
 	@Test
@@ -150,7 +169,7 @@ public class ViewTest extends AbstractInflectionTest
 		doTest( job -> {
 			Taxonomy taxonomy = TestUtility.getTaxonomyLoader( job ).loadTaxonomy( "a.b.c.A" );
 			assertNull( "view must not exist", taxonomy.getView( "V" ) );
-		} , javaModel, null, createInflectionFileMock( "a.b.c", builder.toString() ) );
+		} , createSimpleHierarchicalJavaModel(), null, createInflectionFileMock( "a.b.c", builder.toString() ) );
 	}
 
 	@Test
@@ -173,9 +192,9 @@ public class ViewTest extends AbstractInflectionTest
 			Taxonomy currentParent = view.getParentTaxonomy();
 			assertNotNull( currentParent );
 			assertEquals( taxonomy, currentParent );
-		} , javaModel, null, createInflectionFileMock( "a.b.c", builder.toString() ) );
+		} , createSimpleHierarchicalJavaModel(), null, createInflectionFileMock( "a.b.c", builder.toString() ) );
 	}
-	
+
 	@Test
 	public void testAlias_ViewWithDifferentAlias_AliasExistsAndNameCorrect() throws Exception
 	{
@@ -191,9 +210,9 @@ public class ViewTest extends AbstractInflectionTest
 			View view = taxonomy.getView( "X" );
 			assertNotNull( view );
 			assertEquals( "v.w.x.V", view.getName() );
-		} , javaModel, null, createInflectionFileMock( "a.b.c", builder.toString() ) );
+		} , createSimpleHierarchicalJavaModel(), null, createInflectionFileMock( "a.b.c", builder.toString() ) );
 	}
-	
+
 	@Test
 	public void testAlias_ViewWithSameAlias_AliasExistsAndNameCorrect() throws Exception
 	{
@@ -209,9 +228,9 @@ public class ViewTest extends AbstractInflectionTest
 			View view = taxonomy.getView( "V" );
 			assertNotNull( view );
 			assertEquals( "v.w.x.V", view.getName() );
-		} , javaModel, null, createInflectionFileMock( "a.b.c", builder.toString() ) );
+		} , createSimpleHierarchicalJavaModel(), null, createInflectionFileMock( "a.b.c", builder.toString() ) );
 	}
-	
+
 	@Test
 	public void testAlias_SelectorWithAlias_CompilationFailure() throws Exception
 	{
@@ -224,9 +243,9 @@ public class ViewTest extends AbstractInflectionTest
 
 		doTest( job -> {
 			InflectionCompilerTestUtility.assertCompilationFailure( job );
-		} , javaModel, null, createInflectionFileMock( "a.b.c", builder.toString() ) );
+		} , createSimpleHierarchicalJavaModel(), null, createInflectionFileMock( "a.b.c", builder.toString() ) );
 	}
-		
+
 	@Test
 	public void testViewHierarchy_ExistingHierarchy_ParentViewExists() throws Exception
 	{
@@ -243,7 +262,7 @@ public class ViewTest extends AbstractInflectionTest
 			View parentView = view.getSuperview();
 			assertEquals( "V", parentView.getSimpleName() );
 			assertNotNull( "parent view is used in taxonomy A, must exist", parentView );
-		} , javaModel, null, createInflectionFileMock( "a.b.c", taxonomy.toString() ) );
+		} , createSimpleHierarchicalJavaModel(), null, createInflectionFileMock( "a.b.c", taxonomy.toString() ) );
 	}
 
 	@Test
@@ -263,7 +282,83 @@ public class ViewTest extends AbstractInflectionTest
 			assertNull( parentView ); // <inflection-error/> parent view should be automatically inserted by the compiler
 			// assertEquals( "V", parentView.getSimpleName() );
 			// assertNotNull( "parent view is NOT used in taxonomy A, but must exist", parentView );
-		} , javaModel, null, createInflectionFileMock( "a.b.c", taxonomy.toString() ) );
+		} , createSimpleHierarchicalJavaModel(), null, createInflectionFileMock( "a.b.c", taxonomy.toString() ) );
 	}
 	
+	@Test
+	public void testViewSelector_OverlappingSetsSingleViewDeclaration_PrecedenceSetsAlias() throws Exception
+	{
+		StringBuilder taxonomy = new StringBuilder();
+		taxonomy.append( "package a.b.c; " );
+		taxonomy.append( "taxonomy A { view V, V as View1 {} } " );
+
+		doTest( job -> {
+			InflectionCompilerTestUtility.assertSuccessfulCompilation( job );
+			Taxonomy taxomomy = TestUtility.getTaxonomyLoader( job ).loadTaxonomy( "a.b.c.A" );
+			View view = taxomomy.getView( "View1" );
+			assertNotNull( view );
+			view = taxomomy.getView( "V" );
+			assertNotNull( view );
+		} , createSimpleJavaModel(), null, createInflectionFileMock( "a.b.c", taxonomy.toString() ) );
+	}
+	
+	@Test
+	public void testViewSelector_OverlappingSetsSingleViewDeclaration_PrecedenceRemovesAlias() throws Exception
+	{
+		StringBuilder taxonomy = new StringBuilder();
+		taxonomy.append( "package a.b.c; " );
+		taxonomy.append( "taxonomy A { view V as View1, V {} } " );
+
+		doTest( job -> {
+			InflectionCompilerTestUtility.assertSuccessfulCompilation( job );
+			Taxonomy taxomomy = TestUtility.getTaxonomyLoader( job ).loadTaxonomy( "a.b.c.A" );
+			View view = taxomomy.getView( "View1" );
+			assertNull( view );
+			view = taxomomy.getView( "V" );
+			assertNotNull( view );
+		} , createSimpleJavaModel(), null, createInflectionFileMock( "a.b.c", taxonomy.toString() ) );
+	}
+
+	@Test
+	public void testViewSelector_OverlappingSetsMultipleViewDeclarations_PrecedenceSetsAlias() throws Exception
+	{
+		StringBuilder taxonomy = new StringBuilder();
+		taxonomy.append( "package a.b.c; " );
+		taxonomy.append( "taxonomy A { view V* {} view V1 as View1 {} view V2 as View2 {} } " );
+
+		doTest( job -> {
+			InflectionCompilerTestUtility.assertSuccessfulCompilation( job );
+			Taxonomy taxomomy = TestUtility.getTaxonomyLoader( job ).loadTaxonomy( "a.b.c.A" );
+			View view = taxomomy.getView( "View1" );
+			assertNotNull( view );
+			view = taxomomy.getView( "View2" );
+			assertNotNull( view );
+			view = taxomomy.getView( "V1" );
+			assertNotNull( view );
+			view = taxomomy.getView( "V2" );
+			assertNotNull( view );
+		} , createOverlappingJavaModel(), null, createInflectionFileMock( "a.b.c", taxonomy.toString() ) );
+	}
+	
+	@Test
+	public void testViewSelector_OverlappingSetsMultipleViewDeclarations_PrecedenceIgnoresAlias() throws Exception
+	{
+		StringBuilder taxonomy = new StringBuilder();
+		taxonomy.append( "package a.b.c; " );
+		taxonomy.append( "taxonomy A { view V1 as View1 {} view V2 as View2 {} view V* {} } " );
+
+		doTest( job -> {
+			InflectionCompilerTestUtility.assertSuccessfulCompilation( job );
+			Taxonomy taxomomy = TestUtility.getTaxonomyLoader( job ).loadTaxonomy( "a.b.c.A" );
+			View view = taxomomy.getView( "View1" );
+			assertNull( view );
+			view = taxomomy.getView( "View2" );
+			assertNull( view );
+			view = taxomomy.getView( "V1" );
+			assertNotNull( view );
+			view = taxomomy.getView( "V2" );
+			assertNotNull( view );
+		} , createOverlappingJavaModel(), null, createInflectionFileMock( "a.b.c", taxonomy.toString() ) );
+	}
+
 }
