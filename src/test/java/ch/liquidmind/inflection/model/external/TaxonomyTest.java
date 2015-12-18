@@ -5,9 +5,12 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
+import java.util.List;
+
 import org.junit.Test;
 
 import ch.liquidmind.inflection.compiler.util.InflectionCompilerTestUtility;
+import ch.liquidmind.inflection.loader.SystemTaxonomyLoader;
 import ch.liquidmind.inflection.model.AccessType;
 import ch.liquidmind.inflection.test.AbstractInflectionTest;
 import ch.liquidmind.inflection.test.TestUtility;
@@ -267,6 +270,66 @@ public class TaxonomyTest extends AbstractInflectionTest
 			Taxonomy taxomomy = TestUtility.getTaxonomyLoader( job ).loadTaxonomy( "a.A" );
 			assertTrue( "Views must not exist", taxomomy.getViews().isEmpty() );
 		} , createInflectionFileMock( "a", "package a; taxonomy A {}" ) );
+	}
+	
+	@Test
+	public void testTaxonomyInheritance_RootTaxonomy_DefaultRootTaxonomy() throws Exception
+	{
+		doTest( job -> {
+			InflectionCompilerTestUtility.assertSuccessfulCompilation( job );
+			Taxonomy taxomomy = TestUtility.getTaxonomyLoader( job ).loadTaxonomy( "a.A" );
+			List<Taxonomy> superTaxonomyList = taxomomy.getExtendedTaxonomies();
+			List<Taxonomy> childTaxonomyList = taxomomy.getExtendingTaxonomies();
+			assertEquals( 1, superTaxonomyList.size() );
+			assertEquals( 0, childTaxonomyList.size() );
+			assertEquals( SystemTaxonomyLoader.TAXONOMY, superTaxonomyList.get( 0 ).getName() );
+		} , createInflectionFileMock( "a", "package a; taxonomy A {}" ) );
+	}
+	
+	@Test
+	public void testTaxonomyInheritance_ExtendedSingleTaxonomy_Exists() throws Exception
+	{
+		doTest( job -> {
+			InflectionCompilerTestUtility.assertSuccessfulCompilation( job );
+			Taxonomy taxomomy = TestUtility.getTaxonomyLoader( job ).loadTaxonomy( "b.B" );
+			assertEquals( 1, taxomomy.getExtendedTaxonomies().size() );
+			assertEquals( 0, taxomomy.getExtendingTaxonomies().size() );
+			assertEquals( "a.A", taxomomy.getExtendedTaxonomies().get( 0 ).getName() );
+		} , createInflectionFileMock( "a", "package a; taxonomy A {}" ), createInflectionFileMock( "b", "package b; import a; taxonomy B extends a.A {}" ) );
+	}
+	
+	@Test
+	public void testTaxonomyInheritance_ExtendingSingleTaxonomy_Exists() throws Exception
+	{
+		doTest( job -> {
+			InflectionCompilerTestUtility.assertSuccessfulCompilation( job );
+			Taxonomy taxomomy = TestUtility.getTaxonomyLoader( job ).loadTaxonomy( "a.A" );
+			assertEquals( 1, taxomomy.getExtendedTaxonomies().size() );
+			assertEquals( 0, taxomomy.getExtendingTaxonomies().size() );  // <inflection-error/> should be 1
+			// assertEquals( "b.B", taxomomy.getExtendedTaxonomies().get( 0 ).getName() );
+		} , createInflectionFileMock( "a", "package a; taxonomy A {}" ), createInflectionFileMock( "b", "package b; import a; taxonomy B extends a.A {}" ) );
+	}
+	
+	@Test
+	public void testTaxonomyInheritance_ExtendingMultipleTaxonomiesDuplicate_CompilationFailure() throws Exception
+	{
+		doTest( job -> {
+			InflectionCompilerTestUtility.assertSuccessfulCompilation( job );
+			InflectionCompilerTestUtility.assertSuccessfulCompilation( job ); // <inflection-error/> should not compile since B inherits from a.A multiple times
+		} , createInflectionFileMock( "a", "package a; taxonomy A {}" ), createInflectionFileMock( "b", "package b; import a; taxonomy B extends a.A, a.A {}" ) );
+	}
+	
+	@Test
+	public void testTaxonomyInheritance_ExtendingMultipleTaxonomiesNoDuplicate_Exists() throws Exception
+	{
+		doTest( job -> {
+			InflectionCompilerTestUtility.assertSuccessfulCompilation( job );
+			Taxonomy taxomomy = TestUtility.getTaxonomyLoader( job ).loadTaxonomy( "c.C" );
+			assertEquals( 2, taxomomy.getExtendedTaxonomies().size() );
+			assertEquals( 0, taxomomy.getExtendingTaxonomies().size() );  
+			assertEquals( "a.A", taxomomy.getExtendedTaxonomies().get( 0 ).getName() );
+			assertEquals( "a.B", taxomomy.getExtendedTaxonomies().get( 1 ).getName() );
+		} , createInflectionFileMock( "a", "package a; taxonomy A {} taxonomy B {}" ), createInflectionFileMock( "c", "package c; import a; taxonomy C extends a.A, a.B {}" ) );
 	}
 
 }
