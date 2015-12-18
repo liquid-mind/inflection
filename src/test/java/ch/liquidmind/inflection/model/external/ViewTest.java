@@ -4,6 +4,7 @@ import static ch.liquidmind.inflection.test.mock.AbstractFileMock.UNNAMED_PACKAG
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
@@ -52,7 +53,7 @@ public class ViewTest extends AbstractInflectionTest
 	}
 
 	@Test
-	public void testGetView_IncludeViewWithoutInclude_ViewExists() throws Exception
+	public void testViewIncludeExclude_IncludeViewWithoutInclude_ViewExists() throws Exception
 	{
 		StringBuilder builder = new StringBuilder();
 		builder.append( "package a.b.c; " );
@@ -69,7 +70,7 @@ public class ViewTest extends AbstractInflectionTest
 	}
 
 	@Test
-	public void testGetView_IncludeViewWithInclude_ViewExists() throws Exception
+	public void testViewIncludeExclude_IncludeViewWithInclude_ViewExists() throws Exception
 	{
 		StringBuilder builder = new StringBuilder();
 		builder.append( "package a.b.c; " );
@@ -86,7 +87,7 @@ public class ViewTest extends AbstractInflectionTest
 	}
 
 	@Test
-	public void testGetView_ExcludeView_ViewDoesNotExist() throws Exception
+	public void testViewIncludeExclude_ExcludeView_ViewDoesNotExist() throws Exception
 	{
 		StringBuilder builder = new StringBuilder();
 		builder.append( "package a.b.c; " );
@@ -103,7 +104,7 @@ public class ViewTest extends AbstractInflectionTest
 	}
 
 	@Test
-	public void testGetView_IncludeExcludeOrderIncludeFirst_ViewDoesNotExist() throws Exception
+	public void testViewIncludeExclude_IncludeExcludeOrderIncludeFirst_ViewDoesNotExist() throws Exception
 	{
 		StringBuilder builder = new StringBuilder();
 		builder.append( "package a.b.c; " );
@@ -121,7 +122,7 @@ public class ViewTest extends AbstractInflectionTest
 	}
 
 	@Test
-	public void testGetView_IncludeExcludeOrderExcludeFirst_ViewDoesNotExist() throws Exception
+	public void testViewIncludeExclude_IncludeExcludeOrderExcludeFirst_ViewDoesNotExist() throws Exception
 	{
 		StringBuilder builder = new StringBuilder();
 		builder.append( "package a.b.c; " );
@@ -139,7 +140,7 @@ public class ViewTest extends AbstractInflectionTest
 	}
 
 	@Test
-	public void testGetView_IncludeWithSelector_ViewDoesExist() throws Exception
+	public void testViewIncludeExclude_IncludeWithSelector_ViewDoesExist() throws Exception
 	{
 		StringBuilder builder = new StringBuilder();
 		builder.append( "package a.b.c; " );
@@ -156,7 +157,7 @@ public class ViewTest extends AbstractInflectionTest
 	}
 
 	@Test
-	public void testGetView_ExcludeWithSelector_ViewDoesNotExist() throws Exception
+	public void testViewIncludeExclude_ExcludeWithSelector_ViewDoesNotExist() throws Exception
 	{
 		StringBuilder builder = new StringBuilder();
 		builder.append( "package a.b.c; " );
@@ -173,7 +174,7 @@ public class ViewTest extends AbstractInflectionTest
 	}
 
 	@Test
-	public void testGetParentTaxonomy_ChildView_ParentExists() throws Exception
+	public void testViewParentTaxonomy_ChildView_ParentExists() throws Exception
 	{
 		StringBuilder builder = new StringBuilder();
 		builder.append( "package a.b.c; " );
@@ -196,7 +197,7 @@ public class ViewTest extends AbstractInflectionTest
 	}
 
 	@Test
-	public void testAlias_ViewWithDifferentAlias_AliasExistsAndNameCorrect() throws Exception
+	public void testViewAlias_ViewWithDifferentAlias_AliasExistsAndNameCorrect() throws Exception
 	{
 		StringBuilder builder = new StringBuilder();
 		builder.append( "package a.b.c; " );
@@ -214,7 +215,7 @@ public class ViewTest extends AbstractInflectionTest
 	}
 
 	@Test
-	public void testAlias_ViewWithSameAlias_AliasExistsAndNameCorrect() throws Exception
+	public void testViewAlias_ViewWithSameAlias_AliasExistsAndNameCorrect() throws Exception
 	{
 		StringBuilder builder = new StringBuilder();
 		builder.append( "package a.b.c; " );
@@ -232,7 +233,7 @@ public class ViewTest extends AbstractInflectionTest
 	}
 
 	@Test
-	public void testAlias_SelectorWithAlias_CompilationFailure() throws Exception
+	public void testViewAlias_SelectorWithAlias_CompilationFailure() throws Exception
 	{
 		StringBuilder builder = new StringBuilder();
 		builder.append( "package a.b.c; " );
@@ -359,6 +360,20 @@ public class ViewTest extends AbstractInflectionTest
 			view = taxomomy.getView( "V2" );
 			assertNotNull( view );
 		} , createOverlappingJavaModel(), null, createInflectionFileMock( "a.b.c", taxonomy.toString() ) );
+	}
+	
+	@Test
+	public void testViewSelector_EmptyResult_NoViews() throws Exception
+	{
+		StringBuilder taxonomy = new StringBuilder();
+		taxonomy.append( "package a.b.c; " );
+		taxonomy.append( "taxonomy A { view NONE* {} } " );
+
+		doTest( job -> {
+			InflectionCompilerTestUtility.assertSuccessfulCompilation( job );
+			Taxonomy taxomomy = TestUtility.getTaxonomyLoader( job ).loadTaxonomy( "a.b.c.A" );
+			assertTrue( taxomomy.getViews().isEmpty() );
+		} , createSimpleJavaModel(), null, createInflectionFileMock( "a.b.c", taxonomy.toString() ) );
 	}
 
 }
