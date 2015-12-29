@@ -12,6 +12,7 @@ public abstract class AliasableElementLinked extends SelectingElementLinked impl
 		super( name );
 	}
 
+	@Override
 	public String getAlias()
 	{
 		return alias;

@@ -63,11 +63,16 @@ import ch.liquidmind.inflection.model.compiled.MemberCompiled;
 import ch.liquidmind.inflection.model.compiled.TaxonomyCompiled;
 import ch.liquidmind.inflection.model.compiled.ViewCompiled;
 import ch.liquidmind.inflection.model.external.Taxonomy;
-import ch.liquidmind.inflection.util.ExceptionWrapper;
 
 // TODO There is a bug when the same view is defined more than once in the same taxonomy;
 // instead of the second definition taking precedence over the first, the view incorrectly
 // gets the union of both sets of members.
+// TODO The compiler is not currently enforcing the constraint that each taxonomy has to 
+// fully mirror the view object hierarchy, including java.lang.Object; the latter should be
+// included in the base taxonomy ch.liquidmind.inflection.Taxonomy. Once this is working
+// then the ProxyGenerator will generate XXX.java.lang.Object where XXX stands for some 
+// fully qualified taxonomy name; these classes can be used in interfaces to indicate any
+// object within a given taxonomy.
 public class Pass2Listener extends AbstractInflectionListener
 {
 	private String currentAnnotationUnparsed;

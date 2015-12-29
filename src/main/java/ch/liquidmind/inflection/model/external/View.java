@@ -4,15 +4,14 @@ import java.util.List;
 
 public interface View extends AliasableElement
 {
-	public Class< ? > getViewedClass();
+	// TODO: rename this to getJavaClass()
+	public < T > Class< T > getViewedClass();
 	public List< Class< ? > > getUsedClasses();
 	public Taxonomy getParentTaxonomy();
-	public List< Member > getMembers();
 	public List< Member > getDeclaredMembers();
 	public List< Member > getUnresolvedMembers();
 	public View getSuperview();
 	public String getPackageName();
 	public String getSimpleName();
-	public Member getMember( String nameOrAlias );
 	public Member getDeclaredMember( String nameOrAlias );
 }

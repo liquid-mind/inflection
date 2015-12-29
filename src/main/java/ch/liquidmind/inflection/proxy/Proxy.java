@@ -51,26 +51,7 @@ public class Proxy
 		Method method = getDeclaredMethodRecursive( view.getViewedClass(), methodName, paramTypes );
 		
 		if ( method == null )
-		{
-			for ( Class< ? > usedClass : view.getUsedClasses() )
-			{
-				for ( Method usedMethod : usedClass.getMethods() )
-				{
-					// TODO: This is a very ugly work-around: we really should be looking for the method
-					// by its full signature, not just by the name (which can be overloaded). I'm
-					// only leaving this in for now because the proxy generator and associated classes
-					// need to be completely rewritten anyway.
-					if ( usedMethod.getName().equals( methodName ) )
-					{
-						method = usedMethod;
-						break;
-					}
-				}
-				
-				if ( method != null )
-					break;
-			}
-		}
+			method = getUsedMethod( view, methodName );
 		
 		if ( method == null )
 			throw new IllegalStateException( "Unable to resolve method: " + methodName );
@@ -78,6 +59,35 @@ public class Proxy
 		Object retVal = ProxyHandler.getContextProxyHandler().invoke( this, method, params );
 		
 		return (T)retVal;
+	}
+	
+	private Method getUsedMethod( View view, String methodName )
+	{
+		Method foundMethod = null;
+		
+		for ( Class< ? > usedClass : view.getUsedClasses() )
+		{
+			for ( Method usedMethod : usedClass.getMethods() )
+			{
+				// TODO: This is a very ugly work-around: we really should be looking for the method
+				// by its full signature, not just by the name (which can be overloaded). I'm
+				// only leaving this in for now because the proxy generator and associated classes
+				// need to be completely rewritten anyway.
+				if ( usedMethod.getName().equals( methodName ) )
+				{
+					foundMethod = usedMethod;
+					break;
+				}
+			}
+			
+			if ( foundMethod != null )
+				break;
+		}
+		
+		if ( foundMethod == null && taxonomy.getSuperview( view ) != null )
+			foundMethod = getUsedMethod( taxonomy.getSuperview( view ), methodName );
+		
+		return foundMethod;
 	}
 	
 	// TODO: refactor this and the above method and/or the entire class to fit

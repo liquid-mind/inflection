@@ -9,6 +9,7 @@ import __java.lang.__ClassLoader;
 import ch.liquidmind.inflection.loader.TaxonomyLoader;
 import ch.liquidmind.inflection.model.AccessType;
 import ch.liquidmind.inflection.model.SelectionType;
+import ch.liquidmind.inflection.model.external.Member;
 import ch.liquidmind.inflection.model.external.Taxonomy;
 import ch.liquidmind.inflection.model.external.View;
 
@@ -26,6 +27,7 @@ public class TaxonomyLinked extends AnnotatableElementLinked implements Taxonomy
 		this.taxonomyLoader = taxonomyLoader;
 	}
 
+	@Override
 	public AccessType getDefaultAccessType()
 	{
 		AccessType effectiveDefaultAccessType;
@@ -38,6 +40,7 @@ public class TaxonomyLinked extends AnnotatableElementLinked implements Taxonomy
 		return effectiveDefaultAccessType;
 	}
 
+	@Override
 	public AccessType getDeclaredDefaultAccessType()
 	{
 		return defaultAccessType;
@@ -255,6 +258,7 @@ public class TaxonomyLinked extends AnnotatableElementLinked implements Taxonomy
 		return resolvedView;
 	}
 
+	@Override
 	public TaxonomyLoader getTaxonomyLoader()
 	{
 		return taxonomyLoader;
@@ -279,5 +283,46 @@ public class TaxonomyLinked extends AnnotatableElementLinked implements Taxonomy
 		View superview = resolveView( superclass );
 		
 		return superview;
+	}
+	
+	@Override
+	@SuppressWarnings( "unchecked" )
+	public List< MemberLinked > getMembers( View view )
+	{
+		List< MemberLinked > members = new ArrayList< MemberLinked >();
+		
+		if ( view != null )
+		{
+			List< MemberLinked > superViewMembers = getMembers( (ViewLinked)getSuperview( view ) );
+			List< MemberLinked > declaredMembers = (List< MemberLinked >)(Object)view.getDeclaredMembers();
+			members.addAll( superViewMembers );
+			
+			for ( MemberLinked declaredMember : declaredMembers )
+			{
+				if ( ViewLinked.containsMemberLinked( members, declaredMember.getName(), declaredMember.getSelectionType() ) )
+					members.set( ViewLinked.indexOfMemberLinked( members, declaredMember.getName(), declaredMember.getSelectionType() ), declaredMember );
+				else
+					members.add( declaredMember );
+			}
+		}
+		
+		return members;
+	}
+	
+	@Override
+	public Member getMember( View view, String nameOrAlias )
+	{
+		Member foundMember = null;
+		
+		for ( Member member : getMembers( view ) )
+		{
+			if ( member.getName().equals( nameOrAlias ) || ( member.getAlias() != null && member.getAlias().equals( nameOrAlias ) ) )
+			{
+				foundMember = member;
+				break;
+			}
+		}
+		
+		return foundMember;
 	}
 }

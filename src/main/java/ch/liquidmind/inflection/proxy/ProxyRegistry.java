@@ -1,6 +1,7 @@
 package ch.liquidmind.inflection.proxy;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -191,7 +192,7 @@ public class ProxyRegistry
 		T proxy = null;
 		
 		Set< Class< ? > > intersection = new HashSet< Class< ? > >( PROXY_BASE_CLASSES.keySet() );
-		intersection.retainAll( java.util.Arrays.asList( object.getClass().getInterfaces() ) );
+		intersection.retainAll( getInterfacesRecursive( object.getClass() ) );
 		
 		if ( !intersection.isEmpty() )
 		{
@@ -293,5 +294,16 @@ public class ProxyRegistry
 			classes.addAll( getClassesRecursive( aClass.getSuperclass() ) );
 		
 		return classes;
+	}
+	
+	private List< Class< ? > > getInterfacesRecursive( Class< ? > aClass )
+	{
+		List< Class< ? > > interfaces = new ArrayList< Class< ? > >();
+		interfaces.addAll( Arrays.asList( aClass.getInterfaces() ) );
+		
+		if ( aClass.getSuperclass() != null )
+			interfaces.addAll( getInterfacesRecursive( aClass.getSuperclass() ) );
+		
+		return interfaces;
 	}
 }
