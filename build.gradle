@@ -64,6 +64,9 @@ dependencies {
 	compile( "org.codehaus.jackson:jackson-mapper-asl:1.9.13" ) { transitive = false }
 	compile( "org.codehaus.jackson:jackson-core-asl:1.9.13" ) { transitive = false }
 	compile( '__java:rt:1.8' ) { transitive = false }
+	compile( 'org.aspectj:aspectjrt:1.8.7' ) { transitive = false }
+	compile( 'org.aspectj:aspectjweaver:1.8.7' ) { transitive = false }
+	compile( 'org.aspectj:aspectjtools:1.8.7' ) { transitive = false }
 	testCompile( "junit:junit:4.12" ) { transitive = false }
 
 	runtime "commons-io:commons-io:2.4"
@@ -73,6 +76,9 @@ dependencies {
 	runtime "com.google.guava:guava:19.0-rc2"
 	runtime "org.codehaus.jackson:jackson-mapper-asl:1.9.13"
 	runtime '__java:rt:1.8'
+	runtime( 'org.aspectj:aspectjrt:1.8.7' )
+	runtime( 'org.aspectj:aspectjweaver:1.8.7' )
+	runtime( 'org.aspectj:aspectjtools:1.8.7' )
 	testRuntime "junit:junit:4.12"
 }
 
@@ -128,6 +134,8 @@ task( proxifyTestTaxonomies, dependsOn: compileTestTaxonomiesInflection, type: J
 compileTestJava.dependsOn proxifyTestTaxonomies
 
 test {
+	jvmArgs '-javaagent:' + project.configurations.compile.find { it.name.startsWith("aspectjweaver-") };
+
 	// Enable this to see test output:
 	testLogging.showStandardStreams = true
 }
