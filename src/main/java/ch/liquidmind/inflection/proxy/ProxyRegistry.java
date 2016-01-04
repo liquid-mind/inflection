@@ -38,6 +38,8 @@ public class ProxyRegistry
 	
 	public static class PairTables
 	{
+		// TODO: change Set< ProxyObjectPair > to List< ProxyObjectPair > (to avoid potentially overwriting objects in set; could
+		// happen depending on given object's hashcode/equals implementation)
 		private Map< Integer, Set< ProxyObjectPair > > pairsByObjectHashcode = new HashMap< Integer, Set< ProxyObjectPair > >();
 		private Map< Integer, Set< ProxyObjectPair > > pairsByProxyHashcode = new HashMap< Integer, Set< ProxyObjectPair > >();
 		
@@ -144,12 +146,12 @@ public class ProxyRegistry
 			pairTablesByTaxonomy.put( taxonomy, pairTables );
 		}
 
-		Set< ProxyObjectPair > proxyObjectPairs = pairTables.getPairsByObjectHashcode().get( object.hashCode() );
+		Set< ProxyObjectPair > proxyObjectPairs = pairTables.getPairsByObjectHashcode().get( System.identityHashCode( object ) );
 		
 		if ( proxyObjectPairs == null )
 		{
 			proxyObjectPairs = new HashSet< ProxyObjectPair >();
-			pairTables.getPairsByObjectHashcode().put( object.hashCode(), proxyObjectPairs );
+			pairTables.getPairsByObjectHashcode().put( System.identityHashCode( object ), proxyObjectPairs );
 		}
 		
 		ProxyObjectPair proxyObjectPairFound = null;
@@ -173,7 +175,7 @@ public class ProxyRegistry
 			{
 				proxyObjectPairFound = new ProxyObjectPair( proxy, object );
 				proxyObjectPairs.add( proxyObjectPairFound );
-				pairTables.getPairsByProxyHashcode().put( proxy.hashCode(), proxyObjectPairs );
+				pairTables.getPairsByProxyHashcode().put( System.identityHashCode( proxy ), proxyObjectPairs );
 			}
 		}
 		else
@@ -232,12 +234,12 @@ public class ProxyRegistry
 			pairTablesByTaxonomy.put( ProxyHelper.getTaxonomy( proxy ), pairTables );
 		}
 		
-		Set< ProxyObjectPair > proxyObjectPairs = pairTables.getPairsByProxyHashcode().get( proxy.hashCode() );
+		Set< ProxyObjectPair > proxyObjectPairs = pairTables.getPairsByProxyHashcode().get( System.identityHashCode( proxy ) );
 		
 		if ( proxyObjectPairs == null )
 		{
 			proxyObjectPairs = new HashSet< ProxyObjectPair >();
-			pairTables.getPairsByProxyHashcode().put( proxy.hashCode(), proxyObjectPairs );
+			pairTables.getPairsByProxyHashcode().put( System.identityHashCode( proxy ), proxyObjectPairs );
 		}		
 		
 		ProxyObjectPair proxyObjectPairFound = null;
@@ -255,7 +257,7 @@ public class ProxyRegistry
 		{
 			proxyObjectPairFound = new ProxyObjectPair( proxy, createObject( proxy ) );
 			proxyObjectPairs.add( proxyObjectPairFound );
-			pairTables.getPairsByObjectHashcode().put( proxyObjectPairFound.getObject().hashCode(), proxyObjectPairs );
+			pairTables.getPairsByObjectHashcode().put( System.identityHashCode( proxyObjectPairFound.getObject() ), proxyObjectPairs );
 		}
 		
 		return (T)proxyObjectPairFound.getObject();
