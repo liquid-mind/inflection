@@ -13,6 +13,7 @@ import java.util.Set;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
+import org.aspectj.lang.annotation.Pointcut;
 import org.aspectj.lang.reflect.FieldSignature;
 import org.aspectj.lang.reflect.MethodSignature;
 
@@ -45,34 +46,41 @@ public class BidirectionalAspect
 	
 	// Note that the last condition, "!call( * ch.liquidmind.inflection.bidir.*(..) )", is important to ensure
 	// that the classes in this package do not trigger infinite loops.
-	@Around( value="call( * java.lang.reflect.Field.set*(..) ) && !call( * java.lang.reflect.Field.setAccessible(..) ) && !within( ch.liquidmind.inflection.bidir.* )", argNames="joinPoint" )
+	@Pointcut( "call( * java.lang.reflect.Field.set*(..) ) && !call( * java.lang.reflect.Field.setAccessible(..) ) && !within( ch.liquidmind.inflection.bidir.* ) && if()" )
+	public static boolean aroundFieldSetPredicate( JoinPoint joinPoint )
+	{
+		Field field = (Field)joinPoint.getTarget();
+		Bidirectional bidirectional = field.getAnnotation( Bidirectional.class );
+		
+		return bidirectional != null;
+	}
+	
+	@Around( "aroundFieldSetPredicate( joinPoint )" )
 	public void aroundFieldSet( JoinPoint joinPoint )
 	{
 		Field field = (Field)joinPoint.getTarget();
 		field.setAccessible( true );
-		Bidirectional bidirectional = field.getAnnotation( Bidirectional.class );
-		
-		if ( bidirectional != null )
-		{
-			Object object = joinPoint.getArgs()[ 0 ];
-			Object value = joinPoint.getArgs()[ 1 ];
-			handleValueSet( object, field, value );
-		}
+		Object object = joinPoint.getArgs()[ 0 ];
+		Object value = joinPoint.getArgs()[ 1 ];
+		handleValueSet( object, field, value );
 	}
 	
 	// TODO: catch reflective invocations of collection operations.
-	@Around( value="call( * java.util.Collection.*(..) ) && !within( ch.liquidmind.inflection.bidir.* )", argNames="joinPoint" )
+	@Pointcut( "call( * java.util.Collection.*(..) ) && !within( ch.liquidmind.inflection.bidir.* ) && if()" )
+	public static boolean aroundCollectionOperationPredicate( JoinPoint joinPoint )
+	{
+		Collection< ? > collection = (Collection< ? >)joinPoint.getTarget();
+		RegisteredCollection registeredCollection = CollectionRegistry.getRegistry().lookup( collection );
+
+		return registeredCollection != null;
+	}
+	
+	@Around( "aroundCollectionOperationPredicate( joinPoint )" )
 	public Object aroundCollectionOperation( JoinPoint joinPoint )
 	{
 		Collection< ? > collection = (Collection< ? >)joinPoint.getTarget();
 		RegisteredCollection registeredCollection = CollectionRegistry.getRegistry().lookup( collection );
-		Collection< ? > invokableCollection;
-		
-		if ( registeredCollection == null )
-			invokableCollection = collection;
-		else
-			invokableCollection = getBidirectionalCollection( registeredCollection );
-		
+		Collection< ? > invokableCollection = getBidirectionalCollection( registeredCollection );
 		Method method = ((MethodSignature)joinPoint.getSignature()).getMethod();
 		Class< ? > collectionClass = invokableCollection.getClass();
 		Method invokableMethod = __Class.getMethod( collectionClass, method.getName(), method.getParameterTypes() );

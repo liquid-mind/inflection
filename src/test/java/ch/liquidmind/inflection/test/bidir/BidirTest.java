@@ -1,9 +1,13 @@
 package ch.liquidmind.inflection.test.bidir;
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 import org.junit.Test;
+
+import __java.lang.__Class;
+import __java.lang.reflect.__Field;
 
 /*
  * Notes:
@@ -75,5 +79,12 @@ public class BidirTest
 		address1.setPerson( null );
 		// Test set to null value when null already set.
 		address1.setPerson( null );
+		
+		Field street = __Class.getDeclaredField( Address.class, "street" );
+		street.setAccessible( true );
+		__Field.set( street, address1, null );
+		Field person = __Class.getDeclaredField( Address.class, "person" );
+		person.setAccessible( true );
+		__Field.set( person, address1, null );
 	}
 }
