@@ -93,10 +93,23 @@ public class Proxy
 	// TODO: refactor this and the above method and/or the entire class to fit
 	// better with the two distinct cases: (non-collection) object proxy and collection proxy
 	@SuppressWarnings( "unchecked" )
-	protected < T extends Object > T invokeOnCollection( String methodName, Class< ? >[] paramTypes, Object[] params ) throws Throwable
+	protected < T extends Object > T invokeOnCollection( String methodName, Class< ? >[] paramTypes, Object[] params )
 	{
 		Method method = getDeclaredMethodRecursive( this.getClass(), methodName, paramTypes );
-		Object retVal = CollectionProxyHandler.getContextCollectionProxyHandler().invoke( this, method, params );
+		Object retVal;
+		
+		try
+		{
+			retVal = CollectionProxyHandler.getContextCollectionProxyHandler().invoke( this, method, params );
+		}
+        catch ( RuntimeException | Error ex )
+        {
+            throw ex;
+        }
+        catch ( java.lang.Throwable ex )
+        {
+            throw new IllegalStateException( "Unexpected exception type: " + ex.getClass().getName(), ex );
+        }
 		
 		return (T)retVal;
 	}

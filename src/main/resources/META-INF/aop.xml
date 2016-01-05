@@ -4,8 +4,9 @@
 	<aspects>
 		<aspect name="ch.liquidmind.inflection.bidir.BidirectionalAspect" />
 	</aspects>
-	<!-- -XnoInline necessary for debugging (but can be disabled later) -->
-	<weaver options="-verbose -Xset:weaveJavaPackages=true,weaveJavaxPackages=true -XnoInline">
+	<!-- -XnoInline for debugging
+		 -verbose for extra messages -->
+	<weaver options="-nowarn -Xset:weaveJavaPackages=true,weaveJavaxPackages=true">
 		<include within="*"/>
 	</weaver>
 </aspectj>
