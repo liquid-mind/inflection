@@ -91,8 +91,8 @@ public class ProxyRegistry
 		{
 			final int prime = 31;
 			int result = 1;
-			result = prime * result + ( ( object == null ) ? 0 : object.hashCode() );
-			result = prime * result + ( ( proxy == null ) ? 0 : proxy.hashCode() );
+			result = prime * result + ( ( object == null ) ? 0 : System.identityHashCode( object ) );
+			result = prime * result + ( ( proxy == null ) ? 0 : System.identityHashCode( proxy ) );
 			return result;
 		}
 

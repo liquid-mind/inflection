@@ -137,4 +137,16 @@ public class Proxy
 		
 		return method;
 	}
+
+	@Override
+	public int hashCode()
+	{
+		return invokeOnCollection( "hashCode", new Class< ? >[] {}, new Object[] {} );
+	}
+
+	@Override
+	public boolean equals( Object obj )
+	{
+		return invokeOnCollection( "equals", new Class< ? >[] { Object.class }, new Object[] { obj } );
+	}
 }
