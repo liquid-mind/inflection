@@ -22,6 +22,7 @@ public abstract class AnnotatableElementLinked extends NamedElementLinked implem
 		return annotations;
 	}
 
+	@Override
 	public List< Annotation > getAnnotations()
 	{
 		return ImmutableList.copyOf( getAnnotationsInternal() );

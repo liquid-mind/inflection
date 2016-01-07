@@ -10,6 +10,7 @@ grammar Inflection;
  * - Includes are evaluated before excludes.
  * - Members referred to by member references must be declared in the class; they cannot be
  *   inherited from a super class.
+ * - Rename keyword "use" to "uses" to be more in line with "extends", "implements", etc.
  */
  
 /*

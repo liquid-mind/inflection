@@ -1,6 +1,7 @@
 package ch.liquidmind.inflection.proxy;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -37,6 +38,8 @@ public class ProxyRegistry
 	
 	public static class PairTables
 	{
+		// TODO: change Set< ProxyObjectPair > to List< ProxyObjectPair > (to avoid potentially overwriting objects in set; could
+		// happen depending on given object's hashcode/equals implementation)
 		private Map< Integer, Set< ProxyObjectPair > > pairsByObjectHashcode = new HashMap< Integer, Set< ProxyObjectPair > >();
 		private Map< Integer, Set< ProxyObjectPair > > pairsByProxyHashcode = new HashMap< Integer, Set< ProxyObjectPair > >();
 		
@@ -88,8 +91,8 @@ public class ProxyRegistry
 		{
 			final int prime = 31;
 			int result = 1;
-			result = prime * result + ( ( object == null ) ? 0 : object.hashCode() );
-			result = prime * result + ( ( proxy == null ) ? 0 : proxy.hashCode() );
+			result = prime * result + ( ( object == null ) ? 0 : System.identityHashCode( object ) );
+			result = prime * result + ( ( proxy == null ) ? 0 : System.identityHashCode( proxy ) );
 			return result;
 		}
 
@@ -143,12 +146,12 @@ public class ProxyRegistry
 			pairTablesByTaxonomy.put( taxonomy, pairTables );
 		}
 
-		Set< ProxyObjectPair > proxyObjectPairs = pairTables.getPairsByObjectHashcode().get( object.hashCode() );
+		Set< ProxyObjectPair > proxyObjectPairs = pairTables.getPairsByObjectHashcode().get( System.identityHashCode( object ) );
 		
 		if ( proxyObjectPairs == null )
 		{
 			proxyObjectPairs = new HashSet< ProxyObjectPair >();
-			pairTables.getPairsByObjectHashcode().put( object.hashCode(), proxyObjectPairs );
+			pairTables.getPairsByObjectHashcode().put( System.identityHashCode( object ), proxyObjectPairs );
 		}
 		
 		ProxyObjectPair proxyObjectPairFound = null;
@@ -172,7 +175,7 @@ public class ProxyRegistry
 			{
 				proxyObjectPairFound = new ProxyObjectPair( proxy, object );
 				proxyObjectPairs.add( proxyObjectPairFound );
-				pairTables.getPairsByProxyHashcode().put( proxy.hashCode(), proxyObjectPairs );
+				pairTables.getPairsByProxyHashcode().put( System.identityHashCode( proxy ), proxyObjectPairs );
 			}
 		}
 		else
@@ -191,7 +194,7 @@ public class ProxyRegistry
 		T proxy = null;
 		
 		Set< Class< ? > > intersection = new HashSet< Class< ? > >( PROXY_BASE_CLASSES.keySet() );
-		intersection.retainAll( java.util.Arrays.asList( object.getClass().getInterfaces() ) );
+		intersection.retainAll( getInterfacesRecursive( object.getClass() ) );
 		
 		if ( !intersection.isEmpty() )
 		{
@@ -231,12 +234,12 @@ public class ProxyRegistry
 			pairTablesByTaxonomy.put( ProxyHelper.getTaxonomy( proxy ), pairTables );
 		}
 		
-		Set< ProxyObjectPair > proxyObjectPairs = pairTables.getPairsByProxyHashcode().get( proxy.hashCode() );
+		Set< ProxyObjectPair > proxyObjectPairs = pairTables.getPairsByProxyHashcode().get( System.identityHashCode( proxy ) );
 		
 		if ( proxyObjectPairs == null )
 		{
 			proxyObjectPairs = new HashSet< ProxyObjectPair >();
-			pairTables.getPairsByProxyHashcode().put( proxy.hashCode(), proxyObjectPairs );
+			pairTables.getPairsByProxyHashcode().put( System.identityHashCode( proxy ), proxyObjectPairs );
 		}		
 		
 		ProxyObjectPair proxyObjectPairFound = null;
@@ -254,7 +257,7 @@ public class ProxyRegistry
 		{
 			proxyObjectPairFound = new ProxyObjectPair( proxy, createObject( proxy ) );
 			proxyObjectPairs.add( proxyObjectPairFound );
-			pairTables.getPairsByObjectHashcode().put( proxyObjectPairFound.getObject().hashCode(), proxyObjectPairs );
+			pairTables.getPairsByObjectHashcode().put( System.identityHashCode( proxyObjectPairFound.getObject() ), proxyObjectPairs );
 		}
 		
 		return (T)proxyObjectPairFound.getObject();
@@ -293,5 +296,16 @@ public class ProxyRegistry
 			classes.addAll( getClassesRecursive( aClass.getSuperclass() ) );
 		
 		return classes;
+	}
+	
+	private List< Class< ? > > getInterfacesRecursive( Class< ? > aClass )
+	{
+		List< Class< ? > > interfaces = new ArrayList< Class< ? > >();
+		interfaces.addAll( Arrays.asList( aClass.getInterfaces() ) );
+		
+		if ( aClass.getSuperclass() != null )
+			interfaces.addAll( getInterfacesRecursive( aClass.getSuperclass() ) );
+		
+		return interfaces;
 	}
 }

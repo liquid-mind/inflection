@@ -22,9 +22,11 @@ public class ViewLinked extends AliasableElementLinked implements View
 		super( name );
 	}
 
-	public Class< ? > getViewedClass()
+	@SuppressWarnings( "unchecked" )
+	@Override
+	public < T > Class< T > getViewedClass()
 	{
-		return viewedClass;
+		return (Class< T >)viewedClass;
 	}
 
 	public void setViewedClass( Class< ? > viewedClass )
@@ -32,6 +34,7 @@ public class ViewLinked extends AliasableElementLinked implements View
 		this.viewedClass = viewedClass;
 	}
 
+	@Override
 	public List< Class< ? > > getUsedClasses()
 	{
 		return usedClasses;
@@ -58,36 +61,6 @@ public class ViewLinked extends AliasableElementLinked implements View
 		return parentTaxonomyLinked;
 	}
 	
-	@SuppressWarnings( "unchecked" )
-	@Override
-	public List< Member > getMembers()
-	{
-		return (List< Member >)(Object)getMembers( this );
-	}
-	
-	@SuppressWarnings( "unchecked" )
-	private static List< MemberLinked > getMembers( ViewLinked viewLinked )
-	{
-		List< MemberLinked > members = new ArrayList< MemberLinked >();
-		
-		if ( viewLinked != null )
-		{
-			List< MemberLinked > superViewMembers = getMembers( (ViewLinked)viewLinked.getSuperview() );
-			List< MemberLinked > declaredMembers = (List< MemberLinked >)(Object)viewLinked.getDeclaredMembers();
-			members.addAll( superViewMembers );
-			
-			for ( MemberLinked declaredMember : declaredMembers )
-			{
-				if ( containsMemberLinked( members, declaredMember.getName(), declaredMember.getSelectionType() ) )
-					members.set( indexOfMemberLinked( members, declaredMember.getName(), declaredMember.getSelectionType() ), declaredMember );
-				else
-					members.add( declaredMember );
-			}
-		}
-		
-		return members;
-	}
-
 	@SuppressWarnings( { "unchecked" } )
 	@Override
 	public List< Member > getDeclaredMembers()
@@ -107,13 +80,13 @@ public class ViewLinked extends AliasableElementLinked implements View
 		return (List< Member >)(Object)declaredMembers;
 	}
 
-	private static boolean containsMemberLinked( List< MemberLinked > membersLinked, String name, SelectionType selectionType )
+	static boolean containsMemberLinked( List< MemberLinked > membersLinked, String name, SelectionType selectionType )
 	{
 		return indexOfMemberLinked( membersLinked, name, selectionType ) == -1 ? false : true;
 	}
 	
 	@SuppressWarnings( "unchecked" )
-	private static int indexOfMemberLinked( List< MemberLinked > membersLinked, String name, SelectionType selectionType )
+	static int indexOfMemberLinked( List< MemberLinked > membersLinked, String name, SelectionType selectionType )
 	{
 		return SelectingElementLinked.indexOfSelectingElementLinked( (List< SelectingElementLinked >)(Object)membersLinked, name, selectionType );
 	}
@@ -143,23 +116,6 @@ public class ViewLinked extends AliasableElementLinked implements View
 	public String getSimpleName()
 	{
 		return getSimpleName( getName() );
-	}
-
-	@Override
-	public Member getMember( String nameOrAlias )
-	{
-		Member foundMember = null;
-		
-		for ( Member member : getMembers() )
-		{
-			if ( member.getName().equals( nameOrAlias ) || ( member.getAlias() != null && member.getAlias().equals( nameOrAlias ) ) )
-			{
-				foundMember = member;
-				break;
-			}
-		}
-		
-		return foundMember;
 	}
 
 	@Override

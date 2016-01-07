@@ -1,6 +1,7 @@
 package ch.liquidmind.inflection.proxy;
 
 import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
@@ -31,10 +32,23 @@ public class CollectionProxyHandler implements InvocationHandler
 		List< Object > viewableArgs = getViewableObjects( args );
 		Method viewableMethod = collection.getClass().getMethod( method.getName(), method.getParameterTypes() );
 		viewableMethod.setAccessible( true );
-		Object viewableRetVal = viewableMethod.invoke( collection, viewableArgs.toArray() );
+		Object viewableRetVal = invokeWithExceptionHandling( viewableMethod, collection, viewableArgs.toArray() );
 		Object proxyRetVal = getProxyObject( ProxyHelper.getTaxonomy( proxy ), viewableRetVal );
 
 		return proxyRetVal;
+	}
+	
+	private Object invokeWithExceptionHandling( Method method, Object object, Object ... args ) throws Throwable
+	{
+		try
+		{
+			return method.invoke( object, args );
+		}
+		catch ( InvocationTargetException e )
+		{
+			// Re-throw the target exception.
+			throw e.getTargetException();
+		}
 	}
 	
 	// TODO: Create common super class for ProxyHandler and CollectionProxyHandler

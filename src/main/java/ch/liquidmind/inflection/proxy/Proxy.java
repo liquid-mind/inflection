@@ -51,26 +51,7 @@ public class Proxy
 		Method method = getDeclaredMethodRecursive( view.getViewedClass(), methodName, paramTypes );
 		
 		if ( method == null )
-		{
-			for ( Class< ? > usedClass : view.getUsedClasses() )
-			{
-				for ( Method usedMethod : usedClass.getMethods() )
-				{
-					// TODO: This is a very ugly work-around: we really should be looking for the method
-					// by its full signature, not just by the name (which can be overloaded). I'm
-					// only leaving this in for now because the proxy generator and associated classes
-					// need to be completely rewritten anyway.
-					if ( usedMethod.getName().equals( methodName ) )
-					{
-						method = usedMethod;
-						break;
-					}
-				}
-				
-				if ( method != null )
-					break;
-			}
-		}
+			method = getUsedMethod( view, methodName );
 		
 		if ( method == null )
 			throw new IllegalStateException( "Unable to resolve method: " + methodName );
@@ -80,13 +61,55 @@ public class Proxy
 		return (T)retVal;
 	}
 	
+	private Method getUsedMethod( View view, String methodName )
+	{
+		Method foundMethod = null;
+		
+		for ( Class< ? > usedClass : view.getUsedClasses() )
+		{
+			for ( Method usedMethod : usedClass.getMethods() )
+			{
+				// TODO: This is a very ugly work-around: we really should be looking for the method
+				// by its full signature, not just by the name (which can be overloaded). I'm
+				// only leaving this in for now because the proxy generator and associated classes
+				// need to be completely rewritten anyway.
+				if ( usedMethod.getName().equals( methodName ) )
+				{
+					foundMethod = usedMethod;
+					break;
+				}
+			}
+			
+			if ( foundMethod != null )
+				break;
+		}
+		
+		if ( foundMethod == null && taxonomy.getSuperview( view ) != null )
+			foundMethod = getUsedMethod( taxonomy.getSuperview( view ), methodName );
+		
+		return foundMethod;
+	}
+	
 	// TODO: refactor this and the above method and/or the entire class to fit
 	// better with the two distinct cases: (non-collection) object proxy and collection proxy
 	@SuppressWarnings( "unchecked" )
-	protected < T extends Object > T invokeOnCollection( String methodName, Class< ? >[] paramTypes, Object[] params ) throws Throwable
+	protected < T extends Object > T invokeOnCollection( String methodName, Class< ? >[] paramTypes, Object[] params )
 	{
 		Method method = getDeclaredMethodRecursive( this.getClass(), methodName, paramTypes );
-		Object retVal = CollectionProxyHandler.getContextCollectionProxyHandler().invoke( this, method, params );
+		Object retVal;
+		
+		try
+		{
+			retVal = CollectionProxyHandler.getContextCollectionProxyHandler().invoke( this, method, params );
+		}
+        catch ( RuntimeException | Error ex )
+        {
+            throw ex;
+        }
+        catch ( java.lang.Throwable ex )
+        {
+            throw new IllegalStateException( "Unexpected exception type: " + ex.getClass().getName(), ex );
+        }
 		
 		return (T)retVal;
 	}
@@ -113,5 +136,17 @@ public class Proxy
 			method = getDeclaredMethodRecursive( aClass.getSuperclass(), methodName, paramTypes );
 		
 		return method;
+	}
+
+	@Override
+	public int hashCode()
+	{
+		return invokeOnCollection( "hashCode", new Class< ? >[] {}, new Object[] {} );
+	}
+
+	@Override
+	public boolean equals( Object obj )
+	{
+		return invokeOnCollection( "equals", new Class< ? >[] { Object.class }, new Object[] { obj } );
 	}
 }

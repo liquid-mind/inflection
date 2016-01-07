@@ -14,6 +14,7 @@ public class PropertyLinked extends MemberLinked implements Property
 		super( name );
 	}
 
+	@Override
 	public Method getReadMethod()
 	{
 		return readMethod;
@@ -24,6 +25,7 @@ public class PropertyLinked extends MemberLinked implements Property
 		this.readMethod = readMethod;
 	}
 
+	@Override
 	public Method getWriteMethod()
 	{
 		return writeMethod;
