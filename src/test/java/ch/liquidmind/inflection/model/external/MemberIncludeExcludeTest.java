@@ -80,7 +80,7 @@ public class MemberIncludeExcludeTest extends AbstractInflectionTest
 			View view = taxonomy.getView( "V" );
 			for ( int k = 1; k <= visibleMembers.length; k++ )
 			{
-				boolean expectedVisbility = view.getMember( "member" + k ) != null == visibleMembers[ k-1 ];
+				boolean expectedVisbility = taxonomy.getMember( view, "member" + k ) != null == visibleMembers[ k-1 ];
 				assertTrue( "Member member" + k + " is visible: " + expectedVisbility, expectedVisbility );
 			}
 		} , createSimpleJavaModel( visibleMembers.length ), null, createInflectionFileMock( "a", builder.toString() ) );

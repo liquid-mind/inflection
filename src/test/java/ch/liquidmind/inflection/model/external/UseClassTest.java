@@ -42,7 +42,7 @@ public class UseClassTest extends AbstractInflectionTest
 			Taxonomy taxonomy = TestUtility.getTaxonomyLoader( job ).loadTaxonomy( "a.A" );
 			View view = taxonomy.getView( "V" );
 			assertNotNull( view );
-			Member member = view.getMember( "square" );
+			Member member = taxonomy.getMember( view, "square" );
 			assertNotNull( member );
 		} , createSimpleJavaModel(), null, createInflectionFileMock( "a", builder.toString() ) );
 	}

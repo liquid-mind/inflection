@@ -72,7 +72,7 @@ public class MemberTest extends AbstractInflectionTest
 		doTest( job -> {
 			Taxonomy taxonomy = TestUtility.getTaxonomyLoader( job ).loadTaxonomy( "A" );
 			View view = taxonomy.getView( "V" );
-			assertNotNull( view.getMember( "member1" ) );
+			assertNotNull( taxonomy.getMember( view, "member1" ) );
 		} , createSimpleJavaModel(), null, createInflectionFileMock( builder.toString() ) );
 	}
 
