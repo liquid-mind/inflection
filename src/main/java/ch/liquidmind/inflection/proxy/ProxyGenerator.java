@@ -296,7 +296,7 @@ public class ProxyGenerator
 		printWriter.println( "        }" );
 		printWriter.println( "        catch ( java.lang.Throwable e )" );
 		printWriter.println( "        {" );
-		printWriter.println( "            throw new java.lang.IllegalStateException();" );
+		printWriter.println( "            throw new java.lang.IllegalStateException( e );" );
 		printWriter.println( "        }" );
 		
 		printWriter.println( "    }" );
