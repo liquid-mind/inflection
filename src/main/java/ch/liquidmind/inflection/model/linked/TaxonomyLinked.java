@@ -287,20 +287,20 @@ public class TaxonomyLinked extends AnnotatableElementLinked implements Taxonomy
 	
 	@Override
 	@SuppressWarnings( "unchecked" )
-	public List< MemberLinked > getMembers( View view )
+	public List< Member > getMembers( View view )
 	{
-		List< MemberLinked > members = new ArrayList< MemberLinked >();
+		List< Member > members = new ArrayList< Member >();
 		
 		if ( view != null )
 		{
-			List< MemberLinked > superViewMembers = getMembers( (ViewLinked)getSuperview( view ) );
-			List< MemberLinked > declaredMembers = (List< MemberLinked >)(Object)view.getDeclaredMembers();
+			List< Member > superViewMembers = getMembers( (ViewLinked)getSuperview( view ) );
+			List< Member > declaredMembers = view.getDeclaredMembers();
 			members.addAll( superViewMembers );
 			
-			for ( MemberLinked declaredMember : declaredMembers )
+			for ( Member declaredMember : declaredMembers )
 			{
-				if ( ViewLinked.containsMemberLinked( members, declaredMember.getName(), declaredMember.getSelectionType() ) )
-					members.set( ViewLinked.indexOfMemberLinked( members, declaredMember.getName(), declaredMember.getSelectionType() ), declaredMember );
+				if ( ViewLinked.containsMemberLinked( (List< MemberLinked >)(Object)members, declaredMember.getName(), declaredMember.getSelectionType() ) )
+					members.set( ViewLinked.indexOfMemberLinked( (List< MemberLinked >)(Object)members, declaredMember.getName(), declaredMember.getSelectionType() ), declaredMember );
 				else
 					members.add( declaredMember );
 			}

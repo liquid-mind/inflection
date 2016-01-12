@@ -16,25 +16,28 @@ public class InflectionPrinter
 {
 	public static final PrintStream DEFAULT_PRINT_STREAM = System.out;
 	public static final boolean DEFAULT_SHOW_SIMPLE_NAMES = true;
+	public static final boolean DEFAULT_SHOW_INHERITED = false;
 	
 	private IndentingPrintWriter printWriter;
 	private boolean showSimpleNames;
+	private boolean showInherited;
 
 	public InflectionPrinter()
 	{
-		this( DEFAULT_PRINT_STREAM, DEFAULT_SHOW_SIMPLE_NAMES );
+		this( DEFAULT_PRINT_STREAM, DEFAULT_SHOW_SIMPLE_NAMES, DEFAULT_SHOW_INHERITED );
 	}
 	
 	public InflectionPrinter( PrintStream printStream )
 	{
-		this( printStream, DEFAULT_SHOW_SIMPLE_NAMES );
+		this( printStream, DEFAULT_SHOW_SIMPLE_NAMES, DEFAULT_SHOW_INHERITED );
 	}
 	
-	public InflectionPrinter( PrintStream printStream, boolean showSimpleNames )
+	public InflectionPrinter( PrintStream printStream, boolean showSimpleNames, boolean showInherited )
 	{
 		super();
 		this.printWriter = new IndentingPrintWriter( printStream );
 		this.showSimpleNames = showSimpleNames;
+		this.showInherited = showInherited;
 	}
 
 	public void printTaxonomy( Taxonomy taxonomy )
@@ -56,7 +59,12 @@ public class InflectionPrinter
 		else
 			printWriter.println();
 
-		List< View > views = taxonomy.getDeclaredViews();
+		List< View > views;
+		
+		if ( showInherited )
+			views = taxonomy.getViews();
+		else
+			views = taxonomy.getDeclaredViews();
 		
 		if ( views.isEmpty() )
 		{
@@ -74,6 +82,9 @@ public class InflectionPrinter
 			printAnnotations( view.getAnnotations() );
 			printWriter.print( "view " + getTypeName( view.getName() ) );
 			
+			if ( showInherited && !view.getParentTaxonomy().equals( taxonomy ) )
+				printWriter.print( " from " + getTypeName( view.getParentTaxonomy().getName() ) );
+			
 			if ( view.getAlias() != null )
 				printWriter.print( " as " + view.getAlias() );
 			
@@ -90,7 +101,12 @@ public class InflectionPrinter
 			else
 				printWriter.println();
 			
-			List< Member > members = view.getDeclaredMembers();
+			List< Member > members;
+			
+			if ( showInherited )
+				members = taxonomy.getMembers( view );
+			else
+				members = view.getDeclaredMembers();
 			
 			if ( members.isEmpty() )
 			{
@@ -113,9 +129,13 @@ public class InflectionPrinter
 						throw new IllegalStateException( "Unexpected type for member: " + member.getClass().getName() );
 					
 					String alias = ( member.getAlias() == null ? "" : " as " + member.getAlias() );
+					String from = "";
+					
+					if ( showInherited && !member.getParentView().equals( view ) )
+						from = " from " + getTypeName( member.getParentView().getName() );
 					
 					printAnnotations( member.getAnnotations() );
-					printWriter.println( accessType + " " + member.getName() + alias + ";" );
+					printWriter.println( accessType + " " + member.getName() + from + alias + ";" );
 				}
 				
 				printWriter.decreaseIndent();

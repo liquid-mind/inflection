@@ -6,6 +6,7 @@ import java.util.GregorianCalendar;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.map.ObjectReader;
 import org.codehaus.jackson.map.ObjectWriter;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import ch.liquidmind.inflection.loader.TaxonomyLoader;
@@ -31,12 +32,13 @@ public class InflectionTest
 		for ( String taxonomyName : taxonomyNames )
 		{
 			Taxonomy taxonomy = TaxonomyLoader.getContextTaxonomyLoader().loadTaxonomy( "ch.liquidmind.inflection.test.model." + taxonomyName );
-			InflectionPrinter printer = new InflectionPrinter();
+			InflectionPrinter printer = new InflectionPrinter( System.out, true, true );
 			printer.printTaxonomy( taxonomy );
 			System.out.println();
 		}
 	}
 
+	@Ignore
 	@Test
 	public void testProxies() throws Throwable
 	{
