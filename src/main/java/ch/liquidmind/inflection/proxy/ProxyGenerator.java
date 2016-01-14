@@ -28,6 +28,9 @@ import ch.liquidmind.inflection.model.linked.UnparsedAnnotation;
 // TODO Proxies of abstract classes should be abstract themselves (since it doesn't
 // make sense to be able to instantiate a view of an un-instantiable class).
 // TODO Make ProxyGenerator work like InflectionCompiler, i.e., introduce a ProxyGeneratorJob, etc.
+// TODO Make the taxonomy a class and proxies public static inner classes thereof. This has
+// the advantage of being syntactically more intuitive (dot notation) and also references to the
+// taxonomy can be refactored more easily.
 public class ProxyGenerator
 {
 	private File baseDir;
@@ -294,7 +297,7 @@ public class ProxyGenerator
 		printWriter.println( "        }" );
 		printWriter.println( "        catch ( java.lang.Throwable e )" );
 		printWriter.println( "        {" );
-		printWriter.println( "            throw new java.lang.IllegalStateException();" );
+		printWriter.println( "            throw new java.lang.IllegalStateException( e );" );
 		printWriter.println( "        }" );
 		
 		printWriter.println( "    }" );
@@ -361,14 +364,14 @@ public class ProxyGenerator
 			if ( ProxyRegistry.PROXY_BASE_CLASSES.containsKey( rawType ) )
 				rawTypeConverted = getFullyQualifiedCollectionName( taxonomy, ProxyRegistry.PROXY_BASE_CLASSES.get( rawType ) );
 			else
-				throw new IllegalStateException( "No support for non-collection generic types at this time." );
+				throw new IllegalStateException( "No support for non-collection generic types at this time, type: " + type.getTypeName() );
 
 			for ( Type actualTypeArgument : actualTypeArguments )
 			{
 				if ( actualTypeArgument instanceof Class )
 					actualTypeArgumentsConverted.add( getTypeName( actualTypeArgument ) );
 				else
-					throw new IllegalStateException( "No support for general purpose generics at this time (only for collections)." );
+					throw new IllegalStateException( "No support for general purpose generics at this time (only for collections), type: " + type.getTypeName() );
 			}
 			
 			typeName = rawTypeConverted + "< " + String.join( ", ", actualTypeArgumentsConverted ) + " >";

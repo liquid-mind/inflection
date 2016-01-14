@@ -21,6 +21,11 @@ grammar Inflection;
  *   could then refer to either compiled or uncompiled classes. This would allow you to run
  *   inflection *before* normal compilation, thus avoiding the catch 22 of classes that
  *   reference proxies that have not yet been generated and thus cannot be compiled.
+ * - It should be possible to get a proxy to a super class even if the sub class doesn't
+ *   exist in the taxonomy. In other words, the proxy registry should be modified to supply
+ *   a proxy of the most specific type, which is java.lang.Object if nothing else (note that
+ *   we will have to solve the problem of specifying which objects should *not* be viewed;
+ *   this is currently implicitly achieved due to matching the specific type).
  */
 
 // COMPILATION UNIT

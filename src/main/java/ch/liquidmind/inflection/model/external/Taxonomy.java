@@ -4,7 +4,6 @@ import java.util.List;
 
 import ch.liquidmind.inflection.loader.TaxonomyLoader;
 import ch.liquidmind.inflection.model.AccessType;
-import ch.liquidmind.inflection.model.linked.MemberLinked;
 
 public interface Taxonomy extends AnnotatableElement
 {
@@ -21,7 +20,7 @@ public interface Taxonomy extends AnnotatableElement
 	public View resolveView( Class< ? > aClass );
 	public View resolveView( String className );
 	public View getSuperview( View view );
-	public List< MemberLinked > getMembers( View view );
+	public List< Member > getMembers( View view );
 	public Member getMember( View view, String nameOrAlias );
 	public TaxonomyLoader getTaxonomyLoader();
 	public String getPackageName();
