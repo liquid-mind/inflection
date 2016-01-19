@@ -6,7 +6,7 @@
 	</aspects>
 	<!-- -XnoInline for debugging
 		 -verbose for extra messages -->
-	<weaver options="-nowarn -Xset:weaveJavaPackages=true,weaveJavaxPackages=true -Xlint:ignore -XnoInline">
+	<weaver options="-nowarn -Xset:weaveJavaPackages=true,weaveJavaxPackages=true -Xlint:ignore">
 		<include within="org.hibernate..*"/>
 		<include within="eu.expact..*"/>
 		<include within="ch.liquidmind.inflection..*"/>

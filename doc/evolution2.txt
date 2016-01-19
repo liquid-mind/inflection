@@ -1,0 +1,42 @@
+1. Importing
+
+Double-colon (::) operator to separate taxonomy names from class names, e.g.:
+Both fully qualified: mypackage1.MyTaxonomy::mypackage2.MyClass
+Both simple: MyTaxonomy::MyClass (requires: import mypackage1.MyTaxonomy; import MyTaxonomy::mypackage2.MyClass; )
+One fully qualified, one simple: mypackage1.MyTaxonomy::MyClass or MyTaxonomy::mypackage2.MyClass (requires
+import mypackage1.MyTaxonomy::mypackage2.MyClass; or import import mypackage1.MyTaxonomy;, respectively)
+One simple: MyClass (requires import mypackage1.MyTaxonomy::mypackage2.MyClass;)
+
+Import of taxonomy and class:
+
+import mypackage1.MyTaxonomy1;
+import mypackage1.MyTaxonomy2;
+import MyTaxonomy1::mypackage2.MyClass1;				// Import into MyTaxonomy1 namespace.
+import MyTaxonomy2::mypackage2.MyClass1;				// Import into MyTaxonomy2 namespace.
+import MyTaxonomy2::mypackage2.MyClass2;				// Import into MyTaxonomy2 and global namespace.
+import mypackage1.MyTaxonomy3::mypackage2.MyClass4;
+
+class MyClass3
+{
+	void myMethod()
+	{
+		// Note that MyClass1 is ambiguous without the taxonomy qualifier.
+		MyTaxonomy1::MyClass1 myObject1a;
+		MyTaxonomy2::MyClass1 myObject1b;
+		
+		// MyClass2 is unambiguous.
+		MyClass2 myObject2;
+		
+		// MyClass3 is not imported, but MyTaxonomy1 is.
+		MyTaxonomy1::mypackage2.MyClass3 myObject3;
+		
+		// MyClass4 is imported, but MyTaxonomy3 is not.
+		MyClass4 myObject4;
+		
+		// Neither the class nor the taxonomy are imported.
+		mypackage1.MyTaxonomy3::mypackage2.MyClass5 myObject5;
+	}
+}
+
+2. Declarations
+

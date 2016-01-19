@@ -7,9 +7,6 @@ grammar Inflection;
 
 /*
  * Notes:
- * - Includes are evaluated before excludes.
- * - Members referred to by member references must be declared in the class; they cannot be
- *   inherited from a super class.
  * - Rename keyword "use" to "uses" to be more in line with "extends", "implements", etc.
  */
  
@@ -26,6 +23,12 @@ grammar Inflection;
  *   a proxy of the most specific type, which is java.lang.Object if nothing else (note that
  *   we will have to solve the problem of specifying which objects should *not* be viewed;
  *   this is currently implicitly achieved due to matching the specific type).
+ * - Views are currently defined according to include and exclude rules, whereby the rules
+ *   are evaluated in the declared order and exclude rules are applied after include rules.
+ *   Perhaps it makes more sense to abandon the includes before excludes and simply evaluate
+ *   them in their declared order.
+ * - One very useful feature would be a taxonomy diff function that would illustrate the
+ *   differences between two taxonomies; very important for refactoring.
  */
 
 // COMPILATION UNIT
