@@ -40,3 +40,20 @@ class MyClass3
 
 2. Declarations
 
+class MyClass
+{
+	void myMethod() { // method-body-1 }
+}
+
+// Taxonomy is the default super-taxonomy (analogous to java.lang.Object).
+taxonomy MyTaxonomy extends Taxonomy
+{
+	defaults ???;	// Due to the paradigm expanding beyond JavaBeans, I don't think that the
+					// ability to map properties to fields or methods makes sense anymore; so 
+					// this default is obsolete. Are there others?
+}
+
+class MyTaxonomy::MyClass redefines MyClass
+{
+	void myMethod() redefines myMethod { // method-body-2 }
+}

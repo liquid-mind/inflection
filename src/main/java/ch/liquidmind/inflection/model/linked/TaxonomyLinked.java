@@ -78,11 +78,16 @@ public class TaxonomyLinked extends AnnotatableElementLinked implements Taxonomy
 		return ImmutableList.copyOf( getExtendingTaxonomiesLinked() );
 	}
 	
+	private List< View > cachedViews;
+	
 	@SuppressWarnings( "unchecked" )
 	@Override
 	public List< View > getViews()
 	{
-		return (List< View >)(Object)getViews( this, new ArrayList< TaxonomyLinked >() );
+		if ( cachedViews == null )
+			cachedViews = (List< View >)(Object)getViews( this, new ArrayList< TaxonomyLinked >() );
+		
+		return cachedViews;
 	}
 	
 	@SuppressWarnings( "unchecked" )
@@ -240,6 +245,8 @@ public class TaxonomyLinked extends AnnotatableElementLinked implements Taxonomy
 	{
 		return resolveView( __ClassLoader.loadClass( taxonomyLoader.getClassLoader(), viewedClassName ) );
 	}
+	
+//	private static Map< Class< ? >, View > resolvedViews = new HashMap< Class< ? >, View >();
 
 	@Override
 	public View resolveView( Class< ? > viewedClass )
