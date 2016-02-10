@@ -1,10 +1,8 @@
 package ch.liquidmind.inflection.bidir;
 
 import java.lang.reflect.Field;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 public class CollectionRegistry
@@ -55,7 +53,7 @@ public class CollectionRegistry
 	}
 	
 	private static CollectionRegistry collectionRegistry;
-	private Map< Integer, List< RegisteredCollection > > registeredCollections = new HashMap< Integer, List< RegisteredCollection > >();
+	private Map< Integer, RegisteredCollection > registeredCollections = new HashMap< Integer, RegisteredCollection >();
 	
 	// In general, most collections will be managed by single threads for the entirety of
 	// their life cycle, however there may be cases in which, e.g., a collection is set
@@ -75,57 +73,16 @@ public class CollectionRegistry
 	
 	public synchronized void register( RegisteredCollection registeredCollection )
 	{
-		int hashcode = System.identityHashCode( registeredCollection.getCollection() );
-		List< RegisteredCollection > registeredCollectionsByHashcode = registeredCollections.get( hashcode );
-		
-		if ( registeredCollectionsByHashcode == null )
-		{
-			registeredCollectionsByHashcode = new ArrayList< RegisteredCollection >();
-			registeredCollections.put( hashcode, registeredCollectionsByHashcode );
-		}
-		
-		registeredCollectionsByHashcode.add( registeredCollection );
+		registeredCollections.put( System.identityHashCode( registeredCollection.getCollection() ), registeredCollection );
 	}
 	
 	public synchronized void unregister( Collection< ? > collection )
 	{
-		List< RegisteredCollection > registeredCollectionsByHashcode = registeredCollections.get( System.identityHashCode( collection ) );
-		
-		if ( registeredCollectionsByHashcode != null )
-		{
-			for ( int i = 0 ; i < registeredCollectionsByHashcode.size() ; ++i )
-			{
-				if ( registeredCollectionsByHashcode.get( i ).getCollection() == collection )
-				{
-					registeredCollectionsByHashcode.remove( i );
-					
-					if ( registeredCollectionsByHashcode.isEmpty() )
-						registeredCollections.remove( System.identityHashCode( collection ) );
-					
-					break;
-				}
-			}
-		}
+		registeredCollections.remove( System.identityHashCode( collection ) );
 	}
 	
 	public synchronized RegisteredCollection lookup( Collection< ? > collection )
 	{
-		RegisteredCollection foundRegisteredCollection = null;
-		
-		List< RegisteredCollection > registeredCollectionsByHashcode = registeredCollections.get( System.identityHashCode( collection ) );
-		
-		if ( registeredCollectionsByHashcode != null )
-		{
-			for ( RegisteredCollection registeredCollectionByHashcode : registeredCollectionsByHashcode )
-			{
-				if ( registeredCollectionByHashcode.getCollection() == collection )
-				{
-					foundRegisteredCollection = registeredCollectionByHashcode;
-					break;
-				}
-			}
-		}
-
-		return foundRegisteredCollection;
+		return registeredCollections.get( System.identityHashCode( collection ) );
 	}
 }

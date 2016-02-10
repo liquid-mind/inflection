@@ -314,16 +314,11 @@ public class TaxonomyLinked extends AnnotatableElementLinked implements Taxonomy
 	{
 		return getSimpleName( getName() );
 	}
-	
-	private View superviewCached;
 
 	@Override
 	public View getSuperview( View view )
 	{
-		if ( superviewCached == null )
-			superviewCached = resolveView( view.getViewedClass().getSuperclass() );
-		
-		return superviewCached;
+		return resolveView( view.getViewedClass().getSuperclass() );
 	}
 	
 	private Map< View, List< Member > > membersByViewCached = new HashMap< View, List< Member > >();

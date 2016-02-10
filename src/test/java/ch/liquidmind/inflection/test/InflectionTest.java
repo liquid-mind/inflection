@@ -25,18 +25,20 @@ import ch.liquidmind.inflection.util.InflectionPrinter;
 
 public class InflectionTest
 {
-	private static PrintStream printStream = new PrintStream( new OutputStream() {
-		@Override
-		public void write( int b )
-		{}
-	} );
+	private static PrintStream printStream = System.out;
+	
+//	private static PrintStream printStream = new PrintStream( new OutputStream() {
+//		@Override
+//		public void write( int b )
+//		{}
+//	} );
 	
 	@Test
 	public void testPrinterMulti() throws Throwable
 	{
 		long before = System.currentTimeMillis();
 		
-		for ( int i = 0 ; i < 100 ; ++i )
+		for ( int i = 0 ; i < 1 ; ++i )
 			testPrinter();
 
 		long after = System.currentTimeMillis();
@@ -63,7 +65,7 @@ public class InflectionTest
 	{
 		long before = System.currentTimeMillis();
 		
-		for ( int i = 0 ; i < 100 ; ++i )
+		for ( int i = 0 ; i < 1 ; ++i )
 			testProxies();
 
 		long after = System.currentTimeMillis();
