@@ -27,8 +27,15 @@ public class InflectionTest
 	@Test
 	public void testPrinterMulti() throws Throwable
 	{
+		long before = System.currentTimeMillis();
+		
 		for ( int i = 0 ; i < 100 ; ++i )
 			testPrinter();
+
+		long after = System.currentTimeMillis();
+		long delta = after - before;
+		
+		System.out.println( "testPrinterMulti(): " + delta + "ms" );
 	}
 
 	public void testPrinter()
@@ -47,8 +54,15 @@ public class InflectionTest
 	@Test
 	public void testProxiesMulti() throws Throwable
 	{
+		long before = System.currentTimeMillis();
+		
 		for ( int i = 0 ; i < 100 ; ++i )
 			testProxies();
+
+		long after = System.currentTimeMillis();
+		long delta = after - before;
+		
+		System.out.println( "testProxiesMulti(): " + delta + "ms" );
 	}
 
 	public void testProxies() throws Throwable
