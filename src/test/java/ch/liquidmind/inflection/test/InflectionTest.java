@@ -1,5 +1,7 @@
 package ch.liquidmind.inflection.test;
 
+import java.io.OutputStream;
+import java.io.PrintStream;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 
@@ -23,6 +25,11 @@ import ch.liquidmind.inflection.util.InflectionPrinter;
 
 public class InflectionTest
 {
+	private static PrintStream printStream = new PrintStream( new OutputStream() {
+		@Override
+		public void write( int b )
+		{}
+	} );
 	
 	@Test
 	public void testPrinterMulti() throws Throwable
@@ -45,9 +52,9 @@ public class InflectionTest
 		for ( String taxonomyName : taxonomyNames )
 		{
 			Taxonomy taxonomy = TaxonomyLoader.getContextTaxonomyLoader().loadTaxonomy( "ch.liquidmind.inflection.test.model." + taxonomyName );
-			InflectionPrinter printer = new InflectionPrinter( System.out, true, true );
+			InflectionPrinter printer = new InflectionPrinter( printStream, true, true );
 			printer.printTaxonomy( taxonomy );
-			System.out.println();
+			printStream.println();
 		}
 	}
 	
@@ -86,20 +93,20 @@ public class InflectionTest
 		
 		reader.readValue( writer.writeValueAsString( fullTaxonomyPerson ) );
 		
-		System.out.println( "FullTaxonomy_Person:" );
-		System.out.println( writer.writeValueAsString( fullTaxonomyPerson ) );
-		System.out.println();
-		System.out.println( "UseCase1_Person:" );
-		System.out.println( writer.writeValueAsString( useCase1Person ) );
-		System.out.println();
-		System.out.println( "UseCase2_Person:" );
-		System.out.println( writer.writeValueAsString( useCase2Person ) );
-		System.out.println();
-		System.out.println( "UseCase3_Person:" );
-		System.out.println( writer.writeValueAsString( useCase3Person ) );
-		System.out.println();
-		System.out.println( "UseCase4_Address:" );
-		System.out.println( writer.writeValueAsString( useCase4Address ) );
-		System.out.println();
+		printStream.println( "FullTaxonomy_Person:" );
+		printStream.println( writer.writeValueAsString( fullTaxonomyPerson ) );
+		printStream.println();
+		printStream.println( "UseCase1_Person:" );
+		printStream.println( writer.writeValueAsString( useCase1Person ) );
+		printStream.println();
+		printStream.println( "UseCase2_Person:" );
+		printStream.println( writer.writeValueAsString( useCase2Person ) );
+		printStream.println();
+		printStream.println( "UseCase3_Person:" );
+		printStream.println( writer.writeValueAsString( useCase3Person ) );
+		printStream.println();
+		printStream.println( "UseCase4_Address:" );
+		printStream.println( writer.writeValueAsString( useCase4Address ) );
+		printStream.println();
 	}
 }
