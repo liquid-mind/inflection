@@ -1,7 +1,9 @@
 package ch.liquidmind.inflection.model.linked;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import com.google.common.collect.ImmutableList;
 
@@ -16,7 +18,10 @@ public class ViewLinked extends AliasableElementLinked implements View
 	private List< Class< ? > > usedClasses = new ArrayList< Class< ? > >();
 	private TaxonomyLinked parentTaxonomyLinked;
 	private List< MemberLinked > membersLinked = new ArrayList< MemberLinked >();
-
+	private List< Member > declaredMembersCached;
+	private View superviewCached;
+	private Map< String, Member > declaredMembersByNameOrAliasCached;
+	
 	public ViewLinked( String name )
 	{
 		super( name );
@@ -61,9 +66,17 @@ public class ViewLinked extends AliasableElementLinked implements View
 		return parentTaxonomyLinked;
 	}
 	
-	@SuppressWarnings( { "unchecked" } )
 	@Override
 	public List< Member > getDeclaredMembers()
+	{
+		if ( declaredMembersCached == null )
+			declaredMembersCached = calculateDeclaredMembers();
+		
+		return declaredMembersCached;
+	}
+
+	@SuppressWarnings( { "unchecked" } )
+	private List< Member > calculateDeclaredMembers()
 	{
 		List< MemberLinked > declaredMembers = new ArrayList< MemberLinked >();
 		
@@ -79,7 +92,7 @@ public class ViewLinked extends AliasableElementLinked implements View
 		
 		return (List< Member >)(Object)declaredMembers;
 	}
-
+	
 	static boolean containsMemberLinked( List< MemberLinked > membersLinked, String name, SelectionType selectionType )
 	{
 		return indexOfMemberLinked( membersLinked, name, selectionType ) == -1 ? false : true;
@@ -100,6 +113,14 @@ public class ViewLinked extends AliasableElementLinked implements View
 	@Override
 	public View getSuperview()
 	{
+		if ( superviewCached == null )
+			superviewCached = calculateSuperview();
+		
+		return superviewCached;
+	}
+	
+	public View calculateSuperview()
+	{
 		Class< ? > superclass = getViewedClass().getSuperclass();
 		View superview = getParentTaxonomyLinked().resolveView( superclass );
 		
@@ -117,21 +138,28 @@ public class ViewLinked extends AliasableElementLinked implements View
 	{
 		return getSimpleName( getName() );
 	}
-
+	
 	@Override
 	public Member getDeclaredMember( String nameOrAlias )
 	{
-		Member foundMember = null;
+		if ( declaredMembersByNameOrAliasCached == null )
+			declaredMembersByNameOrAliasCached = calculateDeclaredMembersByNameOrAlias();
+		
+		return declaredMembersByNameOrAliasCached.get( nameOrAlias );
+	}
+	
+	private Map< String, Member > calculateDeclaredMembersByNameOrAlias()
+	{
+		Map< String, Member > declaredMembersByNameOrAlias = new HashMap< String, Member >();
 		
 		for ( Member declaredMember : getDeclaredMembers() )
 		{
-			if ( declaredMember.getName().equals( nameOrAlias ) || ( declaredMember.getAlias() != null && declaredMember.getAlias().equals( nameOrAlias ) ) )
-			{
-				foundMember = declaredMember;
-				break;
-			}
+			declaredMembersByNameOrAlias.put( declaredMember.getName(), declaredMember );
+			
+			if ( declaredMember.getAlias() != null )
+				declaredMembersByNameOrAlias.put( declaredMember.getAlias(), declaredMember );
 		}
 		
-		return foundMember;
+		return declaredMembersByNameOrAlias;
 	}
 }

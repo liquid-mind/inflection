@@ -6,7 +6,6 @@ import java.util.GregorianCalendar;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.map.ObjectReader;
 import org.codehaus.jackson.map.ObjectWriter;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import ch.liquidmind.inflection.loader.TaxonomyLoader;
@@ -24,7 +23,14 @@ import ch.liquidmind.inflection.util.InflectionPrinter;
 
 public class InflectionTest
 {
+	
 	@Test
+	public void testPrinterMulti() throws Throwable
+	{
+		for ( int i = 0 ; i < 100 ; ++i )
+			testPrinter();
+	}
+
 	public void testPrinter()
 	{
 		String[] taxonomyNames = new String[] { "FullTaxonomy", "UseCase1", "UseCase2", "UseCase3", "UseCase4" };
@@ -37,9 +43,14 @@ public class InflectionTest
 			System.out.println();
 		}
 	}
-
-	@Ignore
+	
 	@Test
+	public void testProxiesMulti() throws Throwable
+	{
+		for ( int i = 0 ; i < 100 ; ++i )
+			testProxies();
+	}
+
 	public void testProxies() throws Throwable
 	{
 		Calendar cal = new GregorianCalendar();

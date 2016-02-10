@@ -1,7 +1,9 @@
 package ch.liquidmind.inflection.model.linked;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import com.google.common.collect.ImmutableList;
 
@@ -78,20 +80,20 @@ public class TaxonomyLinked extends AnnotatableElementLinked implements Taxonomy
 		return ImmutableList.copyOf( getExtendingTaxonomiesLinked() );
 	}
 	
-	private List< View > cachedViews;
+	private List< View > viewsCached;
 	
 	@SuppressWarnings( "unchecked" )
 	@Override
 	public List< View > getViews()
 	{
-		if ( cachedViews == null )
-			cachedViews = (List< View >)(Object)getViews( this, new ArrayList< TaxonomyLinked >() );
+		if ( viewsCached == null )
+			viewsCached = (List< View >)(Object)calculateViews( this, new ArrayList< TaxonomyLinked >() );
 		
-		return cachedViews;
+		return viewsCached;
 	}
 	
 	@SuppressWarnings( "unchecked" )
-	private static List< ViewLinked > getViews( TaxonomyLinked taxonomyLinked, List< TaxonomyLinked > taxonomyLinkedSiblings )
+	private static List< ViewLinked > calculateViews( TaxonomyLinked taxonomyLinked, List< TaxonomyLinked > taxonomyLinkedSiblings )
 	{
 		List< ViewLinked > views = new ArrayList< ViewLinked >();
 		
@@ -107,8 +109,8 @@ public class TaxonomyLinked extends AnnotatableElementLinked implements Taxonomy
 	
 	private static List< ViewLinked > getCombinedViews( List< TaxonomyLinked > extendedTaxonomiesLinked, List< TaxonomyLinked > taxonomyLinkedSiblings )
 	{
-		List< ViewLinked > extendedViewsLinked = getViews( getFirstTaxonomyLinked( extendedTaxonomiesLinked ), getFollowingTaxonomiesLinked( extendedTaxonomiesLinked ) );
-		List< ViewLinked > siblingsViewsLinked = getViews( getFirstTaxonomyLinked( taxonomyLinkedSiblings ), getFollowingTaxonomiesLinked( taxonomyLinkedSiblings ) );
+		List< ViewLinked > extendedViewsLinked = calculateViews( getFirstTaxonomyLinked( extendedTaxonomiesLinked ), getFollowingTaxonomiesLinked( extendedTaxonomiesLinked ) );
+		List< ViewLinked > siblingsViewsLinked = calculateViews( getFirstTaxonomyLinked( taxonomyLinkedSiblings ), getFollowingTaxonomiesLinked( taxonomyLinkedSiblings ) );
 		List< ViewLinked > combinedViews = new ArrayList< ViewLinked >();
 		
 		combinedViews.addAll( siblingsViewsLinked );
@@ -148,9 +150,19 @@ public class TaxonomyLinked extends AnnotatableElementLinked implements Taxonomy
 		return followingTaxonomiesLinked;
 	}
 	
-	@SuppressWarnings( "unchecked" )
+	private List< View > declaredViewsCached;
+	
 	@Override
 	public List< View > getDeclaredViews()
+	{
+		if ( declaredViewsCached == null )
+			declaredViewsCached = calculateDeclaredViews();
+		
+		return declaredViewsCached;
+	}
+	
+	@SuppressWarnings( "unchecked" )
+	private List< View > calculateDeclaredViews()
 	{
 		return (List< View >)(Object)resolveViews( viewsLinked, new ArrayList< ViewLinked >() );
 	}
@@ -199,41 +211,59 @@ public class TaxonomyLinked extends AnnotatableElementLinked implements Taxonomy
 	{
 		return ImmutableList.copyOf( (List< View >)(Object)viewsLinked );
 	}
+	
+	private Map< String, View > viewsByNameOrAliasCached;
 
 	@Override
-	public View getView( String name )
+	public View getView( String nameOrAlias )
 	{
-		View foundView = null;
+		if ( viewsByNameOrAliasCached == null )
+			viewsByNameOrAliasCached = calculateViewsByNameOrAlias();
+		
+		return viewsByNameOrAliasCached.get( nameOrAlias );
+	}
+
+	public Map< String, View > calculateViewsByNameOrAlias()
+	{
+		Map< String, View > viewsByNameOrAlias = new HashMap< String, View >();
 		
 		for ( View view : getViews() )
 		{
-			if ( view.getName().equals( name ) || ( view.getAlias() != null && view.getAlias().equals( name ) ) )
-			{
-				foundView = view;
-				break;
-			}
+			viewsByNameOrAlias.put( view.getName(), view );
+			
+			if ( view.getAlias() != null )
+				viewsByNameOrAlias.put( view.getAlias(), view );
 		}
 		
-		return foundView;
+		return viewsByNameOrAlias;
 	}
 
+	private Map< String, View > declaredViewsByNameOrAliasCached;
+	
 	@Override
-	public View getDeclaredView( String name )
+	public View getDeclaredView( String nameOrAlias )
 	{
-		View foundView = null;
+		if ( declaredViewsByNameOrAliasCached == null )
+			declaredViewsByNameOrAliasCached = calculateDeclaredViewsByNameOrAlias();
+		
+		return declaredViewsByNameOrAliasCached.get( nameOrAlias );
+	}
+
+	public Map< String, View > calculateDeclaredViewsByNameOrAlias()
+	{
+		Map< String, View > declaredViewsByNameOrAlias = new HashMap< String, View >();
 		
 		for ( View declaredView : getDeclaredViews() )
 		{
-			if ( declaredView.getName().equals( name ) || ( declaredView.getAlias() != null && declaredView.getAlias().equals( name ) ) )
-			{
-				foundView = declaredView;
-				break;
-			}
+			declaredViewsByNameOrAlias.put( declaredView.getName(), declaredView );
+			
+			if ( declaredView.getAlias() != null )
+				declaredViewsByNameOrAlias.put( declaredView.getAlias(), declaredView );
 		}
 		
-		return foundView;
+		return declaredViewsByNameOrAlias;
 	}
-
+	
 	@Override
 	public View getUnresolvedView( String name )
 	{
@@ -246,23 +276,25 @@ public class TaxonomyLinked extends AnnotatableElementLinked implements Taxonomy
 		return resolveView( __ClassLoader.loadClass( taxonomyLoader.getClassLoader(), viewedClassName ) );
 	}
 	
-//	private static Map< Class< ? >, View > resolvedViews = new HashMap< Class< ? >, View >();
+	private static Map< Class< ? >, View > resolvedViewsCached;
 
 	@Override
 	public View resolveView( Class< ? > viewedClass )
 	{
-		View resolvedView = null;
+		if ( resolvedViewsCached == null )
+			resolvedViewsCached = calculateResolvedViews();
+		
+		return resolvedViewsCached.get( viewedClass );
+	}
+	
+	private Map< Class< ? >, View > calculateResolvedViews()
+	{
+		Map< Class< ? >, View > resolvedViews = new HashMap< Class< ? >, View >();
 		
 		for ( View view : getViews() )
-		{
-			if ( view.getViewedClass().equals( viewedClass ) )
-			{
-				resolvedView = view;
-				break;
-			}
-		}
+			resolvedViews.put( view.getViewedClass(), view );
 		
-		return resolvedView;
+		return resolvedViews;
 	}
 
 	@Override
@@ -282,19 +314,36 @@ public class TaxonomyLinked extends AnnotatableElementLinked implements Taxonomy
 	{
 		return getSimpleName( getName() );
 	}
+	
+	private View superviewCached;
 
 	@Override
 	public View getSuperview( View view )
 	{
-		Class< ? > superclass = view.getViewedClass().getSuperclass();
-		View superview = resolveView( superclass );
+		if ( superviewCached == null )
+			superviewCached = resolveView( view.getViewedClass().getSuperclass() );
 		
-		return superview;
+		return superviewCached;
 	}
 	
+	private Map< View, List< Member > > membersByViewCached = new HashMap< View, List< Member > >();
+	
 	@Override
-	@SuppressWarnings( "unchecked" )
 	public List< Member > getMembers( View view )
+	{
+		List< Member > members = membersByViewCached.get( view );
+		
+		if ( members == null )
+		{
+			members = calculateMembers( view );
+			membersByViewCached.put( view, members );
+		}
+		
+		return members;
+	}
+	
+	@SuppressWarnings( "unchecked" )
+	private List< Member > calculateMembers( View view )
 	{
 		List< Member > members = new ArrayList< Member >();
 		
@@ -316,20 +365,34 @@ public class TaxonomyLinked extends AnnotatableElementLinked implements Taxonomy
 		return members;
 	}
 	
+	private Map< View, Map< String, Member > > membersByViewAndNameOrAliasCached = new HashMap< View, Map< String, Member > >();
+	
 	@Override
 	public Member getMember( View view, String nameOrAlias )
 	{
-		Member foundMember = null;
+		Map< String, Member > membersByView = membersByViewAndNameOrAliasCached.get( view );
+		
+		if ( membersByView == null )
+		{
+			membersByView = calculateMembersByView( view );
+			membersByViewAndNameOrAliasCached.put( view, membersByView );
+		}
+		
+		return membersByView.get( nameOrAlias );
+	}
+	
+	private Map< String, Member > calculateMembersByView( View view )
+	{
+		Map< String, Member > membersByView = new HashMap< String, Member >();
 		
 		for ( Member member : getMembers( view ) )
 		{
-			if ( member.getName().equals( nameOrAlias ) || ( member.getAlias() != null && member.getAlias().equals( nameOrAlias ) ) )
-			{
-				foundMember = member;
-				break;
-			}
+			membersByView.put( member.getName(), member );
+			
+			if ( member.getAlias() != null )
+				membersByView.put( member.getAlias(), member );
 		}
 		
-		return foundMember;
+		return membersByView;
 	}
 }
