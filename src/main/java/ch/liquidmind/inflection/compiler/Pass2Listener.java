@@ -431,7 +431,22 @@ public class Pass2Listener extends AbstractInflectionListener
 		return matchingClasses;
 	}
 	
+	private Map< String, Set< String > > matchingClassesCached = new HashMap< String, Set< String > >();
+	
 	private Set< String > getMatchingClasses( String packageRegEx )
+	{
+		Set< String > matchingClasses = matchingClassesCached.get( packageRegEx );
+		
+		if ( matchingClasses == null )
+		{
+			matchingClasses = calculateMatchingClasses( packageRegEx );
+			matchingClassesCached.put( packageRegEx, matchingClasses );
+		}
+		
+		return matchingClasses;
+	}
+	
+	private Set< String > calculateMatchingClasses( String packageRegEx )
 	{
 		Set< String > matchingClasses = new HashSet< String >();
 		
