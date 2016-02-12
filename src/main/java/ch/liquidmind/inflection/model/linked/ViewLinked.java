@@ -18,6 +18,8 @@ public class ViewLinked extends AliasableElementLinked implements View
 	private List< Class< ? > > usedClasses = new ArrayList< Class< ? > >();
 	private TaxonomyLinked parentTaxonomyLinked;
 	private List< MemberLinked > membersLinked = new ArrayList< MemberLinked >();
+	
+	// Caching state
 	private List< Member > declaredMembersCached;
 	private View superviewCached;
 	private Map< String, Member > declaredMembersByNameOrAliasCached;

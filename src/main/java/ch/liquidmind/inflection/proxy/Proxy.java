@@ -97,7 +97,7 @@ public class Proxy
 		
 		if ( view.getSuperview() != null )
 		{
-			List< Class< ? > > superViewUsedClasses = getUsedClassesRecursive( view.getSuperview() );
+			List< Class< ? > > superViewUsedClasses = getUsedClassesRecursive( taxonomy.getSuperview( view ) );
 			
 			for ( Class< ? > superViewUsedClass : superViewUsedClasses )
 				if ( !usedClassesRecursive.contains( superViewUsedClass ) )

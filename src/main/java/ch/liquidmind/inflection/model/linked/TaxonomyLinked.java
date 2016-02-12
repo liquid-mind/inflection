@@ -23,6 +23,15 @@ public class TaxonomyLinked extends AnnotatableElementLinked implements Taxonomy
 	private List< TaxonomyLinked > extendingTaxonomiesLinked = new ArrayList< TaxonomyLinked >();
 	private List< ViewLinked > viewsLinked = new ArrayList< ViewLinked >();
 
+	// Caching state
+	private Map< Class< ? >, View > resolvedViewsCached;
+	private List< View > viewsCached;
+	private List< View > declaredViewsCached;
+	private Map< String, View > viewsByNameOrAliasCached;
+	private Map< String, View > declaredViewsByNameOrAliasCached;
+	private Map< View, List< Member > > membersByViewCached = new HashMap< View, List< Member > >();
+	private Map< View, Map< String, Member > > membersByViewAndNameOrAliasCached = new HashMap< View, Map< String, Member > >();
+	
 	public TaxonomyLinked( String name, TaxonomyLoader taxonomyLoader )
 	{
 		super( name );
@@ -79,8 +88,6 @@ public class TaxonomyLinked extends AnnotatableElementLinked implements Taxonomy
 	{
 		return ImmutableList.copyOf( getExtendingTaxonomiesLinked() );
 	}
-	
-	private List< View > viewsCached;
 	
 	@SuppressWarnings( "unchecked" )
 	@Override
@@ -150,8 +157,6 @@ public class TaxonomyLinked extends AnnotatableElementLinked implements Taxonomy
 		return followingTaxonomiesLinked;
 	}
 	
-	private List< View > declaredViewsCached;
-	
 	@Override
 	public List< View > getDeclaredViews()
 	{
@@ -212,8 +217,6 @@ public class TaxonomyLinked extends AnnotatableElementLinked implements Taxonomy
 		return ImmutableList.copyOf( (List< View >)(Object)viewsLinked );
 	}
 	
-	private Map< String, View > viewsByNameOrAliasCached;
-
 	@Override
 	public View getView( String nameOrAlias )
 	{
@@ -238,8 +241,6 @@ public class TaxonomyLinked extends AnnotatableElementLinked implements Taxonomy
 		return viewsByNameOrAlias;
 	}
 
-	private Map< String, View > declaredViewsByNameOrAliasCached;
-	
 	@Override
 	public View getDeclaredView( String nameOrAlias )
 	{
@@ -276,8 +277,6 @@ public class TaxonomyLinked extends AnnotatableElementLinked implements Taxonomy
 		return resolveView( __ClassLoader.loadClass( taxonomyLoader.getClassLoader(), viewedClassName ) );
 	}
 	
-	private static Map< Class< ? >, View > resolvedViewsCached;
-
 	@Override
 	public View resolveView( Class< ? > viewedClass )
 	{
@@ -321,8 +320,6 @@ public class TaxonomyLinked extends AnnotatableElementLinked implements Taxonomy
 		return resolveView( view.getViewedClass().getSuperclass() );
 	}
 	
-	private Map< View, List< Member > > membersByViewCached = new HashMap< View, List< Member > >();
-	
 	@Override
 	public List< Member > getMembers( View view )
 	{
@@ -359,8 +356,6 @@ public class TaxonomyLinked extends AnnotatableElementLinked implements Taxonomy
 		
 		return members;
 	}
-	
-	private Map< View, Map< String, Member > > membersByViewAndNameOrAliasCached = new HashMap< View, Map< String, Member > >();
 	
 	@Override
 	public Member getMember( View view, String nameOrAlias )
