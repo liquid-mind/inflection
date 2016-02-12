@@ -276,7 +276,7 @@ public class TaxonomyLinked extends AnnotatableElementLinked implements Taxonomy
 	{
 		return resolveView( __ClassLoader.loadClass( taxonomyLoader.getClassLoader(), viewedClassName ) );
 	}
-	
+
 	@Override
 	public View resolveView( Class< ? > viewedClass )
 	{
@@ -341,7 +341,7 @@ public class TaxonomyLinked extends AnnotatableElementLinked implements Taxonomy
 		
 		if ( view != null )
 		{
-			List< Member > superViewMembers = getMembers( (ViewLinked)getSuperview( view ) );
+			List< Member > superViewMembers = calculateMembers( (ViewLinked)getSuperview( view ) );
 			List< Member > declaredMembers = view.getDeclaredMembers();
 			members.addAll( superViewMembers );
 			
