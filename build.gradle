@@ -57,9 +57,9 @@ compileTestJava.options.debugOptions.debugLevel = debugLevelArg;
 
 dependencies {
 	compile( "commons-io:commons-io:2.4" ) { transitive = false }
-	compile( "__commons-io:commons-io:2.4" ) { transitive = false }
+	compile( "__commons-io:commons-io-deflected:2.4" ) { transitive = false }
 	compile( "org.antlr:antlr4:4.5" ) { transitive = false }
-	compile( "__org.antlr:antlr4:4.5" ) { transitive = false }
+	compile( "__org.antlr:antlr4-deflected:4.5" ) { transitive = false }
 	compile( "com.google.guava:guava:19.0-rc2" ) { transitive = false }
 	compile( "org.codehaus.jackson:jackson-mapper-asl:1.9.13" ) { transitive = false }
 	compile( "org.codehaus.jackson:jackson-core-asl:1.9.13" ) { transitive = false }
@@ -70,9 +70,9 @@ dependencies {
 	testCompile( "junit:junit:4.12" ) { transitive = false }
 
 	runtime "commons-io:commons-io:2.4"
-	runtime "__commons-io:commons-io:2.4"
+	runtime "__commons-io:commons-io-deflected:2.4"
 	runtime "org.antlr:antlr4:4.5"
-	runtime "__org.antlr:antlr4:4.5"
+	runtime "__org.antlr:antlr4-deflected:4.5"
 	runtime "com.google.guava:guava:19.0-rc2"
 	runtime "org.codehaus.jackson:jackson-mapper-asl:1.9.13"
 	runtime '__java:rt:1.8'
