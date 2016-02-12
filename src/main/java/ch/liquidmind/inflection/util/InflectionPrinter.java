@@ -96,8 +96,8 @@ public class InflectionPrinter
 			if ( !usedClassNames.isEmpty() )
 				printWriter.print( " use " + String.join( ", ", usedClassNames ) );
 			
-			if ( view.getSuperview() != null)
-				printWriter.println( " extends " + getTypeName( view.getSuperview().getName() ) );
+			if ( taxonomy.getSuperview( view ) != null)
+				printWriter.println( " extends " + getTypeName( taxonomy.getSuperview( view ).getName() ) );
 			else
 				printWriter.println();
 			

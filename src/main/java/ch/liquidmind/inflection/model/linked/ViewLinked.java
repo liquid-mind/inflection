@@ -21,7 +21,6 @@ public class ViewLinked extends AliasableElementLinked implements View
 	
 	// Caching state
 	private List< Member > declaredMembersCached;
-	private View superviewCached;
 	private Map< String, Member > declaredMembersByNameOrAliasCached;
 	
 	public ViewLinked( String name )
@@ -110,23 +109,6 @@ public class ViewLinked extends AliasableElementLinked implements View
 	public List< Member > getUnresolvedMembers()
 	{
 		return ImmutableList.copyOf( membersLinked );
-	}
-
-	@Override
-	public View getSuperview()
-	{
-		if ( superviewCached == null )
-			superviewCached = calculateSuperview();
-		
-		return superviewCached;
-	}
-	
-	public View calculateSuperview()
-	{
-		Class< ? > superclass = getViewedClass().getSuperclass();
-		View superview = getParentTaxonomyLinked().resolveView( superclass );
-		
-		return superview;
 	}
 
 	@Override

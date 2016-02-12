@@ -10,7 +10,6 @@ public interface View extends AliasableElement
 	public Taxonomy getParentTaxonomy();
 	public List< Member > getDeclaredMembers();
 	public List< Member > getUnresolvedMembers();
-	public View getSuperview();
 	public String getPackageName();
 	public String getSimpleName();
 	public Member getDeclaredMember( String nameOrAlias );
