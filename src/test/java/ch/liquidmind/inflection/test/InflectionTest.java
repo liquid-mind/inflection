@@ -1,6 +1,5 @@
 package ch.liquidmind.inflection.test;
 
-import java.io.OutputStream;
 import java.io.PrintStream;
 import java.util.Calendar;
 import java.util.GregorianCalendar;

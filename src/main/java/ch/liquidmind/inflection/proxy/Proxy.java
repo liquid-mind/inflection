@@ -3,6 +3,7 @@ package ch.liquidmind.inflection.proxy;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.List;
 
 import __java.lang.__Class;
 import ch.liquidmind.inflection.loader.TaxonomyLoader;
@@ -65,7 +66,7 @@ public class Proxy
 	{
 		Method foundMethod = null;
 		
-		for ( Class< ? > usedClass : view.getUsedClasses() )
+		for ( Class< ? > usedClass : getUsedClassesRecursive( view ) )
 		{
 			for ( Method usedMethod : usedClass.getMethods() )
 			{
@@ -88,6 +89,22 @@ public class Proxy
 			foundMethod = getUsedMethod( taxonomy.getSuperview( view ), methodName );
 		
 		return foundMethod;
+	}
+	
+	private List< Class< ? > > getUsedClassesRecursive( View view )
+	{
+		List< Class< ? > > usedClassesRecursive = view.getUsedClasses();
+		
+		if ( view.getSuperview() != null )
+		{
+			List< Class< ? > > superViewUsedClasses = getUsedClassesRecursive( view.getSuperview() );
+			
+			for ( Class< ? > superViewUsedClass : superViewUsedClasses )
+				if ( !usedClassesRecursive.contains( superViewUsedClass ) )
+					usedClassesRecursive.add( superViewUsedClass );
+		}
+		
+		return usedClassesRecursive;
 	}
 	
 	// TODO: refactor this and the above method and/or the entire class to fit
