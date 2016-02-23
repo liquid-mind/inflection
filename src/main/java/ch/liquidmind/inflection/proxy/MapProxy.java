@@ -14,84 +14,72 @@ public class MapProxy< K extends Object, V extends Object > extends Proxy implem
 	@Override
 	public int size()
 	{
-		// TODO Auto-generated method stub
-		return 0;
+		return invokeOnCollection( "size", new Class< ? >[] {}, new Object[] {} );
 	}
 
 	@Override
 	public boolean isEmpty()
 	{
-		// TODO Auto-generated method stub
-		return false;
+		return invokeOnCollection( "isEmpty", new Class< ? >[] {}, new Object[] {} );
 	}
 
 	@Override
 	public boolean containsKey( Object key )
 	{
-		// TODO Auto-generated method stub
-		return false;
+		return invokeOnCollection( "containsKey", new Class< ? >[] { Object.class }, new Object[] { key } );
 	}
 
 	@Override
 	public boolean containsValue( Object value )
 	{
-		// TODO Auto-generated method stub
-		return false;
+		return invokeOnCollection( "containsValue", new Class< ? >[] { Object.class }, new Object[] { value } );
 	}
 
 	@Override
 	public V get( Object key )
 	{
-		// TODO Auto-generated method stub
-		return null;
+		return invokeOnCollection( "get", new Class< ? >[] { Object.class }, new Object[] { key } );
 	}
 
 	@Override
 	public V put( K key, V value )
 	{
-		// TODO Auto-generated method stub
-		return null;
+		return invokeOnCollection( "put", new Class< ? >[] { Object.class, Object.class }, new Object[] { key, value } );
 	}
 
 	@Override
 	public V remove( Object key )
 	{
-		// TODO Auto-generated method stub
-		return null;
+		return invokeOnCollection( "remove", new Class< ? >[] { Object.class }, new Object[] { key } );
 	}
 
 	@Override
 	public void putAll( Map< ? extends K, ? extends V > m )
 	{
-		// TODO Auto-generated method stub
-		
+		invokeOnCollection( "putAll", new Class< ? >[] { Object.class }, new Object[] { m } );
 	}
 
 	@Override
 	public void clear()
 	{
-		// TODO Auto-generated method stub
-		
+		invokeOnCollection( "clear", new Class< ? >[] {}, new Object[] {} );
 	}
 
 	@Override
 	public Set< K > keySet()
 	{
-		// TODO Auto-generated method stub
-		return null;
+		return invokeOnCollection( "keySet", new Class< ? >[] {}, new Object[] {} );
 	}
 
 	@Override
 	public Collection< V > values()
 	{
-		// TODO Auto-generated method stub
-		return null;
+		return invokeOnCollection( "values", new Class< ? >[] {}, new Object[] {} );
 	}
 
 	@Override
 	public Set< java.util.Map.Entry< K, V > > entrySet()
 	{
-		// TODO Auto-generated method stub
-		return null;
+		return invokeOnCollection( "entrySet", new Class< ? >[] {}, new Object[] {} );
 	}
 }
