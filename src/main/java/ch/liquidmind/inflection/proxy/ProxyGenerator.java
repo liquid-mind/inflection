@@ -49,6 +49,7 @@ public class ProxyGenerator
 		for ( String taxonomyName : taxonomyNames )
 		{
 			Taxonomy taxonomy = TaxonomyLoader.getContextTaxonomyLoader().loadTaxonomy( taxonomyName );
+			// TODO handle if taxonomy is null
 			new ProxyGenerator( baseDir, taxonomy ).generateTaxonomy();
 		}
 	}

@@ -6,12 +6,12 @@ import java.util.List;
 
 public class Person extends IdentifiableObject
 {
-	private String firstName , lastName , title;
-	private String telephone , mobile , email;
+	private String firstName, lastName, title;
+	private String telephone, mobile, email;
 	private Gender gender;
 	private Date dateOfBirth;
 	private List< Address > addresses = new ArrayList< Address >();
-	
+
 	public Person()
 	{
 		super();
