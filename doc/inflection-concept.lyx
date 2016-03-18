@@ -1,0 +1,796 @@
+#LyX 2.1 created this file. For more info see http://www.lyx.org/
+\lyxformat 474
+\begin_document
+\begin_header
+\textclass article
+\begin_preamble
+\makeatletter
+\def\@copyrightspace{\relax}
+\makeatother
+\end_preamble
+\use_default_options true
+\maintain_unincluded_children false
+\language english
+\language_package default
+\inputencoding auto
+\fontencoding global
+\font_roman default
+\font_sans default
+\font_typewriter default
+\font_math auto
+\font_default_family default
+\use_non_tex_fonts false
+\font_sc false
+\font_osf false
+\font_sf_scale 100
+\font_tt_scale 100
+\graphics default
+\default_output_format default
+\output_sync 0
+\bibtex_command default
+\index_command default
+\paperfontsize default
+\spacing single
+\use_hyperref false
+\papersize default
+\use_geometry false
+\use_package amsmath 1
+\use_package amssymb 1
+\use_package cancel 1
+\use_package esint 1
+\use_package mathdots 1
+\use_package mathtools 1
+\use_package mhchem 1
+\use_package stackrel 1
+\use_package stmaryrd 1
+\use_package undertilde 1
+\cite_engine basic
+\cite_engine_type default
+\biblio_style plain
+\use_bibtopic false
+\use_indices false
+\paperorientation portrait
+\suppress_date false
+\justification true
+\use_refstyle 1
+\index Index
+\shortcut idx
+\color #008000
+\end_index
+\secnumdepth 3
+\tocdepth 3
+\paragraph_separation indent
+\paragraph_indentation default
+\quotes_language english
+\papercolumns 1
+\papersides 1
+\paperpagestyle default
+\tracking_changes false
+\output_changes false
+\html_math_output 0
+\html_css_as_file 0
+\html_be_strict false
+\end_header
+
+\begin_body
+
+\begin_layout Title
+Inflection Concept Evolution
+\end_layout
+
+\begin_layout Author
+John Brush, ZHAW, brsh@zhaw.ch
+\end_layout
+
+\begin_layout Date
+12.
+ February 2016
+\end_layout
+
+\begin_layout Section
+Redefinition
+\end_layout
+
+\begin_layout Standard
+The term redefinition encompasses two distinct concepts:
+\end_layout
+
+\begin_layout Itemize
+The selection and transformation of existing types (incuding their features).
+\end_layout
+
+\begin_layout Itemize
+The addition of new types and the addition of new features to redefining
+ types.
+\end_layout
+
+\begin_layout Standard
+Here is a list of the aspects of a class that can and cannot be redefined.
+\end_layout
+
+\begin_layout Subsection
+Redefinable
+\end_layout
+
+\begin_layout Description
+Class
+\begin_inset space ~
+\end_inset
+
+Name Both the simple name and the package may be altered.
+\end_layout
+
+\begin_layout Subsection
+Non-Redefinable
+\end_layout
+
+\begin_layout Section
+Selectors
+\end_layout
+
+\begin_layout Standard
+Selectors determine whether a particular class matches the criteria for
+ being a redefinition.
+\end_layout
+
+\begin_layout Standard
+
+\size scriptsize
+\begin_inset listings
+lstparams "basicstyle={\scriptsize\ttfamily},language=Java,tabsize=2"
+inline false
+status open
+
+\begin_layout Plain Layout
+
+public [result] [selector-name] ( [potential-match] [selector-parameters]
+ )
+\end_layout
+
+\begin_layout Plain Layout
+
+{
+\end_layout
+
+\begin_layout Plain Layout
+
+	[selector-definition]
+\end_layout
+
+\begin_layout Plain Layout
+
+}
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+public boolean assignableTo( Class< ? > potentialMatch, Class< ? > superClass
+ )
+\end_layout
+
+\begin_layout Plain Layout
+
+{
+\end_layout
+
+\begin_layout Plain Layout
+
+	return superClass.isAssignableFrom( potentialMatch );
+\end_layout
+
+\begin_layout Plain Layout
+
+}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Section
+Transformers
+\end_layout
+
+\begin_layout Standard
+
+\size scriptsize
+\begin_inset listings
+lstparams "basicstyle={\scriptsize\ttfamily},language=Java,tabsize=2"
+inline false
+status open
+
+\begin_layout Plain Layout
+
+public void [selector-name] ( [class-information] [selector-parameters]
+ )
+\end_layout
+
+\begin_layout Plain Layout
+
+{
+\end_layout
+
+\begin_layout Plain Layout
+
+	[transformation-definition]
+\end_layout
+
+\begin_layout Plain Layout
+
+}
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+public void replace( ClassInfo classInfo, String searchString, String replaceStr
+ing )
+\end_layout
+
+\begin_layout Plain Layout
+
+{
+\end_layout
+
+\begin_layout Plain Layout
+
+	classInfo.replaceAll( searchString, replaceString );
+\end_layout
+
+\begin_layout Plain Layout
+
+}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Section
+Terminology
+\end_layout
+
+\begin_layout Standard
+
+\size scriptsize
+\begin_inset listings
+lstparams "basicstyle={\scriptsize\ttfamily},language=Java,tabsize=2"
+inline false
+status open
+
+\begin_layout Plain Layout
+
+package mypackage;
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+import mypackage2.MyClass;
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+taxonomy MyTaxonomy
+\end_layout
+
+\begin_layout Plain Layout
+
+{
+\end_layout
+
+\begin_layout Plain Layout
+
+	// Simple declaration: note that MyRedefClass's package is determined by
+\end_layout
+
+\begin_layout Plain Layout
+
+	// the compilation unit and may be different from that of MyClass.
+\end_layout
+
+\begin_layout Plain Layout
+
+	class MyRedefClass redefines MyClass { ...
+ }
+\end_layout
+
+\begin_layout Plain Layout
+
+	
+\end_layout
+
+\begin_layout Plain Layout
+
+	// Simple declaration with redefining (simple) class name implicitly taken
+\end_layout
+
+\begin_layout Plain Layout
+
+	// from the redefined class name.
+\end_layout
+
+\begin_layout Plain Layout
+
+	class MyClass { ...
+ }
+\end_layout
+
+\begin_layout Plain Layout
+
+	
+\end_layout
+
+\begin_layout Plain Layout
+
+	// Declaration of multiple classes at once where mypackage2.* is a class
+\end_layout
+
+\begin_layout Plain Layout
+
+	// selector and mypackage --> myredefpackage is a name transformation specifier.
+\end_layout
+
+\begin_layout Plain Layout
+
+	class mypackage2 --> myredefpackage2 redefines mypackage2.* { ...
+ }
+\end_layout
+
+\begin_layout Plain Layout
+
+	
+\end_layout
+
+\begin_layout Plain Layout
+
+	class mypackage2 --> myredefpackage2, mypackage3 --> myredefpackage3
+\end_layout
+
+\begin_layout Plain Layout
+
+		redefines mypackage2.*, mypackage3.* { ...
+ }
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+	class ^(eu
+\backslash
+.expact
+\backslash
+.pilot
+\backslash
+.)model(
+\backslash
+..*)$ --> $1mytaxonomy$2
+\end_layout
+
+\begin_layout Plain Layout
+
+		redefines eu.expact.pilot.model.* { ...
+ }
+\end_layout
+
+\begin_layout Plain Layout
+
+}
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+taxonomy MyTaxonomy2 extends MyTaxonomy
+\end_layout
+
+\begin_layout Plain Layout
+
+{
+\end_layout
+
+\begin_layout Plain Layout
+
+	// Overrides MyTaxonomy::MyRedefClass
+\end_layout
+
+\begin_layout Plain Layout
+
+	class MyRedefClass2 redefines MyClass { ...
+ }
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+	// Also overrides MyTaxonomy::MyRedefClass
+\end_layout
+
+\begin_layout Plain Layout
+
+	class MyRedefClass2 redefines MyRedefClass
+\end_layout
+
+\begin_layout Plain Layout
+
+}
+\end_layout
+
+\end_inset
+
+
+\begin_inset listings
+lstparams "basicstyle={\scriptsize\ttfamily},language=Java,tabsize=2"
+inline false
+status open
+
+\begin_layout Plain Layout
+
+taxonomy T1
+\end_layout
+
+\begin_layout Plain Layout
+
+{
+\end_layout
+
+\begin_layout Plain Layout
+
+	class [transformation-rules] redefines [selection-expression]{ ...
+ }
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+	// Select all non-abstract subclasses of DiscreteAsset
+\end_layout
+
+\begin_layout Plain Layout
+
+	class ...
+ redefines instanceof( DiscreteAsset ) && !modifers( abstract ) { ...
+ }
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+	// Select all leafs of the DiscreteAsset hierarchy
+\end_layout
+
+\begin_layout Plain Layout
+
+	class ...
+ redefines leaf( DiscreteAsset ) { ...
+ }
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+	// Select all classes with a given annotation
+\end_layout
+
+\begin_layout Plain Layout
+
+	class ...
+ redefines annotation( @MyAnnotation ) { ...
+ }
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+	// Wildcards can be used anywhere a type is specified
+\end_layout
+
+\begin_layout Plain Layout
+
+	// (i.e., matches(), instanceof(), leaf(), etc.)
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+	// Select all classes with a given name
+\end_layout
+
+\begin_layout Plain Layout
+
+	class ...
+ redefines matches( "eu.expact.pilot.model.asset.discrete.*" )
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+	// Select a single class with a given name (synonymous to matches( Skill
+ ))
+\end_layout
+
+\begin_layout Plain Layout
+
+	// This assumes that the simple name "Skill" has been imported.
+\end_layout
+
+\begin_layout Plain Layout
+
+	class ...
+ redefines Skill
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+	// Support for precedence (parenthesis) and boolean operators (&&, ||,
+ !)
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+	// Select all public, leaf nodes of AssetOwner or DiscreteAsset.
+\end_layout
+
+\begin_layout Plain Layout
+
+	class ...
+ redefines modifers( public ) && ( leaf( AssetOwner ) || leaf( DiscreteAsset
+ ) )
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+	// These are basically search and replace functions for the names
+\end_layout
+
+\begin_layout Plain Layout
+
+	// of types (classes and annotations)
+\end_layout
+
+\begin_layout Plain Layout
+
+	class rename( "^(eu
+\backslash
+.expact
+\backslash
+.pilot
+\backslash
+.)model(
+\backslash
+..*)$", "$1mytaxonomy$2" ) redefines ...
+ { ...
+ }
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+	// If no transformation rules apply to a selected name --> transformed
+ name = original name.
+\end_layout
+
+\begin_layout Plain Layout
+
+	class redefines ...
+ { ...
+ }
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+	// Does it make sense to provide transformation rules for annotations?
+\end_layout
+
+\begin_layout Plain Layout
+
+	// If so then you will need a way to transform all of the meta-data,
+\end_layout
+
+\begin_layout Plain Layout
+
+	// not just the type name.
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+	// How about redefining other types: interfaces, enumerations, annotations,
+ etc.?
+\end_layout
+
+\begin_layout Plain Layout
+
+	// What about inner classes?
+\end_layout
+
+\begin_layout Plain Layout
+
+}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Section
+Imports
+\end_layout
+
+\begin_layout Standard
+Double-colon (
+\begin_inset listings
+lstparams "basicstyle={\ttfamily}"
+inline true
+status open
+
+\begin_layout Plain Layout
+
+::
+\end_layout
+
+\end_inset
+
+) operator to separate taxonomy names from class names, e.g.:
+\end_layout
+
+\begin_layout Description
+Both
+\begin_inset space ~
+\end_inset
+
+fully
+\begin_inset space ~
+\end_inset
+
+qualified 
+\begin_inset listings
+lstparams "basicstyle={\ttfamily}"
+inline true
+status open
+
+\begin_layout Plain Layout
+
+mypackage1.MyTaxonomy::mypackage2.MyClass
+\end_layout
+
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Description
+Both
+\begin_inset space ~
+\end_inset
+
+simple MyTaxonomy::MyClass
+\begin_inset Foot
+status open
+
+\begin_layout Plain Layout
+Requires imports: mypackage1.MyTaxonomy and MyTaxonomy::mypackage2.MyClass.
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Description
+One
+\begin_inset space ~
+\end_inset
+
+fully
+\begin_inset space ~
+\end_inset
+
+qualified,
+\begin_inset space ~
+\end_inset
+
+one
+\begin_inset space ~
+\end_inset
+
+simple mypackage1.MyTaxonomy::MyClass or MyTaxonomy::mypackage2.MyClass
+\begin_inset Foot
+status open
+
+\begin_layout Plain Layout
+Requires imports: mypackage1.MyTaxonomy::mypackage2.MyClass or mypackage1.MyTaxonom
+y, respectively.
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Description
+One
+\begin_inset space ~
+\end_inset
+
+simple MyClass
+\begin_inset Foot
+status open
+
+\begin_layout Plain Layout
+Requires import: mypackage1.MyTaxonomy::mypackage2.MyClass.
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_body
+\end_document

@@ -47,3 +47,9 @@ taxonomy UseCase4 extends FullTaxonomy
 	view Address { *; }
 	view Person {}
 }
+
+taxonomy UseCase5 extends FullTaxonomy
+{
+	view Person use CalculatedMembers { firstName, lastName, title, telephone, mobile, email, gender, dateOfBirth, addressesUnidir as addresses; }
+	view Address { *; exclude people; }
+}

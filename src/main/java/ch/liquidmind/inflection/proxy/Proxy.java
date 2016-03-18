@@ -4,6 +4,8 @@ import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import __java.lang.__Class;
 import ch.liquidmind.inflection.loader.TaxonomyLoader;
@@ -131,7 +133,79 @@ public class Proxy
 		return (T)retVal;
 	}
 	
+	private static class DeclaredMethodKey
+	{
+		private Class< ? > aClass;
+		private String methodName;
+		private Class< ? >[] paramTypes;
+		
+		public DeclaredMethodKey( Class< ? > aClass, String methodName, Class< ? >[] paramTypes )
+		{
+			super();
+			this.aClass = aClass;
+			this.methodName = methodName;
+			this.paramTypes = paramTypes;
+		}
+
+		@Override
+		public int hashCode()
+		{
+			final int prime = 31;
+			int result = 1;
+			result = prime * result + ( ( aClass == null ) ? 0 : aClass.hashCode() );
+			result = prime * result + ( ( methodName == null ) ? 0 : methodName.hashCode() );
+			result = prime * result + Arrays.hashCode( paramTypes );
+			return result;
+		}
+
+		@Override
+		public boolean equals( Object obj )
+		{
+			if ( this == obj )
+				return true;
+			if ( obj == null )
+				return false;
+			if ( getClass() != obj.getClass() )
+				return false;
+			DeclaredMethodKey other = (DeclaredMethodKey)obj;
+			if ( aClass == null )
+			{
+				if ( other.aClass != null )
+					return false;
+			}
+			else if ( !aClass.equals( other.aClass ) )
+				return false;
+			if ( methodName == null )
+			{
+				if ( other.methodName != null )
+					return false;
+			}
+			else if ( !methodName.equals( other.methodName ) )
+				return false;
+			if ( !Arrays.equals( paramTypes, other.paramTypes ) )
+				return false;
+			return true;
+		}
+	}
+	
+	private static Map< DeclaredMethodKey, Method > declaredMethods = new ConcurrentHashMap< DeclaredMethodKey, Method >();
+	
 	private Method getDeclaredMethodRecursive( Class< ? > aClass, String methodName, Class< ? >[] paramTypes )
+	{
+		Method method = declaredMethods.get( new DeclaredMethodKey( aClass, methodName, paramTypes ) );
+		
+		if ( method == null )
+		{
+			method = getDeclaredMethodRecursiveUncached( aClass, methodName, paramTypes );
+			
+			if ( method != null )
+				declaredMethods.put( new DeclaredMethodKey( aClass, methodName, paramTypes ), method );
+		}
+		
+		return method;
+	}
+	
+	private Method getDeclaredMethodRecursiveUncached( Class< ? > aClass, String methodName, Class< ? >[] paramTypes )
 	{
 		Method method = null;
 		
@@ -150,7 +224,7 @@ public class Proxy
 		}
 		
 		if ( method == null && aClass.getSuperclass() != null )
-			method = getDeclaredMethodRecursive( aClass.getSuperclass(), methodName, paramTypes );
+			method = getDeclaredMethodRecursiveUncached( aClass.getSuperclass(), methodName, paramTypes );
 		
 		return method;
 	}

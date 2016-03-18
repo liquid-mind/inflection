@@ -33,8 +33,8 @@ sourceSets {
 	}
     testModel {
         java {
-            srcDir "src/test/java"
-            include "ch/liquidmind/inflection/test/model/*"
+            srcDirs "src/test/java", "src/main/java"
+            include "ch/liquidmind/inflection/test/model/*", "ch/liquidmind/inflection/bidir2/*"
         }
         resources {
         	srcDir "src/test/resources"
@@ -68,6 +68,7 @@ dependencies {
 	compile( 'org.aspectj:aspectjweaver:1.8.7' ) { transitive = false }
 	compile( 'org.aspectj:aspectjtools:1.8.7' ) { transitive = false }
 	testCompile( "junit:junit:4.12" ) { transitive = false }
+	testModelCompile( "__java:rt:1.8" ) { transitive = false }
 
 	runtime "commons-io:commons-io:2.4"
 	runtime "__commons-io:commons-io-deflected:2.4"
@@ -127,15 +128,14 @@ task( proxifyTestTaxonomies, dependsOn: compileTestTaxonomiesInflection, type: J
 	"ch.liquidmind.inflection.test.model.UseCase1",
 	"ch.liquidmind.inflection.test.model.UseCase2",
 	"ch.liquidmind.inflection.test.model.UseCase3",
-	"ch.liquidmind.inflection.test.model.UseCase4" ]
+	"ch.liquidmind.inflection.test.model.UseCase4",
+	"ch.liquidmind.inflection.test.model.UseCase5" ]
 }
 
 // Compile test
 compileTestJava.dependsOn proxifyTestTaxonomies
 
 test {
-	jvmArgs '-javaagent:' + project.configurations.compile.find { it.name.startsWith("aspectjweaver-") };
-
 	// Enable this to see test output:
 	testLogging.showStandardStreams = true
 }

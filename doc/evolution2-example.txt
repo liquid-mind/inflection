@@ -1,0 +1,22 @@
+package eu.expact.model;
+
+import eu.expact.framework.model.*;
+import eu.expact.framework.model.scoring.*;
+import eu.expact.pilot.model.asset.composite.*;
+import eu.expact.pilot.model.asset.discrete.*;
+import eu.expact.pilot.model.asset.value.*;
+import eu.expact.pilot.model.calculated.*;
+
+abstract taxonomy BaseFramework
+{
+	class redefines instanceof( IdentifiableObject ) && matches( "^eu\.expact\.framework\.model\..*" )
+}
+
+abstract taxonomy BaseFrameworkWithoutRedefined
+{
+	class redefines instanceof( IdentifiableObject ) && matches( "^eu\.expact\.framework\.model\..*" )
+	{
+		*;
+		exclude redefined();
+	}
+}

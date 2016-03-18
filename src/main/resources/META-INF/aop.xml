@@ -2,7 +2,9 @@
 
 <aspectj>
 	<aspects>
+		<!-- 
 		<aspect name="ch.liquidmind.inflection.bidir.BidirectionalAspect" />
+		 -->
 	</aspects>
 	<!-- -XnoInline for debugging
 		 -verbose for extra messages -->
