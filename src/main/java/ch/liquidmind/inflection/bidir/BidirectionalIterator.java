@@ -1,4 +1,4 @@
-package ch.liquidmind.inflection.bidir2;
+package ch.liquidmind.inflection.bidir;
 
 import java.lang.reflect.Field;
 import java.util.Iterator;

@@ -8,7 +8,7 @@ import java.util.GregorianCalendar;
 import java.util.List;
 
 import __java.lang.__Class;
-import ch.liquidmind.inflection.bidir2.BidirectionalList;
+import ch.liquidmind.inflection.bidir.BidirectionalList;
 
 public class CalculatedMembers
 {
