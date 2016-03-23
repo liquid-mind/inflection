@@ -1,15 +1,14 @@
 package ch.liquidmind.inflection.bidir;
 
-import java.lang.reflect.Field;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
 
 public class BidirectionalMap< K extends Object, V extends Object > extends BidirectionalDelegate implements Map< K, V >
 {
-	public BidirectionalMap( Object owner, Field field, Object target )
+	public BidirectionalMap( Object owner, String opposingPropertyName, Object target )
 	{
-		super( owner, field, target );
+		super( owner, opposingPropertyName, target );
 	}
 
 	@SuppressWarnings( "unchecked" )

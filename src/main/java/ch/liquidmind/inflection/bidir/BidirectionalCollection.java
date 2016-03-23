@@ -1,13 +1,12 @@
 package ch.liquidmind.inflection.bidir;
 
-import java.lang.reflect.Field;
 import java.util.Collection;
 
 public class BidirectionalCollection< E > extends BidirectionalIterable< E > implements Collection< E >
 {
-	public BidirectionalCollection( Object owner, Field field, Object target )
+	public BidirectionalCollection( Object owner, String opposingPropertyName, Object target )
 	{
-		super( owner, field, target );
+		super( owner, opposingPropertyName, target );
 	}
 
 	@Override

@@ -34,7 +34,9 @@ sourceSets {
     testModel {
         java {
             srcDirs "src/test/java", "src/main/java"
-            include "ch/liquidmind/inflection/test/model/*", "ch/liquidmind/inflection/bidir2/*"
+            include "ch/liquidmind/inflection/test/model/*",
+            	 "ch/liquidmind/inflection/bidir/*",
+            	  "ch/liquidmind/inflection/exception/*"
         }
         resources {
         	srcDir "src/test/resources"
@@ -64,8 +66,11 @@ dependencies {
 	compile( "org.codehaus.jackson:jackson-mapper-asl:1.9.13" ) { transitive = false }
 	compile( "org.codehaus.jackson:jackson-core-asl:1.9.13" ) { transitive = false }
 	compile( '__java:rt:1.8' ) { transitive = false }
+	compile( 'commons-beanutils:commons-beanutils:1.9.2' ) { transitive = false }
 	testCompile( "junit:junit:4.12" ) { transitive = false }
 	testModelCompile( "__java:rt:1.8" ) { transitive = false }
+	testModelCompile( "com.google.guava:guava:19.0-rc2" ) { transitive = false }
+	testModelCompile( "commons-beanutils:commons-beanutils:1.9.2" ) { transitive = false }
 
 	runtime "commons-io:commons-io:2.4"
 	runtime "__commons-io:commons-io-deflected:2.4"
@@ -74,6 +79,7 @@ dependencies {
 	runtime "com.google.guava:guava:19.0-rc2"
 	runtime "org.codehaus.jackson:jackson-mapper-asl:1.9.13"
 	runtime '__java:rt:1.8'
+	runtime 'commons-beanutils:commons-beanutils:1.9.2'
 	testRuntime "junit:junit:4.12"
 }
 

@@ -1,15 +1,14 @@
 package ch.liquidmind.inflection.bidir;
 
-import java.lang.reflect.Field;
 import java.util.Collection;
 import java.util.List;
 import java.util.ListIterator;
 
 public class BidirectionalList< E extends Object > extends BidirectionalCollection< E > implements List< E >
 {
-	public BidirectionalList( Object owner, Field field, Object target )
+	public BidirectionalList( Object owner, String opposingPropertyName, Object target )
 	{
-		super( owner, field, target );
+		super( owner, opposingPropertyName, target );
 	}
 
 	@Override

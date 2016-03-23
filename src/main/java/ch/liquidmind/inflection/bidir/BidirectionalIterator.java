@@ -1,13 +1,12 @@
 package ch.liquidmind.inflection.bidir;
 
-import java.lang.reflect.Field;
 import java.util.Iterator;
 
 public class BidirectionalIterator< E extends Object > extends BidirectionalDelegate implements Iterator< E >
 {
-	public BidirectionalIterator( Object owner, Field field, Object target )
+	public BidirectionalIterator( Object owner, String opposingPropertyName, Object target )
 	{
-		super( owner, field, target );
+		super( owner, opposingPropertyName, target );
 	}
 
 	@SuppressWarnings( "unchecked" )

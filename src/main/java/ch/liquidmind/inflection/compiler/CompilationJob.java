@@ -11,9 +11,9 @@ import java.util.Set;
 import com.google.common.collect.ImmutableList;
 import com.google.common.reflect.ClassPath.ClassInfo;
 
+import ch.liquidmind.inflection.exception.ExceptionWrapper;
 import ch.liquidmind.inflection.loader.TaxonomyLoader;
 import ch.liquidmind.inflection.model.compiled.TaxonomyCompiled;
-import ch.liquidmind.inflection.util.ExceptionWrapper;
 
 public class CompilationJob
 {

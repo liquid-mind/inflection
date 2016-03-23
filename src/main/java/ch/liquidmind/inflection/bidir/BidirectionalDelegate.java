@@ -1,21 +1,18 @@
 package ch.liquidmind.inflection.bidir;
 
-import java.lang.reflect.Field;
-import java.util.Collection;
-
-import __java.lang.reflect.__Field;
+import ch.liquidmind.inflection.exception.ExceptionWrapper;
 
 public abstract class BidirectionalDelegate
 {
 	private Object owner;
-	private Field field;
+	private String opposingPropertyName;
 	private Object target;
 
-	public BidirectionalDelegate( Object owner, Field field, Object target )
+	public BidirectionalDelegate( Object owner, String opposingPropertyName, Object target )
 	{
 		super();
 		this.owner = owner;
-		this.field = field;
+		this.opposingPropertyName = opposingPropertyName;
 		this.target = target;
 	}
 
@@ -24,9 +21,9 @@ public abstract class BidirectionalDelegate
 		return owner;
 	}
 
-	public Field getField()
+	public String getOpposingPropertyName()
 	{
-		return field;
+		return opposingPropertyName;
 	}
 
 	public Object getTarget()
@@ -34,26 +31,13 @@ public abstract class BidirectionalDelegate
 		return target;
 	}
 
-	@SuppressWarnings( "unchecked" )
-	public void setOpposing( Object target, Object oldValue, Object newValue )
+	public void setOpposing( Object opposingOwner, Object oldValue, Object newValue )
 	{
-		if ( target == null)
+		if ( opposingOwner == null)
 			return;
 		
-		Object currentValue = __Field.get( field, target );
+		// TODO: remove opposingOwner from oldValue in case where oldValue != null.
 		
-		if ( currentValue instanceof Collection )
-		{
-			Collection< Object > collection = (Collection< Object >)currentValue;
-
-			if ( newValue == null )
-				collection.remove( oldValue );
-			else
-				collection.add( newValue );
-		}
-		else
-		{
-			__Field.set( field, target, newValue );
-		}
+		ExceptionWrapper.PropertyUtils_setProperty( opposingOwner, opposingPropertyName, newValue );
 	}
 }

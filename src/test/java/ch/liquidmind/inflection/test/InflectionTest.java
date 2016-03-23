@@ -36,6 +36,7 @@ public class InflectionTest
 //		{}
 //	} );
 	
+	@SuppressWarnings( "unused" )
 	@Test
 	public void testBidir() throws Throwable
 	{

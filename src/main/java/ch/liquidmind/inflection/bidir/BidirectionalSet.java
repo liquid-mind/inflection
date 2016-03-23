@@ -1,13 +1,12 @@
 package ch.liquidmind.inflection.bidir;
 
-import java.lang.reflect.Field;
 import java.util.Set;
 
 public class BidirectionalSet< E extends Object > extends BidirectionalCollection< E > implements Set< E >
 {
-	public BidirectionalSet( Object owner, Field field, Object target )
+	public BidirectionalSet( Object owner, String opposingPropertyName, Object target )
 	{
-		super( owner, field, target );
+		super( owner, opposingPropertyName, target );
 	}
 
 	@Override
