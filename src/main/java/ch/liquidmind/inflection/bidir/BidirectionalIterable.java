@@ -19,6 +19,6 @@ public class BidirectionalIterable< E > extends BidirectionalDelegate implements
 	@Override
 	public Iterator< E > iterator()
 	{
-		return new BidirectionalIterator< E >( getOwner(), getOpposingPropertyName(), getTarget() );
+		return new BidirectionalIterator< E >( getOwner(), getOpposingPropertyName(), ((Iterable< ? >)getTarget()).iterator() );
 	}
 }
