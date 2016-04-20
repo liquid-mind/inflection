@@ -21,9 +21,6 @@ import ch.liquidmind.inflection.test.model.UseCase1.ch.liquidmind.inflection.tes
 import ch.liquidmind.inflection.test.model.UseCase2.ch.liquidmind.inflection.test.model.UseCase2_Person;
 import ch.liquidmind.inflection.test.model.UseCase3.ch.liquidmind.inflection.test.model.UseCase3_Person;
 import ch.liquidmind.inflection.test.model.UseCase4.ch.liquidmind.inflection.test.model.UseCase4_Address;
-import ch.liquidmind.inflection.test.model.UseCase5.ch.liquidmind.inflection.proxy.UseCase5_ListProxy;
-import ch.liquidmind.inflection.test.model.UseCase5.ch.liquidmind.inflection.test.model.UseCase5_Address;
-import ch.liquidmind.inflection.test.model.UseCase5.ch.liquidmind.inflection.test.model.UseCase5_Person;
 import ch.liquidmind.inflection.util.InflectionPrinter;
 
 public class InflectionTest
@@ -36,17 +33,17 @@ public class InflectionTest
 //		{}
 //	} );
 	
-	@SuppressWarnings( "unused" )
-	@Test
-	public void testBidir() throws Throwable
-	{
-		UseCase5_Person person5 = new UseCase5_Person();
-		UseCase5_Address address5 = new UseCase5_Address();
-		UseCase5_ListProxy< UseCase5_Address > addresses5 = person5.getAddresses();
-		addresses5.add( address5 );
-		
-		Person person = ProxyHelper.getObject( person5 );
-	}
+//	@SuppressWarnings( "unused" )
+//	@Test
+//	public void testBidir() throws Throwable
+//	{
+//		UseCase5_Person person5 = new UseCase5_Person();
+//		UseCase5_Address address5 = new UseCase5_Address();
+//		UseCase5_ListProxy< UseCase5_Address > addresses5 = person5.getAddresses();
+//		addresses5.add( address5 );
+//		
+//		Person person = ProxyHelper.getObject( person5 );
+//	}
 	
 	@Ignore
 	@Test

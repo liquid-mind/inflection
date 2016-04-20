@@ -210,6 +210,12 @@ public class Pass2Listener extends AbstractInflectionListener
 		
 		return foundTaxonomyCompiled;
 	}
+	
+//	private TaxonomyCompiled getTaxonomyCompiled2( String taxonomyName )
+//	{
+//		return getCompilationUnit().getCompilationUnitCompiled().getTaxonomiesCompiled()
+//			.stream().filter( x -> x.getName().equals( taxonomyName ) ).findFirst().get();
+//	}
 
 	@Override
 	public void enterTaxonomyExtensions( TaxonomyExtensionsContext taxonomyExtensionsContext )

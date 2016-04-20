@@ -66,4 +66,9 @@ public class Address extends IdentifiableObject
 	{
 		return people;
 	}
+
+	public void setPeople( List< Person > people )
+	{
+		this.people = people;
+	}
 }
