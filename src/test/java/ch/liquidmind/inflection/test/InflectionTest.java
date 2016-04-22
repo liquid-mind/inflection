@@ -27,25 +27,6 @@ public class InflectionTest
 {
 	private static PrintStream printStream = System.out;
 	
-//	private static PrintStream printStream = new PrintStream( new OutputStream() {
-//		@Override
-//		public void write( int b )
-//		{}
-//	} );
-	
-//	@SuppressWarnings( "unused" )
-//	@Test
-//	public void testBidir() throws Throwable
-//	{
-//		UseCase5_Person person5 = new UseCase5_Person();
-//		UseCase5_Address address5 = new UseCase5_Address();
-//		UseCase5_ListProxy< UseCase5_Address > addresses5 = person5.getAddresses();
-//		addresses5.add( address5 );
-//		
-//		Person person = ProxyHelper.getObject( person5 );
-//	}
-	
-	@Ignore
 	@Test
 	public void testPrinterMulti() throws Throwable
 	{
