@@ -1,16 +1,26 @@
 package ch.liquidmind.inflection.util;
 
+import java.io.File;
 import java.io.PrintStream;
 import java.lang.annotation.Annotation;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
+import java.net.URL;
+import java.net.URLClassLoader;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
+import __java.net.__URI;
+import ch.liquidmind.inflection.loader.TaxonomyLoader;
+import ch.liquidmind.inflection.model.external.Field;
 import ch.liquidmind.inflection.model.external.Member;
+import ch.liquidmind.inflection.model.external.Property;
 import ch.liquidmind.inflection.model.external.Taxonomy;
 import ch.liquidmind.inflection.model.external.View;
-import ch.liquidmind.inflection.model.linked.FieldLinked;
-import ch.liquidmind.inflection.model.linked.PropertyLinked;
 import ch.liquidmind.inflection.model.linked.UnparsedAnnotation;
+import ch.liquidmind.inflection.proxy.ProxyRegistry;
 
 public class InflectionPrinter
 {
@@ -32,12 +42,71 @@ public class InflectionPrinter
 		this( printStream, DEFAULT_SHOW_SIMPLE_NAMES, DEFAULT_SHOW_INHERITED );
 	}
 	
+	public InflectionPrinter( boolean showSimpleNames, boolean showInherited )
+	{
+		this( DEFAULT_PRINT_STREAM, showSimpleNames, showInherited );
+	}
+	
 	public InflectionPrinter( PrintStream printStream, boolean showSimpleNames, boolean showInherited )
 	{
 		super();
 		this.printWriter = new IndentingPrintWriter( printStream );
 		this.showSimpleNames = showSimpleNames;
 		this.showInherited = showInherited;
+	}
+	
+	@SuppressWarnings( "unchecked" )
+	public static void main( String[] args )
+	{
+		Map< String, Object > options = parseOptions( args );
+		
+		boolean showSimpleNames = options.containsKey( "-showSimpleNames" );
+		boolean showInherited = options.containsKey( "-showInherited" );
+		String taxonomyName = ((List< String >)options.get( "-taxonomy" )).get( 0 );
+		String classpath = ((List< String >)options.get( "-classpath" )).get( 0 );
+		String[] classpaths = classpath.split( "[:|;]" );
+		URL[] urls = new URL[ classpaths.length ];
+		
+		for ( int i = 0 ; i < classpaths.length ; ++i )
+			urls[ i ] = __URI.toURL( new File( classpaths[ i ] ).toURI() );
+		
+		ClassLoader classLoader = new URLClassLoader( urls, Thread.currentThread().getContextClassLoader() );
+		TaxonomyLoader loader = new TaxonomyLoader( TaxonomyLoader.getContextTaxonomyLoader(), classLoader );
+		Taxonomy taxonomy = loader.loadTaxonomy( taxonomyName );
+		
+		InflectionPrinter printer = new InflectionPrinter( showSimpleNames, showInherited );
+		printer.printTaxonomy( taxonomy );
+	}
+	
+	private static Map< String, Object > parseOptions( String[] args )
+	{
+		Map< String, Object > options = new HashMap< String, Object >();
+
+		for ( int i = 0 ; i < args.length ; ++i )
+		{
+			if ( args[ i ].startsWith( "-" ) )
+			{
+				String optionName = args[ i ];
+				List< String > optionArgs = new ArrayList< String >();
+				
+				if ( ( i + 1 ) < args.length && !args[ i + 1 ].startsWith( "-" ) )
+				{
+					++i;
+					for ( ; i < args.length ; ++i )
+					{
+						if ( args[ i ].startsWith( "-" ) )
+							break;
+						
+						optionArgs.add( args[ i ] );
+					}
+					--i;
+				}
+
+				options.put( optionName, optionArgs );
+			}
+		}
+		
+		return options;
 	}
 
 	public void printTaxonomy( Taxonomy taxonomy )
@@ -121,12 +190,14 @@ public class InflectionPrinter
 				{
 					String accessType;
 					
-					if ( member instanceof FieldLinked )
+					if ( member instanceof Field )
 						accessType = "field";
-					else if ( member instanceof PropertyLinked )
+					else if ( member instanceof Property )
 						accessType = "property";
 					else
 						throw new IllegalStateException( "Unexpected type for member: " + member.getClass().getName() );
+					
+					String memberType = getTypeName( getMemberType( member ) );
 					
 					String alias = ( member.getAlias() == null ? "" : " as " + member.getAlias() );
 					String from = "";
@@ -135,7 +206,7 @@ public class InflectionPrinter
 						from = " from " + getTypeName( member.getParentView().getName() );
 					
 					printAnnotations( member.getAnnotations() );
-					printWriter.println( accessType + " " + member.getName() + from + alias + ";" );
+					printWriter.println( accessType + " " + memberType + " " + member.getName() + from + alias + ";" );
 				}
 				
 				printWriter.decreaseIndent();
@@ -149,6 +220,64 @@ public class InflectionPrinter
 		printWriter.decreaseIndent();
 		printWriter.println( "}" );
 		printWriter.flush();
+	}
+	
+	private Type getMemberType( Member member )
+	{
+		Type memberType = null;
+		
+		if ( member instanceof Field )
+		{
+			Field field = (Field)member;
+			memberType = field.getField().getType();
+		}
+		else if ( member instanceof Property )
+		{
+			Property property = (Property)member;
+			
+			if ( property.getReadMethod() != null )
+				memberType = property.getReadMethod().getGenericReturnType();
+			else if ( property.getWriteMethod() != null )
+				memberType = property.getWriteMethod().getGenericParameterTypes()[ 0 ];
+			else
+				throw new IllegalStateException( "Both read and write methods are null." );
+		}
+		
+		return memberType;
+	}
+	
+	private String getTypeName( Type type )
+	{
+		String typeName;
+		
+		if ( type instanceof Class )
+		{
+			Class< ? > aClass = (Class< ? >)type;
+			typeName = getTypeName( aClass.getName() );
+		}
+		else if ( type instanceof ParameterizedType )
+		{
+			ParameterizedType parameterizedType = (ParameterizedType)type;
+			Type[] actualTypeArguments = parameterizedType.getActualTypeArguments();
+			List< String > actualTypeArgumentsConverted = new ArrayList< String >();
+			String rawTypeConverted = getTypeName( parameterizedType.getRawType() );
+
+			for ( Type actualTypeArgument : actualTypeArguments )
+			{
+				if ( actualTypeArgument instanceof Class )
+					actualTypeArgumentsConverted.add( getTypeName( actualTypeArgument ) );
+				else
+					throw new IllegalStateException( "No support for general purpose generics at this time (only for collections), type: " + type.getTypeName() );
+			}
+			
+			typeName = rawTypeConverted + "< " + String.join( ", ", actualTypeArgumentsConverted ) + " >";
+		}
+		else
+		{
+			throw new IllegalStateException( "Unexpected type for 'type': " + type.getClass().getName() );
+		}
+		
+		return typeName;
 	}
 	
 	private void printAnnotations( List< Annotation > annotations )
