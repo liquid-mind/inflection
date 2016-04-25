@@ -345,12 +345,27 @@ public class ProxyGenerator
 		if ( type instanceof Class )
 		{
 			Class< ? > aClass = (Class< ? >)type;
-			View view = taxonomy.resolveView( aClass );
 			
-			if ( view == null )
-				typeName = aClass.getName();
+			if ( aClass.isArray() )
+			{
+				Class< ? > componentType = aClass.getComponentType();
+				
+				if ( componentType.isArray() )
+					throw new IllegalStateException( "No support at this time for multi-dimensional arrays." );
+				
+				String arrayTypeConverted = getFullyQualifiedCollectionName( taxonomy, ProxyRegistry.getProxyBaseClass( aClass ) );
+				String actualTypeArgumentsConverted = getTypeName( componentType );
+				typeName = arrayTypeConverted + "< " + String.join( ", ", actualTypeArgumentsConverted ) + " >";
+			}
 			else
-				typeName = getFullyQualifiedViewName( taxonomy, view );
+			{
+				View view = taxonomy.resolveView( aClass );
+				
+				if ( view == null )
+					typeName = aClass.getName();
+				else
+					typeName = getFullyQualifiedViewName( taxonomy, view );
+			}
 		}
 		else if ( type instanceof ParameterizedType )
 		{
@@ -359,9 +374,10 @@ public class ProxyGenerator
 			Type[] actualTypeArguments = parameterizedType.getActualTypeArguments();
 			String rawTypeConverted;
 			List< String > actualTypeArgumentsConverted = new ArrayList< String >();
+			Class< ? > proxyBaseClass = ProxyRegistry.getProxyBaseClass( (Class< ? >)rawType );
 			
-			if ( ProxyRegistry.PROXY_BASE_CLASSES.containsKey( rawType ) )
-				rawTypeConverted = getFullyQualifiedCollectionName( taxonomy, ProxyRegistry.PROXY_BASE_CLASSES.get( rawType ) );
+			if ( proxyBaseClass != null )
+				rawTypeConverted = getFullyQualifiedCollectionName( taxonomy, proxyBaseClass );
 			else
 				throw new IllegalStateException( "No support for non-collection generic types at this time, type: " + type.getTypeName() );
 

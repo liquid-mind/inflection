@@ -10,7 +10,8 @@ public class Person extends IdentifiableObject
 	private String telephone , mobile , email;
 	private Gender gender;
 	private Date dateOfBirth;
-	private List< Address > addresses = new ArrayList< Address >();
+	private List< Address > addresses2 = new ArrayList< Address >();
+	private Address[] addresses = new Address[ 10 ];
 	
 	public Person()
 	{
@@ -110,12 +111,22 @@ public class Person extends IdentifiableObject
 		this.dateOfBirth = dateOfBirth;
 	}
 
-	public List< Address > getAddresses()
+	public List< Address > getAddresses2()
+	{
+		return addresses2;
+	}
+
+	public void setAddresses2( List< Address > addresses2 )
+	{
+		this.addresses2 = addresses2;
+	}
+
+	public Address[] getAddresses()
 	{
 		return addresses;
 	}
 
-	public void setAddresses( List< Address > addresses )
+	public void setAddresses( Address[] addresses )
 	{
 		this.addresses = addresses;
 	}

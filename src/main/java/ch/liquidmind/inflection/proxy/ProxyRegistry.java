@@ -17,7 +17,7 @@ import ch.liquidmind.inflection.model.external.View;
 // TODO: look into using weak-/soft references to manage memory.
 public class ProxyRegistry
 {
-	public static final Map< Class< ? >, Class< ? > > PROXY_BASE_CLASSES = new HashMap< Class< ? >, Class< ? > >();
+	private static final Map< Class< ? >, Class< ? > > PROXY_BASE_CLASSES = new HashMap< Class< ? >, Class< ? > >();
 	public static final Map< Class< ? >, Class< ? > > COLLECTION_CLASSES = new HashMap< Class< ? >, Class< ? > >();
 	
 	static
@@ -30,6 +30,18 @@ public class ProxyRegistry
 		COLLECTION_CLASSES.put( ListProxy.class, ArrayList.class );
 		COLLECTION_CLASSES.put( SetProxy.class, HashSet.class );
 		COLLECTION_CLASSES.put( MapProxy.class, HashMap.class );
+	}
+	
+	public static Class< ? > getProxyBaseClass( Class< ? > viewedClass )
+	{
+		Class< ? > proxyBaseClass = null;
+		
+		if ( viewedClass.isArray() )
+			proxyBaseClass = ListProxy.class;
+		else
+			proxyBaseClass = PROXY_BASE_CLASSES.get( viewedClass );
+		
+		return proxyBaseClass;
 	}
 	
 	private static ThreadLocal< ProxyRegistry > contextProxyRegistry = new ThreadLocal< ProxyRegistry >();
@@ -207,13 +219,22 @@ public class ProxyRegistry
 		}
 		else
 		{
-			View view = taxonomy.resolveView( object.getClass() );
-			
-			if ( view != null )
+			if ( object.getClass().isArray() )
 			{
-				String proxyClassName = ProxyGenerator.getFullyQualifiedViewName( taxonomy, view );
-				Class< ? > proxyClass = __ClassLoader.loadClass( taxonomy.getTaxonomyLoader().getClassLoader(), proxyClassName );
+				String proxyClassName = ProxyGenerator.getFullyQualifiedCollectionName( taxonomy, ListProxy.class );
+				Class< ? > proxyClass = __ClassLoader.loadClass( Thread.currentThread().getContextClassLoader(), proxyClassName );
 				proxy = (T)__Class.newInstance( proxyClass );
+			}
+			else
+			{
+				View view = taxonomy.resolveView( object.getClass() );
+				
+				if ( view != null )
+				{
+					String proxyClassName = ProxyGenerator.getFullyQualifiedViewName( taxonomy, view );
+					Class< ? > proxyClass = __ClassLoader.loadClass( taxonomy.getTaxonomyLoader().getClassLoader(), proxyClassName );
+					proxy = (T)__Class.newInstance( proxyClass );
+				}
 			}
 		}
 		

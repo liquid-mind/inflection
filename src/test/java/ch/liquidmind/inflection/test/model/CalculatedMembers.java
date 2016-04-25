@@ -28,7 +28,7 @@ public class CalculatedMembers
 	
 	public static Address getPrimaryAddress( Person person )
 	{
-		return ( person.getAddresses().size() == 0 ? null : person.getAddresses().get( 0 ) );
+		return ( person.getAddresses().length == 0 ? null : person.getAddresses()[ 0 ] );
 	}
 	
 	public static List< Address > getAddressesUnidir( Person person )

@@ -16,6 +16,8 @@ import ch.liquidmind.inflection.proxy.ProxyHelper;
 import ch.liquidmind.inflection.test.model.Address;
 import ch.liquidmind.inflection.test.model.Gender;
 import ch.liquidmind.inflection.test.model.Person;
+import ch.liquidmind.inflection.test.model.FullTaxonomy.ch.liquidmind.inflection.proxy.FullTaxonomy_ListProxy;
+import ch.liquidmind.inflection.test.model.FullTaxonomy.ch.liquidmind.inflection.test.model.FullTaxonomy_Address;
 import ch.liquidmind.inflection.test.model.FullTaxonomy.ch.liquidmind.inflection.test.model.FullTaxonomy_Person;
 import ch.liquidmind.inflection.test.model.UseCase1.ch.liquidmind.inflection.test.model.UseCase1_Person;
 import ch.liquidmind.inflection.test.model.UseCase2.ch.liquidmind.inflection.test.model.UseCase2_Person;
@@ -69,13 +71,14 @@ public class InflectionTest
 		System.out.println( "testProxiesMulti(): " + delta + "ms" );
 	}
 
+	@Test
 	public void testProxies() throws Throwable
 	{
 		Calendar cal = new GregorianCalendar();
 		cal.set( 1972, 8, 8 );
 		Person person = new Person( 42, "John", "Brush", "Mr.", "+41 79 235 17 56", "+41 79 235 17 56", "jebrush@gmail.com", Gender.MALE, cal.getTime() );
 		Address address = new Address( 43, "Feldgüetliweg 82", "Feldmeilen", "8706", "Switzerland" );
-		person.getAddresses().add( address );
+		person.getAddresses()[ 0 ] = address;
 		address.getPeople().add( person );
 		
 		FullTaxonomy_Person fullTaxonomyPerson = ProxyHelper.getProxy( "ch.liquidmind.inflection.test.model.FullTaxonomy", person );
@@ -83,6 +86,10 @@ public class InflectionTest
 		UseCase2_Person useCase2Person = ProxyHelper.getProxy( "ch.liquidmind.inflection.test.model.UseCase2", person );
 		UseCase3_Person useCase3Person = ProxyHelper.getProxy( "ch.liquidmind.inflection.test.model.UseCase3", person );
 		UseCase4_Address useCase4Address = ProxyHelper.getProxy( "ch.liquidmind.inflection.test.model.UseCase4", address );
+		
+		FullTaxonomy_ListProxy< FullTaxonomy_Address > ft_addreses = fullTaxonomyPerson.getAddresses();
+		FullTaxonomy_Address ft_address = ft_addreses.get( 0 );
+		ft_addreses.iterator();
 		
 		ObjectMapper mapper = new ObjectMapper();
 		ObjectWriter writer = mapper.writerWithDefaultPrettyPrinter();
