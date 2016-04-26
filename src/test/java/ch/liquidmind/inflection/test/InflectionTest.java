@@ -16,8 +16,6 @@ import ch.liquidmind.inflection.proxy.ProxyHelper;
 import ch.liquidmind.inflection.test.model.Address;
 import ch.liquidmind.inflection.test.model.Gender;
 import ch.liquidmind.inflection.test.model.Person;
-import ch.liquidmind.inflection.test.model.FullTaxonomy.ch.liquidmind.inflection.proxy.FullTaxonomy_ListProxy;
-import ch.liquidmind.inflection.test.model.FullTaxonomy.ch.liquidmind.inflection.test.model.FullTaxonomy_Address;
 import ch.liquidmind.inflection.test.model.FullTaxonomy.ch.liquidmind.inflection.test.model.FullTaxonomy_Person;
 import ch.liquidmind.inflection.test.model.UseCase1.ch.liquidmind.inflection.test.model.UseCase1_Person;
 import ch.liquidmind.inflection.test.model.UseCase2.ch.liquidmind.inflection.test.model.UseCase2_Person;
@@ -78,18 +76,15 @@ public class InflectionTest
 		cal.set( 1972, 8, 8 );
 		Person person = new Person( 42, "John", "Brush", "Mr.", "+41 79 235 17 56", "+41 79 235 17 56", "jebrush@gmail.com", Gender.MALE, cal.getTime() );
 		Address address = new Address( 43, "Feldgüetliweg 82", "Feldmeilen", "8706", "Switzerland" );
-		person.getAddresses()[ 0 ] = address;
+		person.getAddresses().add( address );
 		address.getPeople().add( person );
+		person.setProfileImage( new byte[] { 0x4b, 0x69, 0x6c, 0x72, 0x6f, 0x79, 0x20, 0x77, 0x61, 0x73, 0x20, 0x68, 0x65, 0x72, 0x65 } );
 		
 		FullTaxonomy_Person fullTaxonomyPerson = ProxyHelper.getProxy( "ch.liquidmind.inflection.test.model.FullTaxonomy", person );
 		UseCase1_Person useCase1Person = ProxyHelper.getProxy( "ch.liquidmind.inflection.test.model.UseCase1", person );
 		UseCase2_Person useCase2Person = ProxyHelper.getProxy( "ch.liquidmind.inflection.test.model.UseCase2", person );
 		UseCase3_Person useCase3Person = ProxyHelper.getProxy( "ch.liquidmind.inflection.test.model.UseCase3", person );
 		UseCase4_Address useCase4Address = ProxyHelper.getProxy( "ch.liquidmind.inflection.test.model.UseCase4", address );
-		
-		FullTaxonomy_ListProxy< FullTaxonomy_Address > ft_addreses = fullTaxonomyPerson.getAddresses();
-		FullTaxonomy_Address ft_address = ft_addreses.get( 0 );
-		ft_addreses.iterator();
 		
 		ObjectMapper mapper = new ObjectMapper();
 		ObjectWriter writer = mapper.writerWithDefaultPrettyPrinter();

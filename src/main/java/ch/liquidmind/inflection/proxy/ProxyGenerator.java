@@ -352,10 +352,8 @@ public class ProxyGenerator
 				
 				if ( componentType.isArray() )
 					throw new IllegalStateException( "No support at this time for multi-dimensional arrays." );
-				
-				String arrayTypeConverted = getFullyQualifiedCollectionName( taxonomy, ProxyRegistry.getProxyBaseClass( aClass ) );
-				String actualTypeArgumentsConverted = getTypeName( componentType );
-				typeName = arrayTypeConverted + "< " + String.join( ", ", actualTypeArgumentsConverted ) + " >";
+					
+				typeName = componentType.getName() + "[]";
 			}
 			else
 			{

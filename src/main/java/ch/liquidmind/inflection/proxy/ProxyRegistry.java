@@ -219,22 +219,13 @@ public class ProxyRegistry
 		}
 		else
 		{
-			if ( object.getClass().isArray() )
+			View view = taxonomy.resolveView( object.getClass() );
+			
+			if ( view != null )
 			{
-				String proxyClassName = ProxyGenerator.getFullyQualifiedCollectionName( taxonomy, ListProxy.class );
-				Class< ? > proxyClass = __ClassLoader.loadClass( Thread.currentThread().getContextClassLoader(), proxyClassName );
+				String proxyClassName = ProxyGenerator.getFullyQualifiedViewName( taxonomy, view );
+				Class< ? > proxyClass = __ClassLoader.loadClass( taxonomy.getTaxonomyLoader().getClassLoader(), proxyClassName );
 				proxy = (T)__Class.newInstance( proxyClass );
-			}
-			else
-			{
-				View view = taxonomy.resolveView( object.getClass() );
-				
-				if ( view != null )
-				{
-					String proxyClassName = ProxyGenerator.getFullyQualifiedViewName( taxonomy, view );
-					Class< ? > proxyClass = __ClassLoader.loadClass( taxonomy.getTaxonomyLoader().getClassLoader(), proxyClassName );
-					proxy = (T)__Class.newInstance( proxyClass );
-				}
 			}
 		}
 		
