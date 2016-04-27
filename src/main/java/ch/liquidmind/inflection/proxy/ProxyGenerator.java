@@ -24,6 +24,7 @@ import ch.liquidmind.inflection.model.external.Taxonomy;
 import ch.liquidmind.inflection.model.external.View;
 import ch.liquidmind.inflection.model.linked.NamedElementLinked;
 import ch.liquidmind.inflection.model.linked.UnparsedAnnotation;
+import ch.liquidmind.inflection.util.InflectionPrinter;
 
 // TODO Proxies of abstract classes should be abstract themselves (since it doesn't
 // make sense to be able to instantiate a view of an un-instantiable class).
@@ -35,25 +36,27 @@ public class ProxyGenerator
 {
 	private File baseDir;
 	private Taxonomy taxonomy;
+	private List< String > annotationNames;
 	private PrintWriter printWriter;
 	
 	// TODO Introduce apache commons cli, analogous to deflector.
+	@SuppressWarnings( "unchecked" )
 	public static void main( String[] args )
 	{
-		File baseDir = new File( args[ 0 ] );
-		String[] taxonomyNames = new String[ args.length - 1 ];
+		Map< String, Object > options = InflectionPrinter.parseOptions( args );
 		
-		for ( int i = 0 ; i < taxonomyNames.length ; ++i )
-			taxonomyNames[ i ] = args[ i + 1 ];
+		String output = (String)options.get( "-output" );
+		List< String > taxonomyNames = ((List< String >)options.get( "-taxonomies" ));
+		List< String > annotationNames = ((List< String >)options.get( "-annotations" ));
 		
 		for ( String taxonomyName : taxonomyNames )
 		{
 			Taxonomy taxonomy = TaxonomyLoader.getContextTaxonomyLoader().loadTaxonomy( taxonomyName );
-			new ProxyGenerator( baseDir, taxonomy ).generateTaxonomy();
+			new ProxyGenerator( new File( output ), taxonomy, annotationNames ).generateTaxonomy();
 		}
 	}
 	
-	public ProxyGenerator( File baseDir, Taxonomy taxonomy )
+	public ProxyGenerator( File baseDir, Taxonomy taxonomy, List< String > annotationNames )
 	{
 		super();
 		this.baseDir = baseDir;

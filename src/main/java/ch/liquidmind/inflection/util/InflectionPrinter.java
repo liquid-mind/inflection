@@ -20,7 +20,6 @@ import ch.liquidmind.inflection.model.external.Property;
 import ch.liquidmind.inflection.model.external.Taxonomy;
 import ch.liquidmind.inflection.model.external.View;
 import ch.liquidmind.inflection.model.linked.UnparsedAnnotation;
-import ch.liquidmind.inflection.proxy.ProxyRegistry;
 
 public class InflectionPrinter
 {
@@ -78,7 +77,8 @@ public class InflectionPrinter
 		printer.printTaxonomy( taxonomy );
 	}
 	
-	private static Map< String, Object > parseOptions( String[] args )
+	// TODO Also used by ProxyGenerator: move to a common location.
+	public static Map< String, Object > parseOptions( String[] args )
 	{
 		Map< String, Object > options = new HashMap< String, Object >();
 
