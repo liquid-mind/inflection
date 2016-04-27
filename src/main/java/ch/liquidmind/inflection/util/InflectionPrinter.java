@@ -54,15 +54,14 @@ public class InflectionPrinter
 		this.showInherited = showInherited;
 	}
 	
-	@SuppressWarnings( "unchecked" )
 	public static void main( String[] args )
 	{
-		Map< String, Object > options = parseOptions( args );
+		Map< String, List< String > > options = parseOptions( args );
 		
 		boolean showSimpleNames = options.containsKey( "-showSimpleNames" );
 		boolean showInherited = options.containsKey( "-showInherited" );
-		String taxonomyName = ((List< String >)options.get( "-taxonomy" )).get( 0 );
-		String classpath = ((List< String >)options.get( "-classpath" )).get( 0 );
+		String taxonomyName = options.get( "-taxonomy" ).get( 0 );
+		String classpath = options.get( "-classpath" ).get( 0 );
 		String[] classpaths = classpath.split( "[:|;]" );
 		URL[] urls = new URL[ classpaths.length ];
 		
@@ -78,9 +77,9 @@ public class InflectionPrinter
 	}
 	
 	// TODO Also used by ProxyGenerator: move to a common location.
-	public static Map< String, Object > parseOptions( String[] args )
+	public static Map< String, List< String > > parseOptions( String[] args )
 	{
-		Map< String, Object > options = new HashMap< String, Object >();
+		Map< String, List< String > > options = new HashMap< String, List< String > >();
 
 		for ( int i = 0 ; i < args.length ; ++i )
 		{

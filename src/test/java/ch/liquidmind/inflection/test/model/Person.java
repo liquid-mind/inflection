@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+@MyAnnotation
 public class Person extends IdentifiableObject
 {
 	private String firstName , lastName , title;
@@ -31,7 +32,7 @@ public class Person extends IdentifiableObject
 		this.dateOfBirth = dateOfBirth;
 	}
 
-	@ch.liquidmind.inflection.test.model.MyAnnotation( booleanValue = true, byteValue = 0, charValue = 6, shortValue = 1, intValue = 2, longValue = 3, floatValue = 4.0F, doubleValue = 5.0, enumValue = java.nio.file.AccessMode.EXECUTE, stringValue = "string", annotationValue = @java.lang.Deprecated(  ), arrayValue = { "string1", "string2" }, classValue = java.lang.Object.class )
+	@MyAnnotation
 	public String getFirstName()
 	{
 		return firstName;

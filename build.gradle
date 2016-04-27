@@ -126,13 +126,15 @@ task( proxifyTestTaxonomies, dependsOn: compileTestTaxonomiesInflection, type: J
 	main = "ch.liquidmind.inflection.proxy.ProxyGenerator"
 	classpath = sourceSets.main.runtimeClasspath + sourceSets.testModel.runtimeClasspath
 	jvmArgs = [ "-ea", "$debugProxyGeneratorArg" ]
-	args = [ "${buildDir}/generated/inflection",
+	args = [ "-output", "${buildDir}/generated/inflection",
+	"-taxonomies",
 	"ch.liquidmind.inflection.test.model.FullTaxonomy",
 	"ch.liquidmind.inflection.test.model.UseCase1",
 	"ch.liquidmind.inflection.test.model.UseCase2",
 	"ch.liquidmind.inflection.test.model.UseCase3",
 	"ch.liquidmind.inflection.test.model.UseCase4",
-	"ch.liquidmind.inflection.test.model.UseCase5" ]
+	"ch.liquidmind.inflection.test.model.UseCase5",
+	"-annotations", ".*" ]
 }
 
 // Compile test
