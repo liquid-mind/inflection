@@ -7,11 +7,6 @@ import java.util.ListIterator;
 // TODO: rename to ProxyList (analogous to ArrayList, LinkedList, etc.)
 public class ListProxy< E extends Object > extends CollectionProxy< E > implements List< E >
 {
-	protected ListProxy( String taxonomyName )
-	{
-		super( taxonomyName );
-	}
-
 	@Override
 	public boolean addAll( int index, Collection< ? extends E > c )
 	{

@@ -80,11 +80,11 @@ public class InflectionTest
 		address.getPeople().add( person );
 		person.setProfileImage( new byte[] { 0x4b, 0x69, 0x6c, 0x72, 0x6f, 0x79, 0x20, 0x77, 0x61, 0x73, 0x20, 0x68, 0x65, 0x72, 0x65 } );
 		
-		FullTaxonomy_Person fullTaxonomyPerson = Inflection.cast( "ch.liquidmind.inflection.test.model.FullTaxonomy", person );
-		UseCase1_Person useCase1Person = Inflection.cast( "ch.liquidmind.inflection.test.model.UseCase1", person );
-		UseCase2_Person useCase2Person = Inflection.cast( "ch.liquidmind.inflection.test.model.UseCase2", person );
-		UseCase3_Person useCase3Person = Inflection.cast( "ch.liquidmind.inflection.test.model.UseCase3", person );
-		UseCase4_Address useCase4Address = Inflection.cast( "ch.liquidmind.inflection.test.model.UseCase4", address );
+		FullTaxonomy_Person fullTaxonomyPerson = Inflection.cast( FullTaxonomy_Person.class, person );
+		UseCase1_Person useCase1Person = Inflection.cast( UseCase1_Person.class, person );
+		UseCase2_Person useCase2Person = Inflection.cast( UseCase2_Person.class, person );
+		UseCase3_Person useCase3Person = Inflection.cast( UseCase3_Person.class, person );
+		UseCase4_Address useCase4Address = Inflection.cast( UseCase4_Address.class, address );
 		
 		ObjectMapper mapper = new ObjectMapper();
 		ObjectWriter writer = mapper.writerWithDefaultPrettyPrinter();

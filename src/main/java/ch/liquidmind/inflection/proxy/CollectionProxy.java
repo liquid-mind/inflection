@@ -4,11 +4,6 @@ import java.util.Collection;
 
 public class CollectionProxy< E > extends IterableProxy< E > implements Collection< E >
 {
-	protected CollectionProxy( String taxonomyName )
-	{
-		super( taxonomyName );
-	}
-
 	@Override
 	public int size()
 	{

@@ -123,11 +123,16 @@ public class ProxyGenerator
 		
 		printWriter.println( "public class " + simpleName + genericType + " extends " + proxyCollection.getName() + genericType );
 		printWriter.println( "{" );
-		printWriter.println( "    public " + simpleName + "()");
-		printWriter.println( "    {" );
-		printWriter.println( "        super( \"" + taxonomy.getName() + "\" );" );
-		printWriter.println( "    }" );
+		
+		generateStaticFields( taxonomy.getName(), null );
+		
 		printWriter.println( "}" );
+	}
+	
+	private void generateStaticFields( String taxonomyName, String viewName )
+	{
+		printWriter.println( "    private static final " + Taxonomy.class.getName() + " TAXONOMY = " + TaxonomyLoader.class.getName() + ".getContextTaxonomyLoader().loadTaxonomy( \"" + taxonomyName + "\" );" );
+		printWriter.println( "    private static final " + View.class.getName() + " VIEW = TAXONOMY.getView( \"" + viewName + "\" );" );
 	}
 	
 	private void generateView( View view )
@@ -180,11 +185,10 @@ public class ProxyGenerator
 		printWriter.println( "public class " + NamedElementLinked.getSimpleName( fqViewName ) + " extends " + getSuperClassName( view ) );
 		printWriter.println( "{" );
 		
-		generateConstructors( view, fqViewName );
+		generateStaticFields( taxonomy.getName(), view.getName() );
 		generateMembers( view.getDeclaredMembers() );
 		
 		printWriter.println( "}" );
-		
 	}
 	
 	private String getSuperClassName( View view )
@@ -198,21 +202,6 @@ public class ProxyGenerator
 			superClassName = Proxy.class.getName();
 		
 		return superClassName;
-	}
-
-	private void generateConstructors( View view, String fqViewName  )
-	{
-		printWriter.println( "    public " + NamedElementLinked.getSimpleName( fqViewName ) + "()" );
-		printWriter.println( "    {" );
-		printWriter.println( "        super( \"" + taxonomy.getName() + "\", \"" + view.getName() + "\" );" );
-		printWriter.println( "    }" );
-		printWriter.println();
-		
-		printWriter.println( "    protected " + NamedElementLinked.getSimpleName( fqViewName ) + "( String taxonomyName, String viewName )" );
-		printWriter.println( "    {" );
-		printWriter.println( "        super( taxonomyName, viewName );" );
-		printWriter.println( "    }" );
-		printWriter.println();
 	}
 	
 	private void generateMembers( List< Member > members )

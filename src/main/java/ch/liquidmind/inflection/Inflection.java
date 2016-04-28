@@ -1,65 +1,90 @@
 package ch.liquidmind.inflection;
 
-import java.lang.reflect.Method;
+import java.lang.reflect.Field;
+import java.util.HashMap;
+import java.util.Map;
 
 import __java.lang.__Class;
-import __java.lang.reflect.__Method;
+import __java.lang.reflect.__Field;
 import ch.liquidmind.inflection.loader.TaxonomyLoader;
 import ch.liquidmind.inflection.model.external.Taxonomy;
 import ch.liquidmind.inflection.model.external.View;
 import ch.liquidmind.inflection.proxy.Proxy;
 import ch.liquidmind.inflection.proxy.ProxyRegistry;
 
-@SuppressWarnings( "unchecked" )
 public class Inflection
 {
-	private static Method GET_TAXONOMY = __Class.getDeclaredMethod( Proxy.class, "getTaxonomy", new Class[] {} );
-	private static Method GET_VIEW = __Class.getDeclaredMethod( Proxy.class, "getView", new Class[] {} );
+	private static Map< Class< ? >, Taxonomy > taxonomyCache = new HashMap< Class< ? >, Taxonomy >();
+	private static Map< Class< ? >, View > viewCache = new HashMap< Class< ? >, View >();
 	
-	static
+	public static Taxonomy getTaxonomy( Class< ? extends Proxy > proxyClass )
 	{
-		GET_TAXONOMY.setAccessible( true );
-		GET_VIEW.setAccessible( true );
+		Taxonomy taxonomy = taxonomyCache.get( proxyClass );
+		
+		if ( taxonomy == null )
+		{
+			Field field = __Class.getDeclaredField( proxyClass, "TAXONOMY" );
+			field.setAccessible( true );
+			taxonomy = (Taxonomy)__Field.get( field, null );
+			taxonomyCache.put( proxyClass, taxonomy );
+		}
+		
+		return taxonomy;
+	}
+	
+	public static View getView( Class< ? extends Proxy > proxyClass )
+	{
+		View view = viewCache.get( proxyClass );
+		
+		if ( view == null )
+		{
+			Field field = __Class.getDeclaredField( proxyClass, "VIEW" );
+			field.setAccessible( true );
+			view = (View)__Field.get( field, null );
+			viewCache.put( proxyClass, view );
+		}
+		
+		return view;
 	}
 	
 	public static Taxonomy getTaxonomy( Proxy proxy )
 	{
-		return (Taxonomy)__Method.invoke( GET_TAXONOMY, proxy, new Object[] {} );
+		return getTaxonomy( proxy.getClass() );
 	}
 
 	public static View getView( Proxy proxy )
 	{
-		return (View)__Method.invoke( GET_VIEW, proxy, new Object[] {} );
+		return getView( proxy.getClass() );
+	}
+
+	public static < T extends Proxy > T cast( Class< ? extends Proxy > proxyClass, Object viewableObject )
+	{
+		return cast( getTaxonomy( proxyClass ), viewableObject );
 	}
 
 	public static < T extends Proxy > T cast( String taxonomyName, Object viewableObject )
 	{
-		Taxonomy taxonomy = TaxonomyLoader.getContextTaxonomyLoader().loadTaxonomy( taxonomyName );
-		T proxy = cast( taxonomy, viewableObject );
-		
-		return proxy;
+		return cast( TaxonomyLoader.getContextTaxonomyLoader().loadTaxonomy( taxonomyName ), viewableObject );
 	}
 
 	public static < T extends Proxy > T cast( Taxonomy taxonomy, Object viewableObject )
 	{
-		T proxy = ProxyRegistry.getContextProxyRegistry().getProxy( taxonomy, viewableObject );
-		
-		return proxy;
+		return ProxyRegistry.getContextProxyRegistry().getProxy( taxonomy, viewableObject );
+	}
+
+	public static < T extends Proxy > T cast( Class< ? extends Proxy > proxyClass, Proxy proxy )
+	{
+		return cast( getTaxonomy( proxyClass ), proxy );
 	}
 
 	public static < T extends Proxy > T cast( String taxonomyName, Proxy proxy )
 	{
-		Taxonomy taxonomy = TaxonomyLoader.getContextTaxonomyLoader().loadTaxonomy( taxonomyName );
-		T otherProxy = cast( taxonomy, proxy );
-		
-		return otherProxy;
+		return cast( TaxonomyLoader.getContextTaxonomyLoader().loadTaxonomy( taxonomyName ), proxy );
 	}
 
 	public static < T extends Proxy > T cast( Taxonomy taxonomy, Proxy proxy )
 	{
-		T otherProxy = cast( taxonomy, cast( proxy ) );
-		
-		return otherProxy;
+		return cast( taxonomy, cast( proxy ) );
 	}
 	
 	public static < T extends Object > T cast( Proxy proxy )

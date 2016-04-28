@@ -8,39 +8,14 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import __java.lang.__Class;
-import ch.liquidmind.inflection.loader.TaxonomyLoader;
-import ch.liquidmind.inflection.model.external.Taxonomy;
+import ch.liquidmind.inflection.Inflection;
 import ch.liquidmind.inflection.model.external.View;
 
 public class Proxy
 {
-	// Note that the view's taxonomy (View.getTaxonomy()) may be distinct from
-	// this taxonomy.
-	private Taxonomy taxonomy;
-	private View view;
-
-	// Constructor for collection proxies.
-	protected Proxy( String taxonomyName )
-	{
-		this( taxonomyName, null );
-	}
-	
-	// Constructor for normal proxies.
-	protected Proxy( String taxonomyName, String viewName )
+	protected Proxy()
 	{
 		super();
-        taxonomy = TaxonomyLoader.getContextTaxonomyLoader().loadTaxonomy( taxonomyName );
-        this.view = taxonomy.getView( viewName );
-	}
-
-	Taxonomy getTaxonomy()
-	{
-		return taxonomy;
-	}
-
-	View getView()
-	{
-		return view;
 	}
 
 	protected Method getMethod( String name, Class< ? >[] paramTypes )
@@ -51,10 +26,10 @@ public class Proxy
 	@SuppressWarnings( "unchecked" )
 	protected < T extends Object > T invoke( String methodName, Class< ? >[] paramTypes, Object[] params ) throws Throwable
 	{
-		Method method = getDeclaredMethodRecursive( view.getViewedClass(), methodName, paramTypes );
+		Method method = getDeclaredMethodRecursive( Inflection.getView( this ).getViewedClass(), methodName, paramTypes );
 		
 		if ( method == null )
-			method = getUsedMethod( view, methodName );
+			method = getUsedMethod( Inflection.getView( this ), methodName );
 		
 		if ( method == null )
 			throw new IllegalStateException( "Unable to resolve method: " + methodName );
@@ -87,8 +62,8 @@ public class Proxy
 				break;
 		}
 		
-		if ( foundMethod == null && taxonomy.getSuperview( view ) != null )
-			foundMethod = getUsedMethod( taxonomy.getSuperview( view ), methodName );
+		if ( foundMethod == null && Inflection.getTaxonomy( this ).getSuperview( view ) != null )
+			foundMethod = getUsedMethod( Inflection.getTaxonomy( this ).getSuperview( view ), methodName );
 		
 		return foundMethod;
 	}
@@ -97,9 +72,9 @@ public class Proxy
 	{
 		List< Class< ? > > usedClassesRecursive = view.getUsedClasses();
 		
-		if ( taxonomy.getSuperview( view ) != null )
+		if ( Inflection.getTaxonomy( this ).getSuperview( view ) != null )
 		{
-			List< Class< ? > > superViewUsedClasses = getUsedClassesRecursive( taxonomy.getSuperview( view ) );
+			List< Class< ? > > superViewUsedClasses = getUsedClassesRecursive( Inflection.getTaxonomy( this ).getSuperview( view ) );
 			
 			for ( Class< ? > superViewUsedClass : superViewUsedClasses )
 				if ( !usedClassesRecursive.contains( superViewUsedClass ) )

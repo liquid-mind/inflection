@@ -34,7 +34,7 @@ public class ProxyHandler implements InvocationHandler
 	private Object invoke( Proxy proxy, Method method, Object[] args ) throws Throwable
 	{
 		String memberName = Pass2Listener.getPropertyName( method );
-		Member member = proxy.getTaxonomy().getMember( proxy.getView(), memberName );
+		Member member = Inflection.getTaxonomy( proxy ).getMember( Inflection.getView( proxy ), memberName );
 		Object viewableObject = ProxyRegistry.getContextProxyRegistry().getObject( proxy );
 		List< Object > viewableArgs = getViewableObjects( args );
 		MemberOperation memberOperation = getMemberOperation( method );

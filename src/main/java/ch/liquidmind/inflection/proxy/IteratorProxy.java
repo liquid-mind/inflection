@@ -4,11 +4,6 @@ import java.util.Iterator;
 
 public class IteratorProxy< E extends Object > extends Proxy implements Iterator< E >
 {
-	protected IteratorProxy( String taxonomyName )
-	{
-		super( taxonomyName );
-	}
-
 	@Override
 	public boolean hasNext()
 	{
