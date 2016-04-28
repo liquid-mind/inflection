@@ -6,6 +6,7 @@ import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.List;
 
+import ch.liquidmind.inflection.Inflection;
 import ch.liquidmind.inflection.compiler.Pass2Listener;
 import ch.liquidmind.inflection.model.external.Field;
 import ch.liquidmind.inflection.model.external.Member;
@@ -46,7 +47,7 @@ public class ProxyHandler implements InvocationHandler
 		else
 			throw new IllegalStateException();
 		
-		Object proxyRetVal = getProxyObject( ProxyHelper.getTaxonomy( proxy ), viewableRetVal );
+		Object proxyRetVal = getProxyObject( Inflection.getTaxonomy( proxy ), viewableRetVal );
 
 		return proxyRetVal;
 	}

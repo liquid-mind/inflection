@@ -11,6 +11,7 @@ import java.util.Set;
 
 import __java.lang.__Class;
 import __java.lang.__ClassLoader;
+import ch.liquidmind.inflection.Inflection;
 import ch.liquidmind.inflection.model.external.Taxonomy;
 import ch.liquidmind.inflection.model.external.View;
 
@@ -238,12 +239,12 @@ public class ProxyRegistry
 		if ( proxy == null )
 			return null;
 		
-		PairTables pairTables = pairTablesByTaxonomy.get( ProxyHelper.getTaxonomy( proxy ) );
+		PairTables pairTables = pairTablesByTaxonomy.get( Inflection.getTaxonomy( proxy ) );
 		
 		if ( pairTables == null )
 		{
 			pairTables = new PairTables();
-			pairTablesByTaxonomy.put( ProxyHelper.getTaxonomy( proxy ), pairTables );
+			pairTablesByTaxonomy.put( Inflection.getTaxonomy( proxy ), pairTables );
 		}
 		
 		Set< ProxyObjectPair > proxyObjectPairs = pairTables.getPairsByProxyHashcode().get( System.identityHashCode( proxy ) );
@@ -294,7 +295,7 @@ public class ProxyRegistry
 		}
 		
 		if ( objectClass == null )
-			objectClass = ProxyHelper.getView( proxy ).getViewedClass();
+			objectClass = Inflection.getView( proxy ).getViewedClass();
 		
 		return (T)__Class.newInstance( objectClass );
 	}

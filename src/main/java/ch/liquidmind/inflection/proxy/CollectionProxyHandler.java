@@ -6,6 +6,7 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 
+import ch.liquidmind.inflection.Inflection;
 import ch.liquidmind.inflection.model.external.Taxonomy;
 
 public class CollectionProxyHandler implements InvocationHandler
@@ -33,7 +34,7 @@ public class CollectionProxyHandler implements InvocationHandler
 		Method viewableMethod = collection.getClass().getMethod( method.getName(), method.getParameterTypes() );
 		viewableMethod.setAccessible( true );
 		Object viewableRetVal = invokeWithExceptionHandling( viewableMethod, collection, viewableArgs.toArray() );
-		Object proxyRetVal = getProxyObject( ProxyHelper.getTaxonomy( proxy ), viewableRetVal );
+		Object proxyRetVal = getProxyObject( Inflection.getTaxonomy( proxy ), viewableRetVal );
 
 		return proxyRetVal;
 	}
