@@ -46,6 +46,21 @@ public class Inflection
 		
 		return proxy;
 	}
+
+	public static < T extends Proxy > T cast( String taxonomyName, Proxy proxy )
+	{
+		Taxonomy taxonomy = TaxonomyLoader.getContextTaxonomyLoader().loadTaxonomy( taxonomyName );
+		T otherProxy = cast( taxonomy, proxy );
+		
+		return otherProxy;
+	}
+
+	public static < T extends Proxy > T cast( Taxonomy taxonomy, Proxy proxy )
+	{
+		T otherProxy = cast( taxonomy, cast( proxy ) );
+		
+		return otherProxy;
+	}
 	
 	public static < T extends Object > T cast( Proxy proxy )
 	{
