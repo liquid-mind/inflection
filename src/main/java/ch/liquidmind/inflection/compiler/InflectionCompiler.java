@@ -37,11 +37,16 @@ public class InflectionCompiler
 		
 		compile( targetDir, compilationMode, sourceFiles );
 	}
-	
+
 	public static void compile( File targetDir, CompilationMode compilationMode, File[] sourceFiles )
 	{
+		compile( TaxonomyLoader.getSystemTaxonomyLoader(), targetDir, compilationMode, sourceFiles );
+	}
+	
+	public static void compile( TaxonomyLoader loader, File targetDir, CompilationMode compilationMode, File[] sourceFiles )
+	{
 		long timeBefore = System.currentTimeMillis();
-		CompilationJob job = new CompilationJob( TaxonomyLoader.getSystemTaxonomyLoader(), targetDir, compilationMode, sourceFiles );
+		CompilationJob job = new CompilationJob( loader, targetDir, compilationMode, sourceFiles );
 		
 		try
 		{

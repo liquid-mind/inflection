@@ -1,4 +1,4 @@
-package ch.inflection.examples.helloworld.model;
+package ch.liquidmind.inflect.examples.helloworld.model;
 
 taxonomy SingleProperty
 {

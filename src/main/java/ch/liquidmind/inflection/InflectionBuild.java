@@ -90,8 +90,10 @@ public class InflectionBuild
 		CompilationMode compilationMode = Enum.valueOf( CompilationMode.class, mode );
 		File[] sourceFilesAsArray = sourceFiles.toArray( new File[ sourceFiles.size() ] );
 		
-		CompilationJob job = new CompilationJob( getTaxonomyLoader( classpath ), taxonomyTargetAsFile, compilationMode, sourceFilesAsArray );
-		InflectionCompiler.compile( job );
+		if ( !taxonomyTargetAsFile.exists() )
+			taxonomyTargetAsFile.mkdirs();
+		
+		InflectionCompiler.compile( getTaxonomyLoader( classpath ), taxonomyTargetAsFile, compilationMode, sourceFilesAsArray );
 	}
 
 	private static TaxonomyLoader getTaxonomyLoader( List< String > classpath, String taxonomyTarget )
