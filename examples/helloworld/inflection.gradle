@@ -1,0 +1,40 @@
+plugins {
+	id 'java'
+}
+
+repositories {
+	mavenCentral()
+    mavenLocal()
+	maven {
+		url "http://dl.bintray.com/deflector/maven"
+	}
+}
+
+sourceSets {
+    main {
+        java {
+            include "ch/inflection/examples/helloworld/model/**/*"
+        }
+    }
+}
+
+dependencies {
+	compile 'ch.liquidmind:inflection:2.0-alpha'
+}
+
+task( compileTaxonomies, dependsOn: compileJava, type: JavaExec ) {
+	main = "ch.liquidmind.inflection.compiler.InflectionCompiler"
+	classpath = configurations.compile + sourceSets.main.runtimeClasspath
+	args "${buildDir}/resources/main",
+		"NORMAL",
+		"src/main/resources/ch/inflection/examples/helloworld/model/HelloWorld.inflect"
+}
+
+task( proxifyTaxonomies, dependsOn: compileTaxonomies, type: JavaExec ) {
+	main = "ch.liquidmind.inflection.proxy.ProxyGenerator"
+	classpath = configurations.compile + sourceSets.main.runtimeClasspath
+	args "-output", "${buildDir}/generated/inflection",
+		"-taxonomies",
+		"ch.inflection.examples.helloworld.model.SingleProperty",
+		"ch.inflection.examples.helloworld.model.AllProperties"
+}

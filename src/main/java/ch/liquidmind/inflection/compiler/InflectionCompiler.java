@@ -27,15 +27,21 @@ public class InflectionCompiler
 	public static void main( String[] args )
 	{
 		File targetDir = new File( args[ 0 ] );
-		CompilationMode compilationMode = CompilationMode.valueOf( args[ 1 ] );
+		CompilationMode compilationMode = Enum.valueOf( CompilationMode.class, args[ 1 ] );
 		
 		File[] sourceFiles = new File[ args.length - 2 ];
 		
 		for ( int i = 0 ; i < sourceFiles.length ; ++i )
 			sourceFiles[ i ] = new File( args[ i + 2 ] );
 		
-		CompilationJob job = new CompilationJob( TaxonomyLoader.getSystemTaxonomyLoader(), targetDir, compilationMode, sourceFiles );
+		
+		compile( targetDir, compilationMode, sourceFiles );
+	}
+	
+	public static void compile( File targetDir, CompilationMode compilationMode, File[] sourceFiles )
+	{
 		long timeBefore = System.currentTimeMillis();
+		CompilationJob job = new CompilationJob( TaxonomyLoader.getSystemTaxonomyLoader(), targetDir, compilationMode, sourceFiles );
 		
 		try
 		{

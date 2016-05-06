@@ -1,0 +1,11 @@
+package ch.inflection.examples.helloworld.model;
+
+taxonomy SingleProperty
+{
+	view Person { firstName; }
+}
+
+taxonomy AllProperties
+{
+	view Person { *; }
+}

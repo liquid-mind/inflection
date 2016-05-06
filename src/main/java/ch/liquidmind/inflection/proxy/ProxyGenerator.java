@@ -53,10 +53,15 @@ public class ProxyGenerator
 		String output = options.get( "-output" ).get( 0 );
 		List< String > taxonomyNames = options.get( "-taxonomies" );
 		List< String > annotationNames = options.get( "-annotations" );
-		
+
+		generateProxies( TaxonomyLoader.getContextTaxonomyLoader(), output, taxonomyNames, annotationNames );
+	}
+	
+	public static void generateProxies( TaxonomyLoader loader, String output, List< String > taxonomyNames, List< String > annotationNames )
+	{
 		for ( String taxonomyName : taxonomyNames )
 		{
-			Taxonomy taxonomy = TaxonomyLoader.getContextTaxonomyLoader().loadTaxonomy( taxonomyName );
+			Taxonomy taxonomy = loader.loadTaxonomy( taxonomyName );
 			new ProxyGenerator( new File( output ), taxonomy, annotationNames ).generateTaxonomy();
 		}
 	}

@@ -34,30 +34,15 @@ sourceSets {
             exclude "**/*.g4"
 		}
 	}
-    testModel {
-        java {
-            srcDirs "src/test/java", "src/main/java"
-            include "ch/liquidmind/inflection/test/model/*",
-            	 "ch/liquidmind/inflection/bidir/*",
-            	  "ch/liquidmind/inflection/exception/*"
-        }
-        resources {
-        	srcDir "src/test/resources"
-        }
-    }
     test {
     	java {
 	    	srcDirs "src/test/java", "build/generated/inflection"
     	}
-        resources {
-        	srcDirs "src/test/resources", "build/resources/testModel"
-        }
     }
 }
 
 def debugLevelArg = "source,lines,vars";
 compileJava.options.debugOptions.debugLevel = debugLevelArg;
-compileTestModelJava.options.debugOptions.debugLevel = debugLevelArg;
 compileTestJava.options.debugOptions.debugLevel = debugLevelArg;
 
 dependencies {
@@ -71,9 +56,6 @@ dependencies {
 	compile( '__java:rt:1.8' ) { transitive = false }
 	compile( 'commons-beanutils:commons-beanutils:1.9.2' ) { transitive = false }
 	testCompile( "junit:junit:4.12" ) { transitive = false }
-	testModelCompile( "__java:rt:1.8" ) { transitive = false }
-	testModelCompile( "com.google.guava:guava:19.0-rc2" ) { transitive = false }
-	testModelCompile( "commons-beanutils:commons-beanutils:1.9.2" ) { transitive = false }
 
 	runtime "commons-io:commons-io:2.4"
 	runtime "__commons-io:commons-io-deflected:2.4"
@@ -109,36 +91,22 @@ if ( this.hasProperty( "debugProxyGenerator" ) )
 else
 	debugProxyGeneratorArg = dummyArg;
 
-// Inflect test model
-task( compileTestTaxonomiesInflection, dependsOn: compileTestModelJava, type: JavaExec ) {
-	main = "ch.liquidmind.inflection.compiler.InflectionCompiler"
-	classpath = sourceSets.main.runtimeClasspath + sourceSets.testModel.runtimeClasspath
-	jvmArgs = [ "-ea", "$debugInflectionCompilerArg" ]
-	args = [ "${buildDir}/resources/testModel", "BOOTSTRAP", "src/test/resources/ch/liquidmind/inflection/test/model/TestModel.inflect" ]
+task( inflect, type: JavaExec ) {
+	main = "ch.liquidmind.inflection.InflectionBuild"
+	classpath = sourceSets.main.runtimeClasspath
+	jvmArgs = [ "$debugInflectionCompilerArg" ]
+	args = [
+		"-classpath", sourceSets.test.compileClasspath.asPath,
+		"-sourcepath", "${projectDir}/src/test/java:${projectDir}/src/test/resources",
+		"-modelRegex", ".*ch/liquidmind/inflection/test/model/.*\\.java",
+		"-taxonomyTarget", "${buildDir}/resources/test",
+		"-proxyTarget", "${buildDir}/generated/inflection",
+		"-annotations", ".*",
+		"-mode", "BOOTSTRAP"
+	]
 }
 
-compileTestTaxonomiesInflection.doFirst {
-	delete fileTree( dir: "build/resources/testModel" , includes: [ "**/*.tax" ] )
-}
-
-// Proxify test taxonomies
-task( proxifyTestTaxonomies, dependsOn: compileTestTaxonomiesInflection, type: JavaExec ) {
-	main = "ch.liquidmind.inflection.proxy.ProxyGenerator"
-	classpath = sourceSets.main.runtimeClasspath + sourceSets.testModel.runtimeClasspath
-	jvmArgs = [ "-ea", "$debugProxyGeneratorArg" ]
-	args = [ "-output", "${buildDir}/generated/inflection",
-	"-taxonomies",
-	"ch.liquidmind.inflection.test.model.FullTaxonomy",
-	"ch.liquidmind.inflection.test.model.UseCase1",
-	"ch.liquidmind.inflection.test.model.UseCase2",
-	"ch.liquidmind.inflection.test.model.UseCase3",
-	"ch.liquidmind.inflection.test.model.UseCase4",
-	"ch.liquidmind.inflection.test.model.UseCase5",
-	"-annotations", ".*" ]
-}
-
-// Compile test
-compileTestJava.dependsOn proxifyTestTaxonomies
+compileTestJava.dependsOn inflect
 
 test {
 	// Enable this to see test output:
