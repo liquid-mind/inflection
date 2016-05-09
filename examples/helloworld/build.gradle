@@ -30,12 +30,11 @@ task( inflect, type: JavaExec ) {
 	args = [
 		"-classpath", sourceSets.main.compileClasspath.asPath,
 		"-sourcepath", "${projectDir}/src/main/java:${projectDir}/src/main/resources",
-		"-modelRegex", ".*ch/liquidmind/inflect/examples/helloworld/model/.*\\.java",
-		"-taxonomyTarget", "${buildDir}/taxonomies",
-		"-proxyTarget", "${buildDir}/generated/inflection"
+		"-modelRegex", ".*ch(/|\\\\)liquidmind(/|\\\\)inflect(/|\\\\)examples(/|\\\\)helloworld(/|\\\\)model(/|\\\\).*\\.java",
+		"-target", "${buildDir}/inflection"
 	]
 }
 
 compileJava.dependsOn inflect
-sourceSets.main.java.srcDirs += "${buildDir}/generated/inflection"
-sourceSets.main.resources.srcDirs += "${buildDir}/taxonomies"
+sourceSets.main.java.srcDirs += "${buildDir}/inflection/proxy"
+sourceSets.main.resources.srcDirs += "${buildDir}/inflection/taxonomy"
