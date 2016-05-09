@@ -20,6 +20,33 @@ public class Main
 		SingleProperty_Person spPerson = Inflection.cast( SingleProperty_Person.class, person );
 		AllProperties_Person apPerson = Inflection.cast( AllProperties_Person.class, person );
 		
+		demoAccess( person, spPerson );
+		demoJson( person, spPerson, apPerson );
+	}
+	
+	private static void demoAccess( Person person, SingleProperty_Person spPerson )
+	{
+		System.out.println();
+		System.out.println( "INITIAL STATE" );
+		System.out.println( "person.getFirstName(): " + person.getFirstName() );		// firstName == Jon
+		System.out.println( "spPerson.getFirstName(): " + spPerson.getFirstName() );	// firstName == Jon
+		
+		System.out.println();
+		person.setFirstName( "Jane" );
+		System.out.println( "AFTER WRITING TO VIEWABLE" );
+		System.out.println( "person.getFirstName(): " + person.getFirstName() );		// firstName == Jane
+		System.out.println( "spPerson.getFirstName(): " + spPerson.getFirstName() );	// firstName == Jane
+		
+		System.out.println();
+		spPerson.setFirstName( "Jeff" );
+		System.out.println( "AFTER WRITING TO VIEW" );
+		System.out.println( "person.getFirstName(): " + person.getFirstName() );		// firstName == Jeff
+		System.out.println( "spPerson.getFirstName(): " + spPerson.getFirstName() );	// firstName == Jeff
+		System.out.println();
+	}
+	
+	private static void demoJson( Person person, SingleProperty_Person spPerson, AllProperties_Person apPerson ) throws JsonGenerationException, JsonMappingException, IOException
+	{
 		ObjectMapper mapper = new ObjectMapper();
 		ObjectWriter writer = mapper.writerWithDefaultPrettyPrinter();
 		
