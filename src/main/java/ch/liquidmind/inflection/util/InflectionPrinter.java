@@ -62,17 +62,27 @@ public class InflectionPrinter
 		boolean showInherited = options.containsKey( "-showInherited" );
 		String taxonomyName = options.get( "-taxonomy" ).get( 0 );
 		String classpath = options.get( "-classpath" ).get( 0 );
-		String[] classpaths = classpath.split( "[:|;]" );
-		URL[] urls = new URL[ classpaths.length ];
+		String[] classpathArray = classpath.split( "[:|;]" );
 		
-		for ( int i = 0 ; i < classpaths.length ; ++i )
-			urls[ i ] = __URI.toURL( new File( classpaths[ i ] ).toURI() );
+		printTaxonomy( classpathArray, taxonomyName, DEFAULT_PRINT_STREAM, showSimpleNames, showInherited );
+	}
+	
+	public static void printTaxonomy( String[] classpath, String taxonomyName, PrintStream printStream, boolean showSimpleNames, boolean showInherited )
+	{
+		URL[] urls = new URL[ classpath.length ];
+		
+		for ( int i = 0 ; i < classpath.length ; ++i )
+			urls[ i ] = __URI.toURL( new File( classpath[ i ] ).toURI() );
 		
 		ClassLoader classLoader = new URLClassLoader( urls, Thread.currentThread().getContextClassLoader() );
 		TaxonomyLoader loader = new TaxonomyLoader( TaxonomyLoader.getContextTaxonomyLoader(), classLoader );
+		printTaxonomy( loader, taxonomyName, printStream, showSimpleNames, showInherited );
+	}
+	
+	public static void printTaxonomy( TaxonomyLoader loader, String taxonomyName, PrintStream printStream, boolean showSimpleNames, boolean showInherited )
+	{
 		Taxonomy taxonomy = loader.loadTaxonomy( taxonomyName );
-		
-		InflectionPrinter printer = new InflectionPrinter( showSimpleNames, showInherited );
+		InflectionPrinter printer = new InflectionPrinter( printStream, showSimpleNames, showInherited );
 		printer.printTaxonomy( taxonomy );
 	}
 	

@@ -1,6 +1,7 @@
 package ch.liquidmind.inflection;
 
 import java.io.File;
+import java.io.PrintStream;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.ArrayList;
@@ -22,10 +23,12 @@ import javax.tools.ToolProvider;
 
 import com.google.common.io.Files;
 
+import __java.io.__Closeable;
+import __java.io.__PrintStream;
 import __java.net.__URI;
-import ch.liquidmind.inflection.compiler.CompilationJob;
-import ch.liquidmind.inflection.compiler.InflectionCompiler;
+import __org.apache.commons.io.__FileUtils;
 import ch.liquidmind.inflection.compiler.CompilationJob.CompilationMode;
+import ch.liquidmind.inflection.compiler.InflectionCompiler;
 import ch.liquidmind.inflection.loader.TaxonomyLoader;
 import ch.liquidmind.inflection.proxy.ProxyGenerator;
 import ch.liquidmind.inflection.util.InflectionPrinter;
@@ -47,13 +50,16 @@ public class InflectionBuild
 		String classpath = options.get( "-classpath" ).get( 0 );
 		String sourcepath = options.get( "-sourcepath" ).get( 0 );
 		List< String > modelRegex = options.get( "-modelRegex" );
-		String taxonomyTarget = options.get( "-taxonomyTarget" ).get( 0 );
-		String proxyTarget = options.get( "-proxyTarget" ).get( 0 );
+		String target = options.get( "-target" ).get( 0 );
 		List< String > annotations = options.get( "-annotations" );
 		annotations = ( annotations == null ? new ArrayList< String >() : annotations );
 		List< String > modes = options.get( "-mode" );
 		String mode = ( modes == null ? CompilationMode.NORMAL.name() : modes.get( 0 ) );
 		
+		String taxonomyTarget = new File( target, "taxonomy" ).getAbsolutePath();
+		String proxyTarget = new File( target, "proxy" ).getAbsolutePath();
+		String diagnosticNormal = new File( target, "diagnostic/normal" ).getAbsolutePath();
+		String diagnosticVerbose = new File( target, "diagnostic/verbose" ).getAbsolutePath();
 		List< String > classpathModel = Arrays.asList( classpath.split( ":|;" ) );
 		List< String > sourcepathModel = Arrays.asList( sourcepath.split( ":|;" ) );
 		String[] modelRegexAsArray = modelRegex.toArray( new String[ modelRegex.size() ] );
@@ -67,9 +73,31 @@ public class InflectionBuild
 		compileModelFiles( modelFiles, modelTargetDir, classpath );
 		compileInflectionFiles( classpathInflection, taxonomyTarget, inflectFiles, mode );
 		generateProxies( classpathInflection, proxyTarget, taxonomyTarget, annotations );
+		printTaxonomies( classpathInflection, taxonomyTarget, diagnosticNormal, true, false );
+		printTaxonomies( classpathInflection, taxonomyTarget, diagnosticVerbose, true, true );
+	}
+	
+	private static void printTaxonomies( List< String > classpath, String taxonomyTarget, String diagnosticTarget, boolean showSimpleNames, boolean showInherited )
+	{
+		List< String > taxonomyNames = getTaxonomyNames( taxonomyTarget );
+		TaxonomyLoader loader = getTaxonomyLoader( classpath, taxonomyTarget );
+		
+		for ( String taxonomyName : taxonomyNames )
+		{
+			File diagnosticFile = new File( diagnosticTarget, taxonomyName.replace( ".tax", "" ).replace( ".", File.separator ) + ".txt" );
+			__FileUtils.forceMkdir( null, new File( diagnosticFile.getParent() ) );
+			PrintStream printStream = __PrintStream.__new( diagnosticFile );
+			InflectionPrinter.printTaxonomy( loader, taxonomyName, printStream, showSimpleNames, showInherited );
+			__Closeable.close( printStream );
+		}
 	}
 	
 	private static void generateProxies( List< String > classpath, String proxyTarget, String taxonomyTarget, List< String > annotations )
+	{
+		ProxyGenerator.generateProxies( getTaxonomyLoader( classpath, taxonomyTarget ), proxyTarget, getTaxonomyNames( taxonomyTarget ), annotations );
+	}
+	
+	private static List< String > getTaxonomyNames( String taxonomyTarget )
 	{
 		File taxonomyTargetAsFile = new File( taxonomyTarget );
 		Set< File > taxonomyFiles = getMatchingFiles( Arrays.asList( new String[] { taxonomyTarget } ), ".*\\.tax" );
@@ -78,10 +106,10 @@ public class InflectionBuild
 		for ( File taxonomyFile : taxonomyFiles )
 		{
 			String relativeFileName = taxonomyFile.getAbsolutePath().substring( taxonomyTargetAsFile.getAbsolutePath().length() + 1 );
-			taxonomyNames.add( relativeFileName.replaceAll( "/|\\\\", "." ).replaceAll( "\\.tax", "" ) );
+			taxonomyNames.add( relativeFileName.replaceAll( "/|\\\\", "." ).replace( ".tax", "" ) );
 		}
 		
-		ProxyGenerator.generateProxies( getTaxonomyLoader( classpath, taxonomyTarget ), proxyTarget, taxonomyNames, annotations );
+		return taxonomyNames;
 	}
 	
 	private static void compileInflectionFiles( List< String > classpath, String taxonomyTarget, Set< File > sourceFiles, String mode )

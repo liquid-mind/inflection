@@ -34,11 +34,6 @@ sourceSets {
             exclude "**/*.g4"
 		}
 	}
-    test {
-    	java {
-	    	srcDirs "src/test/java", "build/generated/inflection"
-    	}
-    }
 }
 
 def debugLevelArg = "source,lines,vars";
@@ -77,36 +72,30 @@ compileJava.dependsOn antlr4
 sourceSets.main.java.srcDirs += "$buildDir/generated/antlr"
 
 // Debugging
-def debugInflectionCompilerArg;
-def debugProxyGeneratorArg;
-def debugArg = "-agentlib:jdwp=transport=dt_socket,address=9009,server=y,suspend=y";
-def dummyArg = "-DdummyArg";	// necessary if Mac OS X (other UNIX variants?)
+def debugInflectionBuildArg;
 
-if ( this.hasProperty( "debugInflectionCompiler" ) )
-    debugInflectionCompilerArg = debugArg;
+if ( this.hasProperty( "debugInflectionBuild" ) )
+    debugInflectionBuildArg = "-agentlib:jdwp=transport=dt_socket,address=9009,server=y,suspend=y";
 else
-	debugInflectionCompilerArg = dummyArg;
-if ( this.hasProperty( "debugProxyGenerator" ) )
-    debugProxyGeneratorArg = debugArg;
-else
-	debugProxyGeneratorArg = dummyArg;
+	debugInflectionBuildArg = "-DdummyArg";		// necessary if Mac OS X (other UNIX variants?)
 
 task( inflect, type: JavaExec ) {
 	main = "ch.liquidmind.inflection.InflectionBuild"
 	classpath = sourceSets.main.runtimeClasspath
-	jvmArgs = [ "$debugInflectionCompilerArg" ]
+	jvmArgs = [ "$debugInflectionBuildArg" ]
 	args = [
 		"-classpath", sourceSets.test.compileClasspath.asPath,
 		"-sourcepath", "${projectDir}/src/test/java:${projectDir}/src/test/resources",
-		"-modelRegex", ".*ch/liquidmind/inflection/test/model/.*\\.java",
-		"-taxonomyTarget", "${buildDir}/resources/test",
-		"-proxyTarget", "${buildDir}/generated/inflection",
+		"-modelRegex", ".*ch(/|\\\\)liquidmind(/|\\\\)inflection(/|\\\\)test(/|\\\\)model(/|\\\\).*\\.java",
+		"-target", "${buildDir}/inflection",
 		"-annotations", ".*",
 		"-mode", "BOOTSTRAP"
 	]
 }
 
 compileTestJava.dependsOn inflect
+sourceSets.test.java.srcDirs += "${buildDir}/inflection/proxy"
+sourceSets.test.resources.srcDirs += "${buildDir}/inflection/taxonomy"
 
 test {
 	// Enable this to see test output:
