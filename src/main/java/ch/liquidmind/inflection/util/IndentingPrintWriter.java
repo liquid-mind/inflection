@@ -2,6 +2,7 @@ package ch.liquidmind.inflection.util;
 
 import java.io.OutputStream;
 import java.io.PrintWriter;
+import java.io.Writer;
 
 public class IndentingPrintWriter extends PrintWriter
 {
@@ -12,25 +13,30 @@ public class IndentingPrintWriter extends PrintWriter
 	private String currentIndentation;
 	private boolean indentationRequired = true;
 
-	public IndentingPrintWriter()
-	{
-		this( DEFAULT_INDENT_SIZE );
-	}
-
 	public IndentingPrintWriter( OutputStream outputStream )
 	{
 		this( outputStream, DEFAULT_INDENT_SIZE );
 	}
 
-	public IndentingPrintWriter( int indentSize )
+	public IndentingPrintWriter( Writer writer )
 	{
-		this( null, indentSize );
+		this( writer, DEFAULT_INDENT_SIZE );
+	}
+	
+	public IndentingPrintWriter( Writer writer, int indentSize )
+	{
+		super( writer );
+		setupIndentation( indentSize );
 	}
 	
 	public IndentingPrintWriter( OutputStream outputStream, int indentSize )
 	{
 		super( outputStream );
-
+		setupIndentation( indentSize );
+	}
+	
+	private void setupIndentation( int indentSize )
+	{
 		singleIndentation = "";
 		
 		for ( int j = 0 ; j < indentSize ; ++j )

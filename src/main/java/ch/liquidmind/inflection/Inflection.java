@@ -1,16 +1,22 @@
 package ch.liquidmind.inflection;
 
+import java.io.StringWriter;
 import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.codehaus.jackson.map.ObjectMapper;
+import org.codehaus.jackson.map.ObjectWriter;
+
 import __java.lang.__Class;
 import __java.lang.reflect.__Field;
+import ch.liquidmind.inflection.exception.ExceptionWrapper;
 import ch.liquidmind.inflection.loader.TaxonomyLoader;
 import ch.liquidmind.inflection.model.external.Taxonomy;
 import ch.liquidmind.inflection.model.external.View;
 import ch.liquidmind.inflection.proxy.Proxy;
 import ch.liquidmind.inflection.proxy.ProxyRegistry;
+import ch.liquidmind.inflection.util.InflectionPrinter;
 
 public class Inflection
 {
@@ -90,5 +96,23 @@ public class Inflection
 	public static < T extends Object > T cast( Proxy proxy )
 	{
 		return ProxyRegistry.getContextProxyRegistry().getObject( proxy );
+	}
+	
+	public static String viewToString( Proxy proxy )
+	{
+		StringWriter stringWriter = new StringWriter();
+		InflectionPrinter.printView( getTaxonomy( proxy ), getView( proxy ), stringWriter, true, false );
+		String s = stringWriter.toString();
+		
+		return s;
+	}
+	
+	public static String valueToString( Proxy proxy )
+	{
+		ObjectMapper mapper = new ObjectMapper();
+		ObjectWriter writer = mapper.writerWithDefaultPrettyPrinter();
+		String s = ExceptionWrapper.ObjectWriter_writeValueAsString( writer, proxy );
+		
+		return s;
 	}
 }

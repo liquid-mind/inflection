@@ -8,8 +8,7 @@ import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.map.ObjectWriter;
 
 import ch.liquidmind.inflect.examples.helloworld.model.Person;
-import ch.liquidmind.inflect.examples.helloworld.model.AllProperties.ch.liquidmind.inflect.examples.helloworld.model.AllProperties_Person;
-import ch.liquidmind.inflect.examples.helloworld.model.SingleProperty.ch.liquidmind.inflect.examples.helloworld.model.SingleProperty_Person;
+import ch.liquidmind.inflect.examples.helloworld.model.MyTaxonomy.ch.liquidmind.inflect.examples.helloworld.model.MyTaxonomy_Person;
 import ch.liquidmind.inflection.Inflection;
 
 public class Main
@@ -17,47 +16,49 @@ public class Main
 	public static void main( String[] args ) throws JsonGenerationException, JsonMappingException, IOException
 	{
 		Person person = new Person( "Jon", "Doe" );
-		SingleProperty_Person spPerson = Inflection.cast( SingleProperty_Person.class, person );
-		AllProperties_Person apPerson = Inflection.cast( AllProperties_Person.class, person );
+		MyTaxonomy_Person mtPerson = Inflection.cast( MyTaxonomy_Person.class, person );
 		
-		demoAccess( person, spPerson );
-		demoJson( person, spPerson, apPerson );
+		demoAccess( person, mtPerson );
+		demoJson( person, mtPerson );
 	}
 	
-	private static void demoAccess( Person person, SingleProperty_Person spPerson )
+	private static void demoAccess( Person person, MyTaxonomy_Person mtPerson )
 	{
 		System.out.println();
-		System.out.println( "INITIAL STATE" );
-		System.out.println( "person.getFirstName(): " + person.getFirstName() );		// firstName == Jon
-		System.out.println( "spPerson.getFirstName(): " + spPerson.getFirstName() );	// firstName == Jon
+		System.out.println( "Demonstrate setting firstName through person or mtPerson." );
 		
-		System.out.println();
+		System.out.println( "    Initial State:" );
+		System.out.println( "        person.getFirstName(): " + person.getFirstName() );		// firstName == Jon
+		System.out.println( "        mtPerson.getFirstName(): " + mtPerson.getFirstName() );	// firstName == Jon
+
 		person.setFirstName( "Jane" );
-		System.out.println( "AFTER WRITING TO VIEWABLE" );
-		System.out.println( "person.getFirstName(): " + person.getFirstName() );		// firstName == Jane
-		System.out.println( "spPerson.getFirstName(): " + spPerson.getFirstName() );	// firstName == Jane
+		System.out.println( "    After invoking person.setFirstName( \"Jane\" ):" );
+		System.out.println( "        person.getFirstName(): " + person.getFirstName() );		// firstName == Jane
+		System.out.println( "        mtPerson.getFirstName(): " + mtPerson.getFirstName() );	// firstName == Jane
 		
-		System.out.println();
-		spPerson.setFirstName( "Jeff" );
-		System.out.println( "AFTER WRITING TO VIEW" );
-		System.out.println( "person.getFirstName(): " + person.getFirstName() );		// firstName == Jeff
-		System.out.println( "spPerson.getFirstName(): " + spPerson.getFirstName() );	// firstName == Jeff
-		System.out.println();
+		mtPerson.setFirstName( "Jeff" );
+		System.out.println( "    After invoking mtPerson.setFirstName( \"Jeff\" ):" );
+		System.out.println( "        person.getFirstName(): " + person.getFirstName() );		// firstName == Jeff
+		System.out.println( "        mtPerson.getFirstName(): " + mtPerson.getFirstName() );	// firstName == Jeff
 	}
 	
-	private static void demoJson( Person person, SingleProperty_Person spPerson, AllProperties_Person apPerson ) throws JsonGenerationException, JsonMappingException, IOException
+	private static void demoJson( Person person, MyTaxonomy_Person mtPerson ) throws JsonGenerationException, JsonMappingException, IOException
 	{
 		ObjectMapper mapper = new ObjectMapper();
 		ObjectWriter writer = mapper.writerWithDefaultPrettyPrinter();
 		
-		System.out.println( Person.class.getSimpleName() );
-		System.out.println( writer.writeValueAsString( person ) );
 		System.out.println();
-		System.out.println( SingleProperty_Person.class.getSimpleName() );
-		System.out.println( writer.writeValueAsString( spPerson ) );
+		System.out.println( "Demonstrate serializing to JSON" );
+
+		System.out.println( "    " + Person.class.getSimpleName() );
+		System.out.println( indent( writer.writeValueAsString( person ) ) );
+		System.out.println( "    " + MyTaxonomy_Person.class.getSimpleName() );
+		System.out.println( indent( writer.writeValueAsString( mtPerson ) ) );
 		System.out.println();
-		System.out.println( AllProperties_Person.class.getSimpleName() );
-		System.out.println( writer.writeValueAsString( apPerson ) );
-		System.out.println();
+	}
+	
+	private static String indent( String text )
+	{
+		return "    " + text.replaceAll( System.lineSeparator(), System.lineSeparator() + "    " );
 	}
 }

@@ -4,6 +4,9 @@ import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 
 import org.apache.commons.beanutils.PropertyUtils;
+import org.codehaus.jackson.JsonGenerationException;
+import org.codehaus.jackson.map.JsonMappingException;
+import org.codehaus.jackson.map.ObjectWriter;
 
 import com.google.common.reflect.ClassPath;
 
@@ -64,6 +67,26 @@ public class ExceptionWrapper
 		catch ( IllegalAccessException e )
 		{
 			throw new __IllegalAccessException( e );
+		}
+	}
+	
+	public static String ObjectWriter_writeValueAsString( ObjectWriter writer, Object value )
+	{
+		try
+		{
+			return writer.writeValueAsString( value );
+		}
+		catch ( JsonGenerationException e )
+		{
+			throw new RuntimeException( e );
+		}
+		catch ( JsonMappingException e )
+		{
+			throw new RuntimeException( e );
+		}
+		catch ( IOException e )
+		{
+			throw new RuntimeException( e );
 		}
 	}
 }

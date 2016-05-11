@@ -1,11 +1,6 @@
 package ch.liquidmind.inflect.examples.helloworld.model;
 
-taxonomy SingleProperty
+taxonomy MyTaxonomy
 {
 	view Person { firstName; }
-}
-
-taxonomy AllProperties
-{
-	view Person { *; }
 }
