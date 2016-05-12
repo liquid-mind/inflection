@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -95,7 +96,34 @@ public class CompilationJob
 	Set< ClassInfo > getAllClassesInClassPath()
 	{
 		if ( allClassesInClassPath == null )
-			allClassesInClassPath = ExceptionWrapper.ClassPath_from( getTaxonomyLoader().getClassLoader() ).getAllClasses();
+		{
+			ClassLoader loader = getTaxonomyLoader().getClassLoader();
+			Set< ClassInfo > allClasses = ExceptionWrapper.ClassPath_from( loader ).getAllClasses();
+			Set< ClassInfo > subsetOfClasses = new HashSet< ClassInfo >();
+			
+			for ( ClassInfo classInfo : allClasses )
+			{
+				try
+				{
+					Class< ? > aClass = classInfo.load();
+					
+					if ( aClass.isEnum() || aClass.isInterface() || aClass.isLocalClass() || aClass.isMemberClass() )
+						continue;
+				}
+				catch ( LinkageError e )
+				{
+					// TBD: Use Javassist or some other method to examine the classes on the class path without
+					// actually linking them (linking can result in an error when classes on the class path
+					// depend on classes not on the class path). For now, I'm just letting any such classes
+					// filter through, which is probably not a problem in practice (since model classes are usually
+					// quite simple).
+				}
+				
+				subsetOfClasses.add( classInfo );
+			}
+			
+			allClassesInClassPath = subsetOfClasses;
+		}
 		
 		return allClassesInClassPath;
 	}

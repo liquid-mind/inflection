@@ -1,0 +1,40 @@
+plugins {
+	id "java"
+	id "application"
+	id "eclipse"
+    id "idea"
+}
+
+repositories {
+	mavenCentral()
+    mavenLocal()
+	maven {
+		url "http://dl.bintray.com/deflector/maven"
+	}
+}
+
+configurations {
+	inflection
+}
+
+dependencies {
+	compile 'ch.liquidmind:inflection:2.0-alpha'
+	inflection 'ch.liquidmind:inflection:2.0-alpha'
+}
+
+mainClassName = "ch.liquidmind.inflect.examples.wildcard.Main"
+
+task( inflect, type: JavaExec ) {
+	main = "ch.liquidmind.inflection.InflectionBuild"
+	classpath = configurations.inflection
+	args = [
+		"-classpath", sourceSets.main.compileClasspath.asPath,
+		"-sourcepath", "${projectDir}/src/main/java:${projectDir}/src/main/resources",
+		"-modelRegex", ".*ch(/|\\\\)liquidmind(/|\\\\)inflect(/|\\\\)examples(/|\\\\)wildcard(/|\\\\)model(/|\\\\).*\\.java",
+		"-target", "${buildDir}/inflection"
+	]
+}
+
+compileJava.dependsOn inflect
+sourceSets.main.java.srcDirs += "${buildDir}/inflection/proxy"
+sourceSets.main.resources.srcDirs += "${buildDir}/inflection/taxonomy"

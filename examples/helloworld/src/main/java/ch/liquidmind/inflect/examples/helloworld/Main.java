@@ -6,6 +6,7 @@ import org.codehaus.jackson.JsonGenerationException;
 import org.codehaus.jackson.map.JsonMappingException;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.map.ObjectWriter;
+import org.codehaus.jackson.map.SerializationConfig;
 
 import ch.liquidmind.inflect.examples.helloworld.model.Person;
 import ch.liquidmind.inflect.examples.helloworld.model.MyTaxonomy.ch.liquidmind.inflect.examples.helloworld.model.MyTaxonomy_Person;
@@ -45,6 +46,7 @@ public class Main
 	private static void demoJson( Person person, MyTaxonomy_Person mtPerson ) throws JsonGenerationException, JsonMappingException, IOException
 	{
 		ObjectMapper mapper = new ObjectMapper();
+		mapper.configure( SerializationConfig.Feature.SORT_PROPERTIES_ALPHABETICALLY, true );
 		ObjectWriter writer = mapper.writerWithDefaultPrettyPrinter();
 		
 		System.out.println();

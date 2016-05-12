@@ -1,0 +1,12 @@
+package ch.liquidmind.inflect.examples.wildcard.model;
+
+taxonomy Everything
+{
+	view * { *; }
+}
+
+taxonomy PersonOnly
+{
+	view IdentifiableObject { *; }
+	view Person { *Name; }
+}
