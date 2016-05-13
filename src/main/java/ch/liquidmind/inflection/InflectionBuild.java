@@ -60,8 +60,8 @@ public class InflectionBuild
 		String proxyTarget = new File( target, "proxy" ).getAbsolutePath();
 		String diagnosticNormal = new File( target, "diagnostic/normal" ).getAbsolutePath();
 		String diagnosticVerbose = new File( target, "diagnostic/verbose" ).getAbsolutePath();
-		List< String > classpathModel = Arrays.asList( classpath.split( ":|;" ) );
-		List< String > sourcepathModel = Arrays.asList( sourcepath.split( ":|;" ) );
+		List< String > classpathModel = Arrays.asList( classpath.split( System.getProperty( "path.separator" ) ) );
+		List< String > sourcepathModel = Arrays.asList( sourcepath.split( System.getProperty( "path.separator" ) ) );
 		String[] modelRegexAsArray = modelRegex.toArray( new String[ modelRegex.size() ] );
 		Set< File > modelFiles = getMatchingFiles( sourcepathModel, modelRegexAsArray );
 		Set< File > inflectFiles = getMatchingFiles( sourcepathModel, ".*\\.inflect" );
