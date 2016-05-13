@@ -63,40 +63,45 @@ public class Inflection
 		return getView( proxy.getClass() );
 	}
 
-	public static < T extends Proxy > T cast( Class< ? extends Proxy > proxyClass, Object viewableObject )
+	public static < T > T cast( Class< T > theClass, Object object )
 	{
-		return cast( getTaxonomy( proxyClass ), viewableObject );
-	}
-
-	public static < T extends Proxy > T cast( String taxonomyName, Object viewableObject )
-	{
-		return cast( TaxonomyLoader.getContextTaxonomyLoader().loadTaxonomy( taxonomyName ), viewableObject );
-	}
-
-	public static < T extends Proxy > T cast( Taxonomy taxonomy, Object viewableObject )
-	{
-		return ProxyRegistry.getContextProxyRegistry().getProxy( taxonomy, viewableObject );
-	}
-
-	public static < T extends Proxy > T cast( Class< ? extends Proxy > proxyClass, Proxy proxy )
-	{
-		return cast( getTaxonomy( proxyClass ), proxy );
-	}
-
-	public static < T extends Proxy > T cast( String taxonomyName, Proxy proxy )
-	{
-		return cast( TaxonomyLoader.getContextTaxonomyLoader().loadTaxonomy( taxonomyName ), proxy );
-	}
-
-	public static < T extends Proxy > T cast( Taxonomy taxonomy, Proxy proxy )
-	{
-		return cast( taxonomy, cast( proxy ) );
+		return null;
 	}
 	
-	public static < T extends Object > T cast( Proxy proxy )
-	{
-		return ProxyRegistry.getContextProxyRegistry().getObject( proxy );
-	}
+//	public static < T extends Proxy > T cast( Class< ? extends Proxy > proxyClass, Object viewableObject )
+//	{
+//		return cast( getTaxonomy( proxyClass ), viewableObject );
+//	}
+//
+//	public static < T extends Proxy > T cast( String taxonomyName, Object viewableObject )
+//	{
+//		return cast( TaxonomyLoader.getContextTaxonomyLoader().loadTaxonomy( taxonomyName ), viewableObject );
+//	}
+//
+//	public static < T extends Proxy > T cast( Taxonomy taxonomy, Object viewableObject )
+//	{
+//		return ProxyRegistry.getContextProxyRegistry().getProxy( taxonomy, viewableObject );
+//	}
+//
+//	public static < T extends Proxy > T cast( Class< ? extends Proxy > proxyClass, Proxy proxy )
+//	{
+//		return cast( getTaxonomy( proxyClass ), proxy );
+//	}
+//
+//	public static < T extends Proxy > T cast( String taxonomyName, Proxy proxy )
+//	{
+//		return cast( TaxonomyLoader.getContextTaxonomyLoader().loadTaxonomy( taxonomyName ), proxy );
+//	}
+//
+//	public static < T extends Proxy > T cast( Taxonomy taxonomy, Proxy proxy )
+//	{
+//		return cast( taxonomy, cast( proxy ) );
+//	}
+//	
+//	public static < T extends Object > T cast( Proxy proxy )
+//	{
+//		return ProxyRegistry.getContextProxyRegistry().getObject( proxy );
+//	}
 	
 	public static String viewToString( Proxy proxy )
 	{

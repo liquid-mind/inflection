@@ -15,7 +15,7 @@ import ch.liquidmind.inflection.model.external.View;
 public class ViewLinked extends AliasableElementLinked implements View
 {
 	private Class< ? > viewedClass;
-	private List< Class< ? > > usedClasses = new ArrayList< Class< ? > >();
+	private Class< ? > usedClass;
 	private TaxonomyLinked parentTaxonomyLinked;
 	private List< MemberLinked > membersLinked = new ArrayList< MemberLinked >();
 	
@@ -39,11 +39,17 @@ public class ViewLinked extends AliasableElementLinked implements View
 	{
 		this.viewedClass = viewedClass;
 	}
-
+	
+	@SuppressWarnings( "unchecked" )
 	@Override
-	public List< Class< ? > > getUsedClasses()
+	public < T > Class< T > getUsedClass()
 	{
-		return usedClasses;
+		return (Class< T >)usedClass;
+	}
+	
+	public void setUsedClass( Class< ? > usedClass )
+	{
+		this.usedClass = usedClass;
 	}
 
 	public TaxonomyLinked getParentTaxonomyLinked()

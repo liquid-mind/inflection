@@ -2,6 +2,7 @@ package ch.liquidmind.inflection.proxy;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -47,36 +48,181 @@ public class ProxyRegistry
 	
 	private static ThreadLocal< ProxyRegistry > contextProxyRegistry = new ThreadLocal< ProxyRegistry >();
 	
-	private Map< Taxonomy, PairTables > pairTablesByTaxonomy = new HashMap< Taxonomy, PairTables >();
+	private Map< Taxonomy, Tuples > tuplesByTaxonomy = new HashMap< Taxonomy, Tuples >();
 	
-	public static class PairTables
+	public static class Tuples
 	{
-		// TODO: change Set< ProxyObjectPair > to List< ProxyObjectPair > (to avoid potentially overwriting objects in set; could
-		// happen depending on given object's hashcode/equals implementation)
-		private Map< Integer, Set< ProxyObjectPair > > pairsByObjectHashcode = new HashMap< Integer, Set< ProxyObjectPair > >();
-		private Map< Integer, Set< ProxyObjectPair > > pairsByProxyHashcode = new HashMap< Integer, Set< ProxyObjectPair > >();
+		private Taxonomy taxonomy;
+		private Map< Integer, ObjectsTuple > objectsTuples = new HashMap< Integer, ObjectsTuple >();
+		private Map< Class< ? >, ClassesTuple > classesTuples = new HashMap< Class< ? >, ClassesTuple >();
 		
-		public Map< Integer, Set< ProxyObjectPair > > getPairsByObjectHashcode()
+		public Tuples( Taxonomy taxonomy )
 		{
-			return pairsByObjectHashcode;
+			this.taxonomy = taxonomy;
+		}
+
+		private ObjectsTuple getObjectTuple( Object key )
+		{
+			ObjectsTuple objectsTuple = objectsTuples.get( key );
+			
+			if ( objectsTuple == null )
+			{
+				objectsTuple = createObjectTuple( key );
+				objectsTuples.put( System.identityHashCode( objectsTuple.getObject() ), objectsTuple );
+				objectsTuples.put( System.identityHashCode( objectsTuple.getProxy() ), objectsTuple );
+				objectsTuples.put( System.identityHashCode( objectsTuple.getAuxiliary() ), objectsTuple );
+			}
+			
+			return objectsTuple;
 		}
 		
-		public Map< Integer, Set< ProxyObjectPair > > getPairsByProxyHashcode()
+		private ObjectsTuple createObjectTuple( Object object )
 		{
-			return pairsByProxyHashcode;
+			Class< ? > theClass = object.getClass();
+			ClassesTuple classesTuple = getClassesTuple( theClass );
+			
+			Proxy proxy = determineObject( theClass, classesTuple.getProxyClass(), object );
+			Object viewableObject = determineObject( theClass, classesTuple.getObjectClass(), object );
+			Object auxiliary = determineObject( theClass, classesTuple.getProxyClass(), object );
+			
+			ObjectsTuple objectsTuple = new ObjectsTuple( proxy, viewableObject, auxiliary );
+			
+			return objectsTuple;
 		}
+		
+		@SuppressWarnings( "unchecked" )
+		private < T > T determineObject( Class< ? > classA, Class< ? > classB, Object objectA )
+		{
+			return (T)( classA.equals( classB ) ? objectA : __Class.newInstance( classB ) );
+		}
+		
+		private ClassesTuple getClassesTuple( Class< ? > key )
+		{
+			ClassesTuple classesTuple = classesTuples.get( key );
+			
+			if ( classesTuple == null )
+			{
+				classesTuple = createClassesTuple( key );
+				classesTuples.put( classesTuple.getProxyClass(), classesTuple );
+				classesTuples.put( classesTuple.getObjectClass(), classesTuple );
+				classesTuples.put( classesTuple.getAuxiliaryClass(), classesTuple );
+			}
+			
+			return classesTuple;
+		}
+		
+		private ClassesTuple createClassesTuple( Class< ? > aClass )
+		{
+			ClassesTuple classTuple = null;
+			
+			if ( Collection.class.isAssignableFrom( aClass ) || Map.class.isAssignableFrom( aClass ) )
+				classTuple = createClassesTupleFromCollection( aClass );
+			else
+				classTuple = createClassesTupleFromNonCollection( aClass );
+
+			return classTuple;
+		}
+		
+		private ClassesTuple createClassesTupleFromCollection( Class< ? > aClass )
+		{
+			ClassesTuple classesTuple;
+			
+			if ( Proxy.class.isAssignableFrom( aClass ) )
+				classesTuple = createClassesTupleFromProxyCollection( aClass );
+			else
+				classesTuple = createClassesTupleFromNonProxyCollection( aClass );
+			
+			return classesTuple;
+		}
+		
+		private ClassesTuple createClassesTupleFromProxyCollection( Class< ? > proxyClass )
+		{
+			Class< ? > objectClass = null;
+			Set< Class< ? > > intersection = new HashSet< Class< ? > >( COLLECTION_CLASSES.keySet() );
+			intersection.retainAll( getClassesRecursive( proxyClass ) );
+			Class< ? > proxyInterface = intersection.iterator().next();
+
+			if ( intersection.size() != 1 )
+				throw new IllegalStateException( "intersection should contain exactly one element." );
+			
+			objectClass = COLLECTION_CLASSES.get( proxyInterface );
+			ClassesTuple classesTuple = new ClassesTuple( proxyClass, objectClass, null );
+			
+			return classesTuple;
+		}
+		
+		private ClassesTuple createClassesTupleFromNonProxyCollection( Class< ? > objectClass )
+		{
+			Set< Class< ? > > intersection = new HashSet< Class< ? > >( PROXY_BASE_CLASSES.keySet() );
+			intersection.retainAll( getInterfacesRecursive( objectClass ) );
+			
+			if ( intersection.size() != 1 )
+				throw new IllegalStateException( "intersection should contain exactly one element." );
+			
+			Class< ? > objectInterface = intersection.iterator().next();
+			String proxyClassName = ProxyGenerator.getFullyQualifiedCollectionName( taxonomy, PROXY_BASE_CLASSES.get( objectInterface ) );
+			Class< ? > proxyClass = __ClassLoader.loadClass( Thread.currentThread().getContextClassLoader(), proxyClassName );
+			ClassesTuple classesTuple = new ClassesTuple( proxyClass, objectClass, null );
+			
+			return classesTuple;
+		}
+		
+		@SuppressWarnings( "unchecked" )
+		private ClassesTuple createClassesTupleFromNonCollection( Class< ? > aClass )
+		{
+			View correspondingView;
+			
+			if ( Proxy.class.isAssignableFrom( aClass ) )
+				correspondingView = Inflection.getView( (Class< Proxy >)aClass );
+			else
+				correspondingView = taxonomy.getViews().stream().filter( x -> x.getViewedClass().equals( aClass ) || x.getUsedClass().equals( aClass ) ).findFirst().get();
+		
+			Class< ? > objectClass = correspondingView.getViewedClass();
+			Class< ? > auxiliaryClass = correspondingView.getUsedClass();
+			String proxyClassName = ProxyGenerator.getFullyQualifiedViewName( taxonomy, correspondingView );
+			Class< ? > proxyClass = __ClassLoader.loadClass( taxonomy.getTaxonomyLoader().getClassLoader(), proxyClassName );
+			
+			ClassesTuple classesTuple = new ClassesTuple( proxyClass, objectClass, auxiliaryClass );
+			
+			return classesTuple;
+		}
+
+		private List< Class< ? > > getClassesRecursive( Class< ? > aClass )
+		{
+			List< Class< ? > > classes = new ArrayList< Class< ? > >();
+			classes.add( aClass );
+			
+			if ( aClass.getSuperclass() != null )
+				classes.addAll( getClassesRecursive( aClass.getSuperclass() ) );
+			
+			return classes;
+		}
+		
+		private List< Class< ? > > getInterfacesRecursive( Class< ? > aClass )
+		{
+			List< Class< ? > > interfaces = new ArrayList< Class< ? > >();
+			interfaces.addAll( Arrays.asList( aClass.getInterfaces() ) );
+			
+			if ( aClass.getSuperclass() != null )
+				interfaces.addAll( getInterfacesRecursive( aClass.getSuperclass() ) );
+			
+			return interfaces;
+		}
+		
 	}
 	
-	public static class ProxyObjectPair
+	public static class ObjectsTuple
 	{
 		private Proxy proxy;
 		private Object object;
+		private Object auxiliary;
 		
-		public ProxyObjectPair( Proxy proxy, Object object )
+		public ObjectsTuple( Proxy proxy, Object object, Object auxiliary )
 		{
 			super();
 			this.proxy = proxy;
 			this.object = object;
+			this.auxiliary = auxiliary;
 		}
 
 		public Proxy getProxy()
@@ -84,19 +230,14 @@ public class ProxyRegistry
 			return proxy;
 		}
 
-		public void setProxy( Proxy proxy )
-		{
-			this.proxy = proxy;
-		}
-
 		public Object getObject()
 		{
 			return object;
 		}
 
-		public void setObject( Object object )
+		public Object getAuxiliary()
 		{
-			this.object = object;
+			return auxiliary;
 		}
 
 		@Override
@@ -104,8 +245,9 @@ public class ProxyRegistry
 		{
 			final int prime = 31;
 			int result = 1;
-			result = prime * result + ( ( object == null ) ? 0 : System.identityHashCode( object ) );
-			result = prime * result + ( ( proxy == null ) ? 0 : System.identityHashCode( proxy ) );
+			result = prime * result + ( ( auxiliary == null ) ? 0 : auxiliary.hashCode() );
+			result = prime * result + ( ( object == null ) ? 0 : object.hashCode() );
+			result = prime * result + ( ( proxy == null ) ? 0 : proxy.hashCode() );
 			return result;
 		}
 
@@ -118,22 +260,59 @@ public class ProxyRegistry
 				return false;
 			if ( getClass() != obj.getClass() )
 				return false;
-			ProxyObjectPair other = (ProxyObjectPair)obj;
+			ObjectsTuple other = (ObjectsTuple)obj;
+			if ( auxiliary == null )
+			{
+				if ( other.auxiliary != null )
+					return false;
+			}
+			else if ( !auxiliary.equals( other.auxiliary ) )
+				return false;
 			if ( object == null )
 			{
 				if ( other.object != null )
 					return false;
 			}
-			else if ( object != other.object )
+			else if ( !object.equals( other.object ) )
 				return false;
 			if ( proxy == null )
 			{
 				if ( other.proxy != null )
 					return false;
 			}
-			else if ( proxy != other.proxy )
+			else if ( !proxy.equals( other.proxy ) )
 				return false;
 			return true;
+		}
+	}
+
+	public static class ClassesTuple
+	{
+		private Class< ? > proxyClass;
+		private Class< ? > objectClass;
+		private Class< ? > auxiliaryClass;
+		
+		public ClassesTuple( Class< ? > proxyClass, Class< ? > objectClass, Class< ? > auxiliaryClass )
+		{
+			super();
+			this.proxyClass = proxyClass;
+			this.objectClass = objectClass;
+			this.auxiliaryClass = auxiliaryClass;
+		}
+
+		public Class< ? > getProxyClass()
+		{
+			return proxyClass;
+		}
+
+		public Class< ? > getObjectClass()
+		{
+			return objectClass;
+		}
+
+		public Class< ? > getAuxiliaryClass()
+		{
+			return auxiliaryClass;
 		}
 	}
 	
@@ -144,181 +323,48 @@ public class ProxyRegistry
 		
 		return contextProxyRegistry.get();
 	}
+
+	public < T > T getObject( Class< T > targetClass, Proxy key )
+	{
+		return getObject( targetClass, Inflection.getTaxonomy( key ), key );
+	}
+	
+	public < T > T getObject( Class< T > targetClass, Taxonomy taxonomy, Object key )
+	{
+		Tuples tuples = getTuples( taxonomy );
+		ObjectsTuple tuple = tuples.getObjectTuple( key );
+		T targetObject = getObject( tuple, targetClass );
+		
+		return (T)targetObject;
+	}
+	
+	private Tuples getTuples( Taxonomy taxonomy )
+	{
+		Tuples tuples = tuplesByTaxonomy.get( taxonomy );
+		
+		if ( tuples == null )
+		{
+			tuples = new Tuples( taxonomy );
+			tuplesByTaxonomy.put( taxonomy, tuples );
+		}
+		
+		return tuples;
+	}
 	
 	@SuppressWarnings( "unchecked" )
-	public < T extends Proxy > T getProxy( Taxonomy taxonomy, Object object )
+	private < T > T getObject( ObjectsTuple tuple, Class< ? > targetClass )
 	{
-		if ( object == null )
-			return null;
+		T targetObject = null;
 		
-		PairTables pairTables = pairTablesByTaxonomy.get( taxonomy );
-		
-		if ( pairTables == null )
-		{
-			pairTables = new PairTables();
-			pairTablesByTaxonomy.put( taxonomy, pairTables );
-		}
-
-		Set< ProxyObjectPair > proxyObjectPairs = pairTables.getPairsByObjectHashcode().get( System.identityHashCode( object ) );
-		
-		if ( proxyObjectPairs == null )
-		{
-			proxyObjectPairs = new HashSet< ProxyObjectPair >();
-			pairTables.getPairsByObjectHashcode().put( System.identityHashCode( object ), proxyObjectPairs );
-		}
-		
-		ProxyObjectPair proxyObjectPairFound = null;
-		
-		for ( ProxyObjectPair proxyObjectPair : proxyObjectPairs )
-		{
-			if ( proxyObjectPair.getObject() == object )
-			{
-				proxyObjectPairFound = proxyObjectPair;
-				break;
-			}
-		}
-
-		T proxy = null;
-		
-		if ( proxyObjectPairFound == null )
-		{
-			proxy = createProxy( taxonomy, object );
-			
-			if ( proxy != null )
-			{
-				proxyObjectPairFound = new ProxyObjectPair( proxy, object );
-				proxyObjectPairs.add( proxyObjectPairFound );
-				pairTables.getPairsByProxyHashcode().put( System.identityHashCode( proxy ), proxyObjectPairs );
-			}
-		}
+		if ( tuple.getProxy().getClass().equals( targetClass ) )
+			targetObject = (T)tuple.getProxy();
+		else if ( tuple.getObject().getClass().equals( targetClass ) )
+			targetObject = (T)tuple.getObject();
+		else if ( tuple.getAuxiliary().getClass().equals( targetClass ) )
+			targetObject = (T)tuple.getAuxiliary();
 		else
-		{
-			proxy = (T)proxyObjectPairFound.getProxy();
-		}
+			throw new IllegalStateException( "Target object cannot be identified." );
 		
-		return proxy;
-	}
-	
-	// TODO: currently constrained to one-dimensional collections; thus, e.g., 
-	// List< List< T > > is not considered. Fix this.
-	@SuppressWarnings( "unchecked" )
-	private < T extends Proxy > T createProxy( Taxonomy taxonomy, Object object )
-	{
-		T proxy = null;
-		
-		Set< Class< ? > > intersection = new HashSet< Class< ? > >( PROXY_BASE_CLASSES.keySet() );
-		intersection.retainAll( getInterfacesRecursive( object.getClass() ) );
-		
-		if ( !intersection.isEmpty() )
-		{
-			if ( intersection.size() > 1 )
-				throw new IllegalStateException( "intersection should contain exactly one element." );
-			
-			String proxyClassName = ProxyGenerator.getFullyQualifiedCollectionName( taxonomy, PROXY_BASE_CLASSES.get( intersection.iterator().next() ) );
-			Class< ? > proxyClass = __ClassLoader.loadClass( Thread.currentThread().getContextClassLoader(), proxyClassName );
-			proxy = (T)__Class.newInstance( proxyClass );
-		}
-		else
-		{
-			View view = taxonomy.resolveView( object.getClass() );
-			
-			if ( view != null )
-			{
-				String proxyClassName = ProxyGenerator.getFullyQualifiedViewName( taxonomy, view );
-				Class< ? > proxyClass = __ClassLoader.loadClass( taxonomy.getTaxonomyLoader().getClassLoader(), proxyClassName );
-				proxy = (T)__Class.newInstance( proxyClass );
-			}
-		}
-		
-		return proxy;
-	}
-	
-	@SuppressWarnings( "unchecked" )
-	public < T extends Object > T getObject( Proxy proxy )
-	{
-		if ( proxy == null )
-			return null;
-		
-		PairTables pairTables = pairTablesByTaxonomy.get( Inflection.getTaxonomy( proxy ) );
-		
-		if ( pairTables == null )
-		{
-			pairTables = new PairTables();
-			pairTablesByTaxonomy.put( Inflection.getTaxonomy( proxy ), pairTables );
-		}
-		
-		Set< ProxyObjectPair > proxyObjectPairs = pairTables.getPairsByProxyHashcode().get( System.identityHashCode( proxy ) );
-		
-		if ( proxyObjectPairs == null )
-		{
-			proxyObjectPairs = new HashSet< ProxyObjectPair >();
-			pairTables.getPairsByProxyHashcode().put( System.identityHashCode( proxy ), proxyObjectPairs );
-		}		
-		
-		ProxyObjectPair proxyObjectPairFound = null;
-		
-		for ( ProxyObjectPair proxyObjectPair : proxyObjectPairs )
-		{
-			if ( proxyObjectPair.getProxy() == proxy )
-			{
-				proxyObjectPairFound = proxyObjectPair;
-				break;
-			}
-		}
-
-		if ( proxyObjectPairFound == null )
-		{
-			proxyObjectPairFound = new ProxyObjectPair( proxy, createObject( proxy ) );
-			proxyObjectPairs.add( proxyObjectPairFound );
-			pairTables.getPairsByObjectHashcode().put( System.identityHashCode( proxyObjectPairFound.getObject() ), proxyObjectPairs );
-		}
-		
-		return (T)proxyObjectPairFound.getObject();
-	}
-	
-	// TODO: Currently constrained to creating instances of List, Set and Map;
-	// need to consider cases in which target objects declare specific collection implementations.
-	// TODO: Arrays are currently not supported.
-	@SuppressWarnings( "unchecked" )
-	private < T > T createObject( Proxy proxy )
-	{
-		Class< ? > objectClass = null;
-		Set< Class< ? > > intersection = new HashSet< Class< ? > >( COLLECTION_CLASSES.keySet() );
-		intersection.retainAll( getClassesRecursive( proxy.getClass() ) );
-		
-		if ( !intersection.isEmpty() )
-		{
-			if ( intersection.size() > 1 )
-				throw new IllegalStateException( "intersection should contain exactly one element." );
-			
-			objectClass = COLLECTION_CLASSES.get( intersection.iterator().next() );
-		}
-		
-		if ( objectClass == null )
-			objectClass = Inflection.getView( proxy ).getViewedClass();
-		
-		return (T)__Class.newInstance( objectClass );
-	}
-	
-	private List< Class< ? > > getClassesRecursive( Class< ? > aClass )
-	{
-		List< Class< ? > > classes = new ArrayList< Class< ? > >();
-		classes.add( aClass );
-		
-		if ( aClass.getSuperclass() != null )
-			classes.addAll( getClassesRecursive( aClass.getSuperclass() ) );
-		
-		return classes;
-	}
-	
-	private List< Class< ? > > getInterfacesRecursive( Class< ? > aClass )
-	{
-		List< Class< ? > > interfaces = new ArrayList< Class< ? > >();
-		interfaces.addAll( Arrays.asList( aClass.getInterfaces() ) );
-		
-		if ( aClass.getSuperclass() != null )
-			interfaces.addAll( getInterfacesRecursive( aClass.getSuperclass() ) );
-		
-		return interfaces;
+		return targetObject;
 	}
 }

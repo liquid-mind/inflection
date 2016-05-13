@@ -1,6 +1,7 @@
 package ch.liquidmind.inflection.proxy;
 
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
@@ -70,16 +71,12 @@ public class Proxy
 	
 	private List< Class< ? > > getUsedClassesRecursive( View view )
 	{
-		List< Class< ? > > usedClassesRecursive = view.getUsedClasses();
+		List< Class< ? > > usedClassesRecursive = new ArrayList< Class< ? > >();
+		usedClassesRecursive.add( view.getUsedClass() );
+		View superView = Inflection.getTaxonomy( this ).getSuperview( view );
 		
-		if ( Inflection.getTaxonomy( this ).getSuperview( view ) != null )
-		{
-			List< Class< ? > > superViewUsedClasses = getUsedClassesRecursive( Inflection.getTaxonomy( this ).getSuperview( view ) );
-			
-			for ( Class< ? > superViewUsedClass : superViewUsedClasses )
-				if ( !usedClassesRecursive.contains( superViewUsedClass ) )
-					usedClassesRecursive.add( superViewUsedClass );
-		}
+		if ( superView != null )
+			usedClassesRecursive.addAll( getUsedClassesRecursive( superView ) );
 		
 		return usedClassesRecursive;
 	}

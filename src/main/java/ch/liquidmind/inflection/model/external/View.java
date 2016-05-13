@@ -6,7 +6,7 @@ public interface View extends AliasableElement
 {
 	// TODO: rename this to getJavaClass()
 	public < T > Class< T > getViewedClass();
-	public List< Class< ? > > getUsedClasses();
+	public < T > Class< T > getUsedClass();
 	public Taxonomy getParentTaxonomy();
 	public List< Member > getDeclaredMembers();
 	public List< Member > getUnresolvedMembers();

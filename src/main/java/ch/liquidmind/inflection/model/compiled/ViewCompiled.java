@@ -7,7 +7,7 @@ public class ViewCompiled extends AliasableElementCompiled
 {
 	private static final long serialVersionUID = 1L;
 	
-	private List< String > usedClasses = new ArrayList< String >();
+	private String usedClass;
 	private List< MemberCompiled > membersCompiled = new ArrayList< MemberCompiled >();
 	private TaxonomyCompiled parentTaxonomyCompiled;
 	
@@ -16,10 +16,15 @@ public class ViewCompiled extends AliasableElementCompiled
 		super( name );
 		this.parentTaxonomyCompiled = parentTaxonomyCompiled;
 	}
-
-	public List< String > getUsedClasses()
+	
+	public String getUsedClass()
 	{
-		return usedClasses;
+		return usedClass;
+	}
+
+	public void setUsedClass( String usedClass )
+	{
+		this.usedClass = usedClass;
 	}
 
 	public List< MemberCompiled > getMembersCompiled()
