@@ -194,13 +194,8 @@ public class InflectionPrinter
 		if ( view.getAlias() != null )
 			printWriter.print( " as " + view.getAlias() );
 		
-		List< String > usedClassNames = new ArrayList< String >();
-		
-		for ( Class< ? > usedClass : view.getUsedClasses() )
-			usedClassNames.add( getTypeName( usedClass.getName() ) );
-		
-		if ( !usedClassNames.isEmpty() )
-			printWriter.print( " use " + String.join( ", ", usedClassNames ) );
+		if ( view.getUsedClass() == null )
+			printWriter.print( " use " + view.getUsedClass().getName() );
 		
 		if ( taxonomy.getSuperview( view ) != null)
 			printWriter.println( " extends " + getTypeName( taxonomy.getSuperview( view ).getName() ) );

@@ -11,11 +11,9 @@ import org.codehaus.jackson.map.ObjectWriter;
 import __java.lang.__Class;
 import __java.lang.reflect.__Field;
 import ch.liquidmind.inflection.exception.ExceptionWrapper;
-import ch.liquidmind.inflection.loader.TaxonomyLoader;
 import ch.liquidmind.inflection.model.external.Taxonomy;
 import ch.liquidmind.inflection.model.external.View;
 import ch.liquidmind.inflection.proxy.Proxy;
-import ch.liquidmind.inflection.proxy.ProxyRegistry;
 import ch.liquidmind.inflection.util.InflectionPrinter;
 
 public class Inflection

@@ -15,7 +15,6 @@ import __java.lang.__ClassLoader;
 import ch.liquidmind.inflection.Inflection;
 import ch.liquidmind.inflection.model.external.Taxonomy;
 import ch.liquidmind.inflection.model.external.View;
-import ch.liquidmind.inflection.proxy.Tuples.ObjectsTuple;
 
 public class Tuples
 {
@@ -33,6 +32,23 @@ public class Tuples
 			this.auxiliary = auxiliary;
 		}
 	
+		@SuppressWarnings( "unchecked" )
+		public < T > T getObject( ObjectType objectType )
+		{
+			T targetObject = null;
+			
+			if ( objectType.equals( ObjectType.Proxy ) )
+				targetObject = (T)proxy;
+			else if ( objectType.equals( ObjectType.Object ) )
+				targetObject = (T)object;
+			else if ( objectType.equals( ObjectType.Auxiliary ) )
+				targetObject = (T)auxiliary;
+			else
+				throw new IllegalStateException( "Target object cannot be identified." );
+			
+			return targetObject;
+		}
+		
 		public Proxy getProxy()
 		{
 			return proxy;
@@ -160,31 +176,19 @@ public class Tuples
 		this.taxonomy = taxonomy;
 	}
 	
-	public < T > T getObject( Class< ? > targetClass, Object key )
+	public enum ObjectType
+	{
+		Proxy, Object, Auxiliary
+	}
+	
+	public < T > T getObject( ObjectType objectType, Object key )
 	{
 		ObjectsTuple tuple = getObjectTuple( key );
-		T targetObject = getObject( tuple, targetClass );
+		T targetObject = tuple.getObject( objectType );
 		
 		return targetObject;
 	}
 
-	@SuppressWarnings( "unchecked" )
-	private < T > T getObject( ObjectsTuple tuple, Class< ? > targetClass )
-	{
-		T targetObject = null;
-		
-		if ( tuple.getProxy().getClass().equals( targetClass ) )
-			targetObject = (T)tuple.getProxy();
-		else if ( tuple.getObject().getClass().equals( targetClass ) )
-			targetObject = (T)tuple.getObject();
-		else if ( tuple.getAuxiliary().getClass().equals( targetClass ) )
-			targetObject = (T)tuple.getAuxiliary();
-		else
-			throw new IllegalStateException( "Target object cannot be identified." );
-		
-		return targetObject;
-	}
-	
 	private ObjectsTuple getObjectTuple( Object key )
 	{
 		ObjectsTuple objectsTuple = objectsTuples.get( key );

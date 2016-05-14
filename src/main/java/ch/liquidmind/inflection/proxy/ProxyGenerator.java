@@ -399,7 +399,7 @@ public class ProxyGenerator
 			Type[] actualTypeArguments = parameterizedType.getActualTypeArguments();
 			String rawTypeConverted;
 			List< String > actualTypeArgumentsConverted = new ArrayList< String >();
-			Class< ? > proxyBaseClass = ProxyRegistry.getProxyBaseClass( (Class< ? >)rawType );
+			Class< ? > proxyBaseClass = Tuples.getProxyBaseClass( (Class< ? >)rawType );
 			
 			if ( proxyBaseClass != null )
 				rawTypeConverted = getFullyQualifiedCollectionName( taxonomy, proxyBaseClass );

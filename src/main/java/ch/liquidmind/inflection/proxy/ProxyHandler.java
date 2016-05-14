@@ -12,6 +12,7 @@ import ch.liquidmind.inflection.model.external.Field;
 import ch.liquidmind.inflection.model.external.Member;
 import ch.liquidmind.inflection.model.external.Property;
 import ch.liquidmind.inflection.model.external.Taxonomy;
+import ch.liquidmind.inflection.proxy.Tuples.ObjectType;
 
 public class ProxyHandler implements InvocationHandler
 {
@@ -34,9 +35,10 @@ public class ProxyHandler implements InvocationHandler
 	private Object invoke( Proxy proxy, Method method, Object[] args ) throws Throwable
 	{
 		String memberName = Pass2Listener.getPropertyName( method );
-		Member member = Inflection.getTaxonomy( proxy ).getMember( Inflection.getView( proxy ), memberName );
-		Object viewableObject = ProxyRegistry.getContextProxyRegistry().getObject( proxy );
-		List< Object > viewableArgs = getViewableObjects( args );
+		Taxonomy taxonomy = Inflection.getTaxonomy( proxy );
+		Member member = taxonomy.getMember( Inflection.getView( proxy ), memberName );
+		Object viewableObject = ProxyRegistry.getContextProxyRegistry().getObject( taxonomy, ObjectType.Object, proxy );
+		List< Object > viewableArgs = getViewableObjects( taxonomy, args );
 		MemberOperation memberOperation = getMemberOperation( method );
 		Object viewableRetVal;
 		
@@ -100,14 +102,14 @@ public class ProxyHandler implements InvocationHandler
 		return retVal;
 	}
 	
-	private List< Object > getViewableObjects( Object[] rawObjects )
+	private List< Object > getViewableObjects( Taxonomy taxonomy, Object[] rawObjects )
 	{
 		List< Object > viewableObjects = new ArrayList< Object >();
 		
 		for ( Object rawObject : rawObjects )
 		{
 			if ( rawObject instanceof Proxy )
-				viewableObjects.add( ProxyRegistry.getContextProxyRegistry().getObject( (Proxy)rawObject ) );
+				viewableObjects.add( ProxyRegistry.getContextProxyRegistry().getObject( taxonomy, ObjectType.Object, (Proxy)rawObject ) );
 			else
 				viewableObjects.add( rawObject );
 		}
@@ -117,7 +119,7 @@ public class ProxyHandler implements InvocationHandler
 	
 	private Object getProxyObject( Taxonomy taxonomy, Object viewableObject )
 	{
-		Object proxyObject = ProxyRegistry.getContextProxyRegistry().getProxy( taxonomy, viewableObject );
+		Object proxyObject = ProxyRegistry.getContextProxyRegistry().getObject( taxonomy, ObjectType.Proxy, viewableObject );
 		
 		if ( proxyObject == null )
 			proxyObject = viewableObject;

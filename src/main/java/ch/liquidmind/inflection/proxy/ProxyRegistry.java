@@ -3,13 +3,12 @@ package ch.liquidmind.inflection.proxy;
 import java.util.HashMap;
 import java.util.Map;
 
-import ch.liquidmind.inflection.Inflection;
 import ch.liquidmind.inflection.model.external.Taxonomy;
+import ch.liquidmind.inflection.proxy.Tuples.ObjectType;
 
 // TODO: look into using weak-/soft references to manage memory.
 public class ProxyRegistry
 {
-	
 	private static ThreadLocal< ProxyRegistry > contextProxyRegistry = new ThreadLocal< ProxyRegistry >();
 	
 	private Map< Taxonomy, Tuples > tuplesByTaxonomy = new HashMap< Taxonomy, Tuples >();
@@ -22,15 +21,15 @@ public class ProxyRegistry
 		return contextProxyRegistry.get();
 	}
 	
-	public < T > T getObject( Class< T > targetClass, Proxy key )
-	{
-		return getObject( targetClass, Inflection.getTaxonomy( key ), key );
-	}
+//	public < T > T getObject( Class< T > targetClass, Proxy key )
+//	{
+//		return getObject( targetClass, Inflection.getTaxonomy( key ), key );
+//	}
 	
-	public < T > T getObject( Class< T > targetClass, Taxonomy taxonomy, Object key )
+	public < T > T getObject( Taxonomy taxonomy, ObjectType objectType, Object key )
 	{
 		Tuples tuples = getTuples( taxonomy );
-		T targetObject = tuples.getObject( targetClass, key );
+		T targetObject = tuples.getObject( objectType, key );
 		
 		return (T)targetObject;
 	}
