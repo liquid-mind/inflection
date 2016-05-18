@@ -2,7 +2,6 @@ package ch.liquidmind.inflection.proxy;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -38,14 +37,16 @@ public class ProxyHandler implements InvocationHandler
 		Taxonomy taxonomy = Inflection.getTaxonomy( proxy );
 		Member member = taxonomy.getMember( Inflection.getView( proxy ), memberName );
 		Object viewableObject = ProxyRegistry.getContextProxyRegistry().getObject( taxonomy, ObjectType.Object, proxy );
+		Object auxiliaryObject = ProxyRegistry.getContextProxyRegistry().getObject( taxonomy, ObjectType.Auxiliary, proxy );
+		Object targetObject = ( method.getDeclaringClass().isAssignableFrom( viewableObject.getClass() ) ? viewableObject : auxiliaryObject );
 		List< Object > viewableArgs = getViewableObjects( taxonomy, args );
 		MemberOperation memberOperation = getMemberOperation( method );
 		Object viewableRetVal;
 		
 		if ( member instanceof Field )
-			viewableRetVal = delegateByField( (Field)member, memberOperation, viewableObject, viewableArgs );
+			viewableRetVal = delegateByField( (Field)member, memberOperation, targetObject, viewableArgs );
 		else if ( member instanceof Property )
-			viewableRetVal = delegateByProperty( (Property)member, memberOperation, viewableObject, viewableArgs );
+			viewableRetVal = delegateByProperty( (Property)member, memberOperation, targetObject, viewableArgs );
 		else
 			throw new IllegalStateException();
 		
@@ -69,7 +70,7 @@ public class ProxyHandler implements InvocationHandler
 		return memberOperation;
 	}
 	
-	private Object delegateByProperty( Property property, MemberOperation memberOperation, Object viewableObject, List< Object > viewableArgs ) throws Throwable
+	private Object delegateByProperty( Property property, MemberOperation memberOperation, Object targetObject, List< Object > viewableArgs ) throws Throwable
 	{
 		Method method;
 		
@@ -80,24 +81,17 @@ public class ProxyHandler implements InvocationHandler
 		else
 			throw new IllegalStateException();
 
-		// Adjustment for calculated fields.
-		if ( Modifier.isStatic( method.getModifiers() ) )
-		{
-			viewableArgs.add( 0, viewableObject );
-			viewableObject = null;
-		}
-		
-		return method.invoke( viewableObject, viewableArgs.toArray( new Object[ viewableArgs.size() ] ) );
+		return method.invoke( targetObject, viewableArgs.toArray( new Object[ viewableArgs.size() ] ) );
 	}
 	
-	private Object delegateByField( Field field, MemberOperation memberOperation, Object viewableObject, List< Object > viewableArgs ) throws Throwable
+	private Object delegateByField( Field field, MemberOperation memberOperation, Object targetObject, List< Object > viewableArgs ) throws Throwable
 	{
 		Object retVal = null;
 		
 		if ( memberOperation.equals( MemberOperation.READ ) )
-			retVal = field.getField().get( viewableObject );
+			retVal = field.getField().get( targetObject );
 		else if ( memberOperation.equals( MemberOperation.WRITE ) )
-			field.getField().set( viewableObject, viewableArgs.get( 0 ) );
+			field.getField().set( targetObject, viewableArgs.get( 0 ) );
 		
 		return retVal;
 	}

@@ -22,21 +22,16 @@ taxonomy UseCase1 extends FullTaxonomy
 // "Person.*" includes only the members of Person and not of CalculatedMembers.
 taxonomy UseCase2 extends FullTaxonomy
 {
-	view Person use PersonAuxiliary
+	view Person use PersonAuxiliary1
 	{
 		*;
-		exclude dateOfBirth, fullName, primaryAddress;
-		
-		// ...or this syntax, which is not yet operational:
-		// Person.*;
-		// exclude Person.dateOfBirth;
-		// CalculatedMembers.age;
+		exclude dateOfBirth;
 	}
 }
 
 taxonomy UseCase3 extends FullTaxonomy
 {
-	view Person use PersonAuxiliary
+	view Person use PersonAuxiliary2
 	{
 		fullName, email, gender, dateOfBirth, primaryAddress;
 	}
@@ -50,6 +45,6 @@ taxonomy UseCase4 extends FullTaxonomy
 
 taxonomy UseCase5 extends FullTaxonomy
 {
-	view Person use PersonAuxiliary { firstName, lastName, title, telephone, mobile, email, gender, dateOfBirth, addressesUnidir as addresses; }
+	view Person use PersonAuxiliary3 { firstName, lastName, title, telephone, mobile, email, gender, dateOfBirth, addressesUnidir as addresses; }
 	view Address { *; exclude people; }
 }

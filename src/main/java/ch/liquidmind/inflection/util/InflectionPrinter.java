@@ -194,7 +194,7 @@ public class InflectionPrinter
 		if ( view.getAlias() != null )
 			printWriter.print( " as " + view.getAlias() );
 		
-		if ( view.getUsedClass() == null )
+		if ( view.getUsedClass() != null )
 			printWriter.print( " use " + view.getUsedClass().getName() );
 		
 		if ( taxonomy.getSuperview( view ) != null)

@@ -8,6 +8,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.Set;
 
 import __java.lang.__Class;
@@ -69,9 +70,9 @@ public class Tuples
 		{
 			final int prime = 31;
 			int result = 1;
-			result = prime * result + ( ( auxiliary == null ) ? 0 : auxiliary.hashCode() );
-			result = prime * result + ( ( object == null ) ? 0 : object.hashCode() );
-			result = prime * result + ( ( proxy == null ) ? 0 : proxy.hashCode() );
+			result = prime * result + ( ( auxiliary == null ) ? 0 : System.identityHashCode( auxiliary ) );
+			result = prime * result + ( ( object == null ) ? 0 : System.identityHashCode( object ) );
+			result = prime * result + ( ( proxy == null ) ? 0 : System.identityHashCode( proxy ) );
 			return result;
 		}
 	
@@ -183,22 +184,33 @@ public class Tuples
 	
 	public < T > T getObject( ObjectType objectType, Object key )
 	{
-		ObjectsTuple tuple = getObjectTuple( key );
-		T targetObject = tuple.getObject( objectType );
+		T targetObject;
+		
+		try
+		{
+			ObjectsTuple tuple = getObjectTuple( key );
+			targetObject = tuple.getObject( objectType );
+		}
+		catch ( NoProxyException e )
+		{
+			targetObject = null;
+		}
 		
 		return targetObject;
 	}
 
 	private ObjectsTuple getObjectTuple( Object key )
 	{
-		ObjectsTuple objectsTuple = objectsTuples.get( key );
+		ObjectsTuple objectsTuple = objectsTuples.get( System.identityHashCode( key ) );
 		
 		if ( objectsTuple == null )
 		{
 			objectsTuple = createObjectTuple( key );
 			objectsTuples.put( System.identityHashCode( objectsTuple.getObject() ), objectsTuple );
 			objectsTuples.put( System.identityHashCode( objectsTuple.getProxy() ), objectsTuple );
-			objectsTuples.put( System.identityHashCode( objectsTuple.getAuxiliary() ), objectsTuple );
+			
+			if ( objectsTuple.getAuxiliary() != null )
+				objectsTuples.put( System.identityHashCode( objectsTuple.getAuxiliary() ), objectsTuple );
 		}
 		
 		return objectsTuple;
@@ -211,7 +223,7 @@ public class Tuples
 		
 		Proxy proxy = determineObject( theClass, classesTuple.getProxyClass(), object );
 		Object viewableObject = determineObject( theClass, classesTuple.getObjectClass(), object );
-		Object auxiliary = determineObject( theClass, classesTuple.getProxyClass(), object );
+		Object auxiliary = determineObject( theClass, classesTuple.getAuxiliaryClass(), object );
 		
 		ObjectsTuple objectsTuple = new ObjectsTuple( proxy, viewableObject, auxiliary );
 		
@@ -221,7 +233,7 @@ public class Tuples
 	@SuppressWarnings( "unchecked" )
 	private < T > T determineObject( Class< ? > classA, Class< ? > classB, Object objectA )
 	{
-		return (T)( classA.equals( classB ) ? objectA : __Class.newInstance( classB ) );
+		return (T)( classA.equals( classB ) ? objectA : ( classB == null ? null : __Class.newInstance( classB ) ) );
 	}
 	
 	private ClassesTuple getClassesTuple( Class< ? > key )
@@ -243,12 +255,20 @@ public class Tuples
 	{
 		ClassesTuple classTuple = null;
 		
-		if ( Collection.class.isAssignableFrom( aClass ) || Map.class.isAssignableFrom( aClass ) )
+		if ( isCollection( aClass ) )
 			classTuple = createClassesTupleFromCollection( aClass );
 		else
 			classTuple = createClassesTupleFromNonCollection( aClass );
 
 		return classTuple;
+	}
+	
+	private boolean isCollection( Class< ? > aClass )
+	{
+		Set< Class< ? > > intersection = new HashSet< Class< ? > >( PROXY_BASE_CLASSES.keySet() );
+		intersection.retainAll( getInterfacesRecursive( aClass ) );
+		
+		return !intersection.isEmpty();
 	}
 	
 	private ClassesTuple createClassesTupleFromCollection( Class< ? > aClass )
@@ -303,7 +323,7 @@ public class Tuples
 		if ( Proxy.class.isAssignableFrom( aClass ) )
 			correspondingView = Inflection.getView( (Class< Proxy >)aClass );
 		else
-			correspondingView = taxonomy.getViews().stream().filter( x -> x.getViewedClass().equals( aClass ) || x.getUsedClass().equals( aClass ) ).findFirst().get();
+			correspondingView = getViewByClass( aClass );
 	
 		Class< ? > objectClass = correspondingView.getViewedClass();
 		Class< ? > auxiliaryClass = correspondingView.getUsedClass();
@@ -313,6 +333,18 @@ public class Tuples
 		ClassesTuple classesTuple = new ClassesTuple( proxyClass, objectClass, auxiliaryClass );
 		
 		return classesTuple;
+	}
+	
+	private View getViewByClass( Class< ? > aClass )
+	{
+		try
+		{
+			return taxonomy.getViews().stream().filter( x -> x.getViewedClass().equals( aClass ) || ( x.getUsedClass() != null && x.getUsedClass().equals( aClass ) ) ).findFirst().get();		
+		}
+		catch ( NoSuchElementException e )
+		{
+			throw new NoProxyException();
+		}
 	}
 
 	private List< Class< ? > > getClassesRecursive( Class< ? > aClass )

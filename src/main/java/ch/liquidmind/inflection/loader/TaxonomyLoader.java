@@ -177,7 +177,9 @@ public class TaxonomyLoader
 		ViewLinked viewLinked = new ViewLinked( viewCompiled.getName() );
 		viewLinked.setParentTaxonomyLinked( parentTaxonomyLinked );
 		viewLinked.setViewedClass( loadClass( viewLinked.getName() ) );
-		viewLinked.setUsedClass( loadClass( viewCompiled.getUsedClass() ) );
+		
+		if ( viewCompiled.getUsedClass() != null )
+			viewLinked.setUsedClass( loadClass( viewCompiled.getUsedClass() ) );
 		
 		defineAnnotations( viewCompiled, viewLinked );
 		viewLinked.setSelectionType( viewCompiled.getSelectionType() );
@@ -211,8 +213,9 @@ public class TaxonomyLoader
 			for ( Method method : viewedClass.getDeclaredMethods() )
 				declaredMethods.put( method.getName().toLowerCase(), method );
 			
-			for ( Method method : parentViewLinked.getUsedClass().getDeclaredMethods() )
-				declaredMethods.put( method.getName().toLowerCase(), method );
+			if ( parentViewLinked.getUsedClass() != null )
+				for ( Method method : parentViewLinked.getUsedClass().getDeclaredMethods() )
+					declaredMethods.put( method.getName().toLowerCase(), method );
 			
 			Method writeMethod = declaredMethods.get( "set" + propertyLinked.getName().toLowerCase() );
 			Method readMethod = declaredMethods.get( "is" + propertyLinked.getName().toLowerCase() );

@@ -21,15 +21,19 @@ public class ProxyRegistry
 		return contextProxyRegistry.get();
 	}
 	
-//	public < T > T getObject( Class< T > targetClass, Proxy key )
-//	{
-//		return getObject( targetClass, Inflection.getTaxonomy( key ), key );
-//	}
-	
 	public < T > T getObject( Taxonomy taxonomy, ObjectType objectType, Object key )
 	{
-		Tuples tuples = getTuples( taxonomy );
-		T targetObject = tuples.getObject( objectType, key );
+		T targetObject;
+		
+		if ( key == null )
+		{
+			targetObject = null;
+		}
+		else
+		{
+			Tuples tuples = getTuples( taxonomy );
+			targetObject = tuples.getObject( objectType, key );
+		}
 		
 		return (T)targetObject;
 	}

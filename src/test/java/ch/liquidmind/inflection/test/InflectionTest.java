@@ -26,6 +26,8 @@ import ch.liquidmind.inflection.util.InflectionPrinter;
 public class InflectionTest
 {
 	private static PrintStream printStream = System.out;
+
+	
 	
 	@Test
 	public void testPrinterMulti() throws Throwable

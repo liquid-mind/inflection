@@ -11,9 +11,12 @@ import org.codehaus.jackson.map.ObjectWriter;
 import __java.lang.__Class;
 import __java.lang.reflect.__Field;
 import ch.liquidmind.inflection.exception.ExceptionWrapper;
+import ch.liquidmind.inflection.loader.TaxonomyLoader;
 import ch.liquidmind.inflection.model.external.Taxonomy;
 import ch.liquidmind.inflection.model.external.View;
 import ch.liquidmind.inflection.proxy.Proxy;
+import ch.liquidmind.inflection.proxy.ProxyRegistry;
+import ch.liquidmind.inflection.proxy.Tuples.ObjectType;
 import ch.liquidmind.inflection.util.InflectionPrinter;
 
 public class Inflection
@@ -60,11 +63,70 @@ public class Inflection
 	{
 		return getView( proxy.getClass() );
 	}
-
+	
+	public static < T > T cast( Taxonomy taxonomy, Class< T > theClass, Object object )
+	{
+		ObjectType targetObjectType = determineObjectType( theClass );
+		T targetObject = ProxyRegistry.getContextProxyRegistry().getObject( taxonomy, targetObjectType, object );
+		
+		return targetObject;
+	}
+	
 	public static < T > T cast( Class< T > theClass, Object object )
 	{
-		return null;
+		Taxonomy targetTaxonomy = determineTaxonomy( theClass );
+		Taxonomy sourceTaxonomy = determineTaxonomy( object.getClass() );
+		Taxonomy taxonomy = ( targetTaxonomy == null ? sourceTaxonomy : targetTaxonomy );
+		
+		if ( taxonomy == null )
+			throw new IllegalStateException( "taxonomy should never be null." );
+		
+		return cast( taxonomy, theClass, object );
 	}
+	
+	@SuppressWarnings( "unchecked" )
+	private static Taxonomy determineTaxonomy( Class< ? > aClass )
+	{
+		Taxonomy taxonomy;
+		
+		if ( Proxy.class.isAssignableFrom( aClass ) )
+		{
+			taxonomy = getTaxonomy( (Class< Proxy >)aClass );
+		}
+		else
+		{
+			Auxiliary auxiliary = aClass.getAnnotation( Auxiliary.class );
+			
+			if ( auxiliary != null )
+				taxonomy = TaxonomyLoader.getContextTaxonomyLoader().loadTaxonomy( auxiliary.value() );
+			else
+				taxonomy = null;
+		}
+		
+		return taxonomy;
+	}
+
+	private static ObjectType determineObjectType( Class< ? > aClass )
+	{
+		ObjectType objectType;
+		
+		if ( Proxy.class.isAssignableFrom( aClass ) )
+		{
+			objectType = ObjectType.Proxy;
+		}
+		else
+		{
+			Auxiliary auxiliary = aClass.getAnnotation( Auxiliary.class );
+			
+			if ( auxiliary != null )
+				objectType = ObjectType.Auxiliary;
+			else
+				objectType = ObjectType.Object;
+		}
+		
+		return objectType;
+	}
+
 	
 //	public static < T extends Proxy > T cast( Class< ? extends Proxy > proxyClass, Object viewableObject )
 //	{

@@ -776,8 +776,11 @@ public class Pass2Listener extends AbstractInflectionListener
 		else
 			throw new IllegalStateException( "Unexpected value for effectiveAccessType: " + effectiveAccessType  );
 		
-		Class< ? > usedClass = getClass( viewCompiled.getUsedClass() );
-		getPropertyNames( usedClass, PropertyType.DYNAMIC, members, memberNames );
+		if ( viewCompiled.getUsedClass() != null )
+		{
+			Class< ? > usedClass = getClass( viewCompiled.getUsedClass() );
+			getPropertyNames( usedClass, PropertyType.DYNAMIC, members, memberNames );
+		}
 
 		List< String > matchingMembers = new ArrayList< String >();
 
