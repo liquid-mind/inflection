@@ -21,13 +21,12 @@ import ch.liquidmind.inflection.test.model.UseCase1.ch.liquidmind.inflection.tes
 import ch.liquidmind.inflection.test.model.UseCase2.ch.liquidmind.inflection.test.model.UseCase2_Person;
 import ch.liquidmind.inflection.test.model.UseCase3.ch.liquidmind.inflection.test.model.UseCase3_Person;
 import ch.liquidmind.inflection.test.model.UseCase4.ch.liquidmind.inflection.test.model.UseCase4_Address;
+import ch.liquidmind.inflection.test.model.UseCase5.ch.liquidmind.inflection.test.model.UseCase5_Person;
 import ch.liquidmind.inflection.util.InflectionPrinter;
 
 public class InflectionTest
 {
 	private static PrintStream printStream = System.out;
-
-	
 	
 	@Test
 	public void testPrinterMulti() throws Throwable
@@ -76,8 +75,8 @@ public class InflectionTest
 	{
 		Calendar cal = new GregorianCalendar();
 		cal.set( 1972, 8, 8 );
-		Person person = new Person( 42, "John", "Brush", "Mr.", "+41 79 235 17 56", "+41 79 235 17 56", "jebrush@gmail.com", Gender.MALE, cal.getTime() );
-		Address address = new Address( 43, "Feldgüetliweg 82", "Feldmeilen", "8706", "Switzerland" );
+		Person person = new Person( 1, "John", "Brush", "Mr.", "+41 79 235 17 56", "+41 79 235 17 56", "jebrush@gmail.com", Gender.MALE, cal.getTime() );
+		Address address = new Address( 2, "Feldgüetliweg 82", "Feldmeilen", "8706", "Switzerland" );
 		person.getAddresses().add( address );
 		address.getPeople().add( person );
 		person.setProfileImage( new byte[] { 0x4b, 0x69, 0x6c, 0x72, 0x6f, 0x79, 0x20, 0x77, 0x61, 0x73, 0x20, 0x68, 0x65, 0x72, 0x65 } );
@@ -87,6 +86,7 @@ public class InflectionTest
 		UseCase2_Person useCase2Person = Inflection.cast( UseCase2_Person.class, person );
 		UseCase3_Person useCase3Person = Inflection.cast( UseCase3_Person.class, person );
 		UseCase4_Address useCase4Address = Inflection.cast( UseCase4_Address.class, address );
+		UseCase5_Person useCase5Person = Inflection.cast( UseCase5_Person.class, person );
 		
 		ObjectMapper mapper = new ObjectMapper();
 		ObjectWriter writer = mapper.writerWithDefaultPrettyPrinter();
@@ -108,6 +108,9 @@ public class InflectionTest
 		printStream.println();
 		printStream.println( "UseCase4_Address:" );
 		printStream.println( writer.writeValueAsString( useCase4Address ) );
+		printStream.println();
+		printStream.println( "UseCase5_Person:" );
+		printStream.println( writer.writeValueAsString( useCase5Person ) );
 		printStream.println();
 	}
 }
