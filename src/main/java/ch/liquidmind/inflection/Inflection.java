@@ -126,43 +126,32 @@ public class Inflection
 		
 		return objectType;
 	}
+	
+	public static < T extends Object > T cast( String taxonomy, Object object )
+	{
+		return cast( TaxonomyLoader.getContextTaxonomyLoader().loadTaxonomy( taxonomy ), ObjectType.Proxy, object );
+	}
+	
+	public static < T extends Object > T cast( Taxonomy taxonomy, Object object )
+	{
+		return cast( taxonomy, ObjectType.Proxy, object );
+	}
+	
+	public static < T extends Object > T cast( Taxonomy taxonomy, ObjectType objectType, Object object )
+	{
+		return ProxyRegistry.getContextProxyRegistry().getObject( taxonomy, objectType, object );
+	}
+	
+	public static < T extends Object > T cast( Proxy proxy )
+	{
+		return cast( ObjectType.Object, proxy );
+	}
+	
+	public static < T extends Object > T cast( ObjectType objectType, Proxy proxy )
+	{
+		return ProxyRegistry.getContextProxyRegistry().getObject( getTaxonomy( proxy ), objectType, proxy );
+	}
 
-	
-//	public static < T extends Proxy > T cast( Class< ? extends Proxy > proxyClass, Object viewableObject )
-//	{
-//		return cast( getTaxonomy( proxyClass ), viewableObject );
-//	}
-//
-//	public static < T extends Proxy > T cast( String taxonomyName, Object viewableObject )
-//	{
-//		return cast( TaxonomyLoader.getContextTaxonomyLoader().loadTaxonomy( taxonomyName ), viewableObject );
-//	}
-//
-//	public static < T extends Proxy > T cast( Taxonomy taxonomy, Object viewableObject )
-//	{
-//		return ProxyRegistry.getContextProxyRegistry().getProxy( taxonomy, viewableObject );
-//	}
-//
-//	public static < T extends Proxy > T cast( Class< ? extends Proxy > proxyClass, Proxy proxy )
-//	{
-//		return cast( getTaxonomy( proxyClass ), proxy );
-//	}
-//
-//	public static < T extends Proxy > T cast( String taxonomyName, Proxy proxy )
-//	{
-//		return cast( TaxonomyLoader.getContextTaxonomyLoader().loadTaxonomy( taxonomyName ), proxy );
-//	}
-//
-//	public static < T extends Proxy > T cast( Taxonomy taxonomy, Proxy proxy )
-//	{
-//		return cast( taxonomy, cast( proxy ) );
-//	}
-//	
-//	public static < T extends Object > T cast( Proxy proxy )
-//	{
-//		return ProxyRegistry.getContextProxyRegistry().getObject( proxy );
-//	}
-	
 	public static String viewToString( Proxy proxy )
 	{
 		StringWriter stringWriter = new StringWriter();
