@@ -7,8 +7,7 @@ import ch.liquidmind.inflection.Inflection;
 import ch.liquidmind.inflection.bidir.BidirectionalList;
 
 
-@Auxiliary( "ch.liquidmind.inflection.test.model.UseCase5" )
-public class PersonAuxiliary3
+public class PersonAuxiliary3 extends Auxiliary
 {
 	public List< Address > getAddressesUnidir()
 	{

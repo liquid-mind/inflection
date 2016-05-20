@@ -1,10 +1,11 @@
 package ch.liquidmind.inflection;
 
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
+import ch.liquidmind.inflection.model.external.Taxonomy;
+import ch.liquidmind.inflection.model.external.View;
 
-@Retention( RetentionPolicy.RUNTIME )
-public @interface Auxiliary
+@SuppressWarnings( "unused" )
+public abstract class Auxiliary
 {
-	public String value();
+	private Taxonomy taxonomy;
+	private View view;
 }

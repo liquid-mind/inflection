@@ -16,6 +16,7 @@ import ch.liquidmind.inflection.model.external.Taxonomy;
 import ch.liquidmind.inflection.model.external.View;
 import ch.liquidmind.inflection.proxy.Proxy;
 import ch.liquidmind.inflection.proxy.ProxyRegistry;
+import ch.liquidmind.inflection.proxy.Tuples;
 import ch.liquidmind.inflection.proxy.Tuples.ObjectType;
 import ch.liquidmind.inflection.util.InflectionPrinter;
 
@@ -75,7 +76,7 @@ public class Inflection
 	public static < T > T cast( Class< T > theClass, Object object )
 	{
 		Taxonomy targetTaxonomy = determineTaxonomy( theClass );
-		Taxonomy sourceTaxonomy = determineTaxonomy( object.getClass() );
+		Taxonomy sourceTaxonomy = determineTaxonomy( object );
 		Taxonomy taxonomy = ( targetTaxonomy == null ? sourceTaxonomy : targetTaxonomy );
 		
 		if ( taxonomy == null )
@@ -84,24 +85,27 @@ public class Inflection
 		return cast( taxonomy, theClass, object );
 	}
 	
+	private static Taxonomy determineTaxonomy( Object object )
+	{
+		Taxonomy taxonomy;
+
+		if ( Auxiliary.class.isAssignableFrom( object.getClass() ) )
+			taxonomy = (Taxonomy)__Field.get( Tuples.AUXILIARY_TAXONOMY, object );
+		else
+			taxonomy = determineTaxonomy( object.getClass() );
+		
+		return taxonomy;
+	}
+	
 	@SuppressWarnings( "unchecked" )
 	private static Taxonomy determineTaxonomy( Class< ? > aClass )
 	{
 		Taxonomy taxonomy;
 		
 		if ( Proxy.class.isAssignableFrom( aClass ) )
-		{
 			taxonomy = getTaxonomy( (Class< Proxy >)aClass );
-		}
 		else
-		{
-			Auxiliary auxiliary = aClass.getAnnotation( Auxiliary.class );
-			
-			if ( auxiliary != null )
-				taxonomy = TaxonomyLoader.getContextTaxonomyLoader().loadTaxonomy( auxiliary.value() );
-			else
-				taxonomy = null;
-		}
+			taxonomy = null;
 		
 		return taxonomy;
 	}
@@ -111,18 +115,11 @@ public class Inflection
 		ObjectType objectType;
 		
 		if ( Proxy.class.isAssignableFrom( aClass ) )
-		{
 			objectType = ObjectType.Proxy;
-		}
+		else if ( Auxiliary.class.isAssignableFrom( aClass ) )
+			objectType = ObjectType.Auxiliary;
 		else
-		{
-			Auxiliary auxiliary = aClass.getAnnotation( Auxiliary.class );
-			
-			if ( auxiliary != null )
-				objectType = ObjectType.Auxiliary;
-			else
-				objectType = ObjectType.Object;
-		}
+			objectType = ObjectType.Object;
 		
 		return objectType;
 	}

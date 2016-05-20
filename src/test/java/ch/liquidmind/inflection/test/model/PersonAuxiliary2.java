@@ -4,8 +4,7 @@ import ch.liquidmind.inflection.Auxiliary;
 import ch.liquidmind.inflection.Inflection;
 
 
-@Auxiliary( "ch.liquidmind.inflection.test.model.UseCase3" )
-public class PersonAuxiliary2
+public class PersonAuxiliary2 extends Auxiliary
 {
 	public String getFullName()
 	{

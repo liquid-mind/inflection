@@ -9,8 +9,7 @@ import ch.liquidmind.inflection.Auxiliary;
 import ch.liquidmind.inflection.Inflection;
 
 
-@Auxiliary( "ch.liquidmind.inflection.test.model.UseCase2" )
-public class PersonAuxiliary1
+public class PersonAuxiliary1 extends Auxiliary
 {
 	public int getAge()
 	{

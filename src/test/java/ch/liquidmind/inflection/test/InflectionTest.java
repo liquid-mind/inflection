@@ -44,7 +44,7 @@ public class InflectionTest
 
 	public void testPrinter()
 	{
-		String[] taxonomyNames = new String[] { "FullTaxonomy", "UseCase1", "UseCase2", "UseCase3", "UseCase4" };
+		String[] taxonomyNames = new String[] { "FullTaxonomy", "UseCase1", "UseCase2", "UseCase3", "UseCase4", "UseCase5" };
 		
 		for ( String taxonomyName : taxonomyNames )
 		{

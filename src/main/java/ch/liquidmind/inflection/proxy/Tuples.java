@@ -1,5 +1,6 @@
 package ch.liquidmind.inflection.proxy;
 
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -12,6 +13,8 @@ import java.util.Set;
 
 import __java.lang.__Class;
 import __java.lang.__ClassLoader;
+import __java.lang.reflect.__Field;
+import ch.liquidmind.inflection.Auxiliary;
 import ch.liquidmind.inflection.Inflection;
 import ch.liquidmind.inflection.model.external.Taxonomy;
 import ch.liquidmind.inflection.model.external.View;
@@ -115,15 +118,13 @@ public class Tuples
 		private Class< ? > proxyClass;
 		private Class< ? > objectClass;
 		private Class< ? > auxiliaryClass;
-		private Class< ? > effectiveAuxiliaryClass;
 		
-		public ClassesTuple( Class< ? > proxyClass, Class< ? > objectClass, Class< ? > auxiliaryClass, Class< ? > effectiveAuxiliaryClass )
+		public ClassesTuple( Class< ? > proxyClass, Class< ? > objectClass, Class< ? > auxiliaryClass )
 		{
 			super();
 			this.proxyClass = proxyClass;
 			this.objectClass = objectClass;
 			this.auxiliaryClass = auxiliaryClass;
-			this.effectiveAuxiliaryClass = effectiveAuxiliaryClass;
 		}
 	
 		public Class< ? > getProxyClass()
@@ -139,11 +140,6 @@ public class Tuples
 		public Class< ? > getAuxiliaryClass()
 		{
 			return auxiliaryClass;
-		}
-
-		public Class< ? > getEffectiveAuxiliaryClass()
-		{
-			return effectiveAuxiliaryClass;
 		}
 	}
 
@@ -222,14 +218,16 @@ public class Tuples
 		return objectsTuple;
 	}
 	
+	@SuppressWarnings( "unchecked" )
 	private ObjectsTuple createObjectTuple( Object object )
 	{
 		Class< ? > theClass = object.getClass();
-		ClassesTuple classesTuple = getClassesTuple( theClass );
+		ClassesTuple classesTuple = getClassesTuple( object );
+		View view = Inflection.getView( (Class< Proxy >)classesTuple.getProxyClass() );
 		
 		Proxy proxy = determineObject( theClass, classesTuple.getProxyClass(), object );
 		Object viewableObject = determineObject( theClass, classesTuple.getObjectClass(), object );
-		Object auxiliary = determineObject( theClass, classesTuple.getEffectiveAuxiliaryClass(), object );
+		Object auxiliary = determineAuxilliaryObject( theClass, classesTuple.getAuxiliaryClass(), object, taxonomy, view );
 		
 		ObjectsTuple objectsTuple = new ObjectsTuple( proxy, viewableObject, auxiliary );
 		
@@ -237,9 +235,51 @@ public class Tuples
 	}
 	
 	@SuppressWarnings( "unchecked" )
+	private < T > T determineAuxilliaryObject( Class< ? > classA, Class< ? > classB, Object objectA, Taxonomy taxonomy, View view )
+	{
+		return (T)( classA.equals( classB ) ? objectA : ( classB == null ? null : createAuxiliaryObject( classB, taxonomy, view ) ) );
+	}
+	
+	@SuppressWarnings( "unchecked" )
+	private < T > T createAuxiliaryObject( Class< ? > theClass, Taxonomy taxonomy, View view )
+	{
+		T auxiliaryObject = (T)__Class.newInstance( theClass );
+		__Field.set( AUXILIARY_TAXONOMY, auxiliaryObject, taxonomy );
+		__Field.set( AUXILIARY_VIEW, auxiliaryObject, view );
+		
+		return auxiliaryObject;
+	}
+	
+	@SuppressWarnings( "unchecked" )
 	private < T > T determineObject( Class< ? > classA, Class< ? > classB, Object objectA )
 	{
 		return (T)( classA.equals( classB ) ? objectA : ( classB == null ? null : __Class.newInstance( classB ) ) );
+	}
+
+	public static final Field AUXILIARY_TAXONOMY = __Class.getDeclaredField( Auxiliary.class, "taxonomy" );
+	public static final Field AUXILIARY_VIEW = __Class.getDeclaredField( Auxiliary.class, "view" );
+	
+	static
+	{
+		AUXILIARY_TAXONOMY.setAccessible( true );
+		AUXILIARY_VIEW.setAccessible( true );
+	}
+
+	private ClassesTuple getClassesTuple( Object key )
+	{
+		Class< ? > lookupClass;
+		
+		if ( key instanceof Auxiliary )
+		{
+			View view = (View)__Field.get( AUXILIARY_VIEW, key );
+			lookupClass = view.getViewedClass();
+		}
+		else
+		{
+			lookupClass = key.getClass();
+		}
+		
+		return getClassesTuple( lookupClass );
 	}
 	
 	private ClassesTuple getClassesTuple( Class< ? > key )
@@ -251,9 +291,6 @@ public class Tuples
 			classesTuple = createClassesTuple( key );
 			classesTuples.put( classesTuple.getProxyClass(), classesTuple );
 			classesTuples.put( classesTuple.getObjectClass(), classesTuple );
-			
-			if ( classesTuple.getAuxiliaryClass() != null )
-				classesTuples.put( classesTuple.getAuxiliaryClass(), classesTuple );
 		}
 		
 		return classesTuple;
@@ -302,7 +339,7 @@ public class Tuples
 			throw new IllegalStateException( "intersection should contain exactly one element." );
 		
 		objectClass = COLLECTION_CLASSES.get( proxyInterface );
-		ClassesTuple classesTuple = new ClassesTuple( proxyClass, objectClass, null, null );
+		ClassesTuple classesTuple = new ClassesTuple( proxyClass, objectClass, null );
 		
 		return classesTuple;
 	}
@@ -318,7 +355,7 @@ public class Tuples
 		Class< ? > objectInterface = intersection.iterator().next();
 		String proxyClassName = ProxyGenerator.getFullyQualifiedCollectionName( taxonomy, PROXY_BASE_CLASSES.get( objectInterface ) );
 		Class< ? > proxyClass = __ClassLoader.loadClass( Thread.currentThread().getContextClassLoader(), proxyClassName );
-		ClassesTuple classesTuple = new ClassesTuple( proxyClass, objectClass, null, null );
+		ClassesTuple classesTuple = new ClassesTuple( proxyClass, objectClass, null );
 		
 		return classesTuple;
 	}
@@ -334,12 +371,11 @@ public class Tuples
 			correspondingView = getViewByClass( aClass );
 	
 		Class< ? > objectClass = correspondingView.getViewedClass();
-		Class< ? > auxiliaryClass = correspondingView.getUsedClass();
-		Class< ? > effectiveAuxiliaryClass = getLeafAuxiliaryClass( correspondingView );
+		Class< ? > auxiliaryClass = getLeafAuxiliaryClass( correspondingView );
 		String proxyClassName = ProxyGenerator.getFullyQualifiedViewName( taxonomy, correspondingView );
 		Class< ? > proxyClass = __ClassLoader.loadClass( taxonomy.getTaxonomyLoader().getClassLoader(), proxyClassName );
 		
-		ClassesTuple classesTuple = new ClassesTuple( proxyClass, objectClass, auxiliaryClass, effectiveAuxiliaryClass );
+		ClassesTuple classesTuple = new ClassesTuple( proxyClass, objectClass, auxiliaryClass );
 		
 		return classesTuple;
 	}
