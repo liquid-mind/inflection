@@ -72,7 +72,10 @@ public class Proxy
 	private List< Class< ? > > getUsedClassesRecursive( View view )
 	{
 		List< Class< ? > > usedClassesRecursive = new ArrayList< Class< ? > >();
-		usedClassesRecursive.add( view.getUsedClass() );
+		
+		if ( view.getUsedClass() != null )
+			usedClassesRecursive.add( view.getUsedClass() );
+		
 		View superView = Inflection.getTaxonomy( this ).getSuperview( view );
 		
 		if ( superView != null )

@@ -115,13 +115,15 @@ public class Tuples
 		private Class< ? > proxyClass;
 		private Class< ? > objectClass;
 		private Class< ? > auxiliaryClass;
+		private Class< ? > effectiveAuxiliaryClass;
 		
-		public ClassesTuple( Class< ? > proxyClass, Class< ? > objectClass, Class< ? > auxiliaryClass )
+		public ClassesTuple( Class< ? > proxyClass, Class< ? > objectClass, Class< ? > auxiliaryClass, Class< ? > effectiveAuxiliaryClass )
 		{
 			super();
 			this.proxyClass = proxyClass;
 			this.objectClass = objectClass;
 			this.auxiliaryClass = auxiliaryClass;
+			this.effectiveAuxiliaryClass = effectiveAuxiliaryClass;
 		}
 	
 		public Class< ? > getProxyClass()
@@ -137,6 +139,11 @@ public class Tuples
 		public Class< ? > getAuxiliaryClass()
 		{
 			return auxiliaryClass;
+		}
+
+		public Class< ? > getEffectiveAuxiliaryClass()
+		{
+			return effectiveAuxiliaryClass;
 		}
 	}
 
@@ -222,7 +229,7 @@ public class Tuples
 		
 		Proxy proxy = determineObject( theClass, classesTuple.getProxyClass(), object );
 		Object viewableObject = determineObject( theClass, classesTuple.getObjectClass(), object );
-		Object auxiliary = determineObject( theClass, classesTuple.getAuxiliaryClass(), object );
+		Object auxiliary = determineObject( theClass, classesTuple.getEffectiveAuxiliaryClass(), object );
 		
 		ObjectsTuple objectsTuple = new ObjectsTuple( proxy, viewableObject, auxiliary );
 		
@@ -244,7 +251,9 @@ public class Tuples
 			classesTuple = createClassesTuple( key );
 			classesTuples.put( classesTuple.getProxyClass(), classesTuple );
 			classesTuples.put( classesTuple.getObjectClass(), classesTuple );
-			classesTuples.put( classesTuple.getAuxiliaryClass(), classesTuple );
+			
+			if ( classesTuple.getAuxiliaryClass() != null )
+				classesTuples.put( classesTuple.getAuxiliaryClass(), classesTuple );
 		}
 		
 		return classesTuple;
@@ -293,7 +302,7 @@ public class Tuples
 			throw new IllegalStateException( "intersection should contain exactly one element." );
 		
 		objectClass = COLLECTION_CLASSES.get( proxyInterface );
-		ClassesTuple classesTuple = new ClassesTuple( proxyClass, objectClass, null );
+		ClassesTuple classesTuple = new ClassesTuple( proxyClass, objectClass, null, null );
 		
 		return classesTuple;
 	}
@@ -309,7 +318,7 @@ public class Tuples
 		Class< ? > objectInterface = intersection.iterator().next();
 		String proxyClassName = ProxyGenerator.getFullyQualifiedCollectionName( taxonomy, PROXY_BASE_CLASSES.get( objectInterface ) );
 		Class< ? > proxyClass = __ClassLoader.loadClass( Thread.currentThread().getContextClassLoader(), proxyClassName );
-		ClassesTuple classesTuple = new ClassesTuple( proxyClass, objectClass, null );
+		ClassesTuple classesTuple = new ClassesTuple( proxyClass, objectClass, null, null );
 		
 		return classesTuple;
 	}
@@ -326,12 +335,29 @@ public class Tuples
 	
 		Class< ? > objectClass = correspondingView.getViewedClass();
 		Class< ? > auxiliaryClass = correspondingView.getUsedClass();
+		Class< ? > effectiveAuxiliaryClass = getLeafAuxiliaryClass( correspondingView );
 		String proxyClassName = ProxyGenerator.getFullyQualifiedViewName( taxonomy, correspondingView );
 		Class< ? > proxyClass = __ClassLoader.loadClass( taxonomy.getTaxonomyLoader().getClassLoader(), proxyClassName );
 		
-		ClassesTuple classesTuple = new ClassesTuple( proxyClass, objectClass, auxiliaryClass );
+		ClassesTuple classesTuple = new ClassesTuple( proxyClass, objectClass, auxiliaryClass, effectiveAuxiliaryClass );
 		
 		return classesTuple;
+	}
+	
+	private Class< ? > getLeafAuxiliaryClass( View view )
+	{
+		Class< ? > leafAuxiliaryClass = view.getUsedClass();
+		
+		
+		if ( leafAuxiliaryClass == null )
+		{
+			View superView = taxonomy.getSuperview( view );
+			
+			if ( superView != null )
+				leafAuxiliaryClass = getLeafAuxiliaryClass( superView );
+		}
+		
+		return leafAuxiliaryClass;
 	}
 	
 	private View getViewByClass( Class< ? > aClass )
