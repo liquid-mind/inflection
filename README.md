@@ -47,7 +47,7 @@ Then, build the project and install it to your local maven repository with `grad
 
 # Hello World
 
-The `helloworld` example project demonstrates the basics of using taxonomies and views. If you choose to import `helloworld` into your IDE, you may use either `gradlew eclipse` or `gradlew idea` to generate the Eclipse or IntelliJ classpaths, respectively.
+The `helloworld` project in the `examples` sub-directory demonstrates the basics of using taxonomies and views. If you choose to import `helloworld` into your IDE, you may use either `gradlew eclipse` or `gradlew idea` to generate the Eclipse or IntelliJ classpaths, respectively.
 
 Inflection allows you to define views of existing class models by selecting which properties should be visible. In this case, the class model consists of the single class `Person` with the two properties `firstName` and `lastName`. Let's assume that we need a view in which only the property `firstName` occurs. In this case, we might define a taxonomy such as `MyTaxonomy` in `HelloWorld.inflect`:
 
@@ -109,22 +109,6 @@ Try running the example by entering `gradlew run`; the output should include:
 
 The first section shows that `person` and `mtPerson` are in fact the same and the second section demonstrates using views for JSON serialization.
 
-# The Wildcard Operator
-
-
-
 # Hello World in Detail
 
-Now that we have an overview, let's go back over some of the details beginning with the `.inflect` file. Inflection introduces a Java-like grammar for declaring taxonomies and views. The syntax will be familiar to Java programmers and includes features such as packages, imports and blocks with curly braces. Analogous to Java classes, taxonomies are declared within packages, thus `MyTaxonomy` is declared within `ch.liquidmind.inflect.examples.helloworld.model`. Unqualified symbol names such as `Person` are resolved by the same rules as Java (i.e., by looking at explicit and implicit imports), thus `Person` is resolved to `ch.liquidmind.inflect.examples.helloworld.model.Person` due to the implicit import of all symbols in the same package. Other implicit imports include the no-name package (sometimes called the default package), `java.lang`.
-
-Like classes, taxonomies may define inheritance relationships. If no super taxonomy is specified then the super taxonomy defaults to `ch.liquidmind.inflection.Taxonomy` which is analogous to `java.lang.Object`. Just like classes inherit fields and methods from their super classes, taxonomies inherit views from their super taxonomies. 
-
-Taxonomies in `.inflect` files are compiled to `.tax` files just as `.java` files are compiled to `.class` files. Take a look under the `build/inflection/taxonomy` directory and you'll find a file called `MyTaxonomy.tax`. These taxonomies are loaded and linked using `TaxonomyLoader` just as classes are loaded and linked using `ClassLoader`. Unlike classes, however, taxonomies cannot be instantiated. They can, however, be examined through an API similar to reflection, and this information can be used to write inflection-aware algorithms. To use inflection with existing frameworks, however, it's better to generate proxy classes.
-
-
-
-
-
-
-
-
+TBD
