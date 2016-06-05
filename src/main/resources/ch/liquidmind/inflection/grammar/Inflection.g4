@@ -128,12 +128,16 @@ viewBody
 includableClassSelector
 	:	aliasableClassSelector
 	|	wildcardClassSelector
-	|	expression
+	|	classSelectorExpression
 	;
 	
 excludableClassSelector
 	:	wildcardClassSelector
-	|	expression
+	|	classSelectorExpression
+	;
+	
+classSelectorExpression
+	:	expression
 	;
 
 aliasableClassSelector
@@ -201,6 +205,7 @@ wildcardMemberSelector
 	;
 	
 // EXPRESSIONS
+
 expression
 	:	BOOLEAN_NOT expression
 	|	PAREN_OPEN expression? PAREN_CLOSE

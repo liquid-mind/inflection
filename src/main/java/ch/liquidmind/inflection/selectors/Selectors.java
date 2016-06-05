@@ -7,6 +7,6 @@ public class Selectors
 	@ClassSelector
 	public static boolean isAssignableTo( ClassSelectorContext context, Class< ? > theClass )
 	{
-		return true;
+		return theClass.isAssignableFrom( context.getCurrentClass() );
 	}
 }

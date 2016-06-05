@@ -6,20 +6,17 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.Stack;
 
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.tree.ParseTreeWalker;
 
 import com.google.common.reflect.ClassPath.ClassInfo;
 
-import __java.lang.reflect.__Method;
 import ch.liquidmind.inflection.compiler.CompilationUnit.CompilationUnitCompiled.PackageImport;
 import ch.liquidmind.inflection.compiler.CompilationUnit.CompilationUnitCompiled.PackageImport.PackageImportType;
 import ch.liquidmind.inflection.compiler.CompilationUnit.CompilationUnitCompiled.TypeImport;
@@ -31,27 +28,23 @@ import ch.liquidmind.inflection.grammar.InflectionParser.AliasableMemberSelector
 import ch.liquidmind.inflection.grammar.InflectionParser.AnnotationClassContext;
 import ch.liquidmind.inflection.grammar.InflectionParser.AnnotationContext;
 import ch.liquidmind.inflection.grammar.InflectionParser.ClassSelectorContext;
+import ch.liquidmind.inflection.grammar.InflectionParser.ClassSelectorExpressionContext;
 import ch.liquidmind.inflection.grammar.InflectionParser.CompilationUnitContext;
-import ch.liquidmind.inflection.grammar.InflectionParser.DecimalNumberContext;
 import ch.liquidmind.inflection.grammar.InflectionParser.DefaultAccessMethodModifierContext;
-import ch.liquidmind.inflection.grammar.InflectionParser.DigitsContext;
 import ch.liquidmind.inflection.grammar.InflectionParser.ExcludableClassSelectorContext;
 import ch.liquidmind.inflection.grammar.InflectionParser.ExcludableMemberSelectorContext;
 import ch.liquidmind.inflection.grammar.InflectionParser.ExcludeMemberModifierContext;
 import ch.liquidmind.inflection.grammar.InflectionParser.ExcludeViewModifierContext;
 import ch.liquidmind.inflection.grammar.InflectionParser.ExpressionContext;
 import ch.liquidmind.inflection.grammar.InflectionParser.ExtendedTaxonomyContext;
-import ch.liquidmind.inflection.grammar.InflectionParser.FloatingPointLiteralContext;
 import ch.liquidmind.inflection.grammar.InflectionParser.IdentifierContext;
 import ch.liquidmind.inflection.grammar.InflectionParser.IncludableClassSelectorContext;
 import ch.liquidmind.inflection.grammar.InflectionParser.IncludableMemberSelectorContext;
 import ch.liquidmind.inflection.grammar.InflectionParser.IncludeMemberModifierContext;
 import ch.liquidmind.inflection.grammar.InflectionParser.IncludeViewModifierContext;
-import ch.liquidmind.inflection.grammar.InflectionParser.IntegerLiteralContext;
 import ch.liquidmind.inflection.grammar.InflectionParser.MemberAnnotationContext;
 import ch.liquidmind.inflection.grammar.InflectionParser.MemberDeclarationContext;
 import ch.liquidmind.inflection.grammar.InflectionParser.MemberSelectorContext;
-import ch.liquidmind.inflection.grammar.InflectionParser.MethodInvocationContext;
 import ch.liquidmind.inflection.grammar.InflectionParser.PackageImportContext;
 import ch.liquidmind.inflection.grammar.InflectionParser.SimpleTypeContext;
 import ch.liquidmind.inflection.grammar.InflectionParser.TaxonomyAnnotationContext;
@@ -625,6 +618,27 @@ public class Pass2Listener extends AbstractInflectionListener
 		currentViewSelectionType = SelectionType.EXCLUDE;
 	}
 
+	@Override
+	public void enterClassSelectorExpression( ClassSelectorExpressionContext classSelectorExpressionContext )
+	{
+		Set< Class< ? > > allClasses = getCompilationUnit().getParentCompilationJob().getAllClassesInClassPath2();
+		Set< String > matchingClasses = new HashSet< String >();
+		
+		for ( Class< ? > aClass : allClasses )
+		{
+			ParseTreeWalker parseTreeWalker = new ParseTreeWalker();
+			ch.liquidmind.inflection.selectors.ClassSelectorContext context = new ch.liquidmind.inflection.selectors.ClassSelectorContext( allClasses, aClass );
+			SelectorListener listener = new SelectorListener( getCompilationUnit(), context );
+			parseTreeWalker.walk( listener, classSelectorExpressionContext );
+			boolean classMatches = listener.getExpressionValue( (ExpressionContext)classSelectorExpressionContext.getChild( 0 ) );
+			
+			if ( classMatches )
+				matchingClasses.add( aClass.getName() );
+		}
+		
+		setupViewsCompiled( matchingClasses );
+	}
+	
 	//////////
 	// MEMBERS
 	//////////
@@ -995,120 +1009,5 @@ public class Pass2Listener extends AbstractInflectionListener
 			currentAccessType = AccessType.valueOf( accessMethodModifierContext.getChild( 0 ).getText().toUpperCase() );
 		else
 			throw new IllegalStateException( "Unexpected value for accessMethodModifierContext.getChildCount()." );
-	}
-	
-	////////////////////////
-	// EXPRESSION EVALUATION
-	////////////////////////
-	
-	Stack< Object > expressionStack = new Stack< Object >();
-	
-	private class MethodInvocation
-	{
-		private String methodName;
-
-		public MethodInvocation( String methodName )
-		{
-			super();
-			this.methodName = methodName;
-		}
-
-		public String getMethodName()
-		{
-			return methodName;
-		}
-	}
-	
-	@Override
-	public void enterMethodInvocation( MethodInvocationContext methodInvocationContext )
-	{
-		expressionStack.add( new MethodInvocation( methodInvocationContext.getChild( 0 ).getText() ) );
-	}
-
-	@Override
-	public void exitMethodInvocation( MethodInvocationContext methodInvocationContext )
-	{
-		List< Object > paramsAsList = new ArrayList< Object >();
-		
-		// Fetch parameters and invocation object from the stack.
-		while ( !(expressionStack.peek() instanceof MethodInvocation) )
-			paramsAsList.add( expressionStack.pop() );
-		
-		paramsAsList.add( getClassSelectorContext() );
-		MethodInvocation invocation = (MethodInvocation)expressionStack.pop();
-		Collections.reverse( paramsAsList );
-		
-		// Determine parameter types.
-		List< Class< ? > > paramTypesAsList = new ArrayList< Class< ? > >();
-		paramsAsList.stream().forEach( x -> paramTypesAsList.add( x.getClass() ) );
-
-		// Convert to arrays.
-		Object[] params = paramsAsList.toArray( new Object[ paramsAsList.size() ] );
-		Class< ? >[] paramTypes = paramTypesAsList.toArray( new Class< ? >[ paramTypesAsList.size() ] );
-		
-		// Locate and invoke method.
-		Method method = locateMethod( invocation.getMethodName(), paramTypes );
-		Object retVal = __Method.invoke( method, null, params );	// TODO: handle the exceptions.
-		
-		// Put the return value on the stack.
-		expressionStack.push( retVal );
-	}
-	
-	private ch.liquidmind.inflection.selectors.ClassSelectorContext getClassSelectorContext()
-	{
-		// TODO: setup the context
-		return new ch.liquidmind.inflection.selectors.ClassSelectorContext();
-	}
-	
-	private Method locateMethod( String methodName, Class< ? >[] paramTypes )
-	{
-		Set< Method > methods = getCompilationUnit().getParentCompilationJob().getClassSelectorMethods();
-		Method matchingMethod = null;
-		
-		for ( Method method : methods )
-		{
-			if ( method.getName().equals( methodName ) )
-			{
-				// TODO: check signature (need to investigate exact rules).
-				matchingMethod = method;
-				break;
-			}
-		}
-		
-		return matchingMethod;
-	}
-
-	@Override
-	public void enterIntegerLiteral( IntegerLiteralContext integerLiteralContext )
-	{
-		DigitsContext digitsContext = (DigitsContext)integerLiteralContext.getChild( 0 );
-		String digits = digitsContext.getText();
-		boolean isLong = ( integerLiteralContext.getChildCount() == 2 ? true : false );
-		
-		Object integer;
-		
-		if ( isLong )
-			integer = Long.valueOf( digits );
-		else
-			integer = Integer.valueOf( digits );
-
-		expressionStack.push( integer );
-	}
-
-	@Override
-	public void enterFloatingPointLiteral( FloatingPointLiteralContext floatingPointLiteralContext )
-	{
-		DecimalNumberContext decimalNumberContext = (DecimalNumberContext)floatingPointLiteralContext.getChild( 0 );
-		String decimalNumber = decimalNumberContext.getText();
-		boolean isFloat = ( floatingPointLiteralContext.getChildCount() == 2 ? true : false );
-		
-		Object aFloat;
-		
-		if ( isFloat )
-			aFloat = Float.valueOf( decimalNumber );
-		else
-			aFloat = Double.valueOf( decimalNumber );
-
-		expressionStack.push( aFloat );
 	}
 }
