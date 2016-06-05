@@ -47,7 +47,7 @@ Then, build the project and install it to your local maven repository with `grad
 
 # Hello World
 
-The `helloworld` project in the `examples` sub-directory demonstrates the basics of using taxonomies and views. If you choose to import `helloworld` into your IDE, you may use either `gradlew eclipse` or `gradlew idea` to generate the Eclipse or IntelliJ classpaths, respectively.
+The `helloworld` project in `examples` demonstrates the basics of using taxonomies and views. If you choose to import `helloworld` into your IDE, you may use either `gradlew eclipse` or `gradlew idea` to generate the Eclipse or IntelliJ classpaths, respectively.
 
 Inflection allows you to define views of existing class models by selecting which properties should be visible. In this case, the class model consists of the single class `Person` with the two properties `firstName` and `lastName`. Let's assume that we need a view in which only the property `firstName` occurs. In this case, we might define a taxonomy such as `MyTaxonomy` in `HelloWorld.inflect`:
 

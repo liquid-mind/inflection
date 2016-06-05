@@ -1,4 +1,4 @@
-package ch.liquidmind.inflection.util;
+package ch.liquidmind.inflection.print;
 
 import java.io.OutputStream;
 import java.io.PrintWriter;

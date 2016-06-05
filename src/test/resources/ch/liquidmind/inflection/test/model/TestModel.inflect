@@ -1,5 +1,11 @@
 package ch.liquidmind.inflection.test.model;
 
+taxonomy ExpressionTest
+{
+	view isAssignableTo( IdentifiableObject.class ) { *; }
+//	view test(  42, 43L, 44.1F, 45.2, 'c', "test", true, null ) {}
+}
+
 taxonomy FullTaxonomy
 {
 	view IdentifiableObject, Person { *; }

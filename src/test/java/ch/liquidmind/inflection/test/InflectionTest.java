@@ -13,6 +13,7 @@ import org.junit.Test;
 import ch.liquidmind.inflection.Inflection;
 import ch.liquidmind.inflection.loader.TaxonomyLoader;
 import ch.liquidmind.inflection.model.external.Taxonomy;
+import ch.liquidmind.inflection.print.InflectionPrinter;
 import ch.liquidmind.inflection.test.model.Address;
 import ch.liquidmind.inflection.test.model.Gender;
 import ch.liquidmind.inflection.test.model.Person;
@@ -22,11 +23,15 @@ import ch.liquidmind.inflection.test.model.UseCase2.ch.liquidmind.inflection.tes
 import ch.liquidmind.inflection.test.model.UseCase3.ch.liquidmind.inflection.test.model.UseCase3_Person;
 import ch.liquidmind.inflection.test.model.UseCase4.ch.liquidmind.inflection.test.model.UseCase4_Address;
 import ch.liquidmind.inflection.test.model.UseCase5.ch.liquidmind.inflection.test.model.UseCase5_Person;
-import ch.liquidmind.inflection.util.InflectionPrinter;
 
 public class InflectionTest
 {
 	private static PrintStream printStream = System.out;
+
+	static
+	{
+		char c = 'c';
+	}
 	
 	@Test
 	public void testPrinterMulti() throws Throwable

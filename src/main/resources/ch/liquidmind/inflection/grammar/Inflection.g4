@@ -128,10 +128,12 @@ viewBody
 includableClassSelector
 	:	aliasableClassSelector
 	|	wildcardClassSelector
+	|	expression
 	;
 	
 excludableClassSelector
 	:	wildcardClassSelector
+	|	expression
 	;
 
 aliasableClassSelector
@@ -198,8 +200,86 @@ wildcardMemberSelector
 	|	wildcardIdentifier
 	;
 	
-// COMMON
+// EXPRESSIONS
+expression
+	:	BOOLEAN_NOT expression
+	|	PAREN_OPEN expression? PAREN_CLOSE
+	|	expression ( BOOLEAN_AND | BOOLEAN_OR ) expression
+	|	methodInvocation
+	|	reference
+	|   literal
+	;
+	
+reference
+	:	classReference
+	|	staticReference
+	;
 
+classReference
+	:	type DOT CLASS
+	;
+
+staticReference
+	:	type DOT staticField
+	;
+	
+staticField
+	:	identifier
+	;
+
+// TODO: most of these are over-simplified as compared to the Java
+// language specification, e.g., strings and characters should support
+// escape sequences, floats should support exponents, etc., however
+// I think that this is good for a proof of concept. Eventually, we
+// will have to good over the grammar and harmonize it with Java's
+// grammar.
+literal
+	:	integerLiteral
+	|	floatingPointLiteral
+	|	characterLiteral
+	|	stringLiteral
+	|	booleanLiteral
+	|	NULL
+	;
+
+integerLiteral
+	:	digits INTEGER_TYPE_SUFFIX?
+	;
+
+floatingPointLiteral
+	:	decimalNumber FLOAT_TYPE_SUFFIX?
+	;
+	
+decimalNumber
+	:	digits DOT digits?
+	;
+	
+digits
+	:	DIGIT+
+	;
+
+characterLiteral
+	:	SINGLE_QUOTE ~SINGLE_QUOTE SINGLE_QUOTE
+	;
+
+stringLiteral
+	:	DOUBLE_QUOTE .*? DOUBLE_QUOTE
+	;
+
+booleanLiteral
+	:	TRUE
+	|	FALSE
+	;
+	
+methodInvocation
+	:	identifier PAREN_OPEN methodArgument? ( COMMA methodArgument )* PAREN_CLOSE
+	;
+	
+methodArgument
+	:	expression
+	;
+	
+// COMMON
 includModifier
 	:	INCLUDE?
 	;
@@ -209,7 +289,7 @@ excludeModifier
 	;
 
 annotation
-	:	AT annotationClass ANNOTATION_BODY?
+	:	AT annotationClass ( PAREN_OPEN .*? PAREN_CLOSE )?
 	;
 	
 annotationClass
@@ -251,10 +331,6 @@ wildcardIdentifier
 // TOKENS
 
 // TODO: introduce support for nested annotations, or; introduce full support for annotations.
-ANNOTATION_BODY
-	:	'(' .*? ')'
-	;
-	
 MULTI_LINE_COMMENT
 	:	'/*' .*? '*/' -> skip
 	;
@@ -276,6 +352,12 @@ INCLUDE		: 'include';
 EXCLUDE		: 'exclude';
 AS			: 'as';
 BASIC_TYPE	: 'byte' | 'short' | 'int' | 'long' | 'float' | 'double' | 'boolean' | 'char';
+TRUE		: 'true';
+FALSE		: 'false';
+CLASS		: 'class';
+NULL		: 'null';
+INTEGER_TYPE_SUFFIX		: [lL];
+FLOAT_TYPE_SUFFIX		: [fF];
 
 // Note that while most of these keywords are not used in the
 // grammar, they are never the less declared in the lexer to
@@ -289,8 +371,12 @@ JAVA_KEYWORD
 	|	'case' | 'enum' | 'instanceof' | 'return' | 'transient'
 	|	'catch' | 'extends' | 'int' | 'short' | 'try'
 	|	'char' | 'final' | 'interface' | 'static' | 'void'
-	|	'class' | 'finally' | 'long' | 'strictfp' | 'volatile'
+	|	'finally' | 'long' | 'strictfp' | 'volatile'
 	|	'const' | 'float' | 'native' | 'super' | 'while'
+	;
+
+DIGIT
+	:	[0-9]
 	;
 	
 IDENTIFIER
@@ -301,6 +387,8 @@ WILDCARD_IDENTIFIER
 	:	[a-zA-Z_$*] [a-zA-Z_$*0-9]*
 	;
 
+DOUBLE_QUOTE		: '"';
+SINGLE_QUOTE		: '\'';
 AT					: '@';
 SEMICOLON			: ';';
 COLON				: ':';
@@ -308,6 +396,11 @@ DOT					: '.';
 COMMA				: ',';
 CURLY_BRACKET_OPEN	: '{';
 CURLY_BRACKET_CLOSE	: '}';
+PAREN_OPEN			: '(';
+PAREN_CLOSE			: ')';
+BOOLEAN_AND			: '&&';
+BOOLEAN_OR			: '||';
+BOOLEAN_NOT			: '!';
 
 WS	:	[ \r\t\n]+ -> skip;
 

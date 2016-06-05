@@ -30,8 +30,8 @@ import __org.apache.commons.io.__FileUtils;
 import ch.liquidmind.inflection.compiler.CompilationJob.CompilationMode;
 import ch.liquidmind.inflection.compiler.InflectionCompiler;
 import ch.liquidmind.inflection.loader.TaxonomyLoader;
+import ch.liquidmind.inflection.print.InflectionPrinter;
 import ch.liquidmind.inflection.proxy.ProxyGenerator;
-import ch.liquidmind.inflection.util.InflectionPrinter;
 
 public class InflectionBuild
 {
