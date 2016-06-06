@@ -1,5 +1,6 @@
 package ch.liquidmind.inflection.compiler;
 
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -7,6 +8,8 @@ import java.util.List;
 import java.util.Set;
 import java.util.Stack;
 
+import __java.lang.__Class;
+import __java.lang.reflect.__Field;
 import __java.lang.reflect.__Method;
 import ch.liquidmind.inflection.compiler.CompilationUnit.CompilationUnitCompiled.PackageImport;
 import ch.liquidmind.inflection.compiler.CompilationUnit.CompilationUnitCompiled.TypeImport;
@@ -16,7 +19,9 @@ import ch.liquidmind.inflection.grammar.InflectionParser.DigitsContext;
 import ch.liquidmind.inflection.grammar.InflectionParser.ExpressionContext;
 import ch.liquidmind.inflection.grammar.InflectionParser.FloatingPointLiteralContext;
 import ch.liquidmind.inflection.grammar.InflectionParser.IntegerLiteralContext;
+import ch.liquidmind.inflection.grammar.InflectionParser.MethodArgumentContext;
 import ch.liquidmind.inflection.grammar.InflectionParser.MethodInvocationContext;
+import ch.liquidmind.inflection.grammar.InflectionParser.StaticReferenceContext;
 import ch.liquidmind.inflection.grammar.InflectionParser.TypeContext;
 import ch.liquidmind.inflection.selectors.ClassSelectorContext;
 
@@ -25,22 +30,6 @@ public class SelectorListener extends AbstractInflectionListener
 	private ClassSelectorContext classSelectorContext;
 	private Stack< Object > expressionStack = new Stack< Object >();
 	private Boolean expressionValue;
-	
-	private static class MethodInvocation
-	{
-		private String methodName;
-
-		public MethodInvocation( String methodName )
-		{
-			super();
-			this.methodName = methodName;
-		}
-
-		public String getMethodName()
-		{
-			return methodName;
-		}
-	}
 	
 	public SelectorListener( CompilationUnit compilationUnit, ClassSelectorContext classSelectorContext )
 	{
@@ -63,11 +52,55 @@ public class SelectorListener extends AbstractInflectionListener
 		
 		return expressionValue;
 	}
+
+	public static final String LOGICAL_NOT = "!";
+	public static final String LOGICAL_AND = "&&";
+	public static final String LOGICAL_OR = "||";
 	
+	private boolean logicalNot( boolean value )
+	{
+		return !value;
+	}
+	
+	private boolean logicalAnd( boolean value1, boolean value2 )
+	{
+		return value1 && value2;
+	}
+	
+	private boolean logicalOr( boolean value1, boolean value2 )
+	{
+		return value1 || value2;
+	}
+	
+	// TODO: skip second operand evaluation in the following cases:
+	// 1. Boolean AND: if first operand is false.
+	// 2. Boolean OR: if first operand is true.
+	@Override
+	public void exitExpression( ExpressionContext expressionContext )
+	{
+		if ( expressionContext.getChildCount() < 2 )
+			return;
+
+		if ( expressionContext.getChild( 0 ).getText().equals( LOGICAL_NOT ) )
+			expressionStack.push( logicalNot( (boolean)expressionStack.pop() ) );
+		else if ( expressionContext.getChild( 1 ).getText().equals( LOGICAL_AND ) )
+			expressionStack.push( logicalAnd( (boolean)expressionStack.pop(), (boolean)expressionStack.pop() ) );
+		else if ( expressionContext.getChild( 1 ).getText().equals( LOGICAL_OR ) )
+			expressionStack.push( logicalOr( (boolean)expressionStack.pop(), (boolean)expressionStack.pop() ) );
+	}
+	
+	public int parameterCount;
+
 	@Override
 	public void enterMethodInvocation( MethodInvocationContext methodInvocationContext )
 	{
-		expressionStack.add( new MethodInvocation( methodInvocationContext.getChild( 0 ).getText() ) );
+		parameterCount = 0;
+	}
+	
+	@Override
+	public void enterMethodArgument( MethodArgumentContext methodArgumentContext )
+	{
+		++parameterCount;
 	}
 
 	@Override
@@ -76,11 +109,10 @@ public class SelectorListener extends AbstractInflectionListener
 		List< Object > paramsAsList = new ArrayList< Object >();
 		
 		// Fetch parameters and invocation object from the stack.
-		while ( !(expressionStack.peek() instanceof MethodInvocation) )
+		for ( int i = 0 ; i < parameterCount ; ++i )
 			paramsAsList.add( expressionStack.pop() );
 		
 		paramsAsList.add( classSelectorContext );
-		MethodInvocation invocation = (MethodInvocation)expressionStack.pop();
 		Collections.reverse( paramsAsList );
 		
 		// Determine parameter types.
@@ -88,11 +120,12 @@ public class SelectorListener extends AbstractInflectionListener
 		paramsAsList.stream().forEach( x -> paramTypesAsList.add( x.getClass() ) );
 
 		// Convert to arrays.
-		Object[] params = paramsAsList.toArray( new Object[ paramsAsList.size() ] );
-		Class< ? >[] paramTypes = paramTypesAsList.toArray( new Class< ? >[ paramTypesAsList.size() ] );
+		Object[] params = paramsAsList.toArray( new Object[ parameterCount ] );
+		Class< ? >[] paramTypes = paramTypesAsList.toArray( new Class< ? >[ parameterCount ] );
 		
 		// Locate and invoke method.
-		Method method = locateMethod( invocation.getMethodName(), paramTypes );
+		String methodName = methodInvocationContext.getChild( 0 ).getText();
+		Method method = locateMethod( methodName, paramTypes );
 		Object retVal = __Method.invoke( method, null, params );	// TODO: handle the exceptions.
 		
 		// Put the return value on the stack.
@@ -220,5 +253,19 @@ public class SelectorListener extends AbstractInflectionListener
 	private boolean classExists( String name )
 	{
 		return getClass( name ) != null;
-	}	
+	}
+
+	@Override
+	public void enterStaticReference( StaticReferenceContext staticReferenceContext )
+	{
+		TypeContext typeContext = (TypeContext)staticReferenceContext.getChild( 0 );
+		String className = resolveClassReference( typeContext );
+		Class< ? > theClass = getClass( className );
+		
+		String staticFieldName = staticReferenceContext.getChild( 2 ).getText();
+		Field field = __Class.getField( theClass, staticFieldName );
+		Object value = __Field.get( field, null );
+		
+		expressionStack.push( value );
+	}
 }

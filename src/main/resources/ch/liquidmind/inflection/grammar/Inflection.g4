@@ -207,9 +207,9 @@ wildcardMemberSelector
 // EXPRESSIONS
 
 expression
-	:	BOOLEAN_NOT expression
-	|	PAREN_OPEN expression? PAREN_CLOSE
-	|	expression ( BOOLEAN_AND | BOOLEAN_OR ) expression
+	:	PAREN_OPEN expression? PAREN_CLOSE
+	|	LOGICAL_NOT expression
+	|	expression ( LOGICAL_AND | LOGICAL_OR ) expression
 	|	methodInvocation
 	|	reference
 	|   literal
@@ -403,9 +403,9 @@ CURLY_BRACKET_OPEN	: '{';
 CURLY_BRACKET_CLOSE	: '}';
 PAREN_OPEN			: '(';
 PAREN_CLOSE			: ')';
-BOOLEAN_AND			: '&&';
-BOOLEAN_OR			: '||';
-BOOLEAN_NOT			: '!';
+LOGICAL_AND			: '&&';
+LOGICAL_OR			: '||';
+LOGICAL_NOT			: '!';
 
 WS	:	[ \r\t\n]+ -> skip;
 

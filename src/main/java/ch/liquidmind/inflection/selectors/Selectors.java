@@ -9,4 +9,10 @@ public class Selectors
 	{
 		return theClass.isAssignableFrom( context.getCurrentClass() );
 	}
+	
+	@ClassSelector
+	public static boolean hasModifier( ClassSelectorContext context, int modifier )
+	{
+		return ( context.getCurrentClass().getModifiers() & modifier ) > 0;
+	}
 }
