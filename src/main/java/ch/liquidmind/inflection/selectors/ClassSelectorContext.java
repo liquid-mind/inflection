@@ -4,6 +4,18 @@ import java.util.Set;
 
 public class ClassSelectorContext
 {
+	private static ThreadLocal< ClassSelectorContext > classSelectorContextThreadLocal = new ThreadLocal< ClassSelectorContext >();
+	
+	public static void set( ClassSelectorContext classSelectorContext )
+	{
+		classSelectorContextThreadLocal.set( classSelectorContext );
+	}
+	
+	public static ClassSelectorContext get()
+	{
+		return classSelectorContextThreadLocal.get();
+	}
+	
 	// TODO: introduce a compiler option for filtering the class path classes
 	// --> would reduce the number of classes to evaluate by one or more order
 	// of magnitudes. For this reason I am calling this field allClasses

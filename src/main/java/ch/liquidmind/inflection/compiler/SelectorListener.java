@@ -5,7 +5,6 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Set;
 import java.util.Stack;
 
 import __java.lang.__Class;
@@ -24,6 +23,8 @@ import ch.liquidmind.inflection.grammar.InflectionParser.IntegerLiteralContext;
 import ch.liquidmind.inflection.grammar.InflectionParser.MethodArgumentContext;
 import ch.liquidmind.inflection.grammar.InflectionParser.MethodInvocationContext;
 import ch.liquidmind.inflection.grammar.InflectionParser.NullLiteralContext;
+import ch.liquidmind.inflection.grammar.InflectionParser.StaticFieldReferenceContext;
+import ch.liquidmind.inflection.grammar.InflectionParser.StaticMethodReferenceContext;
 import ch.liquidmind.inflection.grammar.InflectionParser.StaticReferenceContext;
 import ch.liquidmind.inflection.grammar.InflectionParser.StringLiteralContext;
 import ch.liquidmind.inflection.grammar.InflectionParser.TypeContext;
@@ -100,7 +101,7 @@ public class SelectorListener extends AbstractInflectionListener
 	{
 		parameterCount = 0;
 	}
-	
+
 	@Override
 	public void enterMethodArgument( MethodArgumentContext methodArgumentContext )
 	{
@@ -116,38 +117,61 @@ public class SelectorListener extends AbstractInflectionListener
 		for ( int i = 0 ; i < parameterCount ; ++i )
 			paramsAsList.add( expressionStack.pop() );
 		
-		paramsAsList.add( classSelectorContext );
 		Collections.reverse( paramsAsList );
 		
 		// Determine parameter types.
 		List< Class< ? > > paramTypesAsList = new ArrayList< Class< ? > >();
-		paramsAsList.stream().forEach( x -> paramTypesAsList.add( x.getClass() ) );
+		paramsAsList.stream().forEach( x -> paramTypesAsList.add( ( x == null ? null : x.getClass() ) ) );
 
 		// Convert to arrays.
 		Object[] params = paramsAsList.toArray( new Object[ parameterCount ] );
 		Class< ? >[] paramTypes = paramTypesAsList.toArray( new Class< ? >[ parameterCount ] );
 		
 		// Locate and invoke method.
-		String methodName = methodInvocationContext.getChild( 0 ).getText();
-		Method method = locateMethod( methodName, paramTypes );
+		StaticMethodReferenceContext staticMethodReferenceContext = (StaticMethodReferenceContext)methodInvocationContext.getChild( 0 );
+		Method method = locateMethod( staticMethodReferenceContext, paramTypes );
+		ClassSelectorContext.set( classSelectorContext );
 		Object retVal = __Method.invoke( method, null, params );	// TODO: handle the exceptions.
 		
 		// Put the return value on the stack.
 		expressionStack.push( retVal );
 	}
 	
-	private Method locateMethod( String methodName, Class< ? >[] paramTypes )
+	private Class< ? > getStaticReferenceClass( StaticReferenceContext staticReferenceContext )
 	{
-		Set< Method > methods = getCompilationUnit().getParentCompilationJob().getClassSelectorMethods();
+		if ( staticReferenceContext.getChildCount() == 1 )
+			throw new IllegalStateException( "No support yet for unqualified static references." );
+		
+		TypeContext typeContext = (TypeContext)staticReferenceContext.getChild( 0 );
+		String className = resolveClassReference( typeContext );
+		Class< ? > theClass = getClass( className );
+		
+		return theClass;
+	}
+	
+	private String getStaticReferenceName( StaticReferenceContext staticReferenceContext )
+	{
+		if ( staticReferenceContext.getChildCount() == 1 )
+			throw new IllegalStateException( "No support yet for unqualified static references." );
+		
+		return staticReferenceContext.getChild( 2 ).getText();
+	}
+	
+	private Method locateMethod( StaticMethodReferenceContext staticMethodReferenceContext, Class< ? >[] paramTypes )
+	{
+		StaticReferenceContext staticReferenceContext = (StaticReferenceContext)staticMethodReferenceContext.getChild( 0 );
+		Class< ? > theClass = getStaticReferenceClass( staticReferenceContext );
+		String methodName = getStaticReferenceName( staticReferenceContext );
 		Method matchingMethod = null;
 		
-		for ( Method method : methods )
+		for ( Method method : theClass.getMethods() )
 		{
 			if ( method.getName().equals( methodName ) )
 			{
-				// TODO: check signature (need to investigate exact rules).
-				matchingMethod = method;
-				break;
+				if ( matchingMethod != null )
+					throw new IllegalStateException( "No support for overloaded static methods at this time.");
+				else
+					matchingMethod = method;
 			}
 		}
 		
@@ -260,13 +284,11 @@ public class SelectorListener extends AbstractInflectionListener
 	}
 
 	@Override
-	public void enterStaticReference( StaticReferenceContext staticReferenceContext )
+	public void enterStaticFieldReference( StaticFieldReferenceContext staticFieldReferenceContext )
 	{
-		TypeContext typeContext = (TypeContext)staticReferenceContext.getChild( 0 );
-		String className = resolveClassReference( typeContext );
-		Class< ? > theClass = getClass( className );
-		
-		String staticFieldName = staticReferenceContext.getChild( 2 ).getText();
+		StaticReferenceContext staticReferenceContext = (StaticReferenceContext)staticFieldReferenceContext.getChild( 0 );
+		Class< ? > theClass = getStaticReferenceClass( staticReferenceContext );
+		String staticFieldName = getStaticReferenceName( staticReferenceContext );
 		Field field = __Class.getField( theClass, staticFieldName );
 		Object value = __Field.get( field, null );
 		

@@ -1,18 +1,14 @@
 package ch.liquidmind.inflection.selectors;
 
-import ch.liquidmind.inflection.ClassSelector;
-
 public class Selectors
 {
-	@ClassSelector
-	public static boolean isAssignableTo( ClassSelectorContext context, Class< ? > theClass )
+	public static boolean isAssignableTo( Class< ? > theClass )
 	{
-		return theClass.isAssignableFrom( context.getCurrentClass() );
+		return theClass.isAssignableFrom( ClassSelectorContext.get().getCurrentClass() );
 	}
 	
-	@ClassSelector
-	public static boolean hasModifier( ClassSelectorContext context, int modifier )
+	public static boolean hasModifier( int modifier )
 	{
-		return ( context.getCurrentClass().getModifiers() & modifier ) > 0;
+		return ( ClassSelectorContext.get().getCurrentClass().getModifiers() & modifier ) > 0;
 	}
 }

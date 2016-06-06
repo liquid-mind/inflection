@@ -2,8 +2,6 @@ package ch.liquidmind.inflection.compiler;
 
 import java.io.File;
 import java.io.OutputStream;
-import java.lang.annotation.Annotation;
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -14,7 +12,6 @@ import java.util.Set;
 import com.google.common.collect.ImmutableList;
 import com.google.common.reflect.ClassPath.ClassInfo;
 
-import ch.liquidmind.inflection.ClassSelector;
 import ch.liquidmind.inflection.exception.ExceptionWrapper;
 import ch.liquidmind.inflection.loader.TaxonomyLoader;
 import ch.liquidmind.inflection.model.compiled.TaxonomyCompiled;
@@ -34,7 +31,6 @@ public class CompilationJob
 	private List< CompilationUnit > compilationUnits = new ArrayList< CompilationUnit >();
 	private Set< ClassInfo > allClassesInClassPath;
 	private Set< Class< ? > > allClassesInClassPath2;	// TODO: rename allClassesInClassPath and allClassesInClassPath2 to something better.
-	private Set< Method > classSelectorMethods;
 	
 	public CompilationJob( TaxonomyLoader taxonomyLoader, File targetDirectory, CompilationMode compilationMode, File ... sourceFiles )
 	{
@@ -153,38 +149,5 @@ public class CompilationJob
 		}
 		
 		return allClassesInClassPath2;
-	}
-	
-	Set< Method > getClassSelectorMethods()
-	{
-		if ( classSelectorMethods == null )
-		{
-			classSelectorMethods = new HashSet< Method >();
-			Set< ClassInfo > allClassInfos = getAllClassesInClassPath();
-			
-			for ( ClassInfo classInfo : allClassInfos )
-			{
-				try
-				{
-					Class< ? > aClass = classInfo.load();
-					
-					for ( Method method : aClass.getDeclaredMethods() )
-					{
-						for ( Annotation annotation : method.getDeclaredAnnotations() )
-						{
-							if ( annotation instanceof ClassSelector )
-							{
-								classSelectorMethods.add( method );
-								break;
-							}
-						}
-					}
-				}
-				catch ( LinkageError e )
-				{}
-			}
-		}
-		
-		return classSelectorMethods;
 	}
 }

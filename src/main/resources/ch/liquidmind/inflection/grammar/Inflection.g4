@@ -211,25 +211,34 @@ expression
 	|	LOGICAL_NOT expression
 	|	expression ( LOGICAL_AND | LOGICAL_OR ) expression
 	|	methodInvocation
-	|	reference
+	|	classReference
+	|	staticFieldReference
 	|   literal
 	;
+
+methodInvocation
+	:	staticMethodReference PAREN_OPEN methodArgument? ( COMMA methodArgument )* PAREN_CLOSE
+	;
+
+staticMethodReference
+	:	staticReference
+	;
 	
-reference
-	:	classReference
-	|	staticReference
+methodArgument
+	:	expression
 	;
 
 classReference
 	:	type DOT CLASS
 	;
 
-staticReference
-	:	type DOT staticField
+staticFieldReference
+	:	staticReference
 	;
-	
-staticField
-	:	identifier
+
+staticReference
+	:	type DOT identifier
+	|	identifier
 	;
 
 // TODO: most of these are over-simplified as compared to the Java
@@ -279,15 +288,7 @@ booleanLiteral
 nullLiteral
 	:	NULL
 	;
-	
-methodInvocation
-	:	identifier PAREN_OPEN methodArgument? ( COMMA methodArgument )* PAREN_CLOSE
-	;
-	
-methodArgument
-	:	expression
-	;
-	
+		
 // COMMON
 includModifier
 	:	INCLUDE?
