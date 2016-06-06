@@ -244,7 +244,7 @@ literal
 	|	characterLiteral
 	|	stringLiteral
 	|	booleanLiteral
-	|	NULL
+	|	nullLiteral
 	;
 
 integerLiteral
@@ -274,6 +274,10 @@ stringLiteral
 booleanLiteral
 	:	TRUE
 	|	FALSE
+	;
+	
+nullLiteral
+	:	NULL
 	;
 	
 methodInvocation

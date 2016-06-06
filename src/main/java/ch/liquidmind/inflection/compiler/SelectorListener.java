@@ -13,6 +13,8 @@ import __java.lang.reflect.__Field;
 import __java.lang.reflect.__Method;
 import ch.liquidmind.inflection.compiler.CompilationUnit.CompilationUnitCompiled.PackageImport;
 import ch.liquidmind.inflection.compiler.CompilationUnit.CompilationUnitCompiled.TypeImport;
+import ch.liquidmind.inflection.grammar.InflectionParser.BooleanLiteralContext;
+import ch.liquidmind.inflection.grammar.InflectionParser.CharacterLiteralContext;
 import ch.liquidmind.inflection.grammar.InflectionParser.ClassReferenceContext;
 import ch.liquidmind.inflection.grammar.InflectionParser.DecimalNumberContext;
 import ch.liquidmind.inflection.grammar.InflectionParser.DigitsContext;
@@ -21,7 +23,9 @@ import ch.liquidmind.inflection.grammar.InflectionParser.FloatingPointLiteralCon
 import ch.liquidmind.inflection.grammar.InflectionParser.IntegerLiteralContext;
 import ch.liquidmind.inflection.grammar.InflectionParser.MethodArgumentContext;
 import ch.liquidmind.inflection.grammar.InflectionParser.MethodInvocationContext;
+import ch.liquidmind.inflection.grammar.InflectionParser.NullLiteralContext;
 import ch.liquidmind.inflection.grammar.InflectionParser.StaticReferenceContext;
+import ch.liquidmind.inflection.grammar.InflectionParser.StringLiteralContext;
 import ch.liquidmind.inflection.grammar.InflectionParser.TypeContext;
 import ch.liquidmind.inflection.selectors.ClassSelectorContext;
 
@@ -267,5 +271,29 @@ public class SelectorListener extends AbstractInflectionListener
 		Object value = __Field.get( field, null );
 		
 		expressionStack.push( value );
+	}
+
+	@Override
+	public void enterBooleanLiteral( BooleanLiteralContext booleanLiteralContext )
+	{
+		expressionStack.push( Boolean.valueOf( booleanLiteralContext.getText() ) );
+	}
+
+	@Override
+	public void enterCharacterLiteral( CharacterLiteralContext characterLiteralContext )
+	{
+		expressionStack.push( characterLiteralContext.getChild( 1 ).getText().charAt( 0 ) );
+	}
+
+	@Override
+	public void enterStringLiteral( StringLiteralContext stringLiteralContext )
+	{
+		expressionStack.push( stringLiteralContext.getChild( 1 ).getText() );
+	}
+
+	@Override
+	public void enterNullLiteral( NullLiteralContext NullLiteralContext )
+	{
+		expressionStack.push( null );
 	}
 }

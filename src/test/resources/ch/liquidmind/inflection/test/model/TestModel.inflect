@@ -2,23 +2,11 @@ package ch.liquidmind.inflection.test.model;
 
 import java.lang.reflect.Modifier;
 
-// expression1 = expression2 booleanOr expression3
-// true || ( false && false )
-// expression2
-// true
-// expression3 = PAREN_OPEN expression4 PAREN_CLOSE
-// ( false && false )
-// expression4 = expression5 booleanOr expression6
-// false && false
-// expression5
-// false
-// expression6
-// false
-
 taxonomy ExpressionTest
 {
+	view test( 'c', "mystring", null ) { *; }
 //	view true || ( false && false ) { *; }   // true || false && false --> false; true || ( false && false ) --> true
-	view isAssignableTo( IdentifiableObject.class ) && hasModifier( Modifier.PUBLIC ) { *; }
+//	view isAssignableTo( IdentifiableObject.class ) && hasModifier( Modifier.PUBLIC ) { *; }
 //	view test(  42, 43L, 44.1F, 45.2, 'c', "test", true, null ) {}
 }
 

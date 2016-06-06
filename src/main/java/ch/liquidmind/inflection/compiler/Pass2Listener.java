@@ -343,7 +343,7 @@ public class Pass2Listener extends AbstractInflectionListener
 	public void enterIncludableClassSelector( IncludableClassSelectorContext includableClassSelectorContext )
 	{
 		// We'll need to improved this logic at some point
-		if ( includableClassSelectorContext.getChild( 0 ) instanceof ExpressionContext )
+		if ( includableClassSelectorContext.getChild( 0 ) instanceof ClassSelectorExpressionContext )
 			return;
 		
 		enterClassSelector( includableClassSelectorContext );
