@@ -1,8 +1,7 @@
 package ch.liquidmind.inflection.test.model;
 
 import static java.lang.reflect.Modifier.*;
-import static ch.liquidmind.inflection.selectors.Selectors.isAssignableTo;
-import static ch.liquidmind.inflection.selectors.Selectors.hasModifier;
+import static ch.liquidmind.inflection.selectors.Selectors.*;
 
 taxonomy ExpressionTest
 {

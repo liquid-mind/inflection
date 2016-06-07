@@ -6,8 +6,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.Stack;
 import java.util.stream.Collectors;
 
@@ -165,7 +167,7 @@ public class Pass2SelectorListener extends AbstractInflectionListener
 	
 	private Class< ? > resolveStaticReferenceClass( StaticReferenceContext staticReferenceContext, StaticReferenceType staticReferenceType )
 	{
-		List< Class< ? > > matches = new ArrayList< Class< ? > >();
+		Set< Class< ? > > matches = new HashSet< Class< ? > >();
 		Class< ? > theClass = getStaticReferenceClass( staticReferenceContext );
 		
 		if ( theClass == null )
@@ -203,7 +205,7 @@ public class Pass2SelectorListener extends AbstractInflectionListener
 			if ( matches.size() == 0 )
 				reportError( staticReferenceContext.start, staticReferenceContext.stop, "Could not find referenced " + MEMBER_DISPLAY_NAMES.get( staticReferenceType ) + " (Did you misspell? Or forget an import? Or a jar?)." );
 			else if ( matches.size() == 1 )
-				theClass = matches.get( 0 );
+				theClass = matches.iterator().next();
 			else if ( matches.size() > 1 )
 				reportError( staticReferenceContext.start, staticReferenceContext.stop, "Referenced " + MEMBER_DISPLAY_NAMES.get( staticReferenceType ) + " is ambiguous; could refer to any of: " +
 						String.join( ", ", matches.stream().map( x -> x.getName() ).collect(Collectors.toList() ) ) + "." );

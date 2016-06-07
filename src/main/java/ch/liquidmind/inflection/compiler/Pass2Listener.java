@@ -175,8 +175,26 @@ public class Pass2Listener extends AbstractInflectionListener
 	public void enterStaticClassImport( StaticClassImportContext staticClassImportContext )
 	{
 		String typeName = staticClassImportContext.getChild( 0 ).getText();
-		// TODO: perform validation analogous to package import.
+		validateNoDuplicateStaticClassImport( staticClassImportContext, typeName );
+		validateNoOverlapWithStaticMemberImport( staticClassImportContext, typeName );
 		getStaticClassImports().add( new StaticClassImport( typeName, staticClassImportContext ) );
+	}
+	
+	private void validateNoDuplicateStaticClassImport( StaticClassImportContext staticClassImportContext, String className )
+	{
+		if ( getStaticClassImports().contains( new StaticClassImport( className ) ) )
+			reportWarning( staticClassImportContext.start, staticClassImportContext.stop, "Duplicate import." );
+	}
+	
+	private void validateNoOverlapWithStaticMemberImport( StaticClassImportContext staticClassImportContext, String className )
+	{
+		for ( StaticMemberImport staticMemberImport : getStaticMemberImports().values() )
+		{
+			String importClassName = staticMemberImport.getParserRuleContext().getChild( 0 ).getText();
+			
+			if ( importClassName.equals( className ) )
+				reportWarning( staticClassImportContext.start, staticClassImportContext.stop, "Overlapping import: symbol already explicitly imported by 'import " + staticMemberImport.getName() + ";" );
+		}
 	}
 	
 	@Override
@@ -184,10 +202,25 @@ public class Pass2Listener extends AbstractInflectionListener
 	{
 		String qualifiedMemberName = staticMemberImportContext.getText();
 		String simpleMemberName = staticMemberImportContext.getChild( 2 ).getText();
-		// TODO: perform validation; note that static member imports may clash with type imports.
+		validateNoDuplicateStaticMemberImport( staticMemberImportContext, simpleMemberName );
+		validateNoOverlapWithStaticClassImport( staticMemberImportContext, simpleMemberName );
 		getStaticMemberImports().put( simpleMemberName, new StaticMemberImport( qualifiedMemberName, staticMemberImportContext ) );
 	}
 	
+	private void validateNoDuplicateStaticMemberImport( StaticMemberImportContext staticMemberImportContext, String staticMemberName )
+	{
+		if ( getStaticMemberImports().keySet().contains( staticMemberName ) )
+			reportWarning( staticMemberImportContext.start, staticMemberImportContext.stop, "Duplicate import." );
+	}
+	
+	private void validateNoOverlapWithStaticClassImport( StaticMemberImportContext staticMemberImportContext, String staticMemberName )
+	{
+		String className = staticMemberImportContext.getChild( 0 ).getText();
+		
+		if ( getStaticClassImports().contains( new StaticClassImport( className ) ) )
+			reportWarning( staticMemberImportContext.start, staticMemberImportContext.stop, "Overlapping import: symbol already implicitly imported by 'import " + className + ".*;" );
+	}
+
 	/////////////
 	// TAXONOMIES
 	/////////////
