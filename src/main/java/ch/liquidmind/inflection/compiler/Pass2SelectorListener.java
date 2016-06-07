@@ -70,37 +70,83 @@ public class Pass2SelectorListener extends AbstractInflectionListener
 	public static final String LOGICAL_NOT = "!";
 	public static final String LOGICAL_AND = "&&";
 	public static final String LOGICAL_OR = "||";
+//	public static final String EQUAL = "==";
+//	public static final String NOT_EQUAL = "!=";
+//	public static final String GREATER_THAN = ">";
+//	public static final String GREATER_THAN_EQUAL = ">=";
+//	public static final String LESS_THAN = "<";
+//	public static final String LESS_THAN_EQUAL = "<=";	
 	
-	private boolean logicalNot( boolean value )
+	private boolean logicalNot( Object value, ExpressionContext expressionContext )
 	{
-		return !value;
+		boolean valueCast = castOperatorValue( value, Boolean.class, expressionContext );
+		
+		return !valueCast;
 	}
 	
-	private boolean logicalAnd( boolean value1, boolean value2 )
+	private boolean logicalAnd( Object value1, Object value2, ExpressionContext expressionContext1, ExpressionContext expressionContext2 )
 	{
-		return value1 && value2;
+		boolean value1Cast = castOperatorValue( value1, Boolean.class, expressionContext1 );
+		boolean value2Cast = castOperatorValue( value2, Boolean.class, expressionContext2 );
+		
+		return value1Cast && value2Cast;
 	}
 	
-	private boolean logicalOr( boolean value1, boolean value2 )
+	private boolean logicalOr( Object value1, Object value2, ExpressionContext expressionContext1, ExpressionContext expressionContext2 )
 	{
-		return value1 || value2;
+		boolean value1Cast = castOperatorValue( value1, Boolean.class, expressionContext1 );
+		boolean value2Cast = castOperatorValue( value2, Boolean.class, expressionContext2 );
+		
+		return value1Cast || value2Cast;
+	}
+	
+	@SuppressWarnings( "unchecked" )
+	private < T > T castOperatorValue( Object value, Class< T > expectedType, ExpressionContext expressionContext )
+	{
+		if ( !expectedType.isAssignableFrom( value.getClass() ) )
+			reportError( expressionContext.start, expressionContext.stop, "Expected type " + expectedType.getName() + " but was " + value.getClass().getName() + "." );
+		
+		return (T)value;
 	}
 	
 	// TODO: skip second operand evaluation in the following cases:
 	// 1. Boolean AND: if first operand is false.
 	// 2. Boolean OR: if first operand is true.
+	// TODO: Extend the number of supported operators, which will require
+	// in some cases extensive type checking and/or conversion. For example,
+	// the == operator works differently depending whether the operands are
+	// basic or complex types, and in the case of basic types on which
+	// basic types are being compared. This will take some work and isn't the
+	// first priority at this time. Also, it might be better to delegate more
+	// complex expressions to the helper methods, anyway.
 	@Override
 	public void exitExpression( ExpressionContext expressionContext )
 	{
 		if ( expressionContext.getChildCount() < 2 )
 			return;
+		
+		// Arithmetic Operators
 
+		// Unary Operators
 		if ( expressionContext.getChild( 0 ).getText().equals( LOGICAL_NOT ) )
-			expressionStack.push( logicalNot( (boolean)expressionStack.pop() ) );
+			expressionStack.push( logicalNot( expressionStack.pop(), getChildExpression( expressionContext, 1 ) ) );
+		
+		// Equality and Relationship Operators
+		
+		// Conditional Operators
 		else if ( expressionContext.getChild( 1 ).getText().equals( LOGICAL_AND ) )
-			expressionStack.push( logicalAnd( (boolean)expressionStack.pop(), (boolean)expressionStack.pop() ) );
+			expressionStack.push( logicalAnd( expressionStack.pop(), expressionStack.pop(), getChildExpression( expressionContext, 2 ), getChildExpression( expressionContext, 0 ) ) );
 		else if ( expressionContext.getChild( 1 ).getText().equals( LOGICAL_OR ) )
-			expressionStack.push( logicalOr( (boolean)expressionStack.pop(), (boolean)expressionStack.pop() ) );
+			expressionStack.push( logicalOr( expressionStack.pop(), expressionStack.pop(), getChildExpression( expressionContext, 2 ), getChildExpression( expressionContext, 0 ) ) );
+		
+		// Type Comparison Operator
+		
+		// Bitwise and Bit Shift Operators
+	}
+	
+	private ExpressionContext getChildExpression( ExpressionContext expressionContext, int index )
+	{
+		return (ExpressionContext)expressionContext.getChild( index );
 	}
 	
 	public int parameterCount;

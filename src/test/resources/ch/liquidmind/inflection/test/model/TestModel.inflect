@@ -5,6 +5,7 @@ import static ch.liquidmind.inflection.selectors.Selectors.*;
 
 taxonomy ExpressionTest
 {
+//	view isAssignableTo( IdentifiableObject.class ) == true { *; }
 //	view test( 'c', "mystring", null ) { *; }
 //	view true || ( false && false ) { *; }   // true || false && false --> false; true || ( false && false ) --> true
 	view isAssignableTo( IdentifiableObject.class ) && hasModifier( PUBLIC ) { *; }
