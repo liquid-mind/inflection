@@ -1,13 +1,14 @@
 package ch.liquidmind.inflection.test.model;
 
-import java.lang.reflect.Modifier;
-import ch.liquidmind.inflection.selectors.Selectors;
+import static java.lang.reflect.Modifier.*;
+import static ch.liquidmind.inflection.selectors.Selectors.isAssignableTo;
+import static ch.liquidmind.inflection.selectors.Selectors.hasModifier;
 
 taxonomy ExpressionTest
 {
 //	view test( 'c', "mystring", null ) { *; }
 //	view true || ( false && false ) { *; }   // true || false && false --> false; true || ( false && false ) --> true
-	view Selectors.isAssignableTo( IdentifiableObject.class ) && Selectors.hasModifier( Modifier.PUBLIC ) { *; }
+	view isAssignableTo( IdentifiableObject.class ) && hasModifier( PUBLIC ) { *; }
 //	view test(  42, 43L, 44.1F, 45.2, 'c', "test", true, null ) {}
 }
 

@@ -19,6 +19,8 @@ import com.google.common.reflect.ClassPath.ClassInfo;
 
 import ch.liquidmind.inflection.compiler.CompilationUnit.CompilationUnitCompiled.PackageImport;
 import ch.liquidmind.inflection.compiler.CompilationUnit.CompilationUnitCompiled.PackageImport.PackageImportType;
+import ch.liquidmind.inflection.compiler.CompilationUnit.CompilationUnitCompiled.StaticClassImport;
+import ch.liquidmind.inflection.compiler.CompilationUnit.CompilationUnitCompiled.StaticMemberImport;
 import ch.liquidmind.inflection.compiler.CompilationUnit.CompilationUnitCompiled.TypeImport;
 import ch.liquidmind.inflection.grammar.InflectionParser.APackageContext;
 import ch.liquidmind.inflection.grammar.InflectionParser.AccessMethodModifierContext;
@@ -47,6 +49,8 @@ import ch.liquidmind.inflection.grammar.InflectionParser.MemberDeclarationContex
 import ch.liquidmind.inflection.grammar.InflectionParser.MemberSelectorContext;
 import ch.liquidmind.inflection.grammar.InflectionParser.PackageImportContext;
 import ch.liquidmind.inflection.grammar.InflectionParser.SimpleTypeContext;
+import ch.liquidmind.inflection.grammar.InflectionParser.StaticClassImportContext;
+import ch.liquidmind.inflection.grammar.InflectionParser.StaticMemberImportContext;
 import ch.liquidmind.inflection.grammar.InflectionParser.TaxonomyAnnotationContext;
 import ch.liquidmind.inflection.grammar.InflectionParser.TaxonomyDeclarationContext;
 import ch.liquidmind.inflection.grammar.InflectionParser.TaxonomyExtensionsContext;
@@ -166,11 +170,28 @@ public class Pass2Listener extends AbstractInflectionListener
 		if ( getPackageImports().contains( new PackageImport( packageNameOfType ) ) )
 			reportWarning( typeContext.start, typeContext.stop, "Overlapping import: symbol already implicitly imported by 'import " + packageNameOfType + ".*;" );
 	}
+
+	@Override
+	public void enterStaticClassImport( StaticClassImportContext staticClassImportContext )
+	{
+		String typeName = staticClassImportContext.getChild( 0 ).getText();
+		// TODO: perform validation analogous to package import.
+		getStaticClassImports().add( new StaticClassImport( typeName, staticClassImportContext ) );
+	}
+	
+	@Override
+	public void enterStaticMemberImport( StaticMemberImportContext staticMemberImportContext )
+	{
+		String qualifiedMemberName = staticMemberImportContext.getText();
+		String simpleMemberName = staticMemberImportContext.getChild( 2 ).getText();
+		// TODO: perform validation; note that static member imports may clash with type imports.
+		getStaticMemberImports().put( simpleMemberName, new StaticMemberImport( qualifiedMemberName, staticMemberImportContext ) );
+	}
 	
 	/////////////
 	// TAXONOMIES
 	/////////////
-	
+
 	@Override
 	public void enterTaxonomyDeclaration( TaxonomyDeclarationContext taxonomyDeclarationContext )
 	{
@@ -628,7 +649,7 @@ public class Pass2Listener extends AbstractInflectionListener
 		{
 			ParseTreeWalker parseTreeWalker = new ParseTreeWalker();
 			ch.liquidmind.inflection.selectors.ClassSelectorContext context = new ch.liquidmind.inflection.selectors.ClassSelectorContext( allClasses, aClass );
-			SelectorListener listener = new SelectorListener( getCompilationUnit(), context );
+			Pass2SelectorListener listener = new Pass2SelectorListener( getCompilationUnit(), context );
 			parseTreeWalker.walk( listener, classSelectorExpressionContext );
 			boolean classMatches = listener.getExpressionValue( (ExpressionContext)classSelectorExpressionContext.getChild( 0 ) );
 			

@@ -3,14 +3,21 @@ package ch.liquidmind.inflection.compiler;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Stack;
+import java.util.stream.Collectors;
 
 import __java.lang.__Class;
+import __java.lang.__NoSuchFieldException;
 import __java.lang.reflect.__Field;
 import __java.lang.reflect.__Method;
 import ch.liquidmind.inflection.compiler.CompilationUnit.CompilationUnitCompiled.PackageImport;
+import ch.liquidmind.inflection.compiler.CompilationUnit.CompilationUnitCompiled.StaticClassImport;
+import ch.liquidmind.inflection.compiler.CompilationUnit.CompilationUnitCompiled.StaticMemberImport;
 import ch.liquidmind.inflection.compiler.CompilationUnit.CompilationUnitCompiled.TypeImport;
 import ch.liquidmind.inflection.grammar.InflectionParser.BooleanLiteralContext;
 import ch.liquidmind.inflection.grammar.InflectionParser.CharacterLiteralContext;
@@ -30,13 +37,13 @@ import ch.liquidmind.inflection.grammar.InflectionParser.StringLiteralContext;
 import ch.liquidmind.inflection.grammar.InflectionParser.TypeContext;
 import ch.liquidmind.inflection.selectors.ClassSelectorContext;
 
-public class SelectorListener extends AbstractInflectionListener
+public class Pass2SelectorListener extends AbstractInflectionListener
 {
 	private ClassSelectorContext classSelectorContext;
 	private Stack< Object > expressionStack = new Stack< Object >();
 	private Boolean expressionValue;
 	
-	public SelectorListener( CompilationUnit compilationUnit, ClassSelectorContext classSelectorContext )
+	public Pass2SelectorListener( CompilationUnit compilationUnit, ClassSelectorContext classSelectorContext )
 	{
 		super( compilationUnit );
 		this.classSelectorContext = classSelectorContext;
@@ -137,30 +144,138 @@ public class SelectorListener extends AbstractInflectionListener
 		expressionStack.push( retVal );
 	}
 	
+//	private Class< ? > getStaticReferenceClass( StaticReferenceContext staticReferenceContext )
+//	{
+//		if ( staticReferenceContext.getChildCount() == 1 )
+//			throw new IllegalStateException( "No support yet for unqualified static references." );
+//		
+//		TypeContext typeContext = (TypeContext)staticReferenceContext.getChild( 0 );
+//		String className = resolveClassReference( typeContext );
+//		Class< ? > theClass = getClass( className );
+//		
+//		return theClass;
+//	}
+	
+	public enum StaticReferenceType
+	{
+		STATIC_FIELD, STATIC_METHOD
+	}
+	
+	private static final Map< StaticReferenceType, String > MEMBER_DISPLAY_NAMES = new HashMap< StaticReferenceType, String >();
+	
+	private Class< ? > resolveStaticReferenceClass( StaticReferenceContext staticReferenceContext, StaticReferenceType staticReferenceType )
+	{
+		List< Class< ? > > matches = new ArrayList< Class< ? > >();
+		Class< ? > theClass = getStaticReferenceClass( staticReferenceContext );
+		
+		if ( theClass == null )
+		{
+			// First, try matching to a static member import
+			String staticReferenceName = getStaticReferenceName( staticReferenceContext );
+			StaticMemberImport staticMemberImport = getStaticMemberImports().get( staticReferenceName );
+			
+			if ( staticMemberImport != null )
+			{
+				staticMemberImport.setWasReferenced( true );
+				String className = staticMemberImport.getParserRuleContext().getChild( 0 ).getText();
+				
+				if ( classExists( className ) )
+					matches.add( getClass( className ) );
+			}
+			
+			// Then, try matching to a static class import
+			for ( StaticClassImport staticClassImport : getStaticClassImports() )
+			{
+				String className = staticClassImport.getName();
+				
+				if ( staticReferenceType.equals( StaticReferenceType.STATIC_FIELD ) && staticFieldExists( className, staticReferenceName ) )
+				{
+					staticClassImport.setWasReferenced( true );
+					matches.add( getClass( className ) );
+				}
+				else if ( staticReferenceType.equals( StaticReferenceType.STATIC_METHOD ) && staticMethodExists( className, staticReferenceName ) )
+				{
+					staticClassImport.setWasReferenced( true );
+					matches.add( getClass( className ) );
+				}
+			}
+			
+			if ( matches.size() == 0 )
+				reportError( staticReferenceContext.start, staticReferenceContext.stop, "Could not find referenced " + MEMBER_DISPLAY_NAMES.get( staticReferenceType ) + " (Did you misspell? Or forget an import? Or a jar?)." );
+			else if ( matches.size() == 1 )
+				theClass = matches.get( 0 );
+			else if ( matches.size() > 1 )
+				reportError( staticReferenceContext.start, staticReferenceContext.stop, "Referenced " + MEMBER_DISPLAY_NAMES.get( staticReferenceType ) + " is ambiguous; could refer to any of: " +
+						String.join( ", ", matches.stream().map( x -> x.getName() ).collect(Collectors.toList() ) ) + "." );
+			else
+				throw new IllegalStateException( "Unexpected value for matches.size()." );
+		}
+		
+		return theClass;
+	}
+	
+	private boolean staticFieldExists( String className, String fieldName )
+	{
+		boolean staticFieldExists;
+		
+		try
+		{
+			__Class.getField( getClass( className ), fieldName );
+			staticFieldExists = true;
+		}
+		catch ( __NoSuchFieldException e )
+		{
+			staticFieldExists = false;
+		}
+		
+		return staticFieldExists;
+	}
+	
+	private boolean staticMethodExists( String className, String methodName )
+	{
+		return Arrays.asList( getClass( className ).getMethods() ).stream().filter( x -> x.getName().equals( methodName ) ).findFirst().isPresent();
+	}
+	
 	private Class< ? > getStaticReferenceClass( StaticReferenceContext staticReferenceContext )
 	{
-		if ( staticReferenceContext.getChildCount() == 1 )
-			throw new IllegalStateException( "No support yet for unqualified static references." );
+		Class< ? > theClass;
 		
-		TypeContext typeContext = (TypeContext)staticReferenceContext.getChild( 0 );
-		String className = resolveClassReference( typeContext );
-		Class< ? > theClass = getClass( className );
+		if ( staticReferenceContext.getChildCount() == 3 )
+		{
+			TypeContext typeContext = (TypeContext)staticReferenceContext.getChild( 0 );
+			String className = resolveClassReference( typeContext );
+			theClass = getClass( className );
+		}
+		else if ( staticReferenceContext.getChildCount() == 1 )
+		{
+			theClass = null;
+		}
+		else
+		{
+			throw new IllegalStateException( "Unexpected number of children for staticReferenceContext.");
+		}
 		
 		return theClass;
 	}
 	
 	private String getStaticReferenceName( StaticReferenceContext staticReferenceContext )
 	{
-		if ( staticReferenceContext.getChildCount() == 1 )
-			throw new IllegalStateException( "No support yet for unqualified static references." );
+		String staticReferenceName;
 		
-		return staticReferenceContext.getChild( 2 ).getText();
+		if ( staticReferenceContext.getChildCount() == 1 )
+			staticReferenceName = staticReferenceContext.getChild( 0 ).getText();
+		else if ( staticReferenceContext.getChildCount() == 3 )
+			staticReferenceName = staticReferenceContext.getChild( 2 ).getText();
+		else
+			throw new IllegalStateException( "Unexpected number of children for staticReferenceContext." );
+		
+		return staticReferenceName;
 	}
 	
 	private Method locateMethod( StaticMethodReferenceContext staticMethodReferenceContext, Class< ? >[] paramTypes )
 	{
 		StaticReferenceContext staticReferenceContext = (StaticReferenceContext)staticMethodReferenceContext.getChild( 0 );
-		Class< ? > theClass = getStaticReferenceClass( staticReferenceContext );
+		Class< ? > theClass = resolveStaticReferenceClass( staticReferenceContext, StaticReferenceType.STATIC_METHOD );
 		String methodName = getStaticReferenceName( staticReferenceContext );
 		Method matchingMethod = null;
 		
@@ -287,7 +402,7 @@ public class SelectorListener extends AbstractInflectionListener
 	public void enterStaticFieldReference( StaticFieldReferenceContext staticFieldReferenceContext )
 	{
 		StaticReferenceContext staticReferenceContext = (StaticReferenceContext)staticFieldReferenceContext.getChild( 0 );
-		Class< ? > theClass = getStaticReferenceClass( staticReferenceContext );
+		Class< ? > theClass = resolveStaticReferenceClass( staticReferenceContext, StaticReferenceType.STATIC_FIELD );
 		String staticFieldName = getStaticReferenceName( staticReferenceContext );
 		Field field = __Class.getField( theClass, staticFieldName );
 		Object value = __Field.get( field, null );

@@ -56,6 +56,7 @@ importDeclarations
 
 importDeclaration
 	:	IMPORT importSymbol SEMICOLON
+	|	IMPORT STATIC staticImportSymbol SEMICOLON
 	;
 
 importSymbol
@@ -69,6 +70,19 @@ typeImport
 	
 packageImport
 	:	aPackage DOT wildcardIdentifier	// wildcardIdentifier must be exactly '*'
+	;
+	
+staticImportSymbol
+	:	staticMemberImport
+	|	staticClassImport
+	;
+	
+staticMemberImport
+	:	type DOT identifier
+	;
+	
+staticClassImport
+	:	type DOT wildcardIdentifier
 	;
 
 // TAXONOMY
@@ -351,6 +365,7 @@ SINGLE_LINE_COMMENT
 	
 PACKAGE		: 'package';
 IMPORT		: 'import';
+STATIC		: 'static';
 DEFAULT		: 'default';
 TAXONOMY	: 'taxonomy';
 EXTENDS		: 'extends';
