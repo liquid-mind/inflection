@@ -5,10 +5,10 @@ import static ch.liquidmind.inflection.selectors.Selectors.*;
 
 taxonomy ExpressionTest
 {
-//	view isAssignableTo( IdentifiableObject.class ) == true { *; }
+	view isAssignableTo( IdentifiableObject.class ) { matches( "*" ); }
 //	view test( 'c', "mystring", null ) { *; }
 //	view true || ( false && false ) { *; }   // true || false && false --> false; true || ( false && false ) --> true
-	view isAssignableTo( IdentifiableObject.class ) && hasModifier( PUBLIC ) { *; }
+//	view isAssignableTo( IdentifiableObject.class ) && hasModifier( PUBLIC ) { *; }
 //	view test(  42, 43L, 44.1F, 45.2, 'c', "test", true, null ) {}
 }
 

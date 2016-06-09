@@ -199,10 +199,16 @@ accessMethodModifier
 includableMemberSelector
 	:	aliasableMemberSelector
 	|	wildcardMemberSelector
+	|	memberSelectorExpression
 	;
 
 excludableMemberSelector
 	:	wildcardMemberSelector
+	|	memberSelectorExpression
+	;
+
+memberSelectorExpression
+	:	expression
 	;
 
 aliasableMemberSelector
@@ -224,7 +230,6 @@ expression
 	:	PAREN_OPEN expression? PAREN_CLOSE
 	|	LOGICAL_NOT expression
 	|	expression ( LOGICAL_AND | LOGICAL_OR ) expression
-//	|	expression ( EQUAL | NOT_EQUAL | GREATER_THAN | GREATER_THAN_EQUAL | LESS_THAN | LESS_THAN_EQUAL ) expression
 	|	methodInvocation
 	|	classReference
 	|	staticFieldReference
@@ -427,12 +432,6 @@ PAREN_CLOSE			: ')';
 LOGICAL_AND			: '&&';
 LOGICAL_OR			: '||';
 LOGICAL_NOT			: '!';
-//EQUAL				: '==';
-//NOT_EQUAL			: '!=';
-//GREATER_THAN		: '>';
-//GREATER_THAN_EQUAL	: '>=';
-//LESS_THAN			: '<';
-//LESS_THAN_EQUAL		: '<=';
 
 WS	:	[ \r\t\n]+ -> skip;
 

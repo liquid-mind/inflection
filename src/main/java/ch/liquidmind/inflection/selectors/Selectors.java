@@ -11,4 +11,11 @@ public class Selectors
 	{
 		return ( ClassSelectorContext.get().getCurrentClass().getModifiers() & modifier ) > 0;
 	}
+	
+	public static boolean matches( String wildcardExpression )
+	{
+		// TODO: implement.
+		return true;
+	}
+	
 }

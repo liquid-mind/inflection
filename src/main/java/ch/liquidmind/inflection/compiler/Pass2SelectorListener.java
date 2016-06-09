@@ -70,12 +70,6 @@ public class Pass2SelectorListener extends AbstractInflectionListener
 	public static final String LOGICAL_NOT = "!";
 	public static final String LOGICAL_AND = "&&";
 	public static final String LOGICAL_OR = "||";
-//	public static final String EQUAL = "==";
-//	public static final String NOT_EQUAL = "!=";
-//	public static final String GREATER_THAN = ">";
-//	public static final String GREATER_THAN_EQUAL = ">=";
-//	public static final String LESS_THAN = "<";
-//	public static final String LESS_THAN_EQUAL = "<=";	
 	
 	private boolean logicalNot( Object value, ExpressionContext expressionContext )
 	{
@@ -125,23 +119,12 @@ public class Pass2SelectorListener extends AbstractInflectionListener
 		if ( expressionContext.getChildCount() < 2 )
 			return;
 		
-		// Arithmetic Operators
-
-		// Unary Operators
 		if ( expressionContext.getChild( 0 ).getText().equals( LOGICAL_NOT ) )
 			expressionStack.push( logicalNot( expressionStack.pop(), getChildExpression( expressionContext, 1 ) ) );
-		
-		// Equality and Relationship Operators
-		
-		// Conditional Operators
 		else if ( expressionContext.getChild( 1 ).getText().equals( LOGICAL_AND ) )
 			expressionStack.push( logicalAnd( expressionStack.pop(), expressionStack.pop(), getChildExpression( expressionContext, 2 ), getChildExpression( expressionContext, 0 ) ) );
 		else if ( expressionContext.getChild( 1 ).getText().equals( LOGICAL_OR ) )
 			expressionStack.push( logicalOr( expressionStack.pop(), expressionStack.pop(), getChildExpression( expressionContext, 2 ), getChildExpression( expressionContext, 0 ) ) );
-		
-		// Type Comparison Operator
-		
-		// Bitwise and Bit Shift Operators
 	}
 	
 	private ExpressionContext getChildExpression( ExpressionContext expressionContext, int index )

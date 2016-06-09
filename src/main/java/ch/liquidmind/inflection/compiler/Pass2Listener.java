@@ -47,6 +47,7 @@ import ch.liquidmind.inflection.grammar.InflectionParser.IncludeViewModifierCont
 import ch.liquidmind.inflection.grammar.InflectionParser.MemberAnnotationContext;
 import ch.liquidmind.inflection.grammar.InflectionParser.MemberDeclarationContext;
 import ch.liquidmind.inflection.grammar.InflectionParser.MemberSelectorContext;
+import ch.liquidmind.inflection.grammar.InflectionParser.MemberSelectorExpressionContext;
 import ch.liquidmind.inflection.grammar.InflectionParser.PackageImportContext;
 import ch.liquidmind.inflection.grammar.InflectionParser.SimpleTypeContext;
 import ch.liquidmind.inflection.grammar.InflectionParser.StaticClassImportContext;
@@ -693,10 +694,15 @@ public class Pass2Listener extends AbstractInflectionListener
 		setupViewsCompiled( matchingClasses );
 	}
 	
+	@Override
+	public void enterMemberSelectorExpression( MemberSelectorExpressionContext ctx )
+	{
+	}
+	
 	//////////
 	// MEMBERS
 	//////////
-	
+
 	@Override
 	public void enterMemberDeclaration( MemberDeclarationContext memberDeclarationContext )
 	{
