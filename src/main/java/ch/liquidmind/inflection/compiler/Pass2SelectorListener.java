@@ -445,7 +445,7 @@ public class Pass2SelectorListener extends AbstractInflectionListener
 	@Override
 	public void enterStringLiteral( StringLiteralContext stringLiteralContext )
 	{
-		expressionStack.push( stringLiteralContext.getChild( 1 ).getText() );
+		expressionStack.push( stringLiteralContext.getText().replace( "\"", "" ) );
 	}
 
 	@Override

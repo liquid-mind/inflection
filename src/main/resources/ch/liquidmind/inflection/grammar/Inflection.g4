@@ -297,7 +297,7 @@ characterLiteral
 	;
 
 stringLiteral
-	:	DOUBLE_QUOTE .*? DOUBLE_QUOTE
+	:	STRING_LITERAL
 	;
 
 booleanLiteral
@@ -367,6 +367,10 @@ MULTI_LINE_COMMENT
 
 SINGLE_LINE_COMMENT
 	:	'//' .*? '\r'? '\n' -> skip
+	;
+	
+STRING_LITERAL
+	:	'"' (~'"')* '"'
 	;
 	
 PACKAGE		: 'package';

@@ -16,7 +16,7 @@ public class Selectors
 	{
 		boolean matches;
 		SelectorContext selectorContext = SelectorContext.get();
-		String wildcardExpressionRegEx = wildcardExpression.replace( ".", "\\." ).replace( "*", "[a-zA-Z0-9_$]*?" ).toLowerCase();
+		String wildcardExpressionRegEx = wildcardExpression.replace( ".", "\\." ).replace( "*", ".*?" ).toLowerCase();
 		
 		if ( selectorContext instanceof ClassSelectorContext )
 			matches = matches( (ClassSelectorContext)selectorContext, wildcardExpressionRegEx );

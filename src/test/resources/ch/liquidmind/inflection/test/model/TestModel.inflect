@@ -5,7 +5,8 @@ import static ch.liquidmind.inflection.selectors.Selectors.*;
 
 taxonomy FullTaxonomy
 {
-	view isAssignableTo( IdentifiableObject.class ) { matches( "*" ); }
+	view isAssignableTo( IdentifiableObject.class ) &&
+		matches( "ch.liquidmind.inflection.test.model.*" ) { matches( "*" ); }
 	view Address
 	{
 		matches( "*" );
