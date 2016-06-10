@@ -37,21 +37,22 @@ import ch.liquidmind.inflection.grammar.InflectionParser.StaticMethodReferenceCo
 import ch.liquidmind.inflection.grammar.InflectionParser.StaticReferenceContext;
 import ch.liquidmind.inflection.grammar.InflectionParser.StringLiteralContext;
 import ch.liquidmind.inflection.grammar.InflectionParser.TypeContext;
-import ch.liquidmind.inflection.selectors.ClassSelectorContext;
+import ch.liquidmind.inflection.selectors.SelectorContext;
 
 public class Pass2SelectorListener extends AbstractInflectionListener
 {
-	private ClassSelectorContext classSelectorContext;
+	private SelectorContext selectorContext;
+	private ExpressionContext expressionContext;
 	private Stack< Object > expressionStack = new Stack< Object >();
 	private Boolean expressionValue;
 	
-	public Pass2SelectorListener( CompilationUnit compilationUnit, ClassSelectorContext classSelectorContext )
+	public Pass2SelectorListener( CompilationUnit compilationUnit, SelectorContext selectorContext, ExpressionContext expressionContext )
 	{
 		super( compilationUnit );
-		this.classSelectorContext = classSelectorContext;
+		this.selectorContext = selectorContext;
 	}
 	
-	public boolean getExpressionValue( ExpressionContext expressionContext )
+	public boolean getExpressionValue()
 	{
 		if ( expressionValue == null )
 		{
@@ -168,24 +169,12 @@ public class Pass2SelectorListener extends AbstractInflectionListener
 		// Locate and invoke method.
 		StaticMethodReferenceContext staticMethodReferenceContext = (StaticMethodReferenceContext)methodInvocationContext.getChild( 0 );
 		Method method = locateMethod( staticMethodReferenceContext, paramTypes );
-		ClassSelectorContext.set( classSelectorContext );
+		SelectorContext.set( selectorContext );
 		Object retVal = __Method.invoke( method, null, params );	// TODO: handle the exceptions.
 		
 		// Put the return value on the stack.
 		expressionStack.push( retVal );
 	}
-	
-//	private Class< ? > getStaticReferenceClass( StaticReferenceContext staticReferenceContext )
-//	{
-//		if ( staticReferenceContext.getChildCount() == 1 )
-//			throw new IllegalStateException( "No support yet for unqualified static references." );
-//		
-//		TypeContext typeContext = (TypeContext)staticReferenceContext.getChild( 0 );
-//		String className = resolveClassReference( typeContext );
-//		Class< ? > theClass = getClass( className );
-//		
-//		return theClass;
-//	}
 	
 	public enum StaticReferenceType
 	{

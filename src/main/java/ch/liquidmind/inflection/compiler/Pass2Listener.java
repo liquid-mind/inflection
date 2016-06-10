@@ -1,19 +1,23 @@
 package ch.liquidmind.inflection.compiler;
 
+import java.beans.PropertyDescriptor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Member;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.tree.ParseTreeWalker;
+import org.apache.commons.beanutils.PropertyUtils;
 
 import com.google.common.reflect.ClassPath.ClassInfo;
 
@@ -64,6 +68,7 @@ import ch.liquidmind.inflection.grammar.InflectionParser.ViewDeclarationContext;
 import ch.liquidmind.inflection.grammar.InflectionParser.WildcardIdentifierContext;
 import ch.liquidmind.inflection.grammar.InflectionParser.WildcardSimpleTypeContext;
 import ch.liquidmind.inflection.loader.SystemTaxonomyLoader;
+import ch.liquidmind.inflection.loader.TaxonomyLoader;
 import ch.liquidmind.inflection.model.AccessType;
 import ch.liquidmind.inflection.model.SelectionType;
 import ch.liquidmind.inflection.model.compiled.AnnotationCompiled;
@@ -71,6 +76,8 @@ import ch.liquidmind.inflection.model.compiled.MemberCompiled;
 import ch.liquidmind.inflection.model.compiled.TaxonomyCompiled;
 import ch.liquidmind.inflection.model.compiled.ViewCompiled;
 import ch.liquidmind.inflection.model.external.Taxonomy;
+import ch.liquidmind.inflection.selectors.FieldSelectorContext;
+import ch.liquidmind.inflection.selectors.PropertySelectorContext;
 
 // TODO There is a bug when the same view is defined more than once in the same taxonomy;
 // instead of the second definition taking precedence over the first, the view incorrectly
@@ -268,12 +275,6 @@ public class Pass2Listener extends AbstractInflectionListener
 		
 		return foundTaxonomyCompiled;
 	}
-	
-//	private TaxonomyCompiled getTaxonomyCompiled2( String taxonomyName )
-//	{
-//		return getCompilationUnit().getCompilationUnitCompiled().getTaxonomiesCompiled()
-//			.stream().filter( x -> x.getName().equals( taxonomyName ) ).findFirst().get();
-//	}
 
 	@Override
 	public void enterTaxonomyExtensions( TaxonomyExtensionsContext taxonomyExtensionsContext )
@@ -676,27 +677,22 @@ public class Pass2Listener extends AbstractInflectionListener
 	@Override
 	public void enterClassSelectorExpression( ClassSelectorExpressionContext classSelectorExpressionContext )
 	{
-		Set< Class< ? > > allClasses = getCompilationUnit().getParentCompilationJob().getAllClassesInClassPath2();
+		Set< Class< ? > > selectableClasses = getCompilationUnit().getParentCompilationJob().getAllClassesInClassPath2();
 		Set< String > matchingClasses = new HashSet< String >();
 		
-		for ( Class< ? > aClass : allClasses )
+		for ( Class< ? > currentClass : selectableClasses )
 		{
 			ParseTreeWalker parseTreeWalker = new ParseTreeWalker();
-			ch.liquidmind.inflection.selectors.ClassSelectorContext context = new ch.liquidmind.inflection.selectors.ClassSelectorContext( allClasses, aClass );
-			Pass2SelectorListener listener = new Pass2SelectorListener( getCompilationUnit(), context );
+			ch.liquidmind.inflection.selectors.ClassSelectorContext context = new ch.liquidmind.inflection.selectors.ClassSelectorContext( getTaxonomyLoader(), selectableClasses, currentClass );
+			Pass2SelectorListener listener = new Pass2SelectorListener( getCompilationUnit(), context, (ExpressionContext)classSelectorExpressionContext.getChild( 0 ) );
 			parseTreeWalker.walk( listener, classSelectorExpressionContext );
-			boolean classMatches = listener.getExpressionValue( (ExpressionContext)classSelectorExpressionContext.getChild( 0 ) );
+			boolean classMatches = listener.getExpressionValue();
 			
 			if ( classMatches )
-				matchingClasses.add( aClass.getName() );
+				matchingClasses.add( currentClass.getName() );
 		}
 		
 		setupViewsCompiled( matchingClasses );
-	}
-	
-	@Override
-	public void enterMemberSelectorExpression( MemberSelectorExpressionContext ctx )
-	{
 	}
 	
 	//////////
@@ -738,12 +734,20 @@ public class Pass2Listener extends AbstractInflectionListener
 	@Override
 	public void enterIncludableMemberSelector( IncludableMemberSelectorContext includableMemberSelectorContext )
 	{
+		// We'll need to improved this logic at some point
+		if ( includableMemberSelectorContext.getChild( 0 ) instanceof MemberSelectorExpressionContext )
+			return;
+		
 		enterMemberSelector( includableMemberSelectorContext );
 	}
 
 	@Override
 	public void enterExcludableMemberSelector( ExcludableMemberSelectorContext excludableMemberSelectorContext )
 	{
+		// We'll need to improved this logic at some point
+		if ( excludableMemberSelectorContext.getChild( 0 ) instanceof MemberSelectorExpressionContext )
+			return;
+		
 		enterMemberSelector( excludableMemberSelectorContext );
 	}
 	
@@ -1028,6 +1032,86 @@ public class Pass2Listener extends AbstractInflectionListener
 	public void enterExcludeMemberModifier( ExcludeMemberModifierContext excludeMemberModifierContext )
 	{
 		currentMemberSelectionType = SelectionType.EXCLUDE;
+	}
+	
+	@Override
+	public void enterMemberSelectorExpression( MemberSelectorExpressionContext memberSelectorExpressionContext )
+	{
+		AccessType effectiveAccessType = getEffectiveAccessType();
+		Set< Class< ? > > selectableClasses = getCompilationUnit().getParentCompilationJob().getAllClassesInClassPath2();
+		TaxonomyLoader loader = getTaxonomyLoader();
+		ParseTreeWalker parseTreeWalker = new ParseTreeWalker();
+		ExpressionContext expressionContext = (ExpressionContext)memberSelectorExpressionContext.getChild( 0 );
+
+		for ( ViewCompiled currentViewCompiled : currentViewsCompiled )
+		{
+			Class< ? > currentClass = getClass( currentViewCompiled.getName() );
+			Class< ? > currentAuxiliaryClass = ( currentViewCompiled.getUsedClass() == null ? null : getClass( currentViewCompiled.getUsedClass() ) );
+			List< String > matchingMembers = new ArrayList< String >();
+			
+			if ( effectiveAccessType.equals( AccessType.FIELD ) )
+			{
+				Set< Field > selectableFields = getSelectableFields( currentClass );
+
+				if ( currentAuxiliaryClass != null)
+					selectableFields.addAll( getSelectableFields( currentAuxiliaryClass ) );
+				
+				for ( Field currentField : selectableFields )
+				{
+					FieldSelectorContext fieldSelectorContext = new FieldSelectorContext( loader, selectableClasses, currentClass, currentAuxiliaryClass, selectableFields, currentField );
+					Pass2SelectorListener listener = new Pass2SelectorListener( getCompilationUnit(), fieldSelectorContext, expressionContext );
+					parseTreeWalker.walk( listener, memberSelectorExpressionContext );
+					boolean fieldMatches = listener.getExpressionValue();
+					
+					if ( fieldMatches )
+						matchingMembers.add( currentField.getName() );
+				}
+			}
+			else if ( effectiveAccessType.equals( AccessType.PROPERTY ) )
+			{
+				Set< PropertyDescriptor > selectableProperties = getSelectableProperties( currentClass );
+				
+				if ( currentAuxiliaryClass != null)
+					selectableProperties.addAll( getSelectableProperties( currentAuxiliaryClass ) );
+				
+				for ( PropertyDescriptor currentProperty : selectableProperties )
+				{
+					PropertySelectorContext propertySelectorContext = new PropertySelectorContext( loader, selectableClasses, currentClass, currentAuxiliaryClass, selectableProperties, currentProperty );
+					Pass2SelectorListener listener = new Pass2SelectorListener( getCompilationUnit(), propertySelectorContext, expressionContext );
+					parseTreeWalker.walk( listener, memberSelectorExpressionContext );
+					boolean propertyMatches = listener.getExpressionValue();
+					
+					if ( propertyMatches )
+						matchingMembers.add( currentProperty.getName() );
+				}
+			}
+			else
+			{
+				throw new IllegalStateException( "Unexpected value for effectiveAccessType." );
+			}
+			
+			List< MemberCompiled > membersCompiled = getMembersCompiled( currentViewCompiled, matchingMembers );
+			addMembersCompiled( currentViewCompiled.getMembersCompiled(), membersCompiled );
+			addMembersCompiled( currentMembersCompiled.get( currentViewCompiled ), membersCompiled );
+		}
+	}
+	
+	private Set< Field > getSelectableFields( Class< ? > aClass )
+	{
+		Set< Field > selectableFields = new HashSet< Field >( Arrays.asList(  aClass.getDeclaredFields() ) );
+		selectableFields.stream().forEach( x -> x.setAccessible( true ) );
+		
+		return selectableFields;
+	}
+	
+	private static Set< PropertyDescriptor > getSelectableProperties( Class< ? > aClass )
+	{
+		Set< PropertyDescriptor > selectableProperties = new HashSet< PropertyDescriptor >( Arrays.asList( PropertyUtils.getPropertyDescriptors( aClass ) ) );
+		selectableProperties = selectableProperties.stream()
+			.filter( x -> ( x.getReadMethod() != null ) && x.getReadMethod().getDeclaringClass().equals( aClass ) )
+			.collect( Collectors.toSet() );
+		
+		return selectableProperties;
 	}
 	
 	///////
