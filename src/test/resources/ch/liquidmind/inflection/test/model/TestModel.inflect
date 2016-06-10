@@ -3,26 +3,14 @@ package ch.liquidmind.inflection.test.model;
 import static java.lang.reflect.Modifier.*;
 import static ch.liquidmind.inflection.selectors.Selectors.*;
 
-taxonomy ExpressionTest
-{
-	view isAssignableTo( IdentifiableObject.class ) { matches( "*" ); }
-//	view test( 'c', "mystring", null ) { *; }
-//	view true || ( false && false ) { *; }   // true || false && false --> false; true || ( false && false ) --> true
-//	view isAssignableTo( IdentifiableObject.class ) && hasModifier( PUBLIC ) { *; }
-//	view test(  42, 43L, 44.1F, 45.2, 'c', "test", true, null ) {}
-}
-
 taxonomy FullTaxonomy
 {
-	view IdentifiableObject, Person { *; }
-	
+	view isAssignableTo( IdentifiableObject.class ) { matches( "*" ); }
 	view Address
 	{
-		*;
+		matches( "*" );
 		exclude people;
 	}
-	
-	exclude view CalculatedMembers;
 }
 
 taxonomy UseCase1 extends FullTaxonomy
@@ -36,7 +24,7 @@ taxonomy UseCase2 extends FullTaxonomy
 {
 	view Person use PersonAuxiliary1
 	{
-		*;
+		matches( "*" );
 		exclude dateOfBirth;
 	}
 }
@@ -51,12 +39,20 @@ taxonomy UseCase3 extends FullTaxonomy
 
 taxonomy UseCase4 extends FullTaxonomy
 {
-	view Address { *; }
+	view Address { matches( "*" ); }
 	view Person {}
 }
 
 taxonomy UseCase5 extends FullTaxonomy
 {
-	view Person use PersonAuxiliary3 { firstName, lastName, title, telephone, mobile, email, gender, dateOfBirth, addressesUnidir as addresses; }
-	view Address { *; exclude people; }
+	view Person use PersonAuxiliary3
+	{
+		firstName, lastName, title, telephone, mobile, email,
+		gender, dateOfBirth, addressesUnidir as addresses;
+	}
+	view Address
+	{
+		matches( "*" );
+		exclude people;
+	}
 }
