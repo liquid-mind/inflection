@@ -27,11 +27,6 @@ import ch.liquidmind.inflection.test.model.UseCase5.ch.liquidmind.inflection.tes
 public class InflectionTest
 {
 	private static PrintStream printStream = System.out;
-
-	static
-	{
-		char c = 'c';
-	}
 	
 	@Test
 	public void testPrinterMulti() throws Throwable

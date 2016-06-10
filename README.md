@@ -1,5 +1,4 @@
 # Introduction
-
 The Inflection API reduces the amount of boilerplate code by (virtually) extending the Java type system with so-called "class views". Key appliations include serialization and persistence (e.g., JSON, JPA, Hibernate, etc.) in web applications as well as interface adapters for technical interfaces.
 
 For an overview of the concepts, please take a look at this [short presentation](https://www.youtube.com/watch?v=CFK4l2JBCVI).
@@ -425,13 +424,15 @@ Just as `.java` files are compiled to `.class` files which are dynamically linke
 which are dynamically linked by a taxonomy loader. This allows for reuse analogous to Java, where taxonomies packaged in one module (jar file) may
 be reused by another.
 
-The compiler may be invoked directly by running `java -classpath [classpath] ch.liquidmind.inflection.compiler.InflectionCompiler [target-dir] [source-file]*`, where `classpath` includes the inflection jar file as well as any classes referenced from any `.inflect` files, `target-dir` 
+The compiler may be invoked by running `java -classpath [classpath] ch.liquidmind.inflection.compiler.InflectionCompiler [target-dir] [source-file]*`, where `classpath` includes the inflection jar file as well as any classes referenced from any `.inflect` files, `target-dir` 
 specifies the location to place the compiled `.tax` files and `source-file` specifies one or more `.inflect` files.
 
 One constraint is that any classes referenced from `.inflect` files must already be compiled; it is not possible to reference
 Java classes defined in source code. This short-coming should be addressed in the future, however, at this time the easiest "work-around" is to use 
 `ch.liquidmind.inflection.InflectionBuild`, which does pre-compilation of any required Java classes for you before delegating to the Inflection
 compiler.
+
+Note that most users should use the Inflection build tool rather than invoking the compiler directly.
 
 # Taxonomies and Views versus View Classes
 
@@ -477,14 +478,175 @@ can only be resolved dynamically within the context of a specific taxonomy. This
 are just normal Java classes). The work-around at this time is to effectively flatten the inheritance hierarchies before generating the
 proxies, which results in isolated sets of classes for each taxonomy.
 
-# Proxy Generation
-
 # Reflection
 
-# View Classes
+Inflection supports a reflection interface analogous to Java's reflection API, e.g.:
 
-# Casting
+```java
+Taxonomy taxonomy = TaxonomyLoader.getContextTaxonomyLoader().loadTaxonomy( "MyTaxonomy" );
+View view = taxonomy.getView( "MyView" );
+Member member = view.getDeclaredMember( "myMember" );
+```
 
-# Build Process
+Here, `Taxonomy`, `View` and `Member` are all part of Inflection's reflection API which is defined in `ch.liquidmind.inflection.model.external`.
+Most people will probably use the view (aka proxy) classes rather than this interface, but it is possible to write algorithms that use
+the information here directly without needing to generate any classes.
+
+# Proxy Generation
+
+The output of the compiler is a set of compiled taxonomies (".tax" files). To actually work with view classes in your code you will need to
+generate so-called *view classes* aka *proxies*. This can be done using the proxy generator, which can be run by executing `java -classpath [classpath] ch.liquidmind.inflection.proxy.ProxyGenerator -output [output-dir] -taxonomies [taxonomy]+ -annotations [annotation]*`, where `[classpath]` specifies the classpath, which must include Inflection itself, the compiled taxonomies and any classes referenced from the taxonomies, `[output-dir]` is the target directory for the generated classes, `[taxonomy]+` specifies one or more taxonomies for which proxies should be generated and `[annotation]*` specifies zero or more annotation filters.
+
+Note that most users should use the Inflection build tool rather than invoking the proxy generator directly.
+
+# Working with Proxy Classes
+
+Given the following Java class:
+
+```java
+public class Person
+{
+	private String firstName , lastName;
+	
+	public Person() { ... }
+
+	public String getFirstName() { ... }
+	public void setFirstName( String firstName ) { ... }
+	public String getLastName() { ... }
+	public void setLastName( String lastName ){ ... }
+}
+```
+
+And the following taxonomy:
+
+	taxonomy MyTaxonomy
+	{
+		view Person { firstName; }
+	}
+	
+Running the proxy generator will result in a class called `MyTaxonomy_Person`. This is a proxy class that represents the view of `Person`
+specified in `MyTaxonomy`, i.e., with the single property `firstName`. Note that the fully-qualified proxy class name is a concatenation of
+the fully-qualified taxonomy name and the fully-qualified name of the class being viewed. Furthermore, the simple name is a concatenation of
+the simple name of the taxonomy and the simple name of the class being viewed. The first rule ensures that the fully-qualfied name of a proxy
+class is guaranteed to be unique. The second rule makes it easier to refer to proxy classes from multiple taxonomies within the same Java
+source file.
+
+There are two ways to obtain a view of `Person`. The first is to create an instance of `Person` and then cast it to `MyTaxonomy_Person`:
+
+	Person person = new Person( "Jon", "Doe" );
+	MyTaxonomy_Person mtPerson = Inflection.cast( MyTaxonomy_Person.class, person );
+	mtPerson.getFirstName();	// returns "Jon"
+	
+The second is to create an instance of `MyTaxonomy_Person` directly, which of course can be cast to `Person`:
+
+	MyTaxonomy_Person mtPerson = new MyTaxonomy_Person();
+	mtPerson.setFirstName( "Jon" );
+	Person person = Inflection.cast( mtPerson );
+	person.getFirstName();   // returns "Jon"
+	person.getLastName();   // returns null
+
+Note that proxy classes only have default constructors (this may change in a future release).
+
+Even though `person` and `mtPerson` technically point to two separate objects it is important to understand that, conceptually, they point
+to a single object. In fact, `mtPerson` is actually stateless and simply functions as a proxy (thus, the name) to `person`. Any changes made
+to `person` are immediately seen through `mtPerson` and vice versa.
+
+Proxy classes may be used to define Java interfaces directly, or they may form the basis of adapters to other technologies, such as Enterprise
+JavaBeans, web services, etc. They can also be used to selectively synchronize various states, e.g., transient objects to persistent objects and
+vice versa.
+
+# Build Tool
+
+The build tool simplifies the build process by integrating the compiler, the proxy generator and various diagnostic outputs into a single
+utility. It may be invoked from a build script as follows:
+
+	java -classpath [classpath] ch.liquidmind.inflection.InflectionBuild
+		-classpath [compile-classpath]
+		-sourcepath [source-path]
+		-modelRegex [model-regex-filter]
+		-target [target-dir]
+		-annotations [annotation-filter]
+		
+The options are defined as:
+
+* `[classpath]`   The class path for running the build tool which must include the Inflection jar.
+* `[compile-classpath]`   The class path for compiling the model, which must include any model dependencies.
+* `[source-path]`   The source path where the model and taxonomies are located.
+* `[model-regex-filter]`   A Java regular expression for selecting only the model classes from the project classes.
+* `[target-dir]`   The target location for all output.
+
+After running the build tool, you will find several directories located under `[target-dir]`:
+
+* `taxonomy`   Contains the compiled taxonomies.
+* `proxy`   Contains the generated proxy classes.
+* `diagnostic` Contains useful diagnostic information.
+
+The `diagnostic` directory contains one or more timestamped directories that in turn contain the directories `normal` and `verbose`. These latter
+terms refer to two types of output from the Inflection printer utility: `normal` output simply shows views including their declared members, 
+whereas `verbose` shows views with all inherited members.
+
+# Diagnostics
+
+The diagnostic output (generated by the build tool) serves a dual purpose: first of all, it tells you in *absolute* terms the result of
+a given taxonomy definition. For example, given the taxonomy:
+
+	taxonomy MyTaxonomy
+	{
+		view Person { firstName; }
+	}
+
+The `normal` output would be:
+
+	taxonomy MyTaxonomy extends Taxonomy
+	{
+	    view Person
+	    {
+	        property String firstName;
+	    }
+	}
+	
+While not particularly interesting in this trivial example, this information can be crucial in understanding the results of taxonomy defintions
+when dealing with complex class models.
+
+The second purpose of the diagnostic output is to allow you to see any *relative* changes. For example, if the definition of `MyTaxonomy` were
+changed as follows:
+
+	taxonomy MyTaxonomy
+	{
+		view Person { *; }
+	}
+
+Then the `normal` output would be:
+
+	taxonomy MyTaxonomy extends Taxonomy
+	{
+	    view Person
+	    {
+	        property String firstName;
+	        property String lastName;
+	    }
+	}
+
+You can then `diff` the two versions of output (which are distinguishable by timestamp) to display something like:
+
+	8a9
+	>         property String lastName;
+	
+If you are working in Eclipse, you can simply select both timestamped root directories and then select `Compare With` -> `Each Other`.
 
 # Debugging
+
+If you examine a proxy object in the debugger you will see that there are no instance variables; this is because the state is actually stored
+directly in the viewed object. There are two utility methods that help in this case:
+
+* `Inflection.cast()`   Returns the viewable object associated with the proxy.
+* `Inflection.toJson()`   Returns a `String` with a JSON serialized representation of the proxy.
+
+If you are using Eclipse you can invoke these methods either from the `Expressions` tab of the debugger or from the `Display` view. Looking at a
+proxy's JSON representation can be very useful, since it displays exactly those properties defined by the proxy. The disadvantage, however, is that
+any circular dependencies will result in a stack-overflow during expression evaluation. The other method---fetching the proxy's viewed object---does
+not have this drawback and will work in all cases; however, since the debugger shows you all of the object's fields, you will need to mentally
+subtract any field not exposed by the proxy.
+
+Eventually, there should be improved IDE integration that provides enhanced debugging, syntax high-lighting and refactoring capabilities, but for
+the time being you will need to use these work-arounds.

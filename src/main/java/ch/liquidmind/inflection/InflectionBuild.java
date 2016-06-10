@@ -37,14 +37,6 @@ import ch.liquidmind.inflection.proxy.ProxyGenerator;
 
 public class InflectionBuild
 {
-	// -classpath: includes .infect root dirs, model file root dirs and model file dependencies
-	// -regular expressions for filtering model classes
-	// -taxonomies output location
-	// -proxies output location
-	
-	// EXAMPLE
-	// -classpath /Users/john/Documents/workspace-liquid-mind/inflection/examples/helloworld/src/main/java:/Users/john/Documents/workspace-liquid-mind/inflection/examples/helloworld/src/main/resources
-	// -modelRegex ch/inflection/examples/helloworld/model/.*
 	public static void main( String[] args )
 	{
 		Map< String, List< String > > options = InflectionPrinter.parseOptions( args );
@@ -63,7 +55,7 @@ public class InflectionBuild
 		
 		String taxonomyTarget = new File( target, "taxonomy" ).getAbsolutePath();
 		String proxyTarget = new File( target, "proxy" ).getAbsolutePath();
-		File diagnosticDir = new File( target, "diagnostic-" + timestampSuffix );
+		File diagnosticDir = new File( target, "diagnostic/" + timestampSuffix );
 		String diagnosticNormal = new File( diagnosticDir, "normal" ).getAbsolutePath();
 		String diagnosticVerbose = new File( diagnosticDir, "verbose" ).getAbsolutePath();
 		List< String > classpathModel = Arrays.asList( classpath.split( ":|;" ) );

@@ -158,7 +158,7 @@ public class Inflection
 		return s;
 	}
 	
-	public static String valueToString( Proxy proxy )
+	public static String toJson( Proxy proxy )
 	{
 		ObjectMapper mapper = new ObjectMapper();
 		ObjectWriter writer = mapper.writerWithDefaultPrettyPrinter();

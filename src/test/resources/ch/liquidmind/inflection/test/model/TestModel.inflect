@@ -16,7 +16,6 @@ taxonomy FullTaxonomy
 
 taxonomy UseCase1 extends FullTaxonomy
 {
-	view Person { !matches( "*Name" ); }
 	view Address {}
 }
 
