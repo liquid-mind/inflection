@@ -2,9 +2,9 @@
 
 The Inflection API reduces the amount of boilerplate code by (virtually) extending the Java type system with so-called "class views". Key appliations include serialization and persistence (e.g., JSON, JPA, Hibernate, etc.) in web applications as well as interface adapters for technical interfaces.
 
-Please note that this API is still experimental and future versions are likely to break the current contracts.
+For an overview of the concepts, please take a look at this [short presentation](https://www.youtube.com/watch?v=CFK4l2JBCVI).
 
-Also, please note that this documentation is preliminary at this time and 
+Please note that this API is still experimental and future versions may not be fully compatible.
 
 # Requirements
 
@@ -238,14 +238,253 @@ In this case, the selected classes include `Person` and any sub classes that hav
 invoke any static method, as long as the overall expression evaluates to a boolean value. It is also possible to reference static fields as
 shown by the reference to `PUBLIC` from `Modifier`.
 
-Selector expressions support a sub-set of Java expressions and are defined as follows:
+Selector expressions support a sub-set of Java expressions and are defined as follows (Extended Backus-Naur Form):
+	
+	expression = "(" [ expression ] ")"
+		| "!" expression
+		| expression ( "&&" | "||" ) expression
+		| staticMethodInvocation
+		| staticFieldReference
+		| classReference
+		| literal
+		| null
+		
+Where `classReference` is a class reference such as `Person.class` and `literal` is a literal value such as the integer `42`. Types of literals
+include integer, floating point, character, string and boolean. Please note the following differences to literals in Java:
 
+* Strings and characters cannot contain escape sequences.
+* Float point values do not support exponents.
 
+You may also specify a null value using `null`.
+
+[TBD: MORE DOCUMENTATION ON USING SELECTOR CONTEXTS TO DEFINE CUSTOM FUNCTIONS.]
 
 # Aliases
 
-# Include and Exclude
+You can use the `as` keyword to define aliases for views and members like this:
+
+	taxonomy MyTaxonomy
+	{
+		view Person as Student { firstName as surName; }
+	}
+	
+As a result, the view class for `Person` in `MyTaxonomy` looks like this:
+
+	public class MyTaxonomy_Student
+	{
+		public void setSurName( String surName ) { ... }
+		public String getSurName() { ... }
+	}
+	
+The `as` keyword can only be used in conjunction with a *specific* class or member, therefore:
+
+	view Person { *Name as surName; }
+	
+Is illegal, since `*Name` matches both `firstName` and `lastName`.
+
+# Overriding
+
+It is possible to specify a definition for a view or member more than once within a given taxonomy or view, e.g.:
+
+	taxonomy MyTaxonomy
+	{
+		view * { *; }
+		view Person { firstName; }
+	}
+	
+The first view declaration includes definition for all viewable classes (according to the imports) and thus also the class `Person`, while the second declaration only defines `Person`. In this case, the latter is an *override* of the former, meaning that the latter replaces the former
+in the final taxonomy. This is analogous to the notion of method and field overriding in Java, however, whereas Java only allows for overriding
+of *inherited* members, Inflection allows overriding of members declared within the same taxonomy or view.
+
+Precedence is determined according to the order of declaration, where later declarations have the highest precedence.
+
+# Inclusion and Exclusion
+
+In addition to specifying which views to *include* in a taxonomy, it is also possible to specify which to *exclude*:
+
+	taxonomy MyTaxonomy
+	{
+		view * { *; }
+		exclude view Person;
+		view Address { *; exclude zip; }
+	}
+	
+Here, the taxonomy begins by including all classes with all of their members, but then goes on to exclude the Person class and override the definition of `Address` to exclude the `zip` property.
+
+When no modifier is specified then `include` is assumed, however `view * { *; }` may also be written as `include view * { include *; }`.
+Note that exclusion and aliasing are mutually exclusive, thus:
+
+	taxonomy MyTaxonomy
+	{
+		view * { *; }
+		exclude view Person as Student;
+	}
+
+Is illegal.
+
+When determining the final taxonomy, Inflection first evaluates all includes in the order taht they were specified before evaluating the excludes.
+This means that excludes always have precedence over includes, even when an include follows an exclude, such as:
+
+	taxonomy MyTaxonomy
+	{
+		view * { *; }
+		exclude view Person;
+		view Person { *; }
+	}
+
+The order of evaluation here is `view * { *; }`, followed by `view Person { *; }` and then finally `exclude view Person;`.
 
 # Auxiliary Classes
 
+In addition to defining views in terms of *subtraction*, you can also use *addition* to insert members that do not exist in the original, e.g.:
+
+	view Person use PersonAux { fullName; }
+
+In this case, `PersonAux` is known as an *auxiliary* class and provides the definition of `fullName`:
+
+```java
+class PersonAux
+{
+    String getFullName()
+    { 
+        Person person = Inflection.cast( Person.class, this );
+        return person.getFirstName() + " " + person.getLastName();
+    }
+    
+    void setFullName( String fullName )
+    {
+        Person person = Inflection.cast( Person.class, this );
+        int separator = fullName.indexOf( " " );
+        person.setFirstName( 0, separator );
+        person.setLastName( separator + 1 );
+    }
+}
+```
+
+Auxiliary classes are effectively extensions to existing classes within a given taxonomy (for more information, see the [introductory presentation](https://www.youtube.com/watch?v=CFK4l2JBCVI)) and as such may introduce new fields and/or methods not found in the original.
+
+Note that it is not legal to use an auxiliary class more than once within a given taxonomy:
+
+	taxonomy MyTaxonomy
+	{
+		view Student use PersonAux { ... }
+		view FacultyMember use PersonAux { ... }
+	}
+	
+Here, the second use of `PersonAux` is illegal. The reason for this constraint is that auxiliary classes may be cast to viewable classes, and
+performing these casts requires for the association to be one-to-one and thus non-ambiguous.
+
+In cases where the same member exists in both the viewable and auxiliary classes, the member selector may include the specific class for
+disambiguation purposes. For example, assuming that both `Person` and `PersonAux` define the property `age`, `Person.age` would specify the
+property of `Person` whereas `PersonAux.age` would specify that of `PersonAux`.
+
 # Taxonomies
+
+Taxonomies are used to group sets of related views, e.g.:
+
+	taxonomy T1
+	{
+		view Person { firstName, lastName, addresses; }
+		view Address { street, zip, country; }
+	}
+	
+	taxonomy T2
+	{
+		view Person { firstName, lastName, addresses; }
+		view Address { street, zip, region, country; }
+	}
+	
+Here, the views of `Person` and `Address` in `T1` are distinct from those in `T2`. This is easy to see for `Address` where `T2.Address` includes
+the extra member `region`. However, while `T1.Person` and `T2.Person` include the same members, the semantics are different: `T1.Person.addresses`
+is defined as a collection of `T1.Address` while `T2.Person.addresses` is defined as a collection of `T2.Address`. In this way, taxonomies allow
+for a given set of classes to be viewed in an arbitrary number of ways.
+
+Taxonomies may inherit from other taxonomies, similar to Java classes, e.g.:
+
+	taxonomy T1
+	{
+		view Person, Address { *; }
+	}	
+
+	taxonomy T2
+	{
+		view Person { *; exclude dateOfBirth; }
+	}	
+
+	taxonomy T3
+	{
+		view Person use PersonAux { *; exclude firstName, lastName; }
+	}
+	
+In this case, both `T2` and `T3` inherit definitions of `Person` and `Address` from `T1`, but `T2` overrides `Person` with a definition that
+excludes `dateOfBirth` while `T3`'s definition replaces `firstName` and `lastName` with `fullName`.
+
+# Compilation, Loading and Linking
+
+Just as `.java` files are compiled to `.class` files which are dynamically linked by a class loader, `.inflect` files are compiled to `.tax` files
+which are dynamically linked by a taxonomy loader. This allows for reuse analogous to Java, where taxonomies packaged in one module (jar file) may
+be reused by another.
+
+The compiler may be invoked directly by running `java -classpath [classpath] ch.liquidmind.inflection.compiler.InflectionCompiler [target-dir] [source-file]*`, where `classpath` includes the inflection jar file as well as any classes referenced from any `.inflect` files, `target-dir` 
+specifies the location to place the compiled `.tax` files and `source-file` specifies one or more `.inflect` files.
+
+One constraint is that any classes referenced from `.inflect` files must already be compiled; it is not possible to reference
+Java classes defined in source code. This short-coming should be addressed in the future, however, at this time the easiest "work-around" is to use 
+`ch.liquidmind.inflection.InflectionBuild`, which does pre-compilation of any required Java classes for you before delegating to the Inflection
+compiler.
+
+# Taxonomies and Views versus View Classes
+
+Conceptually speaking, taxonomies and views are extensions to the Java type system and should be thought of in the same way as Java classes,
+interfaces, enums and annotations. In order for taxonomies and views to *actually* become types in Java, it would be necessary to extend the
+Java virtual machine with extra semantics. A more practical solution is to convert the virtual types into normal Java types, i.e., classes, which
+is the function of the proxy generator (see below).
+
+Never the less, even though taxonomies and views cannot be interpreted by the JVM directly, they are still useful for introspection purposes:
+taxonomies and views may be examined at runtime through a reflective interface just like classes, fields and methods are in Java. Even if you
+don't have any reason to use these facilities yourself, the proxy classes are using them in the background.
+
+One crucial difference between Inflection views and Java classes, is that while type references in Java are unambiguous within a given class loader,
+type references in Inflection are only unambiguous within a given taxonomy. To understand why, consider this example:
+
+	class C1 { ... }
+	
+	class C2 extends C1 { ... }
+
+	taxonomy T1
+	{
+		view C1, C2 { ... };
+	}
+	
+	taxonomy T2
+	{
+		view C3;
+	}
+	
+	taxonomy T3
+	{
+		view C1 { ... };
+	}
+
+Then, consider this question: what is the super view of C2 in T1, T2 and T3? The answer is different in each case:
+
+* In T1, the super view of C2 is T1.C1.
+* In T2, the super view of C2 is also T1.C1, but...
+* In T3, the super view of C2 is T3.T1.
+
+As as result, views are not statically linked, but rather relationships to other classes, such as inheritance and other relationships
+can only be resolved dynamically within the context of a specific taxonomy. This poses difficulties when generating proxy classes (which
+are just normal Java classes). The work-around at this time is to effectively flatten the inheritance hierarchies before generating the
+proxies, which results in isolated sets of classes for each taxonomy.
+
+# Proxy Generation
+
+# Reflection
+
+# View Classes
+
+# Casting
+
+# Build Process
+
+# Debugging
