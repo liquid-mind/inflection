@@ -4,9 +4,11 @@ import java.io.File;
 import java.io.PrintStream;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
@@ -55,11 +57,15 @@ public class InflectionBuild
 		annotations = ( annotations == null ? new ArrayList< String >() : annotations );
 		List< String > modes = options.get( "-mode" );
 		String mode = ( modes == null ? CompilationMode.NORMAL.name() : modes.get( 0 ) );
+
+		SimpleDateFormat dateFormat = new SimpleDateFormat( "yyyyMMdd-HHmmss" );
+		String timestampSuffix = dateFormat.format( new Date() );
 		
 		String taxonomyTarget = new File( target, "taxonomy" ).getAbsolutePath();
 		String proxyTarget = new File( target, "proxy" ).getAbsolutePath();
-		String diagnosticNormal = new File( target, "diagnostic/normal" ).getAbsolutePath();
-		String diagnosticVerbose = new File( target, "diagnostic/verbose" ).getAbsolutePath();
+		File diagnosticDir = new File( target, "diagnostic-" + timestampSuffix );
+		String diagnosticNormal = new File( diagnosticDir, "normal" ).getAbsolutePath();
+		String diagnosticVerbose = new File( diagnosticDir, "verbose" ).getAbsolutePath();
 		List< String > classpathModel = Arrays.asList( classpath.split( ":|;" ) );
 		List< String > sourcepathModel = Arrays.asList( sourcepath.split( ":|;" ) );
 		String[] modelRegexAsArray = modelRegex.toArray( new String[ modelRegex.size() ] );
