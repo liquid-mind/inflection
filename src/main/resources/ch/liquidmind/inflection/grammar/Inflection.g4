@@ -56,6 +56,7 @@ importDeclarations
 
 importDeclaration
 	:	IMPORT importSymbol SEMICOLON
+	|	IMPORT STATIC staticImportSymbol SEMICOLON
 	;
 
 importSymbol
@@ -69,6 +70,19 @@ typeImport
 	
 packageImport
 	:	aPackage DOT wildcardIdentifier	// wildcardIdentifier must be exactly '*'
+	;
+	
+staticImportSymbol
+	:	staticMemberImport
+	|	staticClassImport
+	;
+	
+staticMemberImport
+	:	type DOT identifier
+	;
+	
+staticClassImport
+	:	type DOT wildcardIdentifier
 	;
 
 // TAXONOMY
@@ -128,10 +142,16 @@ viewBody
 includableClassSelector
 	:	aliasableClassSelector
 	|	wildcardClassSelector
+	|	classSelectorExpression
 	;
 	
 excludableClassSelector
 	:	wildcardClassSelector
+	|	classSelectorExpression
+	;
+	
+classSelectorExpression
+	:	expression
 	;
 
 aliasableClassSelector
@@ -179,10 +199,16 @@ accessMethodModifier
 includableMemberSelector
 	:	aliasableMemberSelector
 	|	wildcardMemberSelector
+	|	memberSelectorExpression
 	;
 
 excludableMemberSelector
 	:	wildcardMemberSelector
+	|	memberSelectorExpression
+	;
+
+memberSelectorExpression
+	:	expression
 	;
 
 aliasableMemberSelector
@@ -198,8 +224,92 @@ wildcardMemberSelector
 	|	wildcardIdentifier
 	;
 	
-// COMMON
+// EXPRESSIONS
 
+expression
+	:	PAREN_OPEN expression? PAREN_CLOSE
+	|	LOGICAL_NOT expression
+	|	expression ( LOGICAL_AND | LOGICAL_OR ) expression
+	|	methodInvocation
+	|	classReference
+	|	staticFieldReference
+	|   literal
+	;
+
+methodInvocation
+	:	staticMethodReference PAREN_OPEN methodArgument? ( COMMA methodArgument )* PAREN_CLOSE
+	;
+
+staticMethodReference
+	:	staticReference
+	;
+	
+methodArgument
+	:	expression
+	;
+
+classReference
+	:	type DOT CLASS
+	;
+
+staticFieldReference
+	:	staticReference
+	;
+
+staticReference
+	:	type DOT identifier
+	|	identifier
+	;
+
+// TODO: most of these are over-simplified as compared to the Java
+// language specification, e.g., strings and characters should support
+// escape sequences, floats should support exponents, etc., however
+// I think that this is good for a proof of concept. Eventually, we
+// will have to good over the grammar and harmonize it with Java's
+// grammar.
+literal
+	:	integerLiteral
+	|	floatingPointLiteral
+	|	characterLiteral
+	|	stringLiteral
+	|	booleanLiteral
+	|	nullLiteral
+	;
+
+integerLiteral
+	:	digits INTEGER_TYPE_SUFFIX?
+	;
+
+floatingPointLiteral
+	:	decimalNumber FLOAT_TYPE_SUFFIX?
+	;
+	
+decimalNumber
+	:	digits DOT digits?
+	;
+	
+digits
+	:	DIGIT+
+	;
+
+characterLiteral
+	:	SINGLE_QUOTE ~SINGLE_QUOTE SINGLE_QUOTE
+	;
+
+stringLiteral
+	:	STRING_LITERAL
+	;
+
+booleanLiteral
+	:	TRUE
+	|	FALSE
+	;
+	
+nullLiteral
+	:	NULL
+	;
+		
+// COMMON
 includModifier
 	:	INCLUDE?
 	;
@@ -209,7 +319,7 @@ excludeModifier
 	;
 
 annotation
-	:	AT annotationClass ANNOTATION_BODY?
+	:	AT annotationClass ( PAREN_OPEN .*? PAREN_CLOSE )?
 	;
 	
 annotationClass
@@ -251,10 +361,6 @@ wildcardIdentifier
 // TOKENS
 
 // TODO: introduce support for nested annotations, or; introduce full support for annotations.
-ANNOTATION_BODY
-	:	'(' .*? ')'
-	;
-	
 MULTI_LINE_COMMENT
 	:	'/*' .*? '*/' -> skip
 	;
@@ -263,8 +369,13 @@ SINGLE_LINE_COMMENT
 	:	'//' .*? '\r'? '\n' -> skip
 	;
 	
+STRING_LITERAL
+	:	'"' (~'"')* '"'
+	;
+	
 PACKAGE		: 'package';
 IMPORT		: 'import';
+STATIC		: 'static';
 DEFAULT		: 'default';
 TAXONOMY	: 'taxonomy';
 EXTENDS		: 'extends';
@@ -276,6 +387,12 @@ INCLUDE		: 'include';
 EXCLUDE		: 'exclude';
 AS			: 'as';
 BASIC_TYPE	: 'byte' | 'short' | 'int' | 'long' | 'float' | 'double' | 'boolean' | 'char';
+TRUE		: 'true';
+FALSE		: 'false';
+CLASS		: 'class';
+NULL		: 'null';
+INTEGER_TYPE_SUFFIX		: [lL];
+FLOAT_TYPE_SUFFIX		: [fF];
 
 // Note that while most of these keywords are not used in the
 // grammar, they are never the less declared in the lexer to
@@ -289,8 +406,12 @@ JAVA_KEYWORD
 	|	'case' | 'enum' | 'instanceof' | 'return' | 'transient'
 	|	'catch' | 'extends' | 'int' | 'short' | 'try'
 	|	'char' | 'final' | 'interface' | 'static' | 'void'
-	|	'class' | 'finally' | 'long' | 'strictfp' | 'volatile'
+	|	'finally' | 'long' | 'strictfp' | 'volatile'
 	|	'const' | 'float' | 'native' | 'super' | 'while'
+	;
+
+DIGIT
+	:	[0-9]
 	;
 	
 IDENTIFIER
@@ -301,6 +422,8 @@ WILDCARD_IDENTIFIER
 	:	[a-zA-Z_$*] [a-zA-Z_$*0-9]*
 	;
 
+DOUBLE_QUOTE		: '"';
+SINGLE_QUOTE		: '\'';
 AT					: '@';
 SEMICOLON			: ';';
 COLON				: ':';
@@ -308,6 +431,11 @@ DOT					: '.';
 COMMA				: ',';
 CURLY_BRACKET_OPEN	: '{';
 CURLY_BRACKET_CLOSE	: '}';
+PAREN_OPEN			: '(';
+PAREN_CLOSE			: ')';
+LOGICAL_AND			: '&&';
+LOGICAL_OR			: '||';
+LOGICAL_NOT			: '!';
 
 WS	:	[ \r\t\n]+ -> skip;
 

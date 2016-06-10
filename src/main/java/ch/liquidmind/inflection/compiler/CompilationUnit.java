@@ -199,9 +199,37 @@ public class CompilationUnit
 			}
 		}
 		
+		public static class StaticMemberImport extends Import
+		{
+			public StaticMemberImport( String name )
+			{
+				super( name );
+			}
+
+			public StaticMemberImport( String name, ParserRuleContext parserRuleContext )
+			{
+				super( name, parserRuleContext );
+			}
+		}
+		
+		public static class StaticClassImport extends Import
+		{
+			public StaticClassImport( String name )
+			{
+				super( name );
+			}
+
+			public StaticClassImport( String name, ParserRuleContext parserRuleContext )
+			{
+				super( name, parserRuleContext );
+			}
+		}
+		
 		private String packageName;
 		private Map< String, TypeImport > typeImports = new HashMap< String, TypeImport >();
 		private Set< PackageImport > packageImports = new HashSet< PackageImport >();
+		private Map< String, StaticMemberImport > staticMemberImports = new HashMap< String, StaticMemberImport >();
+		private Set< StaticClassImport > staticClassImports = new HashSet< StaticClassImport >();
 		private List< TaxonomyCompiled > taxonomiesCompiled = new ArrayList< TaxonomyCompiled >();
 		
 		public CompilationUnitCompiled()
@@ -227,6 +255,16 @@ public class CompilationUnit
 		public Set< PackageImport > getPackageImports()
 		{
 			return packageImports;
+		}
+
+		public Map< String, StaticMemberImport > getStaticMemberImports()
+		{
+			return staticMemberImports;
+		}
+
+		public Set< StaticClassImport > getStaticClassImports()
+		{
+			return staticClassImports;
 		}
 
 		public List< TaxonomyCompiled > getTaxonomiesCompiled()

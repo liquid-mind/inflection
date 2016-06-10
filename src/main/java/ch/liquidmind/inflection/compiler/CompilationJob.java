@@ -30,6 +30,7 @@ public class CompilationJob
 	private Map< String, TaxonomyCompiled > knownTaxonomiesCompiled = new HashMap< String, TaxonomyCompiled >();
 	private List< CompilationUnit > compilationUnits = new ArrayList< CompilationUnit >();
 	private Set< ClassInfo > allClassesInClassPath;
+	private Set< Class< ? > > allClassesInClassPath2;	// TODO: rename allClassesInClassPath and allClassesInClassPath2 to something better.
 	
 	public CompilationJob( TaxonomyLoader taxonomyLoader, File targetDirectory, CompilationMode compilationMode, File ... sourceFiles )
 	{
@@ -126,5 +127,27 @@ public class CompilationJob
 		}
 		
 		return allClassesInClassPath;
+	}
+	
+	Set< Class< ? > > getAllClassesInClassPath2()
+	{
+		if ( allClassesInClassPath2 == null )
+		{
+			allClassesInClassPath2 = new HashSet< Class< ? > >();
+			Set< ClassInfo > allClassInfos = getAllClassesInClassPath();
+
+			for ( ClassInfo classInfo : allClassInfos )
+			{
+				try
+				{
+					allClassesInClassPath2.add( classInfo.load() );
+				}
+				catch ( LinkageError e )
+				{
+				}
+			}
+		}
+		
+		return allClassesInClassPath2;
 	}
 }

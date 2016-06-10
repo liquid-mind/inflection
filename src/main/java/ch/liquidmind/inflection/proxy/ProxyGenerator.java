@@ -29,7 +29,7 @@ import ch.liquidmind.inflection.model.external.Taxonomy;
 import ch.liquidmind.inflection.model.external.View;
 import ch.liquidmind.inflection.model.linked.NamedElementLinked;
 import ch.liquidmind.inflection.model.linked.UnparsedAnnotation;
-import ch.liquidmind.inflection.util.InflectionPrinter;
+import ch.liquidmind.inflection.print.InflectionPrinter;
 
 // TODO Proxies of abstract classes should be abstract themselves (since it doesn't
 // make sense to be able to instantiate a view of an un-instantiable class).

@@ -12,6 +12,8 @@ import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.TerminalNode;
 
 import ch.liquidmind.inflection.compiler.CompilationUnit.CompilationUnitCompiled.PackageImport;
+import ch.liquidmind.inflection.compiler.CompilationUnit.CompilationUnitCompiled.StaticClassImport;
+import ch.liquidmind.inflection.compiler.CompilationUnit.CompilationUnitCompiled.StaticMemberImport;
 import ch.liquidmind.inflection.compiler.CompilationUnit.CompilationUnitCompiled.TypeImport;
 import ch.liquidmind.inflection.grammar.InflectionBaseListener;
 import ch.liquidmind.inflection.grammar.InflectionParser.APackageContext;
@@ -153,6 +155,16 @@ public class AbstractInflectionListener extends InflectionBaseListener
 	protected Set< PackageImport > getPackageImports()
 	{
 		return getCompilationUnit().getCompilationUnitCompiled().getPackageImports();
+	}
+	
+	protected Map< String, StaticMemberImport > getStaticMemberImports()
+	{
+		return getCompilationUnit().getCompilationUnitCompiled().getStaticMemberImports();
+	}
+	
+	protected Set< StaticClassImport > getStaticClassImports()
+	{
+		return getCompilationUnit().getCompilationUnitCompiled().getStaticClassImports();
 	}
 	
 	protected Map< String, TaxonomyCompiled > getKnownTaxonomiesCompiled()

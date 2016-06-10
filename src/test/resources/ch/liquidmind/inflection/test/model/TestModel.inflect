@@ -1,20 +1,22 @@
 package ch.liquidmind.inflection.test.model;
 
+import static java.lang.reflect.Modifier.*;
+import static ch.liquidmind.inflection.selectors.Selectors.*;
+
 taxonomy FullTaxonomy
 {
-	view IdentifiableObject, Person { *; }
-	
+	view isAssignableTo( IdentifiableObject.class ) &&
+		matches( "ch.liquidmind.inflection.test.model.*" ) { matches( "*" ); }
 	view Address
 	{
-		*;
+		matches( "*" );
 		exclude people;
 	}
-	
-	exclude view CalculatedMembers;
 }
 
 taxonomy UseCase1 extends FullTaxonomy
 {
+	view Person { !matches( "*Name" ); }
 	view Address {}
 }
 
@@ -24,7 +26,7 @@ taxonomy UseCase2 extends FullTaxonomy
 {
 	view Person use PersonAuxiliary1
 	{
-		*;
+		matches( "*" );
 		exclude dateOfBirth;
 	}
 }
@@ -39,12 +41,20 @@ taxonomy UseCase3 extends FullTaxonomy
 
 taxonomy UseCase4 extends FullTaxonomy
 {
-	view Address { *; }
+	view Address { matches( "*" ); }
 	view Person {}
 }
 
 taxonomy UseCase5 extends FullTaxonomy
 {
-	view Person use PersonAuxiliary3 { firstName, lastName, title, telephone, mobile, email, gender, dateOfBirth, addressesUnidir as addresses; }
-	view Address { *; exclude people; }
+	view Person use PersonAuxiliary3
+	{
+		firstName, lastName, title, telephone, mobile, email,
+		gender, dateOfBirth, addressesUnidir as addresses;
+	}
+	view Address
+	{
+		matches( "*" );
+		exclude people;
+	}
 }

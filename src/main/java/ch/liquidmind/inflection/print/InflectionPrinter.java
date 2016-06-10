@@ -1,4 +1,4 @@
-package ch.liquidmind.inflection.util;
+package ch.liquidmind.inflection.print;
 
 import java.io.File;
 import java.io.PrintStream;
@@ -9,6 +9,8 @@ import java.lang.reflect.Type;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -155,9 +157,17 @@ public class InflectionPrinter
 		List< View > views;
 		
 		if ( showInherited )
-			views = taxonomy.getViews();
+			views = new ArrayList< View >( taxonomy.getViews() );
 		else
-			views = taxonomy.getDeclaredViews();
+			views = new ArrayList< View >( taxonomy.getDeclaredViews() );
+		
+		Collections.sort( views, new Comparator< View >() {
+			@Override
+			public int compare( View view1, View view2 )
+			{
+				 return view1.getName().compareTo( view2.getName() );
+			}
+		} );
 		
 		if ( views.isEmpty() )
 		{
@@ -205,9 +215,17 @@ public class InflectionPrinter
 		List< Member > members;
 		
 		if ( showInherited )
-			members = taxonomy.getMembers( view );
+			members = new ArrayList< Member >( taxonomy.getMembers( view ) );
 		else
-			members = view.getDeclaredMembers();
+			members = new ArrayList< Member >( view.getDeclaredMembers() );
+
+		Collections.sort( members, new Comparator< Member >() {
+			@Override
+			public int compare( Member member1, Member member2 )
+			{
+				 return member1.getName().compareTo( member2.getName() );
+			}
+		} );
 		
 		if ( members.isEmpty() )
 		{
