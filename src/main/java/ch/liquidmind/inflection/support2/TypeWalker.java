@@ -18,6 +18,16 @@ public class TypeWalker
 		visitor.setTypeWalker( this );
 	}
 	
+	public void walk( List< Type > types )
+	{
+		visitor.visitTypes( types );
+	}
+
+	public void walk( Type type )
+	{
+		visitor.visitType( type );
+	}
+	
 	public void walkTypes( List< Type > types )
 	{
 		for ( Type type : types )
