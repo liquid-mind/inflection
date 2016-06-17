@@ -7,7 +7,7 @@ import java.lang.reflect.TypeVariable;
 import java.lang.reflect.WildcardType;
 import java.util.List;
 
-public abstract class TypeWalker
+public class TypeWalker
 {
 	private TypeVisitor visitor;
 
@@ -20,144 +20,89 @@ public abstract class TypeWalker
 	
 	public void walkTypes( List< Type > types )
 	{
-		visitor.visitTypes( types );
-	}
-	
-	public void continueTypes( List< Type > types )
-	{
 		for ( Type type : types )
-			walkType( type );
+			visitor.visitType( type );
 	}
 
 	public void walkType( Type type )
 	{
-		visitor.visitType( type );
-	}
-	
-	public void continueType( Type type )
-	{
 		if ( type instanceof GenericArrayType )
-			walkGenericArrayType( (GenericArrayType)type );
+			visitor.visitGenericArrayType( (GenericArrayType)type );
 		else if ( type instanceof ParameterizedType )
-			walkParameterizedType( (ParameterizedType)type );
+			visitor.visitParameterizedType( (ParameterizedType)type );
 		else if ( type instanceof TypeVariable )
-			walkTypeVariable( (TypeVariable< ? >)type );
+			visitor.visitTypeVariable( (TypeVariable< ? >)type );
 		else if ( type instanceof WildcardType )
-			walkWildcardType( (WildcardType)type );
+			visitor.visitWildcardType( (WildcardType)type );
 		else if ( type instanceof Class )
-			walkClass( (Class< ? >)type );
+			visitor.visitClass( (Class< ? >)type );
 		else
 			throw new IllegalStateException( "Unexpected type for type: " + type );
 	}
-
-	public void walkGenericArrayType( GenericArrayType genericArrayType )
-	{
-		visitor.visitGenericArrayType( genericArrayType );
-	}
 	
-	public void continueGenericArrayType( GenericArrayType genericArrayType )
+	public void walkGenericArrayType( GenericArrayType genericArrayType )
 	{
 		Type genericComponentType = genericArrayType.getGenericComponentType();
 		
 		if ( genericComponentType != null )
-			walkGenericComponentType( genericComponentType );
+			visitor.visitGenericComponentType( genericComponentType );
 		
-		walkType( genericArrayType.getGenericComponentType() );
+		visitor.visitType( genericArrayType.getGenericComponentType() );
 	}
 
 	public void walkGenericComponentType( Type genericComponentType )
 	{
-		visitor.visitGenericComponentType( genericComponentType );
-	}
-
-	public void continueGenericComponentType( Type genericComponentType )
-	{
-		walkType( genericComponentType );
-	}
-
-	public void walkParameterizedType( ParameterizedType parameterizedType )
-	{
-		visitor.visitParameterizedType( parameterizedType );
+		visitor.visitType( genericComponentType );
 	}
 	
-	public void continueParameterizedType( ParameterizedType parameterizedType )
+	public void walkParameterizedType( ParameterizedType parameterizedType )
 	{
 		Type[] actualTypeArguments = parameterizedType.getActualTypeArguments();
 		
 		if ( actualTypeArguments.length > 0 )
-			walkActualTypeArguments( actualTypeArguments );
+			visitor.visitActualTypeArguments( actualTypeArguments );
 	}
 
 	public void walkActualTypeArguments( Type[] actualTypeArguments )
 	{
-		visitor.visitActualTypeArguments( actualTypeArguments );
-	}
-
-	public void continueActualTypeArguments( Type[] actualTypeArguments )
-	{
 		for ( Type actualTypeArgument : actualTypeArguments )
-			walkActualTypeArgument( actualTypeArgument );
+			visitor.visitActualTypeArgument( actualTypeArgument );
 	}
 	
 	public void walkActualTypeArgument( Type actualTypeArgument )
 	{
-		visitor.visitActualTypeArgument( actualTypeArgument );
-	}
-	
-	public void continueActualTypeArgument( Type actualTypeArgument )
-	{
-		walkType( actualTypeArgument );
+		visitor.visitType( actualTypeArgument );
 	}
 	
 	public void walkTypeVariable( TypeVariable< ? > typeVariable )
 	{
-		visitor.visitTypeVariable( typeVariable );
-	}
-	
-	public void continueTypeVariable( TypeVariable< ? > typeVariable )
-	{
 		Type[] typeVariableBounds = typeVariable.getBounds();
 		
 		if ( typeVariableBounds.length > 0 )
-			walkTypeVariableBounds( typeVariable.getBounds() );
+			visitor.visitTypeVariableBounds( typeVariable.getBounds() );
 	}
 	
 	public void walkTypeVariableBounds( Type[] typeVariableBounds )
 	{
-		visitor.visitTypeVariableBounds( typeVariableBounds );
+		for ( Type typeVariableBoundary : typeVariableBounds )
+			visitor.visitTypeVariableBoundary( typeVariableBoundary );
 	}
 	
-	public void continueTypeVariableBounds( Type[] typeVariableBounds )
-	{
-		for ( Type typeVariableBoundary : typeVariableBounds )
-			walkTypeVariableBoundary( typeVariableBoundary );
-	}
-
 	public void walkTypeVariableBoundary( Type typeVariableBoundary )
 	{
-		visitor.visitTypeVariableBoundary( typeVariableBoundary );
-	}
-	
-	public void continueTypeVariableBoundary( Type typeVariableBoundary )
-	{
-		walkType( typeVariableBoundary );
+		visitor.visitType( typeVariableBoundary );
 	}
 	
 	public void walkWildcardType( WildcardType wildcardType )
-	{
-		visitor.visitWildcardType( wildcardType );
-	}
-	
-	public void continueWildcardType( WildcardType wildcardType )
 	{
 		Type[] wildcardTypeUpperBounds = wildcardType.getUpperBounds();
 		Type[] wildcardTypeLowerBounds = wildcardType.getLowerBounds();
 		
 		if ( wildcardTypeUpperBounds.length > 0 )
-			walkWildcardTypeUpperBounds( wildcardTypeUpperBounds );
+			visitor.visitWildcardTypeUpperBounds( wildcardTypeUpperBounds );
 		
 		if ( wildcardTypeLowerBounds.length > 0 )
-			walkWildcardTypeLowerBounds( wildcardTypeLowerBounds );
+			visitor.visitWildcardTypeLowerBounds( wildcardTypeLowerBounds );
 		
 		if ( wildcardTypeUpperBounds.length == 0 && wildcardTypeLowerBounds.length == 0 )
 			throw new IllegalStateException( "Upper and lower bounds are both empty." );
@@ -165,66 +110,36 @@ public abstract class TypeWalker
 
 	public void walkWildcardTypeUpperBounds( Type[] wildcardTypeUpperBounds )
 	{
-		visitor.visitWildcardTypeUpperBounds( wildcardTypeUpperBounds );
-	}
-
-	public void continueWildcardTypeUpperBounds( Type[] wildcardTypeUpperBounds )
-	{
 		for ( Type wildcardTypeUpperBoundary : wildcardTypeUpperBounds )
-			walkWildcardTypeUpperBoundary( wildcardTypeUpperBoundary );
+			visitor.visitWildcardTypeUpperBoundary( wildcardTypeUpperBoundary );
 	}
 	
 	public void walkWildcardTypeUpperBoundary( Type wildcardTypeUpperBoundary )
 	{
-		visitor.visitWildcardTypeUpperBoundary( wildcardTypeUpperBoundary );
-	}
-	
-	public void continueWildcardTypeUpperBoundary( Type wildcardTypeUpperBoundary )
-	{
-		walkType( wildcardTypeUpperBoundary );
+		visitor.visitType( wildcardTypeUpperBoundary );
 	}
 
 	public void walkWildcardTypeLowerBounds( Type[] wildcardTypeLowerBounds )
 	{
-		visitor.visitWildcardTypeLowerBounds( wildcardTypeLowerBounds );
-	}
-
-	public void continueWildcardTypeLowerBounds( Type[] wildcardTypeLowerBounds )
-	{
 		for ( Type wildcardTypeLowerBoundary : wildcardTypeLowerBounds )
-			walkWildcardTypeLowerBoundary( wildcardTypeLowerBoundary );
+			visitor.visitWildcardTypeLowerBoundary( wildcardTypeLowerBoundary );
 	}
 	
 	public void walkWildcardTypeLowerBoundary( Type wildcardTypeLowerBoundary )
 	{
-		visitor.visitWildcardTypeLowerBoundary( wildcardTypeLowerBoundary );
-	}
-	
-	public void continueWildcardTypeLowerBoundary( Type wildcardTypeLowerBoundary )
-	{
-		walkType( wildcardTypeLowerBoundary );
+		visitor.visitType( wildcardTypeLowerBoundary );
 	}
 	
 	public void walkClass( Class< ? > classType )
 	{
-		visitor.visitClass( classType );
-	}
-	
-	public void continueClass( Class< ? > classType )
-	{
 		Class< ? > componentType = classType.getComponentType();
 		
 		if ( componentType != null )
-			walkComponentType( componentType );
+			visitor.visitComponentType( componentType );
 	}
 
 	public void walkComponentType( Class< ? > componentType )
 	{
-		visitor.visitComponentType( componentType );
-	}
-
-	public void continueComponentType( Class< ? > componentType )
-	{
-		walkType( componentType );
+		visitor.visitType( componentType );
 	}	
 }

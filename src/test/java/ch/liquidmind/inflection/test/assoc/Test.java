@@ -6,7 +6,8 @@ import java.util.Map;
 import java.util.Set;
 
 import __java.lang.__Class;
-import ch.liquidmind.inflection.support2.RelatedTypeWalker;
+import ch.liquidmind.inflection.support2.RelatedTypeVisitor;
+import ch.liquidmind.inflection.support2.TypeWalker;
 
 public class Test
 {
@@ -17,7 +18,7 @@ public class Test
 //		AssociationRegistry.scan( "ch.liquidmind.inflection.test.assoc.model.*" );
 		
 		Type type = __Class.getDeclaredField( Test.class, "test" ).getGenericType();
-		RelatedTypeWalker walker = new RelatedTypeWalker();
+		TypeWalker walker = new TypeWalker( new RelatedTypeVisitor() );
 		walker.walkType( type );
 	}
 }
