@@ -2,19 +2,17 @@ package ch.liquidmind.inflection.test.assoc.model;
 
 import java.util.Set;
 
+import ch.liquidmind.inflection.association.Aggregation;
 import ch.liquidmind.inflection.association.annotations.Association;
 import ch.liquidmind.inflection.association.annotations.Dimension;
 import ch.liquidmind.inflection.association.annotations.Property;
-import ch.liquidmind.inflection.association.annotations.Property.Aggregation;
 
 // Alternative annotation at class level where both properties are referenced:
 // @Association( selfEnd = "powerSource", otherEnd = "vehicle" )
 public abstract class Vehicle
 {
 	// Aggregation type rules:
-	// 1. If a property does *not* use a @Property annotation:
-	//   1.1. If that property is *not* referenced by an association --> aggregation = Aggregation.COMPOSITE.
-	//   2.1. If that property *is* referenced by an association --> aggregation = Aggregation.NONE.
+	// 1. If a property does *not* use a @Property annotation --> aggregation = Aggregation.COMPOSITE.
 	// 2. If a property *does* use a @Property annotation:
 	//   2.1. If a value *is* specified for aggregation --> aggregation = the specified value.
 	//   2.2. If a value is not specified for aggregation --> aggregation = Aggregation.NONE.

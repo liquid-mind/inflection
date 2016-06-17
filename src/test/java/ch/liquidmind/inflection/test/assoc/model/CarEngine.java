@@ -1,8 +1,8 @@
 package ch.liquidmind.inflection.test.assoc.model;
 
+import ch.liquidmind.inflection.association.Aggregation;
 import ch.liquidmind.inflection.association.annotations.Association;
 import ch.liquidmind.inflection.association.annotations.Property;
-import ch.liquidmind.inflection.association.annotations.Property.Aggregation;
 
 public abstract class CarEngine extends PowerSource
 {
