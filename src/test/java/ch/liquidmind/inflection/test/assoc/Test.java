@@ -6,8 +6,7 @@ import java.util.Map;
 import java.util.Set;
 
 import __java.lang.__Class;
-import ch.liquidmind.inflection.support.DetermineRelatedTypeInterpreter;
-import ch.liquidmind.inflection.support.TypeParser;
+import ch.liquidmind.inflection.support2.RelatedTypeWalker;
 
 public class Test
 {
@@ -18,7 +17,7 @@ public class Test
 //		AssociationRegistry.scan( "ch.liquidmind.inflection.test.assoc.model.*" );
 		
 		Type type = __Class.getDeclaredField( Test.class, "test" ).getGenericType();
-		TypeParser parser = new TypeParser( new DetermineRelatedTypeInterpreter() );
-		parser.parseType( type );
+		RelatedTypeWalker walker = new RelatedTypeWalker();
+		walker.walkType( type );
 	}
 }
