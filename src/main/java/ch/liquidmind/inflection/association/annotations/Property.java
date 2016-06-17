@@ -17,5 +17,7 @@ public @interface Property
 	public Aggregation aggregation() default Aggregation.NONE;
 	public String redefines() default "";
 	public String subsets() default "";
-	public String[] multiplicity() default {};
+	public boolean isDerived() default false;
+	public boolean isDerivedUnion() default false;
+	public Dimension[] dimensions() default {};
 }

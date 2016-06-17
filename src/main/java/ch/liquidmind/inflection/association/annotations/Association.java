@@ -21,7 +21,6 @@ import java.lang.annotation.RetentionPolicy;
 public @interface Association
 {
 	public String name() default "";
-	public String[] memberEnds() default {};
+	public String selfEnd() default "";
 	public String otherEnd() default "";
-	public boolean isAssociationClass() default false;
 }
