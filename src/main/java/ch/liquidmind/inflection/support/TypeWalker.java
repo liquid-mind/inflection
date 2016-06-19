@@ -67,16 +67,23 @@ public class TypeWalker
 	
 	public void walkParameterizedType( ParameterizedType parameterizedType )
 	{
+		visitor.visitRawType( parameterizedType.getRawType() );
+		
 		Type[] actualTypeArguments = parameterizedType.getActualTypeArguments();
 		
 		if ( actualTypeArguments.length > 0 )
 			visitor.visitActualTypeArguments( actualTypeArguments );
 	}
+	
+	public void walkRawType( Type rawType )
+	{
+		visitor.visitType( rawType );
+	}
 
 	public void walkActualTypeArguments( Type[] actualTypeArguments )
 	{
-		for ( Type actualTypeArgument : actualTypeArguments )
-			visitor.visitActualTypeArgument( actualTypeArgument );
+		for ( int i = 0 ; i < actualTypeArguments.length ; ++i )
+			visitor.visitActualTypeArgument( actualTypeArguments[ i ], i );
 	}
 	
 	public void walkActualTypeArgument( Type actualTypeArgument )
@@ -94,8 +101,8 @@ public class TypeWalker
 	
 	public void walkTypeVariableBounds( Type[] typeVariableBounds )
 	{
-		for ( Type typeVariableBoundary : typeVariableBounds )
-			visitor.visitTypeVariableBoundary( typeVariableBoundary );
+		for ( int i = 0 ; i < typeVariableBounds.length ; ++i )
+			visitor.visitTypeVariableBoundary( typeVariableBounds[ i ], i );
 	}
 	
 	public void walkTypeVariableBoundary( Type typeVariableBoundary )
@@ -120,8 +127,8 @@ public class TypeWalker
 
 	public void walkWildcardTypeUpperBounds( Type[] wildcardTypeUpperBounds )
 	{
-		for ( Type wildcardTypeUpperBoundary : wildcardTypeUpperBounds )
-			visitor.visitWildcardTypeUpperBoundary( wildcardTypeUpperBoundary );
+		for ( int i = 0 ; i < wildcardTypeUpperBounds.length ; ++i )
+			visitor.visitWildcardTypeUpperBoundary( wildcardTypeUpperBounds[ i ], i );
 	}
 	
 	public void walkWildcardTypeUpperBoundary( Type wildcardTypeUpperBoundary )
@@ -131,8 +138,8 @@ public class TypeWalker
 
 	public void walkWildcardTypeLowerBounds( Type[] wildcardTypeLowerBounds )
 	{
-		for ( Type wildcardTypeLowerBoundary : wildcardTypeLowerBounds )
-			visitor.visitWildcardTypeLowerBoundary( wildcardTypeLowerBoundary );
+		for ( int i = 0 ; i < wildcardTypeLowerBounds.length ; ++i )
+			visitor.visitWildcardTypeLowerBoundary( wildcardTypeLowerBounds[ i ], i );
 	}
 	
 	public void walkWildcardTypeLowerBoundary( Type wildcardTypeLowerBoundary )

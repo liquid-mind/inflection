@@ -4,16 +4,23 @@ import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.Collection;
 import java.util.Map;
+import java.util.Stack;
 
 public class RelatedTypeVisitor extends AbstractTypeVisitor
 {
+	private enum Mode { MapMode, CollectionMode }
+	
 	private Type relatedType;
+	private Stack< Mode > modes = new Stack< Mode >();
 	
 	@Override
 	public void visitType( Type type )
 	{
 		relatedType = type;
 		super.visitType( type );
+		
+		if ( relatedType instanceof Class && ( Collection.class.isAssignableFrom( (Class< ? >)relatedType ) || Map.class.isAssignableFrom( (Class< ? >)relatedType ) ) )
+			relatedType = Object.class;
 	}
 
 	@Override
@@ -22,20 +29,21 @@ public class RelatedTypeVisitor extends AbstractTypeVisitor
 		Class< ? > rawType = (Class< ? >)parameterizedType.getRawType();
 		
 		if ( Collection.class.isAssignableFrom( rawType ) )
-			super.visitParameterizedType( parameterizedType );
-		
-		// If this is a map --> skip the key, walk the value.
+			modes.push( Mode.CollectionMode );
 		else if ( Map.class.isAssignableFrom( rawType ) )
-			getTypeWalker().walkActualTypeArgument( parameterizedType.getActualTypeArguments()[ 1 ] );
+			modes.push( Mode.MapMode );
+		else
+			return;
+
+		super.visitParameterizedType( parameterizedType );
+		modes.pop();
 	}
 
 	@Override
-	public void visitClass( Class< ? > classType )
+	public void visitActualTypeArgument( Type actualTypeArgument, int index )
 	{
-		if ( Collection.class.isAssignableFrom( classType ) || Map.class.isAssignableFrom( classType ) )
-			relatedType = null;
-
-		super.visitClass( classType );
+		if ( !(modes.peek().equals( Mode.MapMode ) && index == 0) )
+			super.visitActualTypeArgument( actualTypeArgument, index );
 	}
 
 	public Type getRelatedType()

@@ -1,5 +1,6 @@
 package ch.liquidmind.inflection.association;
 
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -7,9 +8,17 @@ import com.google.common.collect.Range;
 
 public class Dimension
 {
-	private java.lang.Class< ? > targetCollectionOrMap;
+	private Type targetClass;
 	private List< Range< Integer > > ranges = new ArrayList< Range< Integer > >();
 	private boolean isOrdered, isUnique;
+
+	public Dimension( Type targetClass, boolean isOrdered, boolean isUnique )
+	{
+		super();
+		this.targetClass = targetClass;
+		this.isOrdered = isOrdered;
+		this.isUnique = isUnique;
+	}
 
 	public boolean isOrdered()
 	{
@@ -36,13 +45,13 @@ public class Dimension
 		return ranges;
 	}
 
-	public java.lang.Class< ? > getTargetCollectionOrMap()
+	public Type getTargetClass()
 	{
-		return targetCollectionOrMap;
+		return targetClass;
 	}
 
-	public void setTargetCollectionOrMap( java.lang.Class< ? > targetCollectionOrMap )
+	public void setTargetClass( Type targetClass )
 	{
-		this.targetCollectionOrMap = targetCollectionOrMap;
+		this.targetClass = targetClass;
 	}
 }

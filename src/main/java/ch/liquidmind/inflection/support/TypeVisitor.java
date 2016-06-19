@@ -16,16 +16,17 @@ public interface TypeVisitor
 	public void visitGenericArrayType( GenericArrayType genericArrayType );
 	public void visitGenericComponentType( Type genericComponentType );
 	public void visitParameterizedType( ParameterizedType parameterizedType );
+	public void visitRawType( Type type );
 	public void visitActualTypeArguments( Type[] actualTypeArguments );
-	public void visitActualTypeArgument( Type actualTypeArgument );
+	public void visitActualTypeArgument( Type actualTypeArgument, int index );
 	public void visitTypeVariable( TypeVariable< ? > typeVariable );
 	public void visitTypeVariableBounds( Type[] typeVariableBounds );
-	public void visitTypeVariableBoundary( Type typeVariableBoundary );
+	public void visitTypeVariableBoundary( Type typeVariableBoundary, int index );
 	public void visitWildcardType( WildcardType wildcardType );
 	public void visitWildcardTypeUpperBounds( Type[] wildcardTypeUpperBounds );
-	public void visitWildcardTypeUpperBoundary( Type wildcardTypeUpperBoundary );
+	public void visitWildcardTypeUpperBoundary( Type wildcardTypeUpperBoundary, int index );
 	public void visitWildcardTypeLowerBounds( Type[] wildcardTypeLowerBounds );
-	public void visitWildcardTypeLowerBoundary( Type wildcardTypeLowerBoundary );
+	public void visitWildcardTypeLowerBoundary( Type wildcardTypeLowerBoundary, int index );
 	public void visitClass( Class< ? > classType );
 	public void visitComponentType( Class< ? > componentType );
 }

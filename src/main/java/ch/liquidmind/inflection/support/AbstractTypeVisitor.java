@@ -54,13 +54,19 @@ public abstract class AbstractTypeVisitor implements TypeVisitor
 	}
 
 	@Override
+	public void visitRawType( Type rawType )
+	{
+		typeWalker.walkRawType( rawType );
+	}
+
+	@Override
 	public void visitActualTypeArguments( Type[] actualTypeArguments )
 	{
 		typeWalker.walkActualTypeArguments( actualTypeArguments );
 	}
 
 	@Override
-	public void visitActualTypeArgument( Type actualTypeArgument )
+	public void visitActualTypeArgument( Type actualTypeArgument, int index )
 	{
 		typeWalker.walkActualTypeArgument( actualTypeArgument );
 	}
@@ -78,7 +84,7 @@ public abstract class AbstractTypeVisitor implements TypeVisitor
 	}
 
 	@Override
-	public void visitTypeVariableBoundary( Type typeVariableBoundary )
+	public void visitTypeVariableBoundary( Type typeVariableBoundary, int index )
 	{
 		typeWalker.walkTypeVariableBoundary( typeVariableBoundary );
 	}
@@ -96,7 +102,7 @@ public abstract class AbstractTypeVisitor implements TypeVisitor
 	}
 
 	@Override
-	public void visitWildcardTypeUpperBoundary( Type wildcardTypeUpperBoundary )
+	public void visitWildcardTypeUpperBoundary( Type wildcardTypeUpperBoundary, int index )
 	{
 		typeWalker.walkWildcardTypeUpperBoundary( wildcardTypeUpperBoundary );
 	}
@@ -108,7 +114,7 @@ public abstract class AbstractTypeVisitor implements TypeVisitor
 	}
 
 	@Override
-	public void visitWildcardTypeLowerBoundary( Type wildcardTypeLowerBoundary )
+	public void visitWildcardTypeLowerBoundary( Type wildcardTypeLowerBoundary, int index )
 	{
 		typeWalker.walkWildcardTypeLowerBoundary( wildcardTypeLowerBoundary );
 	}
