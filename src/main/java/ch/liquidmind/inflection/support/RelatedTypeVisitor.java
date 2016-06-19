@@ -1,4 +1,4 @@
-package ch.liquidmind.inflection.support2;
+package ch.liquidmind.inflection.support;
 
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
@@ -34,6 +34,8 @@ public class RelatedTypeVisitor extends AbstractTypeVisitor
 	{
 		if ( Collection.class.isAssignableFrom( classType ) || Map.class.isAssignableFrom( classType ) )
 			relatedType = null;
+
+		super.visitClass( classType );
 	}
 
 	public Type getRelatedType()

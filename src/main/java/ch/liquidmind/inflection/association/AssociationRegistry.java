@@ -14,8 +14,8 @@ import com.google.common.reflect.ClassPath.ClassInfo;
 
 import __java.beans.__PropertyDescriptor;
 import ch.liquidmind.inflection.exception.ExceptionWrapper;
-import ch.liquidmind.inflection.support2.RelatedTypeVisitor;
-import ch.liquidmind.inflection.support2.TypeWalker;
+import ch.liquidmind.inflection.support.RelatedTypeVisitor;
+import ch.liquidmind.inflection.support.TypeWalker;
 
 public class AssociationRegistry
 {

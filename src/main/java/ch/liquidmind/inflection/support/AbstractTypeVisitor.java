@@ -1,4 +1,4 @@
-package ch.liquidmind.inflection.support2;
+package ch.liquidmind.inflection.support;
 
 import java.lang.reflect.GenericArrayType;
 import java.lang.reflect.ParameterizedType;

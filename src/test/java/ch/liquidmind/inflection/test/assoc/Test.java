@@ -6,8 +6,8 @@ import java.util.Map;
 import java.util.Set;
 
 import __java.lang.__Class;
-import ch.liquidmind.inflection.support2.RelatedTypeVisitor;
-import ch.liquidmind.inflection.support2.TypeWalker;
+import ch.liquidmind.inflection.support.RelatedTypeVisitor;
+import ch.liquidmind.inflection.support.TypeWalker;
 
 public class Test
 {
@@ -18,12 +18,13 @@ public class Test
 	List< Set< Boolean > > test5;	// relatedType == Boolean
 	List< ? extends String > test6;	// relatedType == String
 	List< ? > test7;				// relatedType == String
+	Class< ? >[] test8;
 	
 	public static void main( String[] args )
 	{
 //		AssociationRegistry.scan( "ch.liquidmind.inflection.test.assoc.model.*" );
 		
-		Type type = __Class.getDeclaredField( Test.class, "test7" ).getGenericType();
+		Type type = __Class.getDeclaredField( Test.class, "test8" ).getGenericType();
 		RelatedTypeVisitor visitor = new RelatedTypeVisitor();
 		TypeWalker walker = new TypeWalker( visitor );
 		walker.walk( type );
