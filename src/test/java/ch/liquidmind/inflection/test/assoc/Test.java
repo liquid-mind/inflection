@@ -8,8 +8,11 @@ import java.util.Set;
 import org.junit.Assert;
 
 import __java.lang.__Class;
+import ch.liquidmind.inflection.association.Dimension;
+import ch.liquidmind.inflection.support.DimensionsTypeVisitor;
 import ch.liquidmind.inflection.support.RelatedTypeVisitor;
 import ch.liquidmind.inflection.support.TypeWalker;
+import ch.liquidmind.inflection.support.UnadornedClassVisitor;
 
 public class Test
 {
@@ -26,43 +29,84 @@ public class Test
 	List< ? extends String > test11;
 	List test12;
 	
-//	Map< String, Integer > test;	// relatedType == Integer
-//	List< Class< String > > test2;	// relatedType == Class< String >
-//	List test3;						// relatedType == Object
-//	String test4;					// relatedType == String
-//	List< Set< Boolean > > test5;	// relatedType == Boolean
-//	List< ? extends String > test6;	// relatedType == String
-//	List< ? > test7;				// relatedType == String
-//	Class< ? >[] test8;
-	
 	public static void main( String[] args )
 	{
 //		AssociationRegistry.scan( "ch.liquidmind.inflection.test.assoc.model.*" );
 		
-		Type classType = __Class.getDeclaredField( Test.class, "test2" ).getGenericType();
-		
-		testTypeWalker( "test1", String.class );
-		testTypeWalker( "test2", classType );
-		testTypeWalker( "test3", String.class );
-		testTypeWalker( "test4", classType );
-		testTypeWalker( "test5", String.class );
-		testTypeWalker( "test6", String.class );
-		testTypeWalker( "test7", String.class );
-		testTypeWalker( "test8", classType );
-		testTypeWalker( "test9", String.class );
-		testTypeWalker( "test10", Object.class );
-		testTypeWalker( "test11", String.class );
-		testTypeWalker( "test12", Object.class );
+		testDimensionsTypeVisitor();
+		System.out.println( "Done!" );
+	}
+
+	private static void testDimensionsTypeVisitor()
+	{
+		testDimensionsTypeVisitor( "test1", new Dimension[] { new Dimension( String.class, false, true ) } );
+		testDimensionsTypeVisitor( "test2", new Dimension[] { new Dimension( Class.class, false, true ) } );
+		testDimensionsTypeVisitor( "test3", new Dimension[] { new Dimension( String.class, true, false ) } );
+		testDimensionsTypeVisitor( "test4", new Dimension[] { new Dimension( Class.class, true, false ) } );
+		testDimensionsTypeVisitor( "test5", new Dimension[] { new Dimension( List.class, true, false ) } );
+		testDimensionsTypeVisitor( "test6", new Dimension[] { new Dimension( Map.class, false, false ) } );
+		testDimensionsTypeVisitor( "test7", new Dimension[] { new Dimension( List.class, true, false ) , new Dimension( Set.class, false, true ) } );
+		testDimensionsTypeVisitor( "test8", new Dimension[] { new Dimension( List.class, true, false ) } );
+		testDimensionsTypeVisitor( "test9", new Dimension[] { new Dimension( List.class, true, false ), new Dimension( String.class, true, false ) } );
+		testDimensionsTypeVisitor( "test10", new Dimension[] { new Dimension( List.class, true, false ) } );
+		testDimensionsTypeVisitor( "test11", new Dimension[] { new Dimension( List.class, true, false ) } );
+		testDimensionsTypeVisitor( "test12", new Dimension[] { new Dimension( List.class, true, false ) } );
 	}
 	
-	private static void testTypeWalker( String fieldName, Type expectedType )
+	private static void testDimensionsTypeVisitor( String fieldName, Dimension ... expectedDimensions )
+	{
+		Type type = __Class.getDeclaredField( Test.class, fieldName ).getGenericType();
+		DimensionsTypeVisitor visitor = new DimensionsTypeVisitor();
+		TypeWalker walker = new TypeWalker( visitor );
+		walker.walk( type );
+		List< Dimension > actualDimensions = visitor.getDimensions();
+		
+		Assert.assertEquals( expectedDimensions.length, actualDimensions.size() );
+		
+		for ( int i = 0 ; i < actualDimensions.size() ; ++i )
+		{
+			Class< ? > unadornedClass = getUnadornedClass( actualDimensions.get( i ).getTargetType() );
+			Dimension actualDimensionAdjusted = new Dimension( unadornedClass, actualDimensions.get( i ).isOrdered(), actualDimensions.get( i ).isUnique() );
+			
+			Assert.assertEquals( expectedDimensions[ i ], actualDimensionAdjusted );
+		}
+	}
+	
+	private static Class< ? > getUnadornedClass( Type type )
+	{
+		UnadornedClassVisitor visitor = new UnadornedClassVisitor();
+		TypeWalker walker = new TypeWalker( visitor );
+		walker.walk( type );
+		
+		return visitor.getUnadornedClass();
+	}
+	
+	private static void testRelatedTypeVisitor()
+	{
+		Type classType = __Class.getDeclaredField( Test.class, "test2" ).getGenericType();
+
+		testRelatedTypeVisitor( "test1", String.class );
+		testRelatedTypeVisitor( "test2", classType );
+		testRelatedTypeVisitor( "test3", String.class );
+		testRelatedTypeVisitor( "test4", classType );
+		testRelatedTypeVisitor( "test5", String.class );
+		testRelatedTypeVisitor( "test6", String.class );
+		testRelatedTypeVisitor( "test7", String.class );
+		testRelatedTypeVisitor( "test8", classType );
+		testRelatedTypeVisitor( "test9", String.class );
+		testRelatedTypeVisitor( "test10", Object.class );
+		testRelatedTypeVisitor( "test11", String.class );
+		testRelatedTypeVisitor( "test12", Object.class );
+	}
+	
+	private static void testRelatedTypeVisitor( String fieldName, Type expectedType )
 	{
 		Type type = __Class.getDeclaredField( Test.class, fieldName ).getGenericType();
 		RelatedTypeVisitor visitor = new RelatedTypeVisitor();
 		TypeWalker walker = new TypeWalker( visitor );
 		walker.walk( type );
-		Type relatedType = visitor.getRelatedType();
+		Type actualType = visitor.getRelatedType();
 		
-		Assert.assertEquals( expectedType, relatedType );
+		Assert.assertEquals( expectedType, actualType );
 	}
 }

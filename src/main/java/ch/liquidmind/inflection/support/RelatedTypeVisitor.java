@@ -46,6 +46,12 @@ public class RelatedTypeVisitor extends AbstractTypeVisitor
 			super.visitActualTypeArgument( actualTypeArgument, index );
 	}
 
+	@Override
+	public void visitRawType( Type rawType )
+	{
+		// Don't walk this path.
+	}
+
 	public Type getRelatedType()
 	{
 		return relatedType;

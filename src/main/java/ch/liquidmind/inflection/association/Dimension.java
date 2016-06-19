@@ -8,14 +8,14 @@ import com.google.common.collect.Range;
 
 public class Dimension
 {
-	private Type targetClass;
+	private Type targetType;
 	private List< Range< Integer > > ranges = new ArrayList< Range< Integer > >();
 	private boolean isOrdered, isUnique;
 
-	public Dimension( Type targetClass, boolean isOrdered, boolean isUnique )
+	public Dimension( Type targetType, boolean isOrdered, boolean isUnique )
 	{
 		super();
-		this.targetClass = targetClass;
+		this.targetType = targetType;
 		this.isOrdered = isOrdered;
 		this.isUnique = isUnique;
 	}
@@ -45,13 +45,56 @@ public class Dimension
 		return ranges;
 	}
 
-	public Type getTargetClass()
+	public Type getTargetType()
 	{
-		return targetClass;
+		return targetType;
 	}
 
-	public void setTargetClass( Type targetClass )
+	public void setTargetType( Type targetType )
 	{
-		this.targetClass = targetClass;
+		this.targetType = targetType;
+	}
+
+	@Override
+	public int hashCode()
+	{
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ( isOrdered ? 1231 : 1237 );
+		result = prime * result + ( isUnique ? 1231 : 1237 );
+		result = prime * result + ( ( ranges == null ) ? 0 : ranges.hashCode() );
+		result = prime * result + ( ( targetType == null ) ? 0 : targetType.hashCode() );
+		return result;
+	}
+
+	@Override
+	public boolean equals( Object obj )
+	{
+		if ( this == obj )
+			return true;
+		if ( obj == null )
+			return false;
+		if ( getClass() != obj.getClass() )
+			return false;
+		Dimension other = (Dimension)obj;
+		if ( isOrdered != other.isOrdered )
+			return false;
+		if ( isUnique != other.isUnique )
+			return false;
+		if ( ranges == null )
+		{
+			if ( other.ranges != null )
+				return false;
+		}
+		else if ( !ranges.equals( other.ranges ) )
+			return false;
+		if ( targetType == null )
+		{
+			if ( other.targetType != null )
+				return false;
+		}
+		else if ( !targetType.equals( other.targetType ) )
+			return false;
+		return true;
 	}
 }
