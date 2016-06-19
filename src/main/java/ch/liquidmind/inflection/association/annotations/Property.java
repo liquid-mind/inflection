@@ -8,9 +8,6 @@ import ch.liquidmind.inflection.association.Aggregation;
 @Retention( RetentionPolicy.RUNTIME )
 public @interface Property
 {
-	public static final class INFERED {}
-
-	public Class< ? > type() default INFERED.class;
 	public Aggregation aggregation() default Aggregation.NONE;
 	public String redefines() default "";
 	public String subsets() default "";

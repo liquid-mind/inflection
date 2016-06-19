@@ -7,6 +7,7 @@ import com.google.common.collect.Range;
 
 public class Dimension
 {
+	private java.lang.Class< ? > targetCollectionOrMap;
 	private List< Range< Integer > > ranges = new ArrayList< Range< Integer > >();
 	private boolean isOrdered, isUnique;
 
@@ -33,5 +34,15 @@ public class Dimension
 	public List< Range< Integer > > getRanges()
 	{
 		return ranges;
+	}
+
+	public java.lang.Class< ? > getTargetCollectionOrMap()
+	{
+		return targetCollectionOrMap;
+	}
+
+	public void setTargetCollectionOrMap( java.lang.Class< ? > targetCollectionOrMap )
+	{
+		this.targetCollectionOrMap = targetCollectionOrMap;
 	}
 }

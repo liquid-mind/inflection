@@ -2,6 +2,7 @@ package ch.liquidmind.inflection.association;
 
 import java.beans.PropertyDescriptor;
 import java.lang.reflect.Method;
+import java.lang.reflect.Type;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
@@ -13,6 +14,8 @@ import com.google.common.reflect.ClassPath.ClassInfo;
 
 import __java.beans.__PropertyDescriptor;
 import ch.liquidmind.inflection.exception.ExceptionWrapper;
+import ch.liquidmind.inflection.support2.RelatedTypeVisitor;
+import ch.liquidmind.inflection.support2.TypeWalker;
 
 public class AssociationRegistry
 {
@@ -103,19 +106,52 @@ public class AssociationRegistry
 	private static void setupProperty( Property property )
 	{
 		ch.liquidmind.inflection.association.annotations.Property propertyAnnotation = getPropertyAnnotation( property );
-		property.setType( determinePropertyType( property, propertyAnnotation ) );
+		property.setRelatedType( determineRelatedType( property, propertyAnnotation ) );
 		property.setAggregation( determineAggregation( property, propertyAnnotation ) );
-		property.setRedefinedProperty( determineRedefinedProperty( property, propertyAnnotation ) );
-		property.setSubsettedProperty( determineSubsettedProperty( property, propertyAnnotation ) );
+		// This goes in the second pass
+//		property.setRedefinedProperty( determineRedefinedProperty( property, propertyAnnotation ) );
+//		property.setSubsettedProperty( determineSubsettedProperty( property, propertyAnnotation ) );
 		property.setDimensions( determineDimensions( property, propertyAnnotation ) );
 		property.setDerived( propertyAnnotation.isDerived() );
 		property.setDerivedUnion( propertyAnnotation.isDerivedUnion() );
 		property.setDeclared( propertyAnnotation != null );
 	}
 	
-	private static java.lang.Class< ? > determinePropertyType( Property property, ch.liquidmind.inflection.association.annotations.Property propertyAnnotation )
+	private static Type determineRelatedType( Property property, ch.liquidmind.inflection.association.annotations.Property propertyAnnotation )
 	{
-		return null;
+		Type propertyType = getPropertyType( property );
+		
+		RelatedTypeVisitor visitor = new RelatedTypeVisitor();
+		TypeWalker walker = new TypeWalker( visitor );
+		walker.walk( propertyType );
+		Type relatedType = visitor.getRelatedType();
+		
+		if ( relatedType instanceof java.lang.Class )
+		{
+			java.lang.Class< ? > relatedClass = (java.lang.Class< ? >)relatedType;
+			
+			if ( relatedClass.equals( Object.class ) )
+				throw new RuntimeException( "The related type of " + property.getTargetProperty().getName() + " is java.lang.Object; the related type must be more specific (i.e., a sub class of java.lang.Object)." );
+		}
+		
+		return relatedType;
+	}
+	
+	private static Type getPropertyType( Property property )
+	{
+		PropertyDescriptor descriptor = property.getTargetProperty();
+		Method readMethod = descriptor.getReadMethod();
+		Method writeMethod = descriptor.getWriteMethod();
+		Type propertyType;
+		
+		if ( readMethod != null )
+			propertyType = readMethod.getGenericReturnType();
+		else if ( writeMethod != null )
+			propertyType = writeMethod.getGenericParameterTypes()[ 0 ];
+		else
+			throw new IllegalStateException( "descriptor does not contain a read or write method." );
+		
+		return propertyType;
 	}
 
 	private static Aggregation determineAggregation( Property property, ch.liquidmind.inflection.association.annotations.Property propertyAnnotation )

@@ -1,13 +1,14 @@
 package ch.liquidmind.inflection.association;
 
 import java.beans.PropertyDescriptor;
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 
 public class Property
 {
 	private PropertyDescriptor targetProperty;
-	private java.lang.Class< ? > type;
+	private Type relatedType;
 	private Aggregation aggregation;
 	private List< Dimension > dimensions = new ArrayList< Dimension >();
 	private Property redefinedProperty, subsettedProperty;
@@ -30,14 +31,14 @@ public class Property
 		this.targetProperty = targetProperty;
 	}
 
-	public java.lang.Class< ? > getType()
+	public Type getRelatedType()
 	{
-		return type;
+		return relatedType;
 	}
 
-	void setType( java.lang.Class< ? > type )
+	void setRelatedType( Type relatedType )
 	{
-		this.type = type;
+		this.relatedType = relatedType;
 	}
 
 	public Aggregation getAggregation()

@@ -13,15 +13,17 @@ public class Test
 {
 	Map< String, Integer > test;	// relatedType == Integer
 	List< Class< String > > test2;	// relatedType == Class< String >
-	List test3;						// relatedType == null
+	List test3;						// relatedType == Object
 	String test4;					// relatedType == String
 	List< Set< Boolean > > test5;	// relatedType == Boolean
+	List< ? extends String > test6;	// relatedType == String
+	List< ? > test7;				// relatedType == String
 	
 	public static void main( String[] args )
 	{
 //		AssociationRegistry.scan( "ch.liquidmind.inflection.test.assoc.model.*" );
 		
-		Type type = __Class.getDeclaredField( Test.class, "test5" ).getGenericType();
+		Type type = __Class.getDeclaredField( Test.class, "test7" ).getGenericType();
 		RelatedTypeVisitor visitor = new RelatedTypeVisitor();
 		TypeWalker walker = new TypeWalker( visitor );
 		walker.walk( type );
