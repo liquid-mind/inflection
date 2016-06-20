@@ -14,7 +14,9 @@ import com.google.common.reflect.ClassPath.ClassInfo;
 
 import __java.beans.__PropertyDescriptor;
 import ch.liquidmind.inflection.exception.ExceptionWrapper;
+import ch.liquidmind.inflection.support.DimensionsTypeVisitor;
 import ch.liquidmind.inflection.support.RelatedTypeVisitor;
+import ch.liquidmind.inflection.support.TypeSystemSupport;
 import ch.liquidmind.inflection.support.TypeWalker;
 
 public class AssociationRegistry
@@ -41,9 +43,14 @@ public class AssociationRegistry
 			classNameFilter -> classInfo.getName().matches( classNameFilter ) ).findFirst().isPresent();
 	}
 	
+	/////////
+	// PASS 1
+	/////////
+	
 	private static void scanPass1( Set< ClassInfo > classes )
 	{
 		registeredClasses = classes.stream().map( classInfo -> createClass( classInfo ) ).collect( Collectors.toSet() );
+		registeredClasses.forEach( aClass -> setupClass( aClass ) );
 	}
 	
 	private static Class createClass( ClassInfo classInfo )
@@ -87,11 +94,6 @@ public class AssociationRegistry
 		return property.getReadMethod() == null && property.getWriteMethod() == null;
 	}
 	
-	private static void scanPass2()
-	{
-		registeredClasses.forEach( aClass -> setupClass( aClass ) );
-	}
-	
 	private static void setupClass( Class aClass )
 	{
 		setupProperties( aClass );
@@ -108,9 +110,6 @@ public class AssociationRegistry
 		ch.liquidmind.inflection.association.annotations.Property propertyAnnotation = getPropertyAnnotation( property );
 		property.setRelatedType( determineRelatedType( property, propertyAnnotation ) );
 		property.setAggregation( determineAggregation( property, propertyAnnotation ) );
-		// This goes in the second pass
-//		property.setRedefinedProperty( determineRedefinedProperty( property, propertyAnnotation ) );
-//		property.setSubsettedProperty( determineSubsettedProperty( property, propertyAnnotation ) );
 		property.setDimensions( determineDimensions( property, propertyAnnotation ) );
 		property.setDerived( propertyAnnotation.isDerived() );
 		property.setDerivedUnion( propertyAnnotation.isDerivedUnion() );
@@ -120,7 +119,6 @@ public class AssociationRegistry
 	private static Type determineRelatedType( Property property, ch.liquidmind.inflection.association.annotations.Property propertyAnnotation )
 	{
 		Type propertyType = getPropertyType( property );
-		
 		RelatedTypeVisitor visitor = new RelatedTypeVisitor();
 		TypeWalker walker = new TypeWalker( visitor );
 		walker.walk( propertyType );
@@ -156,22 +154,32 @@ public class AssociationRegistry
 
 	private static Aggregation determineAggregation( Property property, ch.liquidmind.inflection.association.annotations.Property propertyAnnotation )
 	{
-		return ( propertyAnnotation == null ? Aggregation.COMPOSITE : propertyAnnotation.aggregation() );
-	}
-	
-	private static Property determineRedefinedProperty( Property property, ch.liquidmind.inflection.association.annotations.Property propertyAnnotation )
-	{
-		return null;
-	}
-	
-	private static Property determineSubsettedProperty( Property property, ch.liquidmind.inflection.association.annotations.Property propertyAnnotation )
-	{
-		return null;
+		Aggregation aggregation;
+		
+		if ( propertyAnnotation == null )
+		{
+			if ( TypeSystemSupport.isBasicOrWrapperType( property.getTargetProperty().getPropertyType() ) )
+				aggregation = Aggregation.COMPOSITE;
+			else
+				aggregation = Aggregation.NONE;
+		}
+		else
+		{
+			aggregation = propertyAnnotation.aggregation();
+		}
+
+		return aggregation;
 	}
 	
 	private static List< Dimension > determineDimensions( Property property, ch.liquidmind.inflection.association.annotations.Property propertyAnnotation )
 	{
-		return null;
+		Type propertyType = getPropertyType( property );
+		DimensionsTypeVisitor visitor = new DimensionsTypeVisitor();
+		TypeWalker walker = new TypeWalker( visitor );
+		walker.walk( propertyType );
+		List< Dimension > dimensions = visitor.getDimensions();
+
+		return dimensions;
 	}
 	
 	private static ch.liquidmind.inflection.association.annotations.Property getPropertyAnnotation( Property property )
@@ -189,6 +197,24 @@ public class AssociationRegistry
 		ch.liquidmind.inflection.association.annotations.Property propertyAnnotation = ( readMethodAnnotation != null ? readMethodAnnotation : writeMethodAnnotation );
 		
 		return propertyAnnotation;
+	}
+	
+	/////////
+	// PASS 2
+	/////////
+
+	private static void scanPass2()
+	{
+	}
+	
+	private static Property determineRedefinedProperty( Property property, ch.liquidmind.inflection.association.annotations.Property propertyAnnotation )
+	{
+		return null;
+	}
+	
+	private static Property determineSubsettedProperty( Property property, ch.liquidmind.inflection.association.annotations.Property propertyAnnotation )
+	{
+		return null;
 	}
 	
 	private static void setupAssociations( Class aClass )
