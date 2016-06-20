@@ -33,6 +33,7 @@ public class Test
 	{
 //		AssociationRegistry.scan( "ch.liquidmind.inflection.test.assoc.model.*" );
 		
+		testRelatedTypeVisitor();
 		testDimensionsTypeVisitor();
 		System.out.println( "Done!" );
 	}

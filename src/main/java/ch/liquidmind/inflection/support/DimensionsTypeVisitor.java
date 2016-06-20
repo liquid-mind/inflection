@@ -8,16 +8,12 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.Stack;
 
 import ch.liquidmind.inflection.association.Dimension;
 
-public class DimensionsTypeVisitor extends AbstractTypeVisitor
+public class DimensionsTypeVisitor extends RelatingTypeVisitor
 {
-	private enum Mode { MapMode, CollectionMode }
-	
 	private List< Dimension > dimensions = new ArrayList< Dimension >();
-	private Stack< Mode > modes = new Stack< Mode >();
 	private int typeCounter = 0;
 
 	@Override
@@ -36,17 +32,10 @@ public class DimensionsTypeVisitor extends AbstractTypeVisitor
 	{
 		Class< ? > rawType = (Class< ? >)parameterizedType.getRawType();
 		
-		if ( Collection.class.isAssignableFrom( rawType ) )
-			modes.push( Mode.CollectionMode );
-		else if ( Map.class.isAssignableFrom( rawType ) )
-			modes.push( Mode.MapMode );
-		else
-			return;
-		
-		dimensions.add( createDimension( parameterizedType, rawType ) );
+		if ( Collection.class.isAssignableFrom( rawType ) || Map.class.isAssignableFrom( rawType ) )
+			dimensions.add( createDimension( parameterizedType, rawType ) );
 
 		super.visitParameterizedType( parameterizedType );
-		modes.pop();
 	}
 	
 	private Dimension createDimension( Type type, Class< ? > rawType )
@@ -77,12 +66,6 @@ public class DimensionsTypeVisitor extends AbstractTypeVisitor
 	}
 
 	@Override
-	public void visitRawType( Type rawType )
-	{
-		// Don't walk this path.
-	}
-
-	@Override
 	public void visitGenericArrayType( GenericArrayType genericArrayType )
 	{
 		dimensions.add( new Dimension( genericArrayType, true, false ) );
@@ -98,13 +81,6 @@ public class DimensionsTypeVisitor extends AbstractTypeVisitor
 			dimensions.add( createDimension( classType, classType ) );
 		
 		super.visitClass( classType );
-	}
-
-	@Override
-	public void visitActualTypeArgument( Type actualTypeArgument, int index )
-	{
-		if ( !(modes.peek().equals( Mode.MapMode ) && index == 0) )
-			super.visitActualTypeArgument( actualTypeArgument, index );
 	}
 
 	public List< Dimension > getDimensions()
