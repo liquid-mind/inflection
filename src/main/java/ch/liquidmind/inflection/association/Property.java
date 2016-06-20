@@ -63,7 +63,9 @@ public class Property
 	void setRedefinedProperty( Property redefinedProperty )
 	{
 		this.redefinedProperty = redefinedProperty;
-		redefinedProperty.setRedefiningProperty( this );
+		
+		if ( redefinedProperty != null)
+			redefinedProperty.setRedefiningProperty( this );
 	}
 
 	public Property getSubsettedProperty()
@@ -74,7 +76,9 @@ public class Property
 	void setSubsettedProperty( Property subsettedProperty )
 	{
 		this.subsettedProperty = subsettedProperty;
-		subsettedProperty.getSubsetttingProperties().add( this );
+		
+		if ( subsettedProperty != null )
+			subsettedProperty.getSubsetttingProperties().add( this );
 	}
 
 	public boolean isDerived()
@@ -188,5 +192,15 @@ public class Property
 		else if ( !targetProperty.equals( other.targetProperty ) )
 			return false;
 		return true;
+	}
+
+	@Override
+	public String toString()
+	{
+		String redefines = ( getRedefinedProperty() == null ? "NA" : getRedefinedProperty().getName() );
+		String subsets = ( getSubsettedProperty() == null ? "NA" : getSubsettedProperty().getName() );
+		
+		return String.format( "Property [name=%s, owningClass=%s, relatedType=%s, aggregation=%s, redefines=%s, subsets=%s, derived=%s, derivedUnion=%s, declared=%s]",
+			getName(), owningClass.getName(), relatedType.getTypeName(), aggregation, redefines, subsets, isDerived, isDerivedUnion, isDeclared );
 	}
 }

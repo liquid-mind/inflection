@@ -8,6 +8,7 @@ import java.util.Set;
 import org.junit.Assert;
 
 import __java.lang.__Class;
+import ch.liquidmind.inflection.association.AssociationRegistry;
 import ch.liquidmind.inflection.association.Dimension;
 import ch.liquidmind.inflection.support.DimensionsTypeVisitor;
 import ch.liquidmind.inflection.support.RelatedTypeVisitor;
@@ -27,17 +28,25 @@ public class Test
 	List< String[] > test9;
 	List< ? > test10;
 	List< ? extends String > test11;
+	@SuppressWarnings( "rawtypes" )
 	List test12;
 	
 	public static void main( String[] args )
 	{
-//		AssociationRegistry.scan( "ch.liquidmind.inflection.test.assoc.model.*" );
-		
-		testRelatedTypeVisitor();
-		testDimensionsTypeVisitor();
+		testAssociationRegistry();
+//		testRelatedTypeVisitor();
+//		testDimensionsTypeVisitor();
 		System.out.println( "Done!" );
 	}
+	
+	private static void testAssociationRegistry()
+	{
+		// TODO: Does PropertyUtils.getPropertyDescriptors() return protected and package level properties? We need
+		// these as well...
+		AssociationRegistry.scan( "ch.liquidmind.inflection.test.assoc.model.*" );
+	}
 
+	@SuppressWarnings( "unused" )
 	private static void testDimensionsTypeVisitor()
 	{
 		testDimensionsTypeVisitor( "test1", new Dimension[] { new Dimension( String.class, false, true ) } );
@@ -82,6 +91,7 @@ public class Test
 		return visitor.getUnadornedClass();
 	}
 	
+	@SuppressWarnings( "unused" )
 	private static void testRelatedTypeVisitor()
 	{
 		Type classType = __Class.getDeclaredField( Test.class, "test2" ).getGenericType();

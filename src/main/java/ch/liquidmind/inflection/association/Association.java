@@ -2,16 +2,28 @@ package ch.liquidmind.inflection.association;
 
 public class Association
 {
+	private String name;
 	private Property selfEnd, otherEnd;
 	private boolean isDeclared;
 	private Class owningClass;
 
-	public Association( Property selfEnd, Property otherEnd, boolean isDeclared )
+	public Association( String name, Property selfEnd, Property otherEnd, boolean isDeclared )
 	{
 		super();
+		this.name = name;
 		this.selfEnd = selfEnd;
 		this.otherEnd = otherEnd;
 		this.isDeclared = isDeclared;
+	}
+
+	public String getName()
+	{
+		return name;
+	}
+
+	void setName( String name )
+	{
+		this.name = name;
 	}
 
 	public Property getSelfEnd()
@@ -98,5 +110,15 @@ public class Association
 		else if ( !selfEnd.equals( other.selfEnd ) )
 			return false;
 		return true;
+	}
+
+	@Override
+	public String toString()
+	{
+		String selfEndName = ( selfEnd == null ? "NA" : selfEnd.getName() );
+		String otherEndName = ( otherEnd == null ? "NA" : otherEnd.getName() );
+		
+		return String.format( "Property [name=%s, selfEnd=%s, otherEnd=%s, declared=%s]",
+			getName(), selfEndName, otherEndName, isDeclared );
 	}
 }

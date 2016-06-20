@@ -56,7 +56,9 @@ public class Class
 	void setOwningClass( Class owningClass )
 	{
 		this.owningClass = owningClass;
-		owningClass.getOwnedClasses().add( this );
+		
+		if ( owningClass != null )
+			owningClass.getOwnedClasses().add( this );
 	}
 
 	public Set< Class > getOwnedClasses()
@@ -72,7 +74,9 @@ public class Class
 	void setSuperClass( Class superClass )
 	{
 		this.superClass = superClass;
-		superClass.subClasses.add( this );
+		
+		if ( superClass != null )
+			superClass.subClasses.add( this );
 	}
 
 	public Set< Class > getSubClasses()
@@ -112,5 +116,15 @@ public class Class
 		else if ( !targetClass.equals( other.targetClass ) )
 			return false;
 		return true;
+	}
+
+	@Override
+	public String toString()
+	{
+		String superClassName = ( superClass == null ? "NA" : superClass.getName() );
+		String owningClassName = ( owningClass == null ? "NA" : owningClass.getName() );
+		
+		return String.format( "Property [name=%s, super class=%s, owning class=%s]",
+			getName(), superClassName, owningClassName );
 	}
 }

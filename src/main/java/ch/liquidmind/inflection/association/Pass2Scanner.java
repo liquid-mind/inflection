@@ -36,7 +36,10 @@ public class Pass2Scanner extends AbstractScanner
 	
 	private Class determineOwningClass( Class aClass )
 	{
-		return getClasses().get( aClass.getTargetClass().getEnclosingClass().getName() );
+		java.lang.Class< ? > owningClass = aClass.getTargetClass().getEnclosingClass();
+		String owningClassName = ( owningClass == null ? null : owningClass.getName() );
+		
+		return getClasses().get( owningClassName );
 	}
 
 	private void setupProperties( Class aClass )
@@ -53,7 +56,7 @@ public class Pass2Scanner extends AbstractScanner
 	
 	private Property determineRedefinedProperty( Property property, ch.liquidmind.inflection.association.annotations.Property propertyAnnotation )
 	{
-		Property specifiedProperty = findProperty( property.getOwningClass(), propertyAnnotation.redefines() );
+		Property specifiedProperty = ( propertyAnnotation == null ? null : findProperty( property.getOwningClass(), propertyAnnotation.redefines() ) );
 		Property overriddenProperty = findProperty( property.getOwningClass().getSuperClass(), property.getName() );
 		
 		if ( ( specifiedProperty != null && overriddenProperty != null ) && !specifiedProperty.equals( overriddenProperty ) )
@@ -61,19 +64,19 @@ public class Pass2Scanner extends AbstractScanner
 				property.getOwningClass().getName(), property.getName(), overriddenProperty.getOwningClass().getName(), overriddenProperty.getName(),
 				 specifiedProperty.getOwningClass().getName(), specifiedProperty.getName() ) );
 		
-		if ( specifiedProperty == null )
+		if ( propertyAnnotation != null && !propertyAnnotation.redefines().isEmpty() && specifiedProperty == null )
 			throw new RuntimeException( String.format( "Illegal redefinition for property %s.%s: specified property %s cannot be found.", 
 				property.getOwningClass().getName(), property.getName(), propertyAnnotation.redefines() ) );
 
 		Property redefinedProperty = ( specifiedProperty != null ? specifiedProperty : overriddenProperty );
-		Property redefiningProperty = redefinedProperty.getRedefiningProperty();
+		Property redefiningProperty = ( redefinedProperty == null ? null : redefinedProperty.getRedefiningProperty() );
 		
 		if ( redefiningProperty != null )
 			throw new RuntimeException( String.format( "Illegal redefinition for property %s.%s: specified property %s.%s is already redefined by %s.%s.",
 				property.getOwningClass().getName(), property.getName(), redefinedProperty.getOwningClass().getName(), redefinedProperty.getName(),
 				redefiningProperty.getOwningClass().getName(), redefiningProperty.getName() ) );
 				
-		if ( isFinal( redefinedProperty ) )
+		if ( redefinedProperty != null && isFinal( redefinedProperty ) )
 			throw new RuntimeException( String.format( "Illegal redefinition for final property %s.%s.",
 				redefinedProperty.getOwningClass().getName(), redefinedProperty.getName() ) );
 		
@@ -94,9 +97,9 @@ public class Pass2Scanner extends AbstractScanner
 	
 	private Property determineSubsettedProperty( Property property, ch.liquidmind.inflection.association.annotations.Property propertyAnnotation )
 	{
-		Property subsettedProperty = findProperty( property.getOwningClass(), propertyAnnotation.subsets() );
+		Property subsettedProperty = ( propertyAnnotation == null ? null : findProperty( property.getOwningClass(), propertyAnnotation.subsets() ) );
 		
-		if ( subsettedProperty == null )
+		if ( propertyAnnotation != null && !propertyAnnotation.subsets().isEmpty() && subsettedProperty == null )
 			throw new RuntimeException( String.format( "Illegal subsetting for property %s.%s: specified property %s cannot be found.", 
 				property.getOwningClass().getName(), property.getName(), propertyAnnotation.subsets() ) );
 
@@ -133,7 +136,7 @@ public class Pass2Scanner extends AbstractScanner
 			throw new RuntimeException( String.format( "Illegal value for otherEnd in association %s.%s: specified property %s cannot be found", 
 				selfClass.getName(), associationDisplayName, associationAnnotation.otherEnd() ) );
 		
-		Association association = new Association( selfProperty, otherProperty, true );
+		Association association = new Association( associationName, selfProperty, otherProperty, true );
 		
 		if ( selfClass.getOwnedAssociations().contains( association ) )
 			throw new RuntimeException( String.format( "Illegal association %s.%s: association already exists.", 
@@ -159,7 +162,7 @@ public class Pass2Scanner extends AbstractScanner
 		
 		if ( associationAnnotations.isEmpty() )
 		{
-			Association association = new Association( property, null, false );
+			Association association = new Association( "", property, null, false );
 			association.setOwningClass( property.getOwningClass() );
 		}
 	}
@@ -169,15 +172,18 @@ public class Pass2Scanner extends AbstractScanner
 		Class selfClass = selfProperty.getOwningClass();
 		Property specifiedSelfProperty = findProperty( selfClass, associationAnnotation.selfEnd() );
 		String associationName = associationAnnotation.name();
-		String associationDisplayName = ( associationName.isEmpty() ? "UNSPECIFIED" : associationName );
+		String associationDisplayName = ( associationName.isEmpty() ? "NA" : associationName );
 		
-		if ( specifiedSelfProperty == null && !associationAnnotation.selfEnd().isEmpty() )
-			throw new RuntimeException( String.format( "Illegal association %s.%s: specified property %s cannot be found.",
-				selfClass.getName(), associationDisplayName, associationAnnotation.selfEnd() ) );
-		
-		if ( !selfProperty.equals( specifiedSelfProperty ) )
-			throw new RuntimeException( String.format( "Illegal association %s.%s: selfEnd %s must be either unspecified or the same as the associated property %s.",
-				selfClass.getName(), associationDisplayName, selfProperty.getName() ) );
+		if ( !associationAnnotation.selfEnd().isEmpty() )
+		{
+			if ( specifiedSelfProperty == null )
+				throw new RuntimeException( String.format( "Illegal association %s.%s: specified property %s cannot be found.",
+					selfClass.getName(), associationDisplayName, associationAnnotation.selfEnd() ) );
+			
+			if ( !selfProperty.equals( specifiedSelfProperty ) )
+				throw new RuntimeException( String.format( "Illegal association %s.%s: selfEnd %s must be either unspecified or the same as the associated property %s.",
+					selfClass.getName(), associationDisplayName, selfProperty.getName() ) );
+		}
 
 		Class otherClass = getClasses().get( selfProperty.getRelatedClass().getName() );
 		Property otherProperty = findProperty( otherClass, associationAnnotation.otherEnd() );
@@ -186,7 +192,7 @@ public class Pass2Scanner extends AbstractScanner
 			throw new RuntimeException( String.format( "Illegal value for otherEnd in association %s.%s: specified property %s cannot be found", 
 				selfClass.getName(), associationDisplayName, associationAnnotation.otherEnd() ) );
 		
-		Association association = new Association( selfProperty, otherProperty, true );
+		Association association = new Association( associationName, selfProperty, otherProperty, true );
 		
 		if ( selfClass.getOwnedAssociations().contains( association ) )
 			throw new RuntimeException( String.format( "Illegal association %s.%s: association already exists.", 

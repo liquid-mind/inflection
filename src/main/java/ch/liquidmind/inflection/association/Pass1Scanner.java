@@ -57,10 +57,10 @@ public class Pass1Scanner extends AbstractScanner
 
 	private Set< PropertyDescriptor > getDeclaredJavaBeanProperties( java.lang.Class< ? > declaringClass )
 	{
-		PropertyDescriptor[] allProperties = PropertyUtils.getPropertyDescriptors( declaringClass );
-		List< PropertyDescriptor > allPropertiesAsList = Arrays.asList( allProperties );
-		allPropertiesAsList.forEach( property -> removeInheritedMethods( declaringClass, property ) );
-		Set< PropertyDescriptor > declaredProperties = allPropertiesAsList.stream().filter( property -> !isPropertyEmpty( property ) ).collect( Collectors.toSet() );
+		List< PropertyDescriptor > allProperties = Arrays.asList( PropertyUtils.getPropertyDescriptors( declaringClass ) ).stream().map( property -> 
+			__PropertyDescriptor.__new( property.getName(), property.getReadMethod(), property.getWriteMethod() ) ).collect( Collectors.toList() );
+		allProperties.forEach( property -> removeInheritedMethods( declaringClass, property ) );
+		Set< PropertyDescriptor > declaredProperties = allProperties.stream().filter( property -> !isPropertyEmpty( property ) ).collect( Collectors.toSet() );
 		
 		return declaredProperties;
 	}
@@ -86,15 +86,15 @@ public class Pass1Scanner extends AbstractScanner
 	private void setupProperty( Property property )
 	{
 		ch.liquidmind.inflection.association.annotations.Property propertyAnnotation = getPropertyAnnotation( property );
-		property.setRelatedType( determineRelatedType( property, propertyAnnotation ) );
+		property.setRelatedType( determineRelatedType( property ) );
 		property.setAggregation( determineAggregation( property, propertyAnnotation ) );
-		property.setDimensions( determineDimensions( property, propertyAnnotation ) );
-		property.setDerived( propertyAnnotation.isDerived() );
-		property.setDerivedUnion( propertyAnnotation.isDerivedUnion() );
+		property.setDimensions( determineDimensions( property ) );
+		property.setDerived( ( propertyAnnotation == null ? false : propertyAnnotation.isDerived() ) );
+		property.setDerivedUnion( ( propertyAnnotation == null ? false : propertyAnnotation.isDerivedUnion() ) );
 		property.setDeclared( propertyAnnotation != null );
 	}
 	
-	private Type determineRelatedType( Property property, ch.liquidmind.inflection.association.annotations.Property propertyAnnotation )
+	private Type determineRelatedType( Property property )
 	{
 		Type propertyType = getPropertyType( property );
 		RelatedTypeVisitor visitor = new RelatedTypeVisitor();
@@ -149,7 +149,7 @@ public class Pass1Scanner extends AbstractScanner
 		return aggregation;
 	}
 	
-	private List< Dimension > determineDimensions( Property property, ch.liquidmind.inflection.association.annotations.Property propertyAnnotation )
+	private List< Dimension > determineDimensions( Property property )
 	{
 		Type propertyType = getPropertyType( property );
 		DimensionsTypeVisitor visitor = new DimensionsTypeVisitor();

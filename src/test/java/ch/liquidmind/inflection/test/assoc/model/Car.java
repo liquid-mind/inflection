@@ -14,7 +14,7 @@ public abstract class Car extends Vehicle
 	public abstract CarEngine getCarEngine();
 	public abstract void setCarEngine( CarEngine carEngine );
 	
-	@Property( aggregation = Aggregation.COMPOSITE, redefines = "powerTransmitter", dimensions = @Dimension( multiplicity = "4" ) )
+	@Property( aggregation = Aggregation.COMPOSITE, redefines = "powerTransmitters", dimensions = @Dimension( multiplicity = "4" ) )
 	public abstract Set< Wheel > getWheels();
 	
 	@Association( otherEnd = "car" )
