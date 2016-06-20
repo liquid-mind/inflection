@@ -6,6 +6,14 @@ public class Association
 	private boolean isDeclared;
 	private Class owningClass;
 
+	public Association( Property selfEnd, Property otherEnd, boolean isDeclared )
+	{
+		super();
+		this.selfEnd = selfEnd;
+		this.otherEnd = otherEnd;
+		this.isDeclared = isDeclared;
+	}
+
 	public Property getSelfEnd()
 	{
 		return selfEnd;
@@ -44,6 +52,7 @@ public class Association
 	void setOwningClass( Class owningClass )
 	{
 		this.owningClass = owningClass;
+		owningClass.getOwnedAssociations().add( this );
 	}
 
 	@Override
@@ -51,7 +60,6 @@ public class Association
 	{
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + ( isDeclared ? 1231 : 1237 );
 		result = prime * result + ( ( otherEnd == null ) ? 0 : otherEnd.hashCode() );
 		result = prime * result + ( ( owningClass == null ) ? 0 : owningClass.hashCode() );
 		result = prime * result + ( ( selfEnd == null ) ? 0 : selfEnd.hashCode() );
@@ -68,8 +76,6 @@ public class Association
 		if ( getClass() != obj.getClass() )
 			return false;
 		Association other = (Association)obj;
-		if ( isDeclared != other.isDeclared )
-			return false;
 		if ( otherEnd == null )
 		{
 			if ( other.otherEnd != null )

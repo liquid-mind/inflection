@@ -1,7 +1,8 @@
 package ch.liquidmind.inflection.association;
 
 import java.util.Arrays;
-import java.util.HashSet;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -11,7 +12,7 @@ import ch.liquidmind.inflection.exception.ExceptionWrapper;
 
 public class AssociationRegistry
 {
-	private static Set< Class > registeredClasses = new HashSet< Class >();
+	private static Map< String, Class > registeredClasses = new HashMap< String, Class >();
 	
 	public static void scan( String ... classNameFilters )
 	{
@@ -34,20 +35,9 @@ public class AssociationRegistry
 		return Arrays.asList( classNameFilters ).stream().filter(
 			classNameFilter -> classInfo.getName().matches( classNameFilter ) ).findFirst().isPresent();
 	}
-	
-	/////////
-	// PASS 1
-	/////////
-	
 
-	
-	/////////
-	// PASS 2
-	/////////
-
-	
-	public Set< Class > getRegisteredClasses()
+	public static Class getRegisteredClass( String name )
 	{
-		return registeredClasses;
+		return registeredClasses.get( name );
 	}
 }

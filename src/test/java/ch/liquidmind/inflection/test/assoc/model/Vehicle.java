@@ -27,7 +27,7 @@ public abstract class Vehicle
 	// 3. The redefined property is always the leaf in an overriding hierarchy.
 	// 4. Only non-final properties may be redefined.
 	// Subsetting rules:
-	// 1. The subsetted property must exist somewhere in the hierarchy of the other class.
+	// 1. The subsetted property must exist somewhere in the class hierarchy.
 	// 2. The subsetted property is always the leaf in an overriding hierarchy.
 	// Dimension rules:
 	// 1. If the dimensions are implemented using an array or using one or more collections with generic

@@ -1,24 +1,26 @@
 package ch.liquidmind.inflection.association;
 
+import java.util.Collection;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 public class Class
 {
 	private java.lang.Class< ? > targetClass;
-	private Set< Property > ownedProperties;
+	private Map< String, Property > ownedProperties;
 	private Set< Association > ownedAssociations  = new HashSet< Association >();
 	private Set< Class > ownedClasses = new HashSet< Class >();
 	private Set< Class > subClasses = new HashSet< Class >();
 	private Class owningClass, superClass;
 
-	public Class( java.lang.Class< ? > targetClass, Set< Property > ownedProperties )
+	public Class( java.lang.Class< ? > targetClass, Map< String, Property > ownedProperties )
 	{
 		super();
 		this.targetClass = targetClass;
 		this.ownedProperties = ownedProperties;
 		
-		ownedProperties.stream().forEach( ownedProperty -> ownedProperty.setOwningClass( this ) );
+		ownedProperties.values().stream().forEach( ownedProperty -> ownedProperty.setOwningClass( this ) );
 	}
 
 	public java.lang.Class< ? > getTargetClass()
@@ -31,9 +33,14 @@ public class Class
 		this.targetClass = targetClass;
 	}
 
-	public Set< Property > getOwnedProperties()
+	public Collection< Property > getOwnedProperties()
 	{
-		return ownedProperties;
+		return ownedProperties.values();
+	}
+	
+	public Property getOwnedProperty( String propertyName )
+	{
+		return ownedProperties.get( propertyName );
 	}
 
 	public Set< Association > getOwnedAssociations()
@@ -49,6 +56,7 @@ public class Class
 	void setOwningClass( Class owningClass )
 	{
 		this.owningClass = owningClass;
+		owningClass.getOwnedClasses().add( this );
 	}
 
 	public Set< Class > getOwnedClasses()
@@ -64,6 +72,7 @@ public class Class
 	void setSuperClass( Class superClass )
 	{
 		this.superClass = superClass;
+		superClass.subClasses.add( this );
 	}
 
 	public Set< Class > getSubClasses()

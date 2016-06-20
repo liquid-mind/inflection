@@ -2,9 +2,23 @@ package ch.liquidmind.inflection.association;
 
 import java.beans.PropertyDescriptor;
 import java.lang.reflect.Method;
+import java.util.Map;
 
 public abstract class AbstractScanner
 {
+	private Map< String, Class > classes;
+	
+	public AbstractScanner( Map< String, Class > classes )
+	{
+		super();
+		this.classes = classes;
+	}
+
+	public Map< String, Class > getClasses()
+	{
+		return classes;
+	}
+
 	protected ch.liquidmind.inflection.association.annotations.Property getPropertyAnnotation( Property property )
 	{
 		PropertyDescriptor descriptor = property.getTargetProperty();

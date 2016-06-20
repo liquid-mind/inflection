@@ -5,6 +5,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -21,35 +22,35 @@ import ch.liquidmind.inflection.support.TypeWalker;
 public class Pass1Scanner extends AbstractScanner
 {
 	private Set< ClassInfo > rawClasses;
-	private Set< Class > classes;
 	
-	public Pass1Scanner( Set< ClassInfo > rawClasses, Set< Class > classes )
+	public Pass1Scanner( Set< ClassInfo > rawClasses, Map< String, Class > classes )
 	{
-		super();
+		super( classes );
 		this.rawClasses = rawClasses;
-		this.classes = classes;
 	}
 
 	public void scan()
 	{
-		classes = rawClasses.stream().map( classInfo -> createClass( classInfo ) ).collect( Collectors.toSet() );
-		classes.forEach( aClass -> setupProperties( aClass ) );
+		getClasses().putAll( rawClasses.stream().map( classInfo -> createClass( classInfo ) ).
+			collect( Collectors.toMap( aClass -> aClass.getName(), aClass -> aClass ) ) );
+		getClasses().values().forEach( aClass -> setupProperties( aClass ) );
 	}
 	
 	private Class createClass( ClassInfo classInfo )
 	{
 		java.lang.Class< ? > aClass = classInfo.load();
 		
-		Set< Property > properties = createProperties( aClass );
+		Map< String, Property > properties = createProperties( aClass );
 		Class createdClass = new Class( aClass, properties );
 		
 		return createdClass;
 	}
 	
-	private Set< Property > createProperties( java.lang.Class< ? > aClass )
+	private Map< String, Property > createProperties( java.lang.Class< ? > aClass )
 	{
 		Set< PropertyDescriptor > javaBeanProperties = getDeclaredJavaBeanProperties( aClass );
-		Set< Property > properties = javaBeanProperties.stream().map( property -> new Property( property ) ).collect( Collectors.toSet() );
+		Map< String, Property > properties = javaBeanProperties.stream().map( property -> new Property( property ) ).
+				collect( Collectors.toMap( property -> property.getName(), property -> property ) );
 		
 		return properties;
 	}

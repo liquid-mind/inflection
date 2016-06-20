@@ -1,9 +1,12 @@
 package ch.liquidmind.inflection.association;
 
 import java.beans.PropertyDescriptor;
+import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public class Property
 {
@@ -11,7 +14,8 @@ public class Property
 	private Type relatedType;
 	private Aggregation aggregation;
 	private List< Dimension > dimensions = new ArrayList< Dimension >();
-	private Property redefinedProperty, subsettedProperty;
+	private Property redefinedProperty, subsettedProperty, redefiningProperty;
+	private Set< Property > subsetttingProperties = new HashSet< Property >();
 	private boolean isDerived, isDerivedUnion, isDeclared;
 	private Class owningClass;
 
@@ -59,6 +63,7 @@ public class Property
 	void setRedefinedProperty( Property redefinedProperty )
 	{
 		this.redefinedProperty = redefinedProperty;
+		redefinedProperty.setRedefiningProperty( this );
 	}
 
 	public Property getSubsettedProperty()
@@ -69,6 +74,7 @@ public class Property
 	void setSubsettedProperty( Property subsettedProperty )
 	{
 		this.subsettedProperty = subsettedProperty;
+		subsettedProperty.getSubsetttingProperties().add( this );
 	}
 
 	public boolean isDerived()
@@ -124,6 +130,35 @@ public class Property
 	public String getName()
 	{
 		return targetProperty.getName();
+	}
+
+	public Property getRedefiningProperty()
+	{
+		return redefiningProperty;
+	}
+
+	public void setRedefiningProperty( Property redefiningProperty )
+	{
+		this.redefiningProperty = redefiningProperty;
+	}
+
+	public Set< Property > getSubsetttingProperties()
+	{
+		return subsetttingProperties;
+	}
+	
+	public java.lang.Class< ? > getRelatedClass()
+	{
+		java.lang.Class< ? > relatedClass;
+		
+		if ( relatedType instanceof ParameterizedType )
+			relatedClass = (java.lang.Class< ? >)((ParameterizedType)relatedType).getRawType();
+		else if ( relatedType instanceof java.lang.Class )
+			relatedClass = (java.lang.Class< ? >)relatedType;
+		else
+			throw new IllegalStateException( "Unexpected type for relatedType: " + relatedType.getTypeName() );
+		
+		return relatedClass;
 	}
 
 	@Override
