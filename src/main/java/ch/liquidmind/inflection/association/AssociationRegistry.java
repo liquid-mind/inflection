@@ -12,6 +12,9 @@ import com.google.common.reflect.ClassPath.ClassInfo;
 import ch.liquidmind.inflection.exception.ExceptionWrapper;
 
 // TODO: replace RuntimeExceptions with ValidationExceptions.
+// TODO: introduce AssociationClass annotation that defines the following constraints:
+//   1. The class must define at least two associations.
+//   2. The otherEnds of any owned associations must not be composite.
 public class AssociationRegistry
 {
 	private static AssociationRegistry instance = new AssociationRegistry();

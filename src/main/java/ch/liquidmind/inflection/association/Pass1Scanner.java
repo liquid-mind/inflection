@@ -136,7 +136,7 @@ public class Pass1Scanner extends AbstractScanner
 		
 		if ( propertyAnnotation == null )
 		{
-			if ( TypeSystemSupport.isBasicOrWrapperType( property.getTargetProperty().getPropertyType() ) )
+			if ( TypeSystemSupport.isValueType( property.getTargetProperty().getPropertyType() ) )
 				aggregation = Aggregation.COMPOSITE;
 			else
 				aggregation = Aggregation.NONE;
