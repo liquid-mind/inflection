@@ -1,4 +1,4 @@
-package ch.liquidmind.inflection.test.assoc;
+package ch.liquidmind.inflection.test.association;
 
 import java.lang.reflect.Type;
 import java.util.List;
@@ -10,10 +10,12 @@ import org.junit.Assert;
 import __java.lang.__Class;
 import ch.liquidmind.inflection.association.AssociationRegistry;
 import ch.liquidmind.inflection.association.Dimension;
+import ch.liquidmind.inflection.print.AssociationPrinter;
 import ch.liquidmind.inflection.support.DimensionsTypeVisitor;
 import ch.liquidmind.inflection.support.RelatedTypeVisitor;
 import ch.liquidmind.inflection.support.TypeWalker;
 import ch.liquidmind.inflection.support.UnadornedClassVisitor;
+import ch.liquidmind.inflection.test.association.model.Vehicle;
 
 public class Test
 {
@@ -43,7 +45,10 @@ public class Test
 	{
 		// TODO: Does PropertyUtils.getPropertyDescriptors() return protected and package level properties? We need
 		// these as well...
-		AssociationRegistry.scan( "ch.liquidmind.inflection.test.assoc.model.*" );
+		AssociationRegistry registry = AssociationRegistry.instance();
+		registry.scan( Vehicle.class.getPackage().getName() + ".*" );
+		AssociationPrinter printer = new AssociationPrinter();
+		printer.printClasses( registry.getRegisteredClasses() );
 	}
 
 	@SuppressWarnings( "unused" )

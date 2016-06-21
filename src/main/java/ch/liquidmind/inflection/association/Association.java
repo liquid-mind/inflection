@@ -118,7 +118,7 @@ public class Association
 		String selfEndName = ( selfEnd == null ? "NA" : selfEnd.getName() );
 		String otherEndName = ( otherEnd == null ? "NA" : otherEnd.getName() );
 		
-		return String.format( "Property [name=%s, selfEnd=%s, otherEnd=%s, declared=%s]",
+		return String.format( "Association [name=%s, selfEnd=%s, otherEnd=%s, declared=%s]",
 			getName(), selfEndName, otherEndName, isDeclared );
 	}
 }

@@ -1,4 +1,4 @@
-package ch.liquidmind.inflection.test.assoc.model;
+package ch.liquidmind.inflection.test.association.model;
 
 public abstract class VehicleConfiguration
 {

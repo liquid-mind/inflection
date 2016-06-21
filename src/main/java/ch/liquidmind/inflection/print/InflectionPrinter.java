@@ -24,44 +24,45 @@ import ch.liquidmind.inflection.model.external.Taxonomy;
 import ch.liquidmind.inflection.model.external.View;
 import ch.liquidmind.inflection.model.linked.UnparsedAnnotation;
 
-public class InflectionPrinter
+public class InflectionPrinter extends AbstractPrinter
 {
-	public static final PrintStream DEFAULT_PRINT_STREAM = System.out;
-	public static final boolean DEFAULT_SHOW_SIMPLE_NAMES = true;
 	public static final boolean DEFAULT_SHOW_INHERITED = false;
 	
-	private IndentingPrintWriter printWriter;
-	private boolean showSimpleNames;
 	private boolean showInherited;
 
 	public InflectionPrinter()
 	{
-		this( DEFAULT_PRINT_STREAM, DEFAULT_SHOW_SIMPLE_NAMES, DEFAULT_SHOW_INHERITED );
+		super( DEFAULT_PRINT_STREAM );
+		this.showInherited = DEFAULT_SHOW_INHERITED;
 	}
 	
 	public InflectionPrinter( PrintStream printStream )
 	{
-		this( printStream, DEFAULT_SHOW_SIMPLE_NAMES, DEFAULT_SHOW_INHERITED );
+		super( printStream );
+		this.showInherited = DEFAULT_SHOW_INHERITED;
+	}
+	
+	public InflectionPrinter( Writer writer )
+	{
+		super( writer );
+		this.showInherited = DEFAULT_SHOW_INHERITED;
 	}
 	
 	public InflectionPrinter( boolean showSimpleNames, boolean showInherited )
 	{
-		this( DEFAULT_PRINT_STREAM, showSimpleNames, showInherited );
-	}
-
-	public InflectionPrinter( Writer writer, boolean showSimpleNames, boolean showInherited )
-	{
-		super();
-		this.printWriter = new IndentingPrintWriter( writer );
-		this.showSimpleNames = showSimpleNames;
+		super( showSimpleNames );
 		this.showInherited = showInherited;
 	}
 	
 	public InflectionPrinter( PrintStream printStream, boolean showSimpleNames, boolean showInherited )
 	{
-		super();
-		this.printWriter = new IndentingPrintWriter( printStream );
-		this.showSimpleNames = showSimpleNames;
+		super( printStream );
+		this.showInherited = showInherited;
+	}
+
+	public InflectionPrinter( Writer writer, boolean showSimpleNames, boolean showInherited )
+	{
+		super( writer );
 		this.showInherited = showInherited;
 	}
 	
@@ -143,16 +144,16 @@ public class InflectionPrinter
 	public void printTaxonomy( Taxonomy taxonomy, PrintStream printStream )
 	{
 		printAnnotations( taxonomy.getAnnotations() );
-		printWriter.print( "taxonomy " + getTypeName( taxonomy.getName() ) );
+		getPrintWriter().print( "taxonomy " + getTypeName( taxonomy.getName() ) );
 		List< String > taxonomyNames = new ArrayList< String >();
 		
 		for ( Taxonomy extendedTaxonomy : taxonomy.getExtendedTaxonomies() )
 			taxonomyNames.add( getTypeName( extendedTaxonomy.getName() ) );
 		
 		if ( !taxonomyNames.isEmpty() )
-			printWriter.println( " extends " + String.join( ", ", taxonomyNames ) );
+			getPrintWriter().println( " extends " + String.join( ", ", taxonomyNames ) );
 		else
-			printWriter.println();
+			getPrintWriter().println();
 
 		List< View > views;
 		
@@ -171,12 +172,12 @@ public class InflectionPrinter
 		
 		if ( views.isEmpty() )
 		{
-			printWriter.println( "{}" );
+			getPrintWriter().println( "{}" );
 			return;
 		}
 		
-		printWriter.println( "{" );
-		printWriter.increaseIndent();
+		getPrintWriter().println( "{" );
+		getPrintWriter().increaseIndent();
 		
 		for ( int i = 0 ; i < views.size() ; ++i )
 		{
@@ -185,32 +186,32 @@ public class InflectionPrinter
 			printView( taxonomy, view );
 			
 			if ( i + 1 != views.size() )
-				printWriter.println();
+				getPrintWriter().println();
 		}
 		
-		printWriter.decreaseIndent();
-		printWriter.println( "}" );
-		printWriter.flush();
+		getPrintWriter().decreaseIndent();
+		getPrintWriter().println( "}" );
+		getPrintWriter().flush();
 	}
 	
 	private void printView( Taxonomy taxonomy, View view )
 	{
 		printAnnotations( view.getAnnotations() );
-		printWriter.print( "view " + getTypeName( view.getName() ) );
+		getPrintWriter().print( "view " + getTypeName( view.getName() ) );
 		
 		if ( showInherited && !view.getParentTaxonomy().equals( taxonomy ) )
-			printWriter.print( " from " + getTypeName( view.getParentTaxonomy().getName() ) );
+			getPrintWriter().print( " from " + getTypeName( view.getParentTaxonomy().getName() ) );
 		
 		if ( view.getAlias() != null )
-			printWriter.print( " as " + view.getAlias() );
+			getPrintWriter().print( " as " + view.getAlias() );
 		
 		if ( view.getUsedClass() != null )
-			printWriter.print( " use " + view.getUsedClass().getName() );
+			getPrintWriter().print( " use " + view.getUsedClass().getName() );
 		
 		if ( taxonomy.getSuperview( view ) != null)
-			printWriter.println( " extends " + getTypeName( taxonomy.getSuperview( view ).getName() ) );
+			getPrintWriter().println( " extends " + getTypeName( taxonomy.getSuperview( view ).getName() ) );
 		else
-			printWriter.println();
+			getPrintWriter().println();
 		
 		List< Member > members;
 		
@@ -229,12 +230,12 @@ public class InflectionPrinter
 		
 		if ( members.isEmpty() )
 		{
-			printWriter.println( "{}" );
+			getPrintWriter().println( "{}" );
 		}
 		else
 		{
-			printWriter.println( "{" );
-			printWriter.increaseIndent();
+			getPrintWriter().println( "{" );
+			getPrintWriter().increaseIndent();
 
 			for ( Member member : members )
 			{
@@ -256,11 +257,11 @@ public class InflectionPrinter
 					from = " from " + getTypeName( member.getParentView().getName() );
 				
 				printAnnotations( member.getAnnotations() );
-				printWriter.println( accessType + " " + memberType + " " + member.getName() + from + alias + ";" );
+				getPrintWriter().println( accessType + " " + memberType + " " + member.getName() + from + alias + ";" );
 			}
 			
-			printWriter.decreaseIndent();
-			printWriter.println( "}" );
+			getPrintWriter().decreaseIndent();
+			getPrintWriter().println( "}" );
 		}
 	}
 	
@@ -327,19 +328,7 @@ public class InflectionPrinter
 		for ( Annotation annotation : annotations )
 		{
 			UnparsedAnnotation unparsedAnnotation = (UnparsedAnnotation)annotation;
-			printWriter.println( unparsedAnnotation.value() );				
+			getPrintWriter().println( unparsedAnnotation.value() );				
 		}
-	}
-	
-	private String getTypeName( String fqTypeName )
-	{
-		String typeName;
-		
-		if ( showSimpleNames )
-			typeName = ( fqTypeName.contains( "." ) ? fqTypeName.substring( fqTypeName.lastIndexOf( "." ) + 1 ) : fqTypeName );
-		else
-			typeName = fqTypeName;
-		
-		return typeName;
 	}
 }

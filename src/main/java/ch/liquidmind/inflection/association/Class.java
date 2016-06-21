@@ -124,7 +124,7 @@ public class Class
 		String superClassName = ( superClass == null ? "NA" : superClass.getName() );
 		String owningClassName = ( owningClass == null ? "NA" : owningClass.getName() );
 		
-		return String.format( "Property [name=%s, super class=%s, owning class=%s]",
+		return String.format( "Class [name=%s, super class=%s, owning class=%s]",
 			getName(), superClassName, owningClassName );
 	}
 }
