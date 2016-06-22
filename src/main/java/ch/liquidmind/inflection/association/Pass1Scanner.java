@@ -102,14 +102,6 @@ public class Pass1Scanner extends AbstractScanner
 		walker.walk( propertyType );
 		Type relatedType = visitor.getRelatedType();
 		
-		if ( relatedType instanceof java.lang.Class )
-		{
-			java.lang.Class< ? > relatedClass = (java.lang.Class< ? >)relatedType;
-			
-			if ( relatedClass.equals( Object.class ) )
-				throw new RuntimeException( "The related type of " + property.getTargetProperty().getName() + " is java.lang.Object; the related type must be more specific (i.e., a sub class of java.lang.Object)." );
-		}
-		
 		return relatedType;
 	}
 	

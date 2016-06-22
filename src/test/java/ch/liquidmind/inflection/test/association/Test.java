@@ -46,7 +46,7 @@ public class Test
 		// TODO: Does PropertyUtils.getPropertyDescriptors() return protected and package level properties? We need
 		// these as well...
 		AssociationRegistry registry = AssociationRegistry.instance();
-		registry.scan( Vehicle.class.getPackage().getName() + ".*" );
+		registry.scan( new String[] { Vehicle.class.getPackage().getName() + ".*" }, new String[]{} );
 		AssociationPrinter printer = new AssociationPrinter();
 		printer.printClasses( registry.getRegisteredClasses() );
 	}

@@ -26,17 +26,18 @@ public class AssociationRegistry
 		return instance;
 	}
 	
-	public void scan( String ... classNameFilters )
+	public void scan( String[] includeFilters, String[] excludeFilters )
 	{
-		scan( Thread.currentThread().getContextClassLoader(), classNameFilters );
+		scan( Thread.currentThread().getContextClassLoader(), includeFilters, excludeFilters );
 	}
 	
-	public void scan( ClassLoader loader, String ... classNameFilters )
+	public void scan( ClassLoader loader, String[] includeFilters, String[] excludeFilters )
 	{
 		Set< ClassInfo > allClasses = ExceptionWrapper.ClassPath_from( loader ).getAllClasses();
-		Set< ClassInfo > filteredClasses = allClasses.stream().filter( classInfo -> classInfoMatchesFilter( classInfo, classNameFilters ) ).collect( Collectors.toSet() );
+		Set< ClassInfo > classesAfterInclusion = allClasses.stream().filter( classInfo -> classInfoMatchesFilter( classInfo, includeFilters ) ).collect( Collectors.toSet() );
+		Set< ClassInfo > classesAfterExclusion = classesAfterInclusion.stream().filter( classInfo -> !classInfoMatchesFilter( classInfo, excludeFilters ) ).collect( Collectors.toSet() );
 		
-		Pass1Scanner pass1Scanner = new Pass1Scanner( filteredClasses, registeredClasses );
+		Pass1Scanner pass1Scanner = new Pass1Scanner( classesAfterExclusion, registeredClasses );
 		Pass2Scanner pass2Scanner = new Pass2Scanner( registeredClasses );
 		pass1Scanner.scan();
 		pass2Scanner.scan();

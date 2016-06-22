@@ -71,7 +71,10 @@ public class Pass2Scanner extends AbstractScanner
 		Property redefinedProperty = ( specifiedProperty != null ? specifiedProperty : overriddenProperty );
 		Property redefiningProperty = ( redefinedProperty == null ? null : redefinedProperty.getRedefiningProperty() );
 		
-		if ( redefiningProperty != null )
+		java.lang.Class< ? > classOfRedefiningProperty = ( redefiningProperty == null ? null : redefiningProperty.getOwningClass().getTargetClass() );
+		java.lang.Class< ? > classOfProperty = property.getOwningClass().getTargetClass();
+		
+		if ( classOfRedefiningProperty != null && classOfRedefiningProperty.isAssignableFrom( classOfProperty ) )
 			throw new RuntimeException( String.format( "Illegal redefinition for property %s.%s: specified property %s.%s is already redefined by %s.%s.",
 				property.getOwningClass().getName(), property.getName(), redefinedProperty.getOwningClass().getName(), redefinedProperty.getName(),
 				redefiningProperty.getOwningClass().getName(), redefiningProperty.getName() ) );
