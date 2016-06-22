@@ -33,9 +33,12 @@ public class AssociationRegistry
 	
 	public void scan( ClassLoader loader, String[] includeFilters, String[] excludeFilters )
 	{
+		Set< String > adjustedIncludeFilters = Arrays.asList( includeFilters ).stream().map( includeFilter -> includeFilter.replace( "*", ".*" ) ).collect( Collectors.toSet() );
+		Set< String > adjustedExcludeFilters = Arrays.asList( excludeFilters ).stream().map( excludeFilter -> excludeFilter.replace( "*", ".*" ) ).collect( Collectors.toSet() );
+		
 		Set< ClassInfo > allClasses = ExceptionWrapper.ClassPath_from( loader ).getAllClasses();
-		Set< ClassInfo > classesAfterInclusion = allClasses.stream().filter( classInfo -> classInfoMatchesFilter( classInfo, includeFilters ) ).collect( Collectors.toSet() );
-		Set< ClassInfo > classesAfterExclusion = classesAfterInclusion.stream().filter( classInfo -> !classInfoMatchesFilter( classInfo, excludeFilters ) ).collect( Collectors.toSet() );
+		Set< ClassInfo > classesAfterInclusion = allClasses.stream().filter( classInfo -> classInfoMatchesFilter( classInfo, adjustedIncludeFilters ) ).collect( Collectors.toSet() );
+		Set< ClassInfo > classesAfterExclusion = classesAfterInclusion.stream().filter( classInfo -> !classInfoMatchesFilter( classInfo, adjustedExcludeFilters ) ).collect( Collectors.toSet() );
 		
 		Pass1Scanner pass1Scanner = new Pass1Scanner( classesAfterExclusion, registeredClasses );
 		Pass2Scanner pass2Scanner = new Pass2Scanner( registeredClasses );
@@ -43,9 +46,9 @@ public class AssociationRegistry
 		pass2Scanner.scan();
 	}
 	
-	private boolean classInfoMatchesFilter( ClassInfo classInfo, String[] classNameFilters )
+	private boolean classInfoMatchesFilter( ClassInfo classInfo, Set< String > classNameFilters )
 	{
-		return Arrays.asList( classNameFilters ).stream().filter(
+		return classNameFilters.stream().filter(
 			classNameFilter -> classInfo.getName().matches( classNameFilter ) ).findFirst().isPresent();
 	}
 
