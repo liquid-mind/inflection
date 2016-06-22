@@ -16,7 +16,6 @@ import ch.liquidmind.inflection.support.RelatedTypeVisitor;
 import ch.liquidmind.inflection.support.TypeWalker;
 import ch.liquidmind.inflection.support.UnadornedClassVisitor;
 import ch.liquidmind.inflection.test.association.model.Vehicle;
-import ch.liquidmind.inflection.test.association.model.Volvo;
 
 public class Test
 {
@@ -47,7 +46,7 @@ public class Test
 		// TODO: Does PropertyUtils.getPropertyDescriptors() return protected and package level properties? We need
 		// these as well...
 		AssociationRegistry registry = AssociationRegistry.instance();
-		registry.scan( new String[] { Vehicle.class.getPackage().getName() + ".*" }, new String[]{ Vehicle.class.getPackage().getName() + ".Car*" } );
+		registry.scan( new String[] { Vehicle.class.getPackage().getName() + ".*" }, new String[]{} );
 		AssociationPrinter printer = new AssociationPrinter();
 		printer.printClasses( registry.getRegisteredClasses() );
 	}

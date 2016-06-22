@@ -42,8 +42,10 @@ public class AssociationRegistry
 		
 		Pass1Scanner pass1Scanner = new Pass1Scanner( classesAfterExclusion, registeredClasses );
 		Pass2Scanner pass2Scanner = new Pass2Scanner( registeredClasses );
+		Pass3Scanner pass3Scanner = new Pass3Scanner( registeredClasses );
 		pass1Scanner.scan();
 		pass2Scanner.scan();
+		pass3Scanner.scan();
 	}
 	
 	private boolean classInfoMatchesFilter( ClassInfo classInfo, Set< String > classNameFilters )
