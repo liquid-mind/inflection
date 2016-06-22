@@ -53,6 +53,6 @@ public class TypeSystemSupport
 	
 	public static boolean isValueType( Class< ? > aClass )
 	{
-		return VALUE_TYPES.contains( aClass );
+		return ( VALUE_TYPES.contains( aClass ) || aClass.isEnum() );
 	}
 }
