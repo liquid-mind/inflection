@@ -41,19 +41,12 @@ public class Pass3Scanner extends AbstractScanner
 	
 	private Property determineRedefinedProperty( Property property, ch.liquidmind.inflection.association.annotations.Property propertyAnnotation )
 	{
-		Property specifiedProperty = ( propertyAnnotation == null ? null : findProperty( property.getOwningClass(), propertyAnnotation.redefines() ) );
-		Property overriddenProperty = findProperty( property.getOwningClass().getSuperClass(), property.getName() );
+		Property redefinedProperty = ( propertyAnnotation == null ? null : findProperty( property.getOwningClass(), propertyAnnotation.redefines() ) );
 		
-		if ( ( specifiedProperty != null && overriddenProperty != null ) && !specifiedProperty.equals( overriddenProperty ) )
-			throw new RuntimeException( String.format( "Ambiguous redefinition for property %s.%s: property both overrides %s.%s and redefines %s.%s.", 
-				property.getOwningClass().getName(), property.getName(), overriddenProperty.getOwningClass().getName(), overriddenProperty.getName(),
-				 specifiedProperty.getOwningClass().getName(), specifiedProperty.getName() ) );
-		
-		if ( propertyAnnotation != null && !propertyAnnotation.redefines().isEmpty() && specifiedProperty == null )
+		if ( propertyAnnotation != null && !propertyAnnotation.redefines().isEmpty() && redefinedProperty == null )
 			throw new RuntimeException( String.format( "Illegal redefinition for property %s.%s: specified property %s cannot be found.", 
 				property.getOwningClass().getName(), property.getName(), propertyAnnotation.redefines() ) );
 
-		Property redefinedProperty = ( specifiedProperty != null ? specifiedProperty : overriddenProperty );
 		Property redefiningProperty = ( redefinedProperty == null ? null : redefinedProperty.getRedefiningProperty() );
 		
 		java.lang.Class< ? > classOfRedefiningProperty = ( redefiningProperty == null ? null : redefiningProperty.getOwningClass().getTargetClass() );
