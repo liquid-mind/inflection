@@ -1,8 +1,30 @@
 package ch.liquidmind.inflection.selectors;
 
+import ch.liquidmind.inflection.association.AssociationRegistry;
+import ch.liquidmind.inflection.association.Class;
+import ch.liquidmind.inflection.association.Property;
+
 public class Selectors
 {
-	public static boolean isAssignableTo( Class< ? > theClass )
+	public static boolean isRedefinedProperty()
+	{
+		if ( !( SelectorContext.get() instanceof PropertySelectorContext ) )
+			throw new RuntimeException( "This selector can only be applied to properties." );
+		
+		PropertySelectorContext psContext = SelectorContext.get();
+		
+		String className = psContext.getCurrentClass().getName();
+		Class theClass = AssociationRegistry.instance().getRegisteredClass( className );
+		
+		if ( theClass == null )
+			throw new RuntimeException( String.format( "The class %s is not registered with %s.", className, AssociationRegistry.class.getName() ) );
+		
+		Property property = theClass.getOwnedProperty( psContext.getCurrentProperty().getName() );
+
+		return property.getRedefiningProperty() != null;
+	}
+	
+	public static boolean isAssignableTo( java.lang.Class< ? > theClass )
 	{
 		return theClass.isAssignableFrom( SelectorContext.get().getCurrentClass() );
 	}

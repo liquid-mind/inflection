@@ -17,12 +17,31 @@ import ch.liquidmind.inflection.exception.ExceptionWrapper;
 //   2. The otherEnds of any owned associations must not be composite.
 public class AssociationRegistry
 {
-	private static AssociationRegistry instance = new AssociationRegistry();
+	public static final String INCLUDE_FILTERS = AssociationRegistry.class.getName() + ".includeFilters";
+	public static final String EXCLUDE_FILTERS = AssociationRegistry.class.getName() + ".excludeFilters";
+	
+	private static AssociationRegistry instance;
 	// TODO: make the key java.lang.Class instead of String.
 	private Map< String, Class > registeredClasses = new HashMap< String, Class >();
+	private boolean performedScan = false;
 	
 	public static AssociationRegistry instance()
 	{
+		if ( instance == null )
+		{
+			instance = new AssociationRegistry();
+			
+			String includeFilters = System.getProperty( INCLUDE_FILTERS );
+			String[] includeFiltersSplit = ( includeFilters == null ? new String[] {} : includeFilters.split( "," ) );
+			String[] includeFiltersTrimed = Arrays.asList( includeFiltersSplit ).stream().map( includeFilter -> includeFilter.trim() ).collect( Collectors.toList() ).toArray( new String[ includeFiltersSplit.length ] );
+			
+			String excludeFilters = System.getProperty( EXCLUDE_FILTERS );
+			String[] excludeFiltersSplit = ( excludeFilters == null ? new String[] {} : excludeFilters.split( "," ) );
+			String[] excludeFiltersTrimed = Arrays.asList( excludeFiltersSplit ).stream().map( excludeFilter -> excludeFilter.trim() ).collect( Collectors.toList() ).toArray( new String[ excludeFiltersSplit.length ] );
+			
+			instance.scan( includeFiltersTrimed, excludeFiltersTrimed );
+		}
+		
 		return instance;
 	}
 	
@@ -33,6 +52,9 @@ public class AssociationRegistry
 	
 	public void scan( ClassLoader loader, String[] includeFilters, String[] excludeFilters )
 	{
+		if ( performedScan )
+			throw new RuntimeException( String.format( "Scan for this %s was already performed.", AssociationRegistry.class.getSimpleName() ) );
+		
 		Set< String > adjustedIncludeFilters = Arrays.asList( includeFilters ).stream().map( includeFilter -> includeFilter.replace( "*", ".*" ) ).collect( Collectors.toSet() );
 		Set< String > adjustedExcludeFilters = Arrays.asList( excludeFilters ).stream().map( excludeFilter -> excludeFilter.replace( "*", ".*" ) ).collect( Collectors.toSet() );
 		
@@ -46,6 +68,8 @@ public class AssociationRegistry
 		pass1Scanner.scan();
 		pass2Scanner.scan();
 		pass3Scanner.scan();
+		
+		performedScan = true;
 	}
 	
 	private boolean classInfoMatchesFilter( ClassInfo classInfo, Set< String > classNameFilters )
