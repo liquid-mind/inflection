@@ -11,6 +11,8 @@ import java.util.Set;
 
 public class Pass3Scanner extends AbstractScanner
 {
+	int associationNameCounter = 0;
+	
 	public Pass3Scanner( Map< String, Class > classes )
 	{
 		super( classes );
@@ -105,23 +107,22 @@ public class Pass3Scanner extends AbstractScanner
 		Property selfProperty = findProperty( selfClass, associationAnnotation.selfEnd() );
 		Class otherClass = getClasses().get( selfProperty.getRelatedClass().getName() );
 		Property otherProperty = findProperty( otherClass, associationAnnotation.otherEnd() );
-		String associationName = associationAnnotation.name();
-		String associationDisplayName = ( associationName.isEmpty() ? "UNSPECIFIED" : associationName );
+		String associationName = ( associationAnnotation.name().isEmpty() ? getDefaultAssociationName() : associationAnnotation.name() );
 		
 		if ( selfProperty == null )
 			// TODO: figure out why eclipse marks this as dead code.
 			throw new RuntimeException( String.format( "Illegal value for selfEnd in association %s.%s: specified property %s cannot be found", 
-				selfClass.getName(), associationDisplayName, selfProperty.getName() ) );
+				selfClass.getName(), associationName, selfProperty.getName() ) );
 		
 		if ( otherProperty == null )
 			throw new RuntimeException( String.format( "Illegal value for otherEnd in association %s.%s: specified property %s cannot be found", 
-				selfClass.getName(), associationDisplayName, associationAnnotation.otherEnd() ) );
+				selfClass.getName(), associationName, associationAnnotation.otherEnd() ) );
 		
 		Association association = new Association( associationName, selfProperty, otherProperty, true );
 		
 		if ( selfClass.getOwnedAssociations().contains( association ) )
 			throw new RuntimeException( String.format( "Illegal association %s.%s: association already exists.", 
-				selfClass.getName(), associationDisplayName, selfProperty.getName() ) );
+				selfClass.getName(), associationName, selfProperty.getName() ) );
 		
 		association.setOwningClass( selfClass );
 	}
@@ -143,7 +144,7 @@ public class Pass3Scanner extends AbstractScanner
 		
 		if ( associationAnnotations.isEmpty() )
 		{
-			Association association = new Association( "", property, null, false );
+			Association association = new Association( getDefaultAssociationName(), property, null, false );
 			association.setOwningClass( property.getOwningClass() );
 		}
 	}
@@ -152,18 +153,17 @@ public class Pass3Scanner extends AbstractScanner
 	{
 		Class selfClass = selfProperty.getOwningClass();
 		Property specifiedSelfProperty = findProperty( selfClass, associationAnnotation.selfEnd() );
-		String associationName = associationAnnotation.name();
-		String associationDisplayName = ( associationName.isEmpty() ? "NA" : associationName );
+		String associationName = ( associationAnnotation.name().isEmpty() ? getDefaultAssociationName() : associationAnnotation.name() );
 		
 		if ( !associationAnnotation.selfEnd().isEmpty() )
 		{
 			if ( specifiedSelfProperty == null )
 				throw new RuntimeException( String.format( "Illegal association %s.%s: specified property %s cannot be found.",
-					selfClass.getName(), associationDisplayName, associationAnnotation.selfEnd() ) );
+					selfClass.getName(), associationName, associationAnnotation.selfEnd() ) );
 			
 			if ( !selfProperty.equals( specifiedSelfProperty ) )
 				throw new RuntimeException( String.format( "Illegal association %s.%s: selfEnd %s must be either unspecified or the same as the associated property %s.",
-					selfClass.getName(), associationDisplayName, selfProperty.getName() ) );
+					selfClass.getName(), associationName, selfProperty.getName() ) );
 		}
 
 		Class otherClass = getClasses().get( selfProperty.getRelatedClass().getName() );
@@ -171,17 +171,17 @@ public class Pass3Scanner extends AbstractScanner
 		
 		if ( otherClass == null )
 			throw new RuntimeException( String.format( "Illegal value for otherEnd in association %s.%s: specified class %s cannot be found.", 
-				selfClass.getName(), associationDisplayName, selfProperty.getRelatedClass().getName() ) );
+				selfClass.getName(), associationName, selfProperty.getRelatedClass().getName() ) );
 		
 		if ( otherProperty == null )
 			throw new RuntimeException( String.format( "Illegal value for otherEnd in association %s.%s: specified property %s cannot be found.", 
-				selfClass.getName(), associationDisplayName, associationAnnotation.otherEnd() ) );
+				selfClass.getName(), associationName, associationAnnotation.otherEnd() ) );
 		
 		Association association = new Association( associationName, selfProperty, otherProperty, true );
 		
 		if ( selfClass.getOwnedAssociations().contains( association ) )
 			throw new RuntimeException( String.format( "Illegal association %s.%s: association already exists.", 
-				selfClass.getName(), associationDisplayName, selfProperty.getName() ) );
+				selfClass.getName(), associationName, selfProperty.getName() ) );
 		
 		association.setOwningClass( selfClass );
 	}
@@ -197,5 +197,10 @@ public class Pass3Scanner extends AbstractScanner
 		}
 
 		return foundProperty;
+	}
+	
+	private String getDefaultAssociationName()
+	{
+		return "A" + associationNameCounter++;
 	}
 }

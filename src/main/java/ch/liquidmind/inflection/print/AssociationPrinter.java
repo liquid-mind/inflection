@@ -32,46 +32,54 @@ public class AssociationPrinter extends AbstractPrinter
 
 	public void printClass( Class aClass )
 	{
-		getPrintWriter().println( String.format( "Associations owned by class %s:", getTypeName( aClass.getName() ) ) );
+		getPrintWriter().println( String.format( "Class %s:", getTypeName( aClass.getName() ) ) );
 		getPrintWriter().increaseIndent();
+		aClass.getOwnedProperties().stream().forEach( property -> printProperty( property ) );
 		aClass.getOwnedAssociations().stream().forEach( association -> printAssociation( association ) );
 		getPrintWriter().decreaseIndent();
 		getPrintWriter().flush();
+	}
+	
+	private void printProperty( Property property )
+	{
+		Property redefinedProperty = property.getRedefinedProperty();
+		Property subsettedProperty = property.getSubsettedProperty();
+		String redefinedPropertyName = ( redefinedProperty == null ? "NA" : getTypeName( redefinedProperty.getOwningClass().getName() ) + "." + redefinedProperty.getName() );
+		String subsettedPropertyName = ( subsettedProperty == null ? "NA" : getTypeName( subsettedProperty.getOwningClass().getName() ) + "." + subsettedProperty.getName() );
+		
+		getPrintWriter().println( String.format( "Property %s: Related Type=%s, Aggregation=%s, Redefines=%s, Subsets=%s, Declared=%s, Derived=%s, Derived Union=%s",
+			property.getName(), getTypeName( property.getRelatedType().getTypeName() ), property.getAggregation(), 
+			redefinedPropertyName, subsettedPropertyName, property.isDeclared(), property.isDerived(), property.isDerivedUnion() ) );
 	}
 
 	private void printAssociation( Association association )
 	{
 		String displayName = ( association.getName().isEmpty() ? "NA" : association.getName() );
 		
-		getPrintWriter().println( String.format( "Name=%s, Declared=%s", displayName, association.isDeclared() ) );
-		printProperty( "Self End", association.getSelfEnd() );
-		printProperty( "Other End", association.getOtherEnd() );
+		getPrintWriter().print( String.format( "Association %s:", displayName ) );
+		printPropertyReference( "Self End", association.getSelfEnd() );
+		printPropertyReference( "Other End", association.getOtherEnd() );
+		getPrintWriter().println( String.format( " Declared=%s", association.isDeclared() ) );
 	}
-	
-	private void printProperty( String title, Property property )
+
+	private void printPropertyReference( String title, Property property )
 	{
 		getPrintWriter().increaseIndent();
-		getPrintWriter().print( title + ": " );
-		printProperty( property );
+		getPrintWriter().print( " " + title + "=");
+		printPropertyReference( property );
 		getPrintWriter().decreaseIndent();
 	}
 	
-	private void printProperty( Property property )
+	private void printPropertyReference( Property property )
 	{
 		if ( property == null )
 		{
-			getPrintWriter().println( "NA" );
+			getPrintWriter().print( "NA" );
 		}
 		else
 		{
-			Property redefinedProperty = property.getRedefinedProperty();
-			Property subsettedProperty = property.getSubsettedProperty();
-			String redefinedPropertyName = ( redefinedProperty == null ? "NA" : getTypeName( redefinedProperty.getOwningClass().getName() ) + "." + redefinedProperty.getName() );
-			String subsettedPropertyName = ( subsettedProperty == null ? "NA" : getTypeName( subsettedProperty.getOwningClass().getName() ) + "." + subsettedProperty.getName() );
-			
-			getPrintWriter().println( String.format( "Name=%s, Related Type=%s, Aggregation=%s, Redefines=%s, Subsets=%s, Declared=%s, Derived=%s, Derived Union=%s",
-				property.getName(), getTypeName( property.getRelatedType().getTypeName() ), property.getAggregation(), 
-				redefinedPropertyName, subsettedPropertyName, property.isDeclared(), property.isDerived(), property.isDerivedUnion() ) );
+			getPrintWriter().print( String.format( "%s.%s",
+				getTypeName( property.getOwningClass().getName() ), property.getName() ) );
 		}
 	}
 }
