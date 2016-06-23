@@ -47,7 +47,7 @@ public class AssociationPrinter extends AbstractPrinter
 		String redefinedPropertyName = ( redefinedProperty == null ? "NA" : getTypeName( redefinedProperty.getOwningClass().getName() ) + "." + redefinedProperty.getName() );
 		String subsettedPropertyName = ( subsettedProperty == null ? "NA" : getTypeName( subsettedProperty.getOwningClass().getName() ) + "." + subsettedProperty.getName() );
 		
-		getPrintWriter().println( String.format( "Property %s: Related Type=%s, Aggregation=%s, Redefines=%s, Subsets=%s, Declared=%s, Derived=%s, Derived Union=%s",
+		getPrintWriter().println( String.format( "Property %s: Related-Type=%s, Aggregation=%s, Redefines=%s, Subsets=%s, Declared=%s, Derived=%s, Derived-Union=%s",
 			property.getName(), getTypeName( property.getRelatedType().getTypeName() ), property.getAggregation(), 
 			redefinedPropertyName, subsettedPropertyName, property.isDeclared(), property.isDerived(), property.isDerivedUnion() ) );
 	}
