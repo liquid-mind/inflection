@@ -45,6 +45,9 @@ public class InflectionCompiler
 	
 	public static void compile( TaxonomyLoader loader, File targetDir, CompilationMode compilationMode, File[] sourceFiles )
 	{
+		TaxonomyLoader.setContextTaxonomyLoader( loader );
+		Thread.currentThread().setContextClassLoader( loader.getClassLoader() );
+		
 		long timeBefore = System.currentTimeMillis();
 		CompilationJob job = new CompilationJob( loader, targetDir, compilationMode, sourceFiles );
 		
