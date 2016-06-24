@@ -6,22 +6,57 @@ import ch.liquidmind.inflection.association.Property;
 
 public class Selectors
 {
+	public static boolean hasRedefinedProperty()
+	{
+		return getCurrentClass().getOwnedProperties().stream().filter( property -> property.getRedefiningProperty() != null ).findAny().isPresent();
+	}
+
+	public static boolean hasSubsettedProperty()
+	{
+		return getCurrentClass().getOwnedProperties().stream().filter( property -> !property.getSubsetttingProperties().isEmpty() ).findAny().isPresent();
+	}
+	
 	public static boolean isRedefinedProperty()
+	{
+		return getCurrentProperty().getRedefiningProperty() != null;
+	}
+	
+	public static boolean isSubsettedProperty()
+	{
+		return !getCurrentProperty().getSubsetttingProperties().isEmpty();
+	}
+	
+	private static Property getCurrentProperty()
 	{
 		if ( !( SelectorContext.get() instanceof PropertySelectorContext ) )
 			throw new RuntimeException( "This selector can only be applied to properties." );
 		
 		PropertySelectorContext psContext = SelectorContext.get();
+		Class theClass = getCurrentClass( psContext );
+		Property property = theClass.getOwnedProperty( psContext.getCurrentProperty().getName() );
 		
-		String className = psContext.getCurrentClass().getName();
+		return property;
+	}
+
+	private static Class getCurrentClass()
+	{
+		if ( !( SelectorContext.get() instanceof ClassSelectorContext ) )
+			throw new RuntimeException( "This selector can only be applied to classes." );
+		
+		ClassSelectorContext csContext = SelectorContext.get();
+		
+		return getCurrentClass( csContext );
+	}
+	
+	private static Class getCurrentClass( SelectorContext selectorContext )
+	{
+		String className = selectorContext.getCurrentClass().getName();
 		Class theClass = AssociationRegistry.instance().getRegisteredClass( className );
 		
 		if ( theClass == null )
 			throw new RuntimeException( String.format( "The class %s is not registered with %s.", className, AssociationRegistry.class.getName() ) );
 		
-		Property property = theClass.getOwnedProperty( psContext.getCurrentProperty().getName() );
-
-		return property.getRedefiningProperty() != null;
+		return theClass;
 	}
 	
 	public static boolean isAssignableTo( java.lang.Class< ? > theClass )

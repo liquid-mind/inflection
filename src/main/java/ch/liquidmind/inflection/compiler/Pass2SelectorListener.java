@@ -13,6 +13,8 @@ import java.util.Set;
 import java.util.Stack;
 import java.util.stream.Collectors;
 
+import org.antlr.v4.runtime.ParserRuleContext;
+
 import __java.lang.__Class;
 import __java.lang.__NoSuchFieldException;
 import __java.lang.reflect.__Field;
@@ -45,6 +47,7 @@ public class Pass2SelectorListener extends AbstractInflectionListener
 	private ExpressionContext expressionContext;
 	private Stack< Object > expressionStack = new Stack< Object >();
 	private Boolean expressionValue;
+	private ExpressionContext skipExpressionContext = null;
 	
 	public Pass2SelectorListener( CompilationUnit compilationUnit, SelectorContext selectorContext, ExpressionContext expressionContext )
 	{
@@ -104,19 +107,50 @@ public class Pass2SelectorListener extends AbstractInflectionListener
 		return (T)value;
 	}
 	
-	// TODO: skip second operand evaluation in the following cases:
-	// 1. Boolean AND: if first operand is false.
-	// 2. Boolean OR: if first operand is true.
-	// TODO: Extend the number of supported operators, which will require
-	// in some cases extensive type checking and/or conversion. For example,
-	// the == operator works differently depending whether the operands are
-	// basic or complex types, and in the case of basic types on which
-	// basic types are being compared. This will take some work and isn't the
-	// first priority at this time. Also, it might be better to delegate more
-	// complex expressions to the helper methods, anyway.
+	@Override
+	public void enterExpression( ExpressionContext expressionContext )
+	{
+		if ( skipExpressionContext != null )
+			return;
+
+		ParserRuleContext parentContext = expressionContext.getParent();
+		
+		if ( !(parentContext instanceof ExpressionContext ) )
+			return;
+		
+		ExpressionContext parentExpressionContext = (ExpressionContext)parentContext;
+		
+		if ( parentExpressionContext.getChildCount() < 3 )
+			return;
+		
+		if ( parentExpressionContext.getChild( 0 ).equals( expressionContext ) )
+			return;
+		
+		String potentialLogicalOperator = parentContext.getChild( 1 ).getText();
+		
+		if ( potentialLogicalOperator.equals( LOGICAL_AND ) && expressionStack.peek().equals( false ) )
+		{
+			expressionStack.push( false );
+			skipExpressionContext = expressionContext;
+		}
+		else if ( potentialLogicalOperator.equals( LOGICAL_OR ) && expressionStack.peek().equals( true ) )
+		{
+			expressionStack.push( true );
+			skipExpressionContext = expressionContext;
+		}
+	}
+
 	@Override
 	public void exitExpression( ExpressionContext expressionContext )
 	{
+		if ( skipExpressionContext != null )
+		{
+			if ( skipExpressionContext == expressionContext )
+				skipExpressionContext = null;
+
+			return;
+		}
+		
 		if ( expressionContext.getChildCount() < 2 )
 			return;
 		
@@ -138,18 +172,27 @@ public class Pass2SelectorListener extends AbstractInflectionListener
 	@Override
 	public void enterMethodInvocation( MethodInvocationContext methodInvocationContext )
 	{
+		if ( skipExpressionContext != null )
+			return;
+
 		parameterCount = 0;
 	}
 
 	@Override
 	public void enterMethodArgument( MethodArgumentContext methodArgumentContext )
 	{
+		if ( skipExpressionContext != null )
+			return;
+
 		++parameterCount;
 	}
 
 	@Override
 	public void exitMethodInvocation( MethodInvocationContext methodInvocationContext )
 	{
+		if ( skipExpressionContext != null )
+			return;
+
 		List< Object > paramsAsList = new ArrayList< Object >();
 		
 		// Fetch parameters and invocation object from the stack.
@@ -316,6 +359,9 @@ public class Pass2SelectorListener extends AbstractInflectionListener
 	@Override
 	public void enterIntegerLiteral( IntegerLiteralContext integerLiteralContext )
 	{
+		if ( skipExpressionContext != null )
+			return;
+
 		DigitsContext digitsContext = (DigitsContext)integerLiteralContext.getChild( 0 );
 		String digits = digitsContext.getText();
 		boolean isLong = ( integerLiteralContext.getChildCount() == 2 ? true : false );
@@ -333,6 +379,9 @@ public class Pass2SelectorListener extends AbstractInflectionListener
 	@Override
 	public void enterFloatingPointLiteral( FloatingPointLiteralContext floatingPointLiteralContext )
 	{
+		if ( skipExpressionContext != null )
+			return;
+
 		DecimalNumberContext decimalNumberContext = (DecimalNumberContext)floatingPointLiteralContext.getChild( 0 );
 		String decimalNumber = decimalNumberContext.getText();
 		boolean isFloat = ( floatingPointLiteralContext.getChildCount() == 2 ? true : false );
@@ -350,6 +399,9 @@ public class Pass2SelectorListener extends AbstractInflectionListener
 	@Override
 	public void enterClassReference( ClassReferenceContext classReferenceContext )
 	{
+		if ( skipExpressionContext != null )
+			return;
+
 		TypeContext typeContext = (TypeContext)classReferenceContext.getChild( 0 );
 		String className = resolveClassReference( typeContext );
 		Class< ? > theClass = getClass( className );
@@ -421,6 +473,9 @@ public class Pass2SelectorListener extends AbstractInflectionListener
 	@Override
 	public void enterStaticFieldReference( StaticFieldReferenceContext staticFieldReferenceContext )
 	{
+		if ( skipExpressionContext != null )
+			return;
+
 		StaticReferenceContext staticReferenceContext = (StaticReferenceContext)staticFieldReferenceContext.getChild( 0 );
 		Class< ? > theClass = resolveStaticReferenceClass( staticReferenceContext, StaticReferenceType.STATIC_FIELD );
 		String staticFieldName = getStaticReferenceName( staticReferenceContext );
@@ -433,24 +488,36 @@ public class Pass2SelectorListener extends AbstractInflectionListener
 	@Override
 	public void enterBooleanLiteral( BooleanLiteralContext booleanLiteralContext )
 	{
+		if ( skipExpressionContext != null )
+			return;
+
 		expressionStack.push( Boolean.valueOf( booleanLiteralContext.getText() ) );
 	}
 
 	@Override
 	public void enterCharacterLiteral( CharacterLiteralContext characterLiteralContext )
 	{
+		if ( skipExpressionContext != null )
+			return;
+
 		expressionStack.push( characterLiteralContext.getChild( 1 ).getText().charAt( 0 ) );
 	}
 
 	@Override
 	public void enterStringLiteral( StringLiteralContext stringLiteralContext )
 	{
+		if ( skipExpressionContext != null )
+			return;
+
 		expressionStack.push( stringLiteralContext.getText().replace( "\"", "" ) );
 	}
 
 	@Override
 	public void enterNullLiteral( NullLiteralContext NullLiteralContext )
 	{
+		if ( skipExpressionContext != null )
+			return;
+
 		expressionStack.push( null );
 	}
 }
