@@ -43,11 +43,27 @@ public class InflectionCompiler
 		compile( TaxonomyLoader.getSystemTaxonomyLoader(), targetDir, compilationMode, sourceFiles );
 	}
 	
-	public static void compile( TaxonomyLoader loader, File targetDir, CompilationMode compilationMode, File[] sourceFiles )
+	public static void compile( TaxonomyLoader taxonomyLoader, File targetDir, CompilationMode compilationMode, File[] sourceFiles )
 	{
-		TaxonomyLoader.setContextTaxonomyLoader( loader );
-		Thread.currentThread().setContextClassLoader( loader.getClassLoader() );
+		TaxonomyLoader previousTaxonomyLoader = TaxonomyLoader.getContextTaxonomyLoader();
+		ClassLoader previousClassLoader = Thread.currentThread().getContextClassLoader();
 		
+		try
+		{
+			TaxonomyLoader.setContextTaxonomyLoader( taxonomyLoader );
+			Thread.currentThread().setContextClassLoader( taxonomyLoader.getClassLoader() );
+			
+			compileWithContextLoaders( taxonomyLoader, targetDir, compilationMode, sourceFiles );
+		}
+		finally
+		{
+			TaxonomyLoader.setContextTaxonomyLoader( previousTaxonomyLoader );
+			Thread.currentThread().setContextClassLoader( previousClassLoader );
+		}
+	}
+
+	public static void compileWithContextLoaders( TaxonomyLoader loader, File targetDir, CompilationMode compilationMode, File[] sourceFiles )
+	{
 		long timeBefore = System.currentTimeMillis();
 		CompilationJob job = new CompilationJob( loader, targetDir, compilationMode, sourceFiles );
 		

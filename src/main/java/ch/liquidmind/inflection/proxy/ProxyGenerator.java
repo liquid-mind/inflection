@@ -57,7 +57,26 @@ public class ProxyGenerator
 		generateProxies( TaxonomyLoader.getContextTaxonomyLoader(), output, taxonomyNames, annotationNames );
 	}
 	
-	public static void generateProxies( TaxonomyLoader loader, String output, List< String > taxonomyNames, List< String > annotationNames )
+	public static void generateProxies( TaxonomyLoader taxonomyLoader, String output, List< String > taxonomyNames, List< String > annotationNames )
+	{
+		TaxonomyLoader previousTaxonomyLoader = TaxonomyLoader.getContextTaxonomyLoader();
+		ClassLoader previousClassLoader = Thread.currentThread().getContextClassLoader();
+		
+		try
+		{
+			TaxonomyLoader.setContextTaxonomyLoader( taxonomyLoader );
+			Thread.currentThread().setContextClassLoader( taxonomyLoader.getClassLoader() );
+			
+			generateProxiesWithContextLoaders( taxonomyLoader, output, taxonomyNames, annotationNames );
+		}
+		finally
+		{
+			TaxonomyLoader.setContextTaxonomyLoader( previousTaxonomyLoader );
+			Thread.currentThread().setContextClassLoader( previousClassLoader );
+		}
+	}
+
+	public static void generateProxiesWithContextLoaders( TaxonomyLoader loader, String output, List< String > taxonomyNames, List< String > annotationNames )
 	{
 		for ( String taxonomyName : taxonomyNames )
 		{

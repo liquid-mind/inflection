@@ -91,13 +91,32 @@ public class InflectionPrinter extends AbstractPrinter
 		printTaxonomy( loader, taxonomyName, printStream, showSimpleNames, showInherited );
 	}
 	
-	public static void printTaxonomy( TaxonomyLoader loader, String taxonomyName, PrintStream printStream, boolean showSimpleNames, boolean showInherited )
+	public static void printTaxonomy( TaxonomyLoader taxonomyLoader, String taxonomyName, PrintStream printStream, boolean showSimpleNames, boolean showInherited )
+	{
+		TaxonomyLoader previousTaxonomyLoader = TaxonomyLoader.getContextTaxonomyLoader();
+		ClassLoader previousClassLoader = Thread.currentThread().getContextClassLoader();
+		
+		try
+		{
+			TaxonomyLoader.setContextTaxonomyLoader( taxonomyLoader );
+			Thread.currentThread().setContextClassLoader( taxonomyLoader.getClassLoader() );
+			
+			printTaxonomyWithContextLoaders( taxonomyLoader, taxonomyName, printStream, showSimpleNames, showInherited );
+		}
+		finally
+		{
+			TaxonomyLoader.setContextTaxonomyLoader( previousTaxonomyLoader );
+			Thread.currentThread().setContextClassLoader( previousClassLoader );
+		}
+	}
+
+	public static void printTaxonomyWithContextLoaders( TaxonomyLoader loader, String taxonomyName, PrintStream printStream, boolean showSimpleNames, boolean showInherited )
 	{
 		Taxonomy taxonomy = loader.loadTaxonomy( taxonomyName );
 		InflectionPrinter printer = new InflectionPrinter( printStream, showSimpleNames, showInherited );
 		printer.printTaxonomy( taxonomy );
 	}
-
+	
 	public static void printView( Taxonomy taxonomy, View view, Writer writer, boolean showSimpleNames, boolean showInherited )
 	{
 		InflectionPrinter printer = new InflectionPrinter( writer, showSimpleNames, showInherited );
