@@ -93,7 +93,7 @@ public class Selectors
 		return isMatchingProperty;
 	}
 	
-	private static Property getCurrentProperty()
+	public static Property getCurrentProperty()
 	{
 		if ( !( SelectorContext.get() instanceof PropertySelectorContext ) )
 			throw new RuntimeException( "This selector can only be applied to properties." );
@@ -105,7 +105,7 @@ public class Selectors
 		return property;
 	}
 
-	private static Class getCurrentClass()
+	public static Class getCurrentClass()
 	{
 		if ( !( SelectorContext.get() instanceof ClassSelectorContext ) )
 			throw new RuntimeException( "This selector can only be applied to classes." );
@@ -115,7 +115,7 @@ public class Selectors
 		return getCurrentClass( csContext );
 	}
 	
-	private static Class getCurrentClass( SelectorContext selectorContext )
+	public static Class getCurrentClass( SelectorContext selectorContext )
 	{
 		String className = selectorContext.getCurrentClass().getName();
 		Class theClass = AssociationRegistry.instance().getRegisteredClass( className );
