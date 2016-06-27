@@ -14,6 +14,12 @@ public class Association
 		this.selfEnd = selfEnd;
 		this.otherEnd = otherEnd;
 		this.isDeclared = isDeclared;
+		
+		if ( selfEnd != null )
+			selfEnd.getAssociations().add( this );
+		
+		if ( otherEnd != null )
+			otherEnd.getAssociations().add( this );
 	}
 
 	public String getName()

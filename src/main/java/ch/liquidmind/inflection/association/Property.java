@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 public class Property
 {
@@ -18,6 +19,7 @@ public class Property
 	private Set< Property > subsetttingProperties = new HashSet< Property >();
 	private boolean isDerived, isDerivedUnion, isDeclared;
 	private Class owningClass;
+	private Set< Association > associations = new HashSet< Association >();
 
 	public Property( PropertyDescriptor targetProperty )
 	{
@@ -151,6 +153,16 @@ public class Property
 		return subsetttingProperties;
 	}
 	
+	public Set< Association > getAssociations()
+	{
+		return associations;
+	}
+	
+	public Set< Property > getAssociatedProperties()
+	{
+		return associations.stream().map( association -> ( this.equals( association.getSelfEnd() ) ? association.getOtherEnd() : association.getSelfEnd() ) ).filter( property -> property != null ).collect( Collectors.toSet() );
+	}
+
 	public java.lang.Class< ? > getRelatedClass()
 	{
 		java.lang.Class< ? > relatedClass;

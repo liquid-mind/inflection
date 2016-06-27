@@ -4,12 +4,35 @@ import java.util.Set;
 import java.util.function.BiFunction;
 import java.util.stream.Collectors;
 
+import ch.liquidmind.inflection.association.Aggregation;
 import ch.liquidmind.inflection.association.AssociationRegistry;
 import ch.liquidmind.inflection.association.Class;
 import ch.liquidmind.inflection.association.Property;
 
 public class Selectors
 {
+	public static boolean hasNonCompositeEndOfCompositeAssociation()
+	{
+		return getCurrentClass().getOwnedProperties().stream().filter( property -> hasCompositeAssociatedProperty( property ) ).findAny().isPresent();
+	}
+	
+	public static boolean isNonCompositeEndOfCompositeAssociation()
+	{
+		return hasCompositeAssociatedProperty( getCurrentProperty() );
+	}
+	
+	private static boolean hasCompositeAssociatedProperty( Property property )
+	{
+		try
+		{
+			return property.getAssociatedProperties().stream().filter( associatedProperty -> associatedProperty.getAggregation().equals( Aggregation.COMPOSITE ) ).findAny().isPresent();
+		}
+		catch ( NullPointerException e )
+		{
+			throw e;
+		}
+	}
+	
 	public static boolean hasRedefinedProperty( boolean includeOverrides )
 	{
 		return hasMatchingProperty( includeOverrides, ( aClass, propertyNames ) -> aClass.getOwnedProperties().stream().filter( property -> property.getRedefiningProperty() != null && propertyNames.contains( property.getName() ) ).findAny().isPresent() );

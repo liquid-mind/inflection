@@ -185,7 +185,7 @@ public class InflectionPrinter extends AbstractPrinter
 			@Override
 			public int compare( View view1, View view2 )
 			{
-				 return view1.getName().compareTo( view2.getName() );
+				 return getTypeName( view1.getName() ).compareTo( getTypeName( view2.getName() ) );
 			}
 		} );
 		
