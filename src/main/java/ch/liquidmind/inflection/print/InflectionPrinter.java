@@ -225,7 +225,7 @@ public class InflectionPrinter extends AbstractPrinter
 			getPrintWriter().print( " as " + view.getAlias() );
 		
 		if ( view.getUsedClass() != null )
-			getPrintWriter().print( " use " + view.getUsedClass().getName() );
+			getPrintWriter().print( " use " + getTypeName( view.getUsedClass().getName() ) );
 		
 		if ( taxonomy.getSuperview( view ) != null)
 			getPrintWriter().println( " extends " + getTypeName( taxonomy.getSuperview( view ).getName() ) );
