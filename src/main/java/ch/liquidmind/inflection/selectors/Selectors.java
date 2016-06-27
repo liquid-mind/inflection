@@ -1,29 +1,73 @@
 package ch.liquidmind.inflection.selectors;
 
+import java.util.Set;
+import java.util.function.BiFunction;
+import java.util.stream.Collectors;
+
 import ch.liquidmind.inflection.association.AssociationRegistry;
 import ch.liquidmind.inflection.association.Class;
 import ch.liquidmind.inflection.association.Property;
 
 public class Selectors
 {
-	public static boolean hasRedefinedProperty()
+	public static boolean hasRedefinedProperty( boolean includeOverrides )
 	{
-		return getCurrentClass().getOwnedProperties().stream().filter( property -> property.getRedefiningProperty() != null ).findAny().isPresent();
+		return hasMatchingProperty( includeOverrides, ( aClass, propertyNames ) -> aClass.getOwnedProperties().stream().filter( property -> property.getRedefiningProperty() != null && propertyNames.contains( property.getName() ) ).findAny().isPresent() );
 	}
 
-	public static boolean hasSubsettedProperty()
+	public static boolean hasSubsettedProperty( boolean includeOverrides )
 	{
-		return getCurrentClass().getOwnedProperties().stream().filter( property -> !property.getSubsetttingProperties().isEmpty() ).findAny().isPresent();
+		return hasMatchingProperty( includeOverrides, ( aClass, propertyNames ) -> aClass.getOwnedProperties().stream().filter( property -> !property.getSubsetttingProperties().isEmpty() && propertyNames.contains( property.getName() ) ).findAny().isPresent() );
 	}
 	
-	public static boolean isRedefinedProperty()
+	public static boolean hasMatchingProperty( boolean includeOverrides, BiFunction< Class, Set< String >, Boolean > matchingFunction )
 	{
-		return getCurrentProperty().getRedefiningProperty() != null;
+		Class currentClass = getCurrentClass();
+		Set< String > propertyNames = currentClass.getOwnedProperties().stream().map( property -> property.getName() ).collect( Collectors.toSet() );
+		boolean hasMatchingProperty = false;
+		
+		while ( currentClass != null )
+		{
+			if ( hasMatchingProperty = matchingFunction.apply( currentClass, propertyNames ) )
+				break;
+			
+			if ( includeOverrides )
+				currentClass = currentClass.getSuperClass();
+			else
+				currentClass = null;
+		}
+		
+		return hasMatchingProperty;
 	}
 	
-	public static boolean isSubsettedProperty()
+	public static boolean isRedefinedProperty( boolean includeOverrides )
 	{
-		return !getCurrentProperty().getSubsetttingProperties().isEmpty();
+		return isMatchingProperty( includeOverrides, ( aClass, propertyName ) -> aClass.getOwnedProperty( propertyName ) != null && aClass.getOwnedProperty( propertyName ).getRedefiningProperty() != null );
+	}
+	
+	public static boolean isSubsettedProperty( boolean includeOverrides )
+	{
+		return isMatchingProperty( includeOverrides, ( aClass, propertyName ) -> aClass.getOwnedProperty( propertyName ) != null && !aClass.getOwnedProperty( propertyName ).getSubsetttingProperties().isEmpty() );
+	}
+	
+	public static boolean isMatchingProperty( boolean includeOverrides, BiFunction< Class, String, Boolean > matchingFunction )
+	{
+		Class currentClass = getCurrentClass( SelectorContext.get() );
+		String propertyName = getCurrentProperty().getName();
+		boolean isMatchingProperty = false;
+		
+		while ( currentClass != null )
+		{
+			if ( isMatchingProperty = matchingFunction.apply( currentClass, propertyName ) )
+				break;
+			
+			if ( includeOverrides )
+				currentClass = currentClass.getSuperClass();
+			else
+				currentClass = null;
+		}
+		
+		return isMatchingProperty;
 	}
 	
 	private static Property getCurrentProperty()
