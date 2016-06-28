@@ -11,6 +11,45 @@ import ch.liquidmind.inflection.association.Property;
 
 public class Selectors
 {
+	public static boolean isProperyOrRedefinitionOf( String propertyName )
+	{
+		return isProperyOrRedefinitionOf( getCurrentProperty(), propertyName );
+	}
+	
+	private static boolean isProperyOrRedefinitionOf( Property currentProperty, String propertyName )
+	{
+		boolean isProperyOrRedefinitionOf = ( currentProperty == null ? false : currentProperty.getName().equals( propertyName ) );
+
+		if ( currentProperty != null )
+		{
+			if ( !isProperyOrRedefinitionOf )
+				isProperyOrRedefinitionOf = isProperyOrRedefinitionOf( currentProperty.getRedefinedProperty(), propertyName );
+			
+			if ( !isProperyOrRedefinitionOf )
+				isProperyOrRedefinitionOf = isProperyOrRedefinitionOf( getOverriddenProperty( currentProperty ), propertyName );
+		}
+		
+		return isProperyOrRedefinitionOf;
+	}
+	
+	private static Property getOverriddenProperty( Property property )
+	{
+		Property overriddenProperty = null;
+		Class currentClass = property.getOwningClass().getSuperClass();
+		
+		while ( currentClass != null )
+		{
+			overriddenProperty = currentClass.getOwnedProperty( property.getName() );
+			
+			if ( overriddenProperty != null )
+				break;
+			
+			currentClass = currentClass.getSuperClass();
+		}
+		
+		return overriddenProperty;
+	}
+	
 	public static boolean hasNonCompositeEndOfCompositeAssociation()
 	{
 		return getCurrentClass().getOwnedProperties().stream().filter( property -> hasCompositeAssociatedProperty( property ) ).findAny().isPresent();
@@ -124,6 +163,11 @@ public class Selectors
 			throw new RuntimeException( String.format( "The class %s is not registered with %s.", className, AssociationRegistry.class.getName() ) );
 		
 		return theClass;
+	}
+	
+	public static boolean isSubclassOf( java.lang.Class< ? > theClass )
+	{
+		return isAssignableTo( theClass ) && ! SelectorContext.get().getCurrentClass().equals( theClass );
 	}
 	
 	public static boolean isAssignableTo( java.lang.Class< ? > theClass )
