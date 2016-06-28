@@ -43,7 +43,8 @@ public class InflectionBuild
 		
 		String classpath = options.get( "-classpath" ).get( 0 );
 		String sourcepath = options.get( "-sourcepath" ).get( 0 );
-		List< String > modelRegex = options.get( "-modelRegex" );
+		List< String > modelSourcesRegex = options.get( "-modelSourcesRegex" );
+		List< String > modelClassesRegex = options.get( "-modelClassesRegex" );
 		String target = options.get( "-target" ).get( 0 );
 		List< String > annotations = options.get( "-annotations" );
 		annotations = ( annotations == null ? new ArrayList< String >() : annotations );
@@ -60,8 +61,9 @@ public class InflectionBuild
 		String diagnosticVerbose = new File( diagnosticDir, "verbose" ).getAbsolutePath();
 		List< String > classpathModel = Arrays.asList( classpath.split( System.getProperty( "path.separator" ) ) );
 		List< String > sourcepathModel = Arrays.asList( sourcepath.split( System.getProperty( "path.separator" ) ) );
-		String[] modelRegexAsArray = modelRegex.toArray( new String[ modelRegex.size() ] );
-		Set< File > modelFiles = getMatchingFiles( sourcepathModel, modelRegexAsArray );
+		String[] modelSourcesRegexAsArray = modelSourcesRegex.toArray( new String[ modelSourcesRegex.size() ] );
+		String[] modelClassesRegexAsArray = modelClassesRegex.toArray( new String[ modelClassesRegex.size() ] );
+		Set< File > modelFiles = getMatchingFiles( sourcepathModel, modelSourcesRegexAsArray );
 		Set< File > inflectFiles = getMatchingFiles( sourcepathModel, ".*\\.inflect" );
 		String modelTargetDir = Files.createTempDir().getAbsolutePath();
 		List< String > classpathInflection = new ArrayList< String >();
@@ -69,7 +71,7 @@ public class InflectionBuild
 		classpathInflection.add( modelTargetDir );
 		
 		compileModelFiles( modelFiles, modelTargetDir, classpath );
-		compileInflectionFiles( classpathInflection, taxonomyTarget, inflectFiles, mode );
+		compileInflectionFiles( classpathInflection, modelClassesRegexAsArray, taxonomyTarget, inflectFiles, mode );
 		generateProxies( classpathInflection, proxyTarget, taxonomyTarget, annotations );
 		printTaxonomies( classpathInflection, taxonomyTarget, diagnosticNormal, true, false );
 		printTaxonomies( classpathInflection, taxonomyTarget, diagnosticVerbose, true, true );
@@ -110,7 +112,7 @@ public class InflectionBuild
 		return taxonomyNames;
 	}
 	
-	private static void compileInflectionFiles( List< String > classpath, String taxonomyTarget, Set< File > sourceFiles, String mode )
+	private static void compileInflectionFiles( List< String > classpath, String[] classFilters, String taxonomyTarget, Set< File > sourceFiles, String mode )
 	{
 		File taxonomyTargetAsFile = new File( taxonomyTarget );
 		CompilationMode compilationMode = Enum.valueOf( CompilationMode.class, mode );
@@ -119,7 +121,7 @@ public class InflectionBuild
 		if ( !taxonomyTargetAsFile.exists() )
 			taxonomyTargetAsFile.mkdirs();
 		
-		InflectionCompiler.compile( getTaxonomyLoader( classpath ), taxonomyTargetAsFile, compilationMode, sourceFilesAsArray );
+		InflectionCompiler.compile( getTaxonomyLoader( classpath ), classFilters, taxonomyTargetAsFile, compilationMode, sourceFilesAsArray );
 	}
 
 	private static TaxonomyLoader getTaxonomyLoader( List< String > classpath, String taxonomyTarget )

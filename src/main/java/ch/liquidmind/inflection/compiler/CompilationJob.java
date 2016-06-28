@@ -3,11 +3,13 @@ package ch.liquidmind.inflection.compiler;
 import java.io.File;
 import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.reflect.ClassPath.ClassInfo;
@@ -29,13 +31,15 @@ public class CompilationJob
 	private CompilationMode compilationMode;
 	private Map< String, TaxonomyCompiled > knownTaxonomiesCompiled = new HashMap< String, TaxonomyCompiled >();
 	private List< CompilationUnit > compilationUnits = new ArrayList< CompilationUnit >();
+	private String[] classFilters;
 	private Set< ClassInfo > allClassesInClassPath;
 	private Set< Class< ? > > allClassesInClassPath2;	// TODO: rename allClassesInClassPath and allClassesInClassPath2 to something better.
 	
-	public CompilationJob( TaxonomyLoader taxonomyLoader, File targetDirectory, CompilationMode compilationMode, File ... sourceFiles )
+	public CompilationJob( TaxonomyLoader taxonomyLoader, String[] classFilters, File targetDirectory, CompilationMode compilationMode, File ... sourceFiles )
 	{
 		super();
 		this.taxonomyLoader = taxonomyLoader;
+		this.classFilters = classFilters;
 		this.targetDirectory = targetDirectory;
 		this.compilationMode = compilationMode;
 		
@@ -108,8 +112,10 @@ public class CompilationJob
 				{
 					Class< ? > aClass = classInfo.load();
 					
-					if ( aClass.isEnum() || aClass.isInterface() || aClass.isLocalClass() || aClass.isMemberClass() )
+					if ( aClass.isEnum() || aClass.isInterface() || aClass.isLocalClass() || aClass.isMemberClass() || !classMatchesFilters( aClass ) )
 						continue;
+
+					subsetOfClasses.add( classInfo );
 				}
 				catch ( LinkageError e )
 				{
@@ -119,14 +125,17 @@ public class CompilationJob
 					// filter through, which is probably not a problem in practice (since model classes are usually
 					// quite simple).
 				}
-				
-				subsetOfClasses.add( classInfo );
 			}
 			
 			allClassesInClassPath = subsetOfClasses;
 		}
 		
 		return allClassesInClassPath;
+	}
+	
+	boolean classMatchesFilters( Class< ? > aClass )
+	{
+		return !Arrays.asList( classFilters ).stream().filter( classFilter -> aClass.getName().matches( classFilter ) ).collect( Collectors.toList() ).isEmpty();
 	}
 	
 	Set< Class< ? > > getAllClassesInClassPath2()

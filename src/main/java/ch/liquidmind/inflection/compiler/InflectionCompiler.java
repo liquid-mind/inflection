@@ -34,16 +34,18 @@ public class InflectionCompiler
 		for ( int i = 0 ; i < sourceFiles.length ; ++i )
 			sourceFiles[ i ] = new File( args[ i + 2 ] );
 		
+		// TODO: take this value from command line args.
+		String[] classFilters = new String[] {};
 		
-		compile( targetDir, compilationMode, sourceFiles );
+		compile( classFilters, targetDir, compilationMode, sourceFiles );
 	}
 
-	public static void compile( File targetDir, CompilationMode compilationMode, File[] sourceFiles )
+	public static void compile( String[] classFilters, File targetDir, CompilationMode compilationMode, File[] sourceFiles )
 	{
-		compile( TaxonomyLoader.getSystemTaxonomyLoader(), targetDir, compilationMode, sourceFiles );
+		compile( TaxonomyLoader.getSystemTaxonomyLoader(), classFilters, targetDir, compilationMode, sourceFiles );
 	}
 	
-	public static void compile( TaxonomyLoader taxonomyLoader, File targetDir, CompilationMode compilationMode, File[] sourceFiles )
+	public static void compile( TaxonomyLoader taxonomyLoader, String[] classFilters, File targetDir, CompilationMode compilationMode, File[] sourceFiles )
 	{
 		TaxonomyLoader previousTaxonomyLoader = TaxonomyLoader.getContextTaxonomyLoader();
 		ClassLoader previousClassLoader = Thread.currentThread().getContextClassLoader();
@@ -53,7 +55,7 @@ public class InflectionCompiler
 			TaxonomyLoader.setContextTaxonomyLoader( taxonomyLoader );
 			Thread.currentThread().setContextClassLoader( taxonomyLoader.getClassLoader() );
 			
-			compileWithContextLoaders( taxonomyLoader, targetDir, compilationMode, sourceFiles );
+			compileWithContextLoaders( taxonomyLoader, classFilters, targetDir, compilationMode, sourceFiles );
 		}
 		finally
 		{
@@ -62,10 +64,10 @@ public class InflectionCompiler
 		}
 	}
 
-	public static void compileWithContextLoaders( TaxonomyLoader loader, File targetDir, CompilationMode compilationMode, File[] sourceFiles )
+	public static void compileWithContextLoaders( TaxonomyLoader loader, String[] classFilters, File targetDir, CompilationMode compilationMode, File[] sourceFiles )
 	{
 		long timeBefore = System.currentTimeMillis();
-		CompilationJob job = new CompilationJob( loader, targetDir, compilationMode, sourceFiles );
+		CompilationJob job = new CompilationJob( loader, classFilters, targetDir, compilationMode, sourceFiles );
 		
 		try
 		{

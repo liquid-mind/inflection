@@ -86,7 +86,8 @@ task( inflect, type: JavaExec ) {
 	args = [
 		"-classpath", sourceSets.test.compileClasspath.asPath,
 		"-sourcepath", "${projectDir}/src/test/java:${projectDir}/src/test/resources",
-		"-modelRegex", ".*ch(/|\\\\)liquidmind(/|\\\\)inflection(/|\\\\)test(/|\\\\)model(/|\\\\).*\\.java",
+		"-modelSourcesRegex", ".*ch(/|\\\\)liquidmind(/|\\\\)inflection(/|\\\\)test(/|\\\\)model(/|\\\\).*\\.java",
+		"-modelClassesRegex", "ch.liquidmind.inflection.test.model.*",
 		"-target", "${buildDir}/inflection",
 		"-annotations", ".*",
 		"-mode", "BOOTSTRAP"
