@@ -11,6 +11,11 @@ import ch.liquidmind.inflection.association.Property;
 
 public class Selectors
 {
+	public static boolean classEquals( java.lang.Class< ? > aClass )
+	{
+		return getCurrentClass().getName().equals( aClass.getName() );
+	}
+	
 	public static boolean isProperyOrRedefinitionOf( String propertyName )
 	{
 		return isProperyOrRedefinitionOf( getCurrentProperty(), propertyName );
