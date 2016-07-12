@@ -20,6 +20,8 @@ import ch.liquidmind.inflection.model.compiled.TaxonomyCompiled;
 
 public class CompilationJob
 {
+	private static final String[] DEFAULT_CLASS_FILTERS = new String[] { ".*" };
+	
 	public enum CompilationMode
 	{
 		NORMAL,
@@ -39,7 +41,7 @@ public class CompilationJob
 	{
 		super();
 		this.taxonomyLoader = taxonomyLoader;
-		this.classFilters = classFilters;
+		this.classFilters = ( classFilters == null || classFilters.length == 0 ? DEFAULT_CLASS_FILTERS : classFilters );
 		this.targetDirectory = targetDirectory;
 		this.compilationMode = compilationMode;
 		

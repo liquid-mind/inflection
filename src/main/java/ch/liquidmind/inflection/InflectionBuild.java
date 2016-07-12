@@ -50,6 +50,8 @@ public class InflectionBuild
 		annotations = ( annotations == null ? new ArrayList< String >() : annotations );
 		List< String > modes = options.get( "-mode" );
 		String mode = ( modes == null ? CompilationMode.NORMAL.name() : modes.get( 0 ) );
+		
+		modelClassesRegex = ( modelClassesRegex == null ? new ArrayList< String >() : modelClassesRegex );
 
 		SimpleDateFormat dateFormat = new SimpleDateFormat( "yyyyMMdd-HHmmss" );
 		String timestampSuffix = dateFormat.format( new Date() );
