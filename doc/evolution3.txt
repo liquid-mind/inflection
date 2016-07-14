@@ -1,0 +1,15 @@
+taxonomy T1
+{
+	
+	
+	select create view matches( "mypackage.*" )
+		select property matches ( "myProperty" );
+		
+	select modify view matches( "*" )							// Select all existing views from this taxonomy
+		select annotation matches( "MyAnnotation" ) filter		// Select all (class level) annotations that match 
+		select property matches( "myProperty" ) remove			
+	
+}
+
+
+create   the selected entity is 
