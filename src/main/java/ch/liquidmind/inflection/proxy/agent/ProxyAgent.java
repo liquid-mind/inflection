@@ -1,7 +1,6 @@
-package ch.liquidmind.inflection.proxy;
+package ch.liquidmind.inflection.proxy.agent;
 
 import java.io.File;
-import java.io.InputStream;
 import java.lang.instrument.ClassFileTransformer;
 import java.lang.instrument.IllegalClassFormatException;
 import java.lang.instrument.Instrumentation;
@@ -15,10 +14,10 @@ import java.util.stream.Collectors;
 import com.google.common.reflect.ClassPath;
 import com.google.common.reflect.ClassPath.ResourceInfo;
 
-import __org.apache.commons.io.__IOUtils;
 import ch.liquidmind.inflection.Auxiliary;
 import ch.liquidmind.inflection.loader.TaxonomyLoader;
 import ch.liquidmind.inflection.model.external.Taxonomy;
+import ch.liquidmind.inflection.proxy.Proxy;
 import javassist.ClassPool;
 import javassist.CtClass;
 import javassist.CtField;
@@ -60,8 +59,8 @@ public class ProxyAgent implements ClassFileTransformer
 	{
 		try
 		{
-			instrumentation.addTransformer( new ProxyAgent(), true );
-			determineInstrumentableClassesInContext();
+			instrumentableClassNames = determineInstrumentableClasses();
+			instrumentation.addTransformer( new ProxyAgent() );
 		}
 		catch ( Throwable t )
 		{
@@ -69,99 +68,12 @@ public class ProxyAgent implements ClassFileTransformer
 		}
 	}
 	
-	public static class AgentClassLoader extends ClassLoader
-	{
-		private ClassLoader contextLoader = Thread.currentThread().getContextClassLoader();
-
-		public AgentClassLoader()
-		{
-			super( getExtensionsClassLoader() );
-		}
-		
-		private static ClassLoader getExtensionsClassLoader()
-		{
-			ClassLoader extendsionsLoader = null;
-			ClassLoader currentLoader = ClassLoader.getSystemClassLoader();
-			
-			while ( ( currentLoader = currentLoader.getParent() ) != null )
-			{
-				if ( currentLoader.getClass().getName().equals( "sun.misc.Launcher$ExtClassLoader" ) )
-				{
-					extendsionsLoader = currentLoader;
-					break;
-				}
-			}
-			
-			return extendsionsLoader;
-		}
-
-		@Override
-		protected Class< ? > loadClass( String name, boolean resolve ) throws ClassNotFoundException
-		{
-			Class< ? > aClass = parentLoadClass( name, resolve );
-			
-			if ( aClass == null )
-				aClass = delegateLoadClass( name, resolve );
-			
-			return aClass;
-		}
-		
-		private Class< ? > parentLoadClass( String name, boolean resolve )
-		{
-			Class< ? > aClass = null;
-			
-			try
-			{
-				aClass = super.loadClass( name, resolve );
-			}
-			catch ( ClassNotFoundException e )
-			{
-				// Ignore and return null.
-			}
-			
-			return aClass;
-		}
-		
-		private Class< ? > delegateLoadClass( String name, boolean resolve ) throws ClassNotFoundException
-		{
-			InputStream classStream = getResourceAsStream( name.replace( ".", File.separator ) + ".class" );
-			byte[] binaryClass = __IOUtils.toByteArray( null, classStream );
-			Class< ? > aClass = defineClass( name, binaryClass, 0, binaryClass.length );
-			resolveClass( aClass );
-			
-			return aClass;
-		}
-
-		@Override
-		public InputStream getResourceAsStream( String name )
-		{
-			return contextLoader.getResourceAsStream( name );
-		}
-	}
-	
 	private static Set< String > instrumentableClassNames;
-	private static TaxonomyLoader loader;
-	
-	public static void determineInstrumentableClassesInContext() throws Throwable
-	{
-		ClassLoader contextLoader = Thread.currentThread().getContextClassLoader();
-		
-		try
-		{
-			AgentClassLoader agentClassLoader = new AgentClassLoader();
-			Thread.currentThread().setContextClassLoader( agentClassLoader.getParent() );
-			loader = new TaxonomyLoader( TaxonomyLoader.getSystemTaxonomyLoader(), agentClassLoader );
-			instrumentableClassNames = determineInstrumentableClasses();
-		}
-		finally
-		{
-			Thread.currentThread().setContextClassLoader( contextLoader );
-		}
-	}
+	private static TaxonomyLoader loader = new AgentTaxonomyLoader();
 	
 	public static Set< String > determineInstrumentableClasses() throws Throwable
 	{
-		Set< ResourceInfo > resources = ClassPath.from( ClassLoader.getSystemClassLoader() ).getResources();
+		Set< ResourceInfo > resources = ClassPath.from( loader.getClassLoader() ).getResources();
 		Set< Class< ? > > viewedClasses = new HashSet< Class< ? > >();
 		resources.stream()
 			.filter( resourceInfo -> resourceInfo.getResourceName().endsWith( ".tax" ) )

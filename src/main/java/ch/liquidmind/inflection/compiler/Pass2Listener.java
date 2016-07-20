@@ -67,7 +67,7 @@ import ch.liquidmind.inflection.grammar.InflectionParser.ViewAnnotationContext;
 import ch.liquidmind.inflection.grammar.InflectionParser.ViewDeclarationContext;
 import ch.liquidmind.inflection.grammar.InflectionParser.WildcardIdentifierContext;
 import ch.liquidmind.inflection.grammar.InflectionParser.WildcardSimpleTypeContext;
-import ch.liquidmind.inflection.loader.SystemTaxonomyLoader;
+import ch.liquidmind.inflection.loader.BootstrapTaxonomyLoader;
 import ch.liquidmind.inflection.loader.TaxonomyLoader;
 import ch.liquidmind.inflection.model.AccessType;
 import ch.liquidmind.inflection.model.SelectionType;
@@ -282,7 +282,7 @@ public class Pass2Listener extends AbstractInflectionListener
 		// Taxonomies that don't extend anything else extend ch.liquidmind.inflection.Taxonomy
 		// by default (analogous to java.lang.Object)
 		if ( taxonomyExtensionsContext.getChildCount() == 0 )
-			currentTaxonomyCompiled.getExtendedTaxonomies().add( SystemTaxonomyLoader.TAXONOMY );
+			currentTaxonomyCompiled.getExtendedTaxonomies().add( BootstrapTaxonomyLoader.TAXONOMY );
 	}
 
 	@Override

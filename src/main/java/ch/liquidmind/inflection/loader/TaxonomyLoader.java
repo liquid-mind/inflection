@@ -26,6 +26,8 @@ import ch.liquidmind.inflection.model.linked.ViewLinked;
 public class TaxonomyLoader
 {
 	private static TaxonomyLoader systemTaxonomyLoader;
+	private static TaxonomyLoader extensionsTaxonomyLoader;
+	private static TaxonomyLoader bootstrapTaxonomyLoader;
 	private static ThreadLocal< TaxonomyLoader > contextTaxonomyLoader = new ThreadLocal< TaxonomyLoader >();
 
 	public static final Map< String, Class< ? > > BASIC_TYPE_MAP = new HashMap< String, Class< ? > >();
@@ -54,7 +56,7 @@ public class TaxonomyLoader
 	
 	public TaxonomyLoader( TaxonomyLoader parentTaxonomyLoader, ClassLoader classLoader )
 	{
-		if ( parentTaxonomyLoader == null && !( this instanceof SystemTaxonomyLoader ) )
+		if ( parentTaxonomyLoader == null && !( this instanceof BootstrapTaxonomyLoader ) )
 			throw new IllegalArgumentException( "Parent taxonomy loader cannot be null." );
 		
 		if ( classLoader == null )
@@ -70,6 +72,22 @@ public class TaxonomyLoader
 			systemTaxonomyLoader = new SystemTaxonomyLoader();
 		
 		return systemTaxonomyLoader;
+	}
+	
+	public static TaxonomyLoader getExtensionsTaxonomyLoader()
+	{
+		if ( extensionsTaxonomyLoader == null )
+			extensionsTaxonomyLoader = new ExtensionsTaxonomyLoader();
+		
+		return extensionsTaxonomyLoader;
+	}
+	
+	public static TaxonomyLoader getBootstrapTaxonomyLoader()
+	{
+		if ( bootstrapTaxonomyLoader == null )
+			bootstrapTaxonomyLoader = new BootstrapTaxonomyLoader();
+		
+		return bootstrapTaxonomyLoader;
 	}
 	
 	public static TaxonomyLoader getContextTaxonomyLoader()
