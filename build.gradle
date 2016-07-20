@@ -18,6 +18,12 @@ jar {
     from ("./LICENSE") {
         into "META-INF"
     }
+    manifest {
+        attributes(
+        	"Premain-Class": "ch.liquidmind.inflection.proxy.ProxyAgent",
+        	"Can-Redefine-Classes": "true",
+        	"Can-Retransform-Classes": "true" )                    
+    }
 }
 
 repositories {
@@ -50,7 +56,10 @@ dependencies {
 	compile( "org.codehaus.jackson:jackson-core-asl:1.9.13" ) { transitive = false }
 	compile( '__java:rt:1.8' ) { transitive = false }
 	compile( 'commons-beanutils:commons-beanutils:1.9.2' ) { transitive = false }
+	compile( 'org.javassist:javassist:3.20.0-GA' ) { transitive = false }
 	testCompile( "junit:junit:4.12" ) { transitive = false }
+
+	compile files( "${System.properties['java.home']}/../lib/tools.jar" )
 
 	runtime "commons-io:commons-io:2.4"
 	runtime "__commons-io:commons-io-deflected:2.4"
@@ -61,6 +70,7 @@ dependencies {
 	runtime '__java:rt:1.8'
 	runtime 'commons-beanutils:commons-beanutils:1.9.2'
 	testRuntime "junit:junit:4.12"
+	testRuntime files( "${buildDir}/libs/inflection-2.0-alpha.jar" )
 }
 
 // Antlr
@@ -101,7 +111,12 @@ sourceSets.test.resources.srcDirs += "${buildDir}/inflection/taxonomy"
 test {
 	// Enable this to see test output:
 	testLogging.showStandardStreams = true
+	jvmArgs = [
+		"-agentlib:jdwp=transport=dt_socket,address=9009,server=y,suspend=y",
+		"-javaagent:${buildDir}/libs/inflection-2.0-alpha.jar" ]
 }
+
+test.dependsOn jar
 
 // Sources JAR
 task sourceJar(type: Jar, dependsOn: classes) {

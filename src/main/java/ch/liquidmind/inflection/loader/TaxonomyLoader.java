@@ -58,7 +58,7 @@ public class TaxonomyLoader
 			throw new IllegalArgumentException( "Parent taxonomy loader cannot be null." );
 		
 		if ( classLoader == null )
-			throw new IllegalArgumentException( "Parent class loader cannot be null." );
+			throw new IllegalArgumentException( "Class loader cannot be null." );
 		
 		this.parentTaxonomyLoader = parentTaxonomyLoader;
 		this.classLoader = classLoader;

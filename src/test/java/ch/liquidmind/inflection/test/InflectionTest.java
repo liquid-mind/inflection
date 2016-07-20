@@ -1,6 +1,7 @@
 package ch.liquidmind.inflection.test;
 
 import java.io.PrintStream;
+import java.net.URLClassLoader;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 
@@ -27,6 +28,15 @@ import ch.liquidmind.inflection.test.model.UseCase5.ch.liquidmind.inflection.tes
 public class InflectionTest
 {
 	private static PrintStream printStream = System.out;
+	
+	@Test
+	public void test()
+	{
+		ClassLoader loader = new ClassLoader( null ) {};
+		int i = 0;
+		
+		URLClassLoader t;
+	}
 	
 	@Test
 	public void testPrinterMulti() throws Throwable
