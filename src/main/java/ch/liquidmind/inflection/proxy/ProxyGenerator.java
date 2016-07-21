@@ -30,6 +30,7 @@ import ch.liquidmind.inflection.model.external.View;
 import ch.liquidmind.inflection.model.linked.NamedElementLinked;
 import ch.liquidmind.inflection.model.linked.UnparsedAnnotation;
 import ch.liquidmind.inflection.print.InflectionPrinter;
+import ch.liquidmind.inflection.proxy.memory.TaxonomySpecificMemoryManager;
 
 // TODO Proxies of abstract classes should be abstract themselves (since it doesn't
 // make sense to be able to instantiate a view of an un-instantiable class).
@@ -418,7 +419,7 @@ public class ProxyGenerator
 			Type[] actualTypeArguments = parameterizedType.getActualTypeArguments();
 			String rawTypeConverted;
 			List< String > actualTypeArgumentsConverted = new ArrayList< String >();
-			Class< ? > proxyBaseClass = Tuples.getProxyBaseClass( (Class< ? >)rawType );
+			Class< ? > proxyBaseClass = TaxonomySpecificMemoryManager.getProxyBaseClass( (Class< ? >)rawType );
 			
 			if ( proxyBaseClass != null )
 				rawTypeConverted = getFullyQualifiedCollectionName( taxonomy, proxyBaseClass );

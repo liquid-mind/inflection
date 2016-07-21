@@ -8,7 +8,8 @@ import java.util.List;
 
 import ch.liquidmind.inflection.Inflection;
 import ch.liquidmind.inflection.model.external.Taxonomy;
-import ch.liquidmind.inflection.proxy.Tuples.ObjectType;
+import ch.liquidmind.inflection.proxy.memory.ManualMemoryManager;
+import ch.liquidmind.inflection.proxy.memory.TaxonomySpecificMemoryManager.ObjectType;
 
 public class CollectionProxyHandler implements InvocationHandler
 {
@@ -31,7 +32,7 @@ public class CollectionProxyHandler implements InvocationHandler
 	private Object invoke( Proxy proxy, Method method, Object[] args ) throws Throwable
 	{
 		Taxonomy taxonomy = Inflection.getTaxonomy( proxy );
-		Object collection = ProxyRegistry.getContextProxyRegistry().getObject( taxonomy, ObjectType.Object, proxy );
+		Object collection = ManualMemoryManager.getContextProxyRegistry().getObject( taxonomy, ObjectType.Object, proxy );
 		List< Object > viewableArgs = getViewableObjects( taxonomy, args );
 		Method viewableMethod = collection.getClass().getMethod( method.getName(), method.getParameterTypes() );
 		viewableMethod.setAccessible( true );
@@ -63,7 +64,7 @@ public class CollectionProxyHandler implements InvocationHandler
 		for ( Object rawObject : rawObjects )
 		{
 			if ( rawObject instanceof Proxy )
-				viewableObjects.add( ProxyRegistry.getContextProxyRegistry().getObject( taxonomy, ObjectType.Object, (Proxy)rawObject ) );
+				viewableObjects.add( ManualMemoryManager.getContextProxyRegistry().getObject( taxonomy, ObjectType.Object, (Proxy)rawObject ) );
 			else
 				viewableObjects.add( rawObject );
 		}
@@ -73,7 +74,7 @@ public class CollectionProxyHandler implements InvocationHandler
 	
 	private Object getProxyObject( Taxonomy taxonomy, Object viewableObject )
 	{
-		Object proxyObject = ProxyRegistry.getContextProxyRegistry().getObject( taxonomy, ObjectType.Proxy, viewableObject );
+		Object proxyObject = ManualMemoryManager.getContextProxyRegistry().getObject( taxonomy, ObjectType.Proxy, viewableObject );
 		
 		if ( proxyObject == null )
 			proxyObject = viewableObject;

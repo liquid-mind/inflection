@@ -1,4 +1,4 @@
-package ch.liquidmind.inflection.proxy;
+package ch.liquidmind.inflection.proxy.memory;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
@@ -18,131 +18,16 @@ import ch.liquidmind.inflection.Auxiliary;
 import ch.liquidmind.inflection.Inflection;
 import ch.liquidmind.inflection.model.external.Taxonomy;
 import ch.liquidmind.inflection.model.external.View;
+import ch.liquidmind.inflection.proxy.IteratorProxy;
+import ch.liquidmind.inflection.proxy.ListProxy;
+import ch.liquidmind.inflection.proxy.MapProxy;
+import ch.liquidmind.inflection.proxy.NoProxyException;
+import ch.liquidmind.inflection.proxy.Proxy;
+import ch.liquidmind.inflection.proxy.ProxyGenerator;
+import ch.liquidmind.inflection.proxy.SetProxy;
 
-public class Tuples
+public abstract class TaxonomySpecificMemoryManager
 {
-	public static class ObjectsTuple
-	{
-		private Proxy proxy;
-		private Object object;
-		private Object auxiliary;
-		
-		public ObjectsTuple( Proxy proxy, Object object, Object auxiliary )
-		{
-			super();
-			this.proxy = proxy;
-			this.object = object;
-			this.auxiliary = auxiliary;
-		}
-	
-		@SuppressWarnings( "unchecked" )
-		public < T > T getObject( ObjectType objectType )
-		{
-			T targetObject = null;
-			
-			if ( objectType.equals( ObjectType.Proxy ) )
-				targetObject = (T)proxy;
-			else if ( objectType.equals( ObjectType.Object ) )
-				targetObject = (T)object;
-			else if ( objectType.equals( ObjectType.Auxiliary ) )
-				targetObject = (T)auxiliary;
-			else
-				throw new IllegalStateException( "Target object cannot be identified." );
-			
-			return targetObject;
-		}
-		
-		public Proxy getProxy()
-		{
-			return proxy;
-		}
-	
-		public Object getObject()
-		{
-			return object;
-		}
-	
-		public Object getAuxiliary()
-		{
-			return auxiliary;
-		}
-	
-		@Override
-		public int hashCode()
-		{
-			final int prime = 31;
-			int result = 1;
-			result = prime * result + ( ( auxiliary == null ) ? 0 : System.identityHashCode( auxiliary ) );
-			result = prime * result + ( ( object == null ) ? 0 : System.identityHashCode( object ) );
-			result = prime * result + ( ( proxy == null ) ? 0 : System.identityHashCode( proxy ) );
-			return result;
-		}
-	
-		@Override
-		public boolean equals( Object obj )
-		{
-			if ( this == obj )
-				return true;
-			if ( obj == null )
-				return false;
-			if ( getClass() != obj.getClass() )
-				return false;
-			ObjectsTuple other = (ObjectsTuple)obj;
-			if ( auxiliary == null )
-			{
-				if ( other.auxiliary != null )
-					return false;
-			}
-			else if ( !auxiliary.equals( other.auxiliary ) )
-				return false;
-			if ( object == null )
-			{
-				if ( other.object != null )
-					return false;
-			}
-			else if ( !object.equals( other.object ) )
-				return false;
-			if ( proxy == null )
-			{
-				if ( other.proxy != null )
-					return false;
-			}
-			else if ( !proxy.equals( other.proxy ) )
-				return false;
-			return true;
-		}
-	}
-	
-	public static class ClassesTuple
-	{
-		private Class< ? > proxyClass;
-		private Class< ? > objectClass;
-		private Class< ? > auxiliaryClass;
-		
-		public ClassesTuple( Class< ? > proxyClass, Class< ? > objectClass, Class< ? > auxiliaryClass )
-		{
-			super();
-			this.proxyClass = proxyClass;
-			this.objectClass = objectClass;
-			this.auxiliaryClass = auxiliaryClass;
-		}
-	
-		public Class< ? > getProxyClass()
-		{
-			return proxyClass;
-		}
-	
-		public Class< ? > getObjectClass()
-		{
-			return objectClass;
-		}
-	
-		public Class< ? > getAuxiliaryClass()
-		{
-			return auxiliaryClass;
-		}
-	}
-
 	private static final Map< Class< ? >, Class< ? > > PROXY_BASE_CLASSES = new HashMap< Class< ? >, Class< ? > >();
 	public static final Map< Class< ? >, Class< ? > > COLLECTION_CLASSES_BY_PROXY = new HashMap< Class< ? >, Class< ? > >();
 	public static final Map< Class< ? >, Class< ? > > COLLECTION_CLASSES_BY_INTERFACE = new HashMap< Class< ? >, Class< ? > >();
@@ -176,10 +61,9 @@ public class Tuples
 	}
 
 	private Taxonomy taxonomy;
-	private Map< Integer, ObjectsTuple > objectsTuples = new HashMap< Integer, ObjectsTuple >();
 	private Map< Class< ? >, ClassesTuple > classesTuples = new HashMap< Class< ? >, ClassesTuple >();
 	
-	public Tuples( Taxonomy taxonomy )
+	public TaxonomySpecificMemoryManager( Taxonomy taxonomy )
 	{
 		this.taxonomy = taxonomy;
 	}
@@ -206,25 +90,10 @@ public class Tuples
 		return targetObject;
 	}
 
-	private ObjectsTuple getObjectTuple( Object key )
-	{
-		ObjectsTuple objectsTuple = objectsTuples.get( System.identityHashCode( key ) );
-		
-		if ( objectsTuple == null )
-		{
-			objectsTuple = createObjectTuple( key );
-			objectsTuples.put( System.identityHashCode( objectsTuple.getObject() ), objectsTuple );
-			objectsTuples.put( System.identityHashCode( objectsTuple.getProxy() ), objectsTuple );
-			
-			if ( objectsTuple.getAuxiliary() != null )
-				objectsTuples.put( System.identityHashCode( objectsTuple.getAuxiliary() ), objectsTuple );
-		}
-		
-		return objectsTuple;
-	}
+	protected abstract ObjectsTuple getObjectTuple( Object key );
 	
 	@SuppressWarnings( "unchecked" )
-	private ObjectsTuple createObjectTuple( Object object )
+	protected ObjectsTuple createObjectTuple( Object object )
 	{
 		Class< ? > theClass = object.getClass();
 		ClassesTuple classesTuple = getClassesTuple( object );
@@ -232,7 +101,7 @@ public class Tuples
 		
 		Proxy proxy = determineProxyObject( theClass, classesTuple.getProxyClass(), object );
 		Object viewableObject = determineObject( theClass, classesTuple.getObjectClass(), getAdjustedClass( classesTuple.getObjectClass() ), object );
-		Object auxiliary = determineAuxiliaryObject( theClass, classesTuple.getAuxiliaryClass(), object, taxonomy, view );
+		Auxiliary auxiliary = determineAuxiliaryObject( theClass, classesTuple.getAuxiliaryClass(), object, taxonomy, view );
 		
 		ObjectsTuple objectsTuple = new ObjectsTuple( proxy, viewableObject, auxiliary );
 		
@@ -244,12 +113,6 @@ public class Tuples
 	{
 		return (T)( classA.equals( classB ) ? objectA : ( classB == null ? null : createAuxiliaryObject( classB, taxonomy, view ) ) );
 	}
-//	
-//	@SuppressWarnings( "unchecked" )
-//	private < T > T determineObject( Class< ? > classA, Class< ? > classB, Class< ? > classC, Object objectA, Taxonomy taxonomy, View view )
-//	{
-//		return (T)( classA.equals( classB ) ? objectA : ( classB == null ? null : createAuxiliaryObject( classC, taxonomy, view ) ) );
-//	}
 	
 	@SuppressWarnings( "unchecked" )
 	private < T > T createAuxiliaryObject( Class< ? > theClass, Taxonomy taxonomy, View view )
@@ -463,5 +326,9 @@ public class Tuples
 		
 		return interfaces;
 	}
-	
+
+	public Taxonomy getTaxonomy()
+	{
+		return taxonomy;
+	}
 }

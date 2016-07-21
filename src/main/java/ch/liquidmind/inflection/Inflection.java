@@ -16,9 +16,9 @@ import ch.liquidmind.inflection.model.external.Taxonomy;
 import ch.liquidmind.inflection.model.external.View;
 import ch.liquidmind.inflection.print.InflectionPrinter;
 import ch.liquidmind.inflection.proxy.Proxy;
-import ch.liquidmind.inflection.proxy.ProxyRegistry;
-import ch.liquidmind.inflection.proxy.Tuples;
-import ch.liquidmind.inflection.proxy.Tuples.ObjectType;
+import ch.liquidmind.inflection.proxy.memory.ManualMemoryManager;
+import ch.liquidmind.inflection.proxy.memory.TaxonomySpecificMemoryManager;
+import ch.liquidmind.inflection.proxy.memory.TaxonomySpecificMemoryManager.ObjectType;
 
 public class Inflection
 {
@@ -68,7 +68,7 @@ public class Inflection
 	public static < T > T cast( Taxonomy taxonomy, Class< T > theClass, Object object )
 	{
 		ObjectType targetObjectType = determineObjectType( theClass );
-		T targetObject = ProxyRegistry.getContextProxyRegistry().getObject( taxonomy, targetObjectType, object );
+		T targetObject = ManualMemoryManager.getContextProxyRegistry().getObject( taxonomy, targetObjectType, object );
 		
 		return targetObject;
 	}
@@ -90,7 +90,7 @@ public class Inflection
 		Taxonomy taxonomy;
 
 		if ( Auxiliary.class.isAssignableFrom( object.getClass() ) )
-			taxonomy = (Taxonomy)__Field.get( Tuples.AUXILIARY_TAXONOMY, object );
+			taxonomy = (Taxonomy)__Field.get( TaxonomySpecificMemoryManager.AUXILIARY_TAXONOMY, object );
 		else
 			taxonomy = determineTaxonomy( object.getClass() );
 		
@@ -136,7 +136,7 @@ public class Inflection
 	
 	public static < T extends Object > T cast( Taxonomy taxonomy, ObjectType objectType, Object object )
 	{
-		return ProxyRegistry.getContextProxyRegistry().getObject( taxonomy, objectType, object );
+		return ManualMemoryManager.getContextProxyRegistry().getObject( taxonomy, objectType, object );
 	}
 	
 	public static < T extends Object > T cast( Proxy proxy )
@@ -146,7 +146,7 @@ public class Inflection
 	
 	public static < T extends Object > T cast( ObjectType objectType, Proxy proxy )
 	{
-		return ProxyRegistry.getContextProxyRegistry().getObject( getTaxonomy( proxy ), objectType, proxy );
+		return ManualMemoryManager.getContextProxyRegistry().getObject( getTaxonomy( proxy ), objectType, proxy );
 	}
 
 	public static String viewToString( Proxy proxy )

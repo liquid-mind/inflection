@@ -11,9 +11,14 @@ import java.util.concurrent.ConcurrentHashMap;
 import __java.lang.__Class;
 import ch.liquidmind.inflection.Inflection;
 import ch.liquidmind.inflection.model.external.View;
+import ch.liquidmind.inflection.proxy.memory.ProxyOwnedVirtualObjectReference;
 
 public class Proxy
 {
+	// Used by memory management sub-system.
+	@SuppressWarnings( "unused" )
+	private ProxyOwnedVirtualObjectReference virtualObjectReference;
+	
 	protected Proxy()
 	{
 		super();

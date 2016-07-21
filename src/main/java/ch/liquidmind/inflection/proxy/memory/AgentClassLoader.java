@@ -1,4 +1,4 @@
-package ch.liquidmind.inflection.proxy.agent;
+package ch.liquidmind.inflection.proxy.memory;
 
 import java.net.URLClassLoader;
 

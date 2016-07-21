@@ -1,55 +1,29 @@
-package ch.liquidmind.inflection.proxy.agent;
+package ch.liquidmind.inflection.proxy.memory;
 
 import java.io.File;
 import java.lang.instrument.ClassFileTransformer;
 import java.lang.instrument.IllegalClassFormatException;
 import java.lang.instrument.Instrumentation;
 import java.security.ProtectionDomain;
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 import com.google.common.reflect.ClassPath;
 import com.google.common.reflect.ClassPath.ResourceInfo;
 
-import ch.liquidmind.inflection.Auxiliary;
 import ch.liquidmind.inflection.loader.TaxonomyLoader;
 import ch.liquidmind.inflection.model.external.Taxonomy;
-import ch.liquidmind.inflection.proxy.Proxy;
 import javassist.ClassPool;
 import javassist.CtClass;
 import javassist.CtField;
 import javassist.Modifier;
 
-public class ProxyAgent implements ClassFileTransformer
+public class MemoryManagementAgent implements ClassFileTransformer
 {
-	public static class VirtualObjectReference {}
-	
-	public static class ProxyOwnedVirtualObjectReference extends VirtualObjectReference
-	{
-		private Object viewedObject;
-		private Auxiliary auxiliaryObject;
-	}
-	
-	public static class AuxiliaryOwnedVirtualObjectReference extends VirtualObjectReference
-	{
-		private Object viewedObject;
-		private Proxy proxyObject;
-	}
-	
-	public static class ViewedObjectVirtualObjectReferences extends VirtualObjectReference
-	{
-		private Map< Taxonomy, ViewedObjectVirtualObjectReference > references = new HashMap< Taxonomy, ViewedObjectVirtualObjectReference >();
-	}
-	
-	public static class ViewedObjectVirtualObjectReference extends VirtualObjectReference
-	{
-		private Object viewedObject;
-		private Proxy proxyObject;
-	}
-	
+	private static Set< String > instrumentableClassNames;
+	private static boolean agentActive = false;
+
 	public static void premain( String agentArgs, Instrumentation instrumentation )
 	{
 		premainWithExceptionHandling( agentArgs, instrumentation );
@@ -60,7 +34,8 @@ public class ProxyAgent implements ClassFileTransformer
 		try
 		{
 			instrumentableClassNames = determineInstrumentableClasses();
-			instrumentation.addTransformer( new ProxyAgent() );
+			instrumentation.addTransformer( new MemoryManagementAgent() );
+			agentActive = true;
 		}
 		catch ( Throwable t )
 		{
@@ -68,16 +43,14 @@ public class ProxyAgent implements ClassFileTransformer
 		}
 	}
 	
-	private static Set< String > instrumentableClassNames;
-	private static TaxonomyLoader loader = new AgentTaxonomyLoader();
-	
 	public static Set< String > determineInstrumentableClasses() throws Throwable
 	{
+		TaxonomyLoader loader = new AgentTaxonomyLoader();
 		Set< ResourceInfo > resources = ClassPath.from( loader.getClassLoader() ).getResources();
 		Set< Class< ? > > viewedClasses = new HashSet< Class< ? > >();
 		resources.stream()
 			.filter( resourceInfo -> resourceInfo.getResourceName().endsWith( ".tax" ) )
-			.map( resourceInfo -> getTaxonomy( resourceInfo.getResourceName() ) )
+			.map( resourceInfo -> getTaxonomy( loader, resourceInfo.getResourceName() ) )
 			.filter( taxonomy -> taxonomy != null )
 			.forEach( taxonomy -> viewedClasses.addAll( getViewedClasses( taxonomy ) ) );
 		Set< String > instrumentableClassNames = viewedClasses.stream()
@@ -112,7 +85,7 @@ public class ProxyAgent implements ClassFileTransformer
 		return taxonomy.getViews().stream().map( view -> view.getViewedClass() ).collect( Collectors.toSet() );
 	}
 	
-	private static Taxonomy getTaxonomy( String taxonomyResourceName )
+	private static Taxonomy getTaxonomy( TaxonomyLoader loader, String taxonomyResourceName )
 	{
 		String taxonomyName = taxonomyResourceName.substring( 0, taxonomyResourceName.length() - ".tax".length() ).replace( File.separator, "." );
 		Taxonomy taxonomy = null;
@@ -143,7 +116,7 @@ public class ProxyAgent implements ClassFileTransformer
 				ClassPool classPool = ClassPool.getDefault();
 				CtClass theClass = classPool.get( className );
 				CtClass voReference = classPool.get( ViewedObjectVirtualObjectReferences.class.getName() );
-				CtField field = new CtField( voReference, ProxyAgent.class.getPackage().getName() + ".virtualObjectReferences", theClass );
+				CtField field = new CtField( voReference, MemoryManagementAgent.class.getPackage().getName() + ".virtualObjectReference", theClass );
 				field.setModifiers( Modifier.PRIVATE );
 				theClass.addField( field );
 				byteCode = theClass.toBytecode();
@@ -155,5 +128,10 @@ public class ProxyAgent implements ClassFileTransformer
 		}
 
 		return byteCode;
+	}
+
+	public static boolean isAgentActive()
+	{
+		return agentActive;
 	}
 }

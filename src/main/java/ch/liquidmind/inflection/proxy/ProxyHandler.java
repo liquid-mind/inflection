@@ -11,7 +11,8 @@ import ch.liquidmind.inflection.model.external.Field;
 import ch.liquidmind.inflection.model.external.Member;
 import ch.liquidmind.inflection.model.external.Property;
 import ch.liquidmind.inflection.model.external.Taxonomy;
-import ch.liquidmind.inflection.proxy.Tuples.ObjectType;
+import ch.liquidmind.inflection.proxy.memory.ManualMemoryManager;
+import ch.liquidmind.inflection.proxy.memory.TaxonomySpecificMemoryManager.ObjectType;
 
 public class ProxyHandler implements InvocationHandler
 {
@@ -36,8 +37,8 @@ public class ProxyHandler implements InvocationHandler
 		String memberName = Pass2Listener.getPropertyName( method );
 		Taxonomy taxonomy = Inflection.getTaxonomy( proxy );
 		Member member = taxonomy.getMember( Inflection.getView( proxy ), memberName );
-		Object viewableObject = ProxyRegistry.getContextProxyRegistry().getObject( taxonomy, ObjectType.Object, proxy );
-		Object auxiliaryObject = ProxyRegistry.getContextProxyRegistry().getObject( taxonomy, ObjectType.Auxiliary, proxy );
+		Object viewableObject = ManualMemoryManager.getContextProxyRegistry().getObject( taxonomy, ObjectType.Object, proxy );
+		Object auxiliaryObject = ManualMemoryManager.getContextProxyRegistry().getObject( taxonomy, ObjectType.Auxiliary, proxy );
 		Object targetObject = ( method.getDeclaringClass().isAssignableFrom( viewableObject.getClass() ) ? viewableObject : auxiliaryObject );
 		List< Object > viewableArgs = getViewableObjects( taxonomy, args );
 		MemberOperation memberOperation = getMemberOperation( method );
@@ -103,7 +104,7 @@ public class ProxyHandler implements InvocationHandler
 		for ( Object rawObject : rawObjects )
 		{
 			if ( rawObject instanceof Proxy )
-				viewableObjects.add( ProxyRegistry.getContextProxyRegistry().getObject( taxonomy, ObjectType.Object, (Proxy)rawObject ) );
+				viewableObjects.add( ManualMemoryManager.getContextProxyRegistry().getObject( taxonomy, ObjectType.Object, (Proxy)rawObject ) );
 			else
 				viewableObjects.add( rawObject );
 		}
@@ -113,7 +114,7 @@ public class ProxyHandler implements InvocationHandler
 	
 	private Object getProxyObject( Taxonomy taxonomy, Object viewableObject )
 	{
-		Object proxyObject = ProxyRegistry.getContextProxyRegistry().getObject( taxonomy, ObjectType.Proxy, viewableObject );
+		Object proxyObject = ManualMemoryManager.getContextProxyRegistry().getObject( taxonomy, ObjectType.Proxy, viewableObject );
 		
 		if ( proxyObject == null )
 			proxyObject = viewableObject;
