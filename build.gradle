@@ -111,7 +111,8 @@ test {
 	testLogging.showStandardStreams = true
 	jvmArgs = [
 		"-agentlib:jdwp=transport=dt_socket,address=9009,server=y,suspend=y",
-		"-javaagent:${buildDir}/libs/inflection-2.0-alpha.jar" ]
+		"-javaagent:${buildDir}/libs/inflection-2.0-alpha.jar",
+		"-XX:-UseTLAB" ]
 }
 
 test.dependsOn jar

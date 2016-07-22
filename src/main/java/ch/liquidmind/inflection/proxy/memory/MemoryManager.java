@@ -8,10 +8,18 @@ import ch.liquidmind.inflection.proxy.memory.TaxonomySpecificMemoryManager.Objec
 
 public abstract class MemoryManager
 {
+	public enum MemoryManagementStrategy { AUTOMATIC, MANUAL, GARBAGE_COLLECTING }
+	
+	private static MemoryManagementStrategy memoryManagementStrategy = MemoryManagementStrategy.AUTOMATIC;
 	private static ThreadLocal< MemoryManager > contextMemoryManager = new ThreadLocal< MemoryManager >();
 	
 	private Map< Taxonomy, TaxonomySpecificMemoryManager > taxonomySpecificMemoryManagers = new HashMap< Taxonomy, TaxonomySpecificMemoryManager >();
 
+	public static void setMemoryManagementStrategy( MemoryManagementStrategy memoryManagementStrategy )
+	{
+		MemoryManager.memoryManagementStrategy = memoryManagementStrategy;
+	}
+	
 	@SuppressWarnings( "unchecked" )
 	public static < T extends MemoryManager > T getContextMemoryManager()
 	{
@@ -23,7 +31,21 @@ public abstract class MemoryManager
 	
 	private static MemoryManager createMemoryManager()
 	{
-		return ( MemoryManagementAgent.isAgentActive() ? new GarbageCollectingMemoryManager() : new ManualMemoryManager() );
+		MemoryManager memoryManager;
+		
+		if ( memoryManagementStrategy.equals( MemoryManagementStrategy.AUTOMATIC ) )
+			memoryManager = ( MemoryManagementAgent.isAgentActive() ? new GarbageCollectingMemoryManager() : new ManualMemoryManager() );
+		else if ( memoryManagementStrategy.equals( MemoryManagementStrategy.MANUAL ) )
+			memoryManager = new ManualMemoryManager();
+		else if ( memoryManagementStrategy.equals( MemoryManagementStrategy.GARBAGE_COLLECTING ) )
+			if ( MemoryManagementAgent.isAgentActive() )
+				memoryManager = new GarbageCollectingMemoryManager();
+			else
+				throw new RuntimeException( String.format( "The value of memoryManagementStrategy was %s but %s.isAgentActive() returned false.", memoryManagementStrategy, MemoryManagementAgent.class.getSimpleName() ) );
+		else
+			throw new IllegalStateException( "Unexpected value for memoryManagementStrategy: " + memoryManagementStrategy );
+		
+		return memoryManager;
 	}
 	
 	private TaxonomySpecificMemoryManager getTaxonomySpecificMemoryManager( Taxonomy taxonomy )
