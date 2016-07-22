@@ -44,7 +44,8 @@ public class GarbageCollectingTaxonomySpecificMemoryManager extends TaxonomySpec
 		// May through a NoProxyException which ends execution of this method; not
 		// the most elegant solution, but would need to refactor which don't want to
 		// at this time.
-		getClassesTuple( object );
+		if ( !(object instanceof Proxy || object instanceof Auxiliary || object instanceof Collection || object instanceof Iterator) )
+			getViewByClass( object.getClass() );
 		
 		ObjectsTuple objectsTuple;
 		
@@ -170,6 +171,6 @@ public class GarbageCollectingTaxonomySpecificMemoryManager extends TaxonomySpec
 			__Field.set( auxiliaryOwnedField, auxiliary, new AuxiliaryOwnedVirtualObjectReference( object, proxy ) );
 		
 		if ( !(object instanceof Collection || object instanceof Iterator) )
-		getViewedObjectVirtualObjectReferences( object ).getReferences().put( getTaxonomy(), new ViewedObjectVirtualObjectReference( proxy, auxiliary ) );
+			getViewedObjectVirtualObjectReferences( object ).getReferences().put( getTaxonomy(), new ViewedObjectVirtualObjectReference( proxy, auxiliary ) );
 	}
 }

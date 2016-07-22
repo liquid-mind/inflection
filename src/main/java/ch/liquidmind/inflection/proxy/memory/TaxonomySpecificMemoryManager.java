@@ -293,7 +293,7 @@ public abstract class TaxonomySpecificMemoryManager
 		return leafAuxiliaryClass;
 	}
 	
-	private View getViewByClass( Class< ? > aClass )
+	protected View getViewByClass( Class< ? > aClass )
 	{
 		try
 		{
