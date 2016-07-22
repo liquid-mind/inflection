@@ -116,7 +116,7 @@ public class MemoryManagementAgent implements ClassFileTransformer
 				ClassPool classPool = ClassPool.getDefault();
 				CtClass theClass = classPool.get( className );
 				CtClass voReference = classPool.get( ViewedObjectVirtualObjectReferences.class.getName() );
-				CtField field = new CtField( voReference, MemoryManagementAgent.class.getPackage().getName() + ".virtualObjectReference", theClass );
+				CtField field = new CtField( voReference, getVirtualObjectReferenceName(), theClass );
 				field.setModifiers( Modifier.PRIVATE );
 				theClass.addField( field );
 				byteCode = theClass.toBytecode();
@@ -128,6 +128,11 @@ public class MemoryManagementAgent implements ClassFileTransformer
 		}
 
 		return byteCode;
+	}
+	
+	public static String getVirtualObjectReferenceName()
+	{
+		return MemoryManagementAgent.class.getPackage().getName() + ".virtualObjectReference";
 	}
 
 	public static boolean isAgentActive()

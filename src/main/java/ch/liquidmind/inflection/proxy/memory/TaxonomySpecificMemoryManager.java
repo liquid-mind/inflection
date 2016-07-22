@@ -145,7 +145,7 @@ public abstract class TaxonomySpecificMemoryManager
 		AUXILIARY_VIEW.setAccessible( true );
 	}
 
-	private ClassesTuple getClassesTuple( Object key )
+	protected ClassesTuple getClassesTuple( Object key )
 	{
 		Class< ? > lookupClass;
 		
@@ -230,11 +230,11 @@ public abstract class TaxonomySpecificMemoryManager
 		Class< ? > objectClass = null;
 		Set< Class< ? > > intersection = new HashSet< Class< ? > >( COLLECTION_CLASSES_BY_PROXY.keySet() );
 		intersection.retainAll( getClassesRecursive( proxyClass ) );
-		Class< ? > proxyInterface = intersection.iterator().next();
 
 		if ( intersection.size() != 1 )
 			throw new IllegalStateException( "intersection should contain exactly one element." );
-		
+
+		Class< ? > proxyInterface = intersection.iterator().next();
 		objectClass = COLLECTION_CLASSES_BY_PROXY.get( proxyInterface );
 		ClassesTuple classesTuple = new ClassesTuple( proxyClass, objectClass, null );
 		

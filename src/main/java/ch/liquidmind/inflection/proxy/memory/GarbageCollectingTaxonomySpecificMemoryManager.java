@@ -1,10 +1,13 @@
 package ch.liquidmind.inflection.proxy.memory;
 
 import java.lang.reflect.Field;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 
 import __java.lang.__Class;
+import __java.lang.__NoSuchFieldException;
 import __java.lang.reflect.__Field;
 import ch.liquidmind.inflection.Auxiliary;
 import ch.liquidmind.inflection.model.external.Taxonomy;
@@ -38,7 +41,13 @@ public class GarbageCollectingTaxonomySpecificMemoryManager extends TaxonomySpec
 	@Override
 	protected ObjectsTuple createObjectTuple( Object object )
 	{
+		// May through a NoProxyException which ends execution of this method; not
+		// the most elegant solution, but would need to refactor which don't want to
+		// at this time.
+		getClassesTuple( object );
+		
 		ObjectsTuple objectsTuple;
+		
 		VirtualObjectReference virtualObjectReference = getVirtualObjectReference( object );
 	
 		// Set the virtual object references from the tuple.
@@ -91,20 +100,32 @@ public class GarbageCollectingTaxonomySpecificMemoryManager extends TaxonomySpec
 		else if ( object instanceof Auxiliary )
 			virtualObjectReference = (VirtualObjectReference)__Field.get( auxiliaryOwnedField, object );
 		else
-			virtualObjectReference = getViewedObjectVirtualObjectReferences( object ).getReferences().get( getTaxonomy() );
+			virtualObjectReference = getViewedObjectVirtualObjectReference( object );
 		
 		return (T)virtualObjectReference;
+	}
+	
+	private ViewedObjectVirtualObjectReference getViewedObjectVirtualObjectReference( Object object )
+	{
+		ViewedObjectVirtualObjectReferences references = getViewedObjectVirtualObjectReferences( object );
+		
+		return ( references == null ? null : references.getReferences().get( getTaxonomy() ) );
 	}
 	
 	private ViewedObjectVirtualObjectReferences getViewedObjectVirtualObjectReferences( Object object )
 	{
 		Class< ? > theClass = object.getClass();
+		
+		if ( object instanceof Collection || object instanceof Iterator )
+			return null;
+		
 		Field objectOwnedField = objectOwnedFields.get( theClass );
 		
 		if ( objectOwnedField == null )
 		{
-			objectOwnedField = __Class.getDeclaredField( theClass, "virtualObjectReference" );
+			objectOwnedField = getDeclaredFieldRecursive( theClass, MemoryManagementAgent.getVirtualObjectReferenceName() );
 			objectOwnedField.setAccessible( true );
+			objectOwnedFields.put( theClass, objectOwnedField );
 		}
 		
 		ViewedObjectVirtualObjectReferences voVirtualObjectReferences = (ViewedObjectVirtualObjectReferences)__Field.get( objectOwnedField, object );
@@ -118,6 +139,25 @@ public class GarbageCollectingTaxonomySpecificMemoryManager extends TaxonomySpec
 		return voVirtualObjectReferences;
 	}
 	
+	private Field getDeclaredFieldRecursive( Class< ? > theClass, String fieldName )
+	{
+		Field declaredField = null;
+		
+		try
+		{
+			declaredField = __Class.getDeclaredField( theClass, fieldName );
+		}
+		catch ( __NoSuchFieldException e )
+		{
+			// Ignore.
+		}
+
+		if ( declaredField == null && theClass.getSuperclass() != null )
+			declaredField = getDeclaredFieldRecursive( theClass.getSuperclass(), fieldName );
+		
+		return declaredField;
+	}
+	
 	private void setVirtualObjectReferences( ObjectsTuple objectsTuple )
 	{
 		Proxy proxy = objectsTuple.getProxy();
@@ -127,8 +167,9 @@ public class GarbageCollectingTaxonomySpecificMemoryManager extends TaxonomySpec
 		__Field.set( proxyOwnedField, proxy, new ProxyOwnedVirtualObjectReference( object, auxiliary ) );
 		
 		if ( auxiliary != null )
-			__Field.set( auxiliaryOwnedField, proxy, new AuxiliaryOwnedVirtualObjectReference( object, proxy ) );
-			
+			__Field.set( auxiliaryOwnedField, auxiliary, new AuxiliaryOwnedVirtualObjectReference( object, proxy ) );
+		
+		if ( !(object instanceof Collection || object instanceof Iterator) )
 		getViewedObjectVirtualObjectReferences( object ).getReferences().put( getTaxonomy(), new ViewedObjectVirtualObjectReference( proxy, auxiliary ) );
 	}
 }

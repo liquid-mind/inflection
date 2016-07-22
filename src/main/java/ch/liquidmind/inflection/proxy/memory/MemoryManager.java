@@ -13,7 +13,7 @@ public abstract class MemoryManager
 	private Map< Taxonomy, TaxonomySpecificMemoryManager > taxonomySpecificMemoryManagers = new HashMap< Taxonomy, TaxonomySpecificMemoryManager >();
 
 	@SuppressWarnings( "unchecked" )
-	public static < T extends MemoryManager > T getContextProxyRegistry()
+	public static < T extends MemoryManager > T getContextMemoryManager()
 	{
 		if ( contextMemoryManager.get() == null )
 			contextMemoryManager.set( createMemoryManager() );

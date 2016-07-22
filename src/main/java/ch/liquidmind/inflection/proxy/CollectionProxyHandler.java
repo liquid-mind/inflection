@@ -32,7 +32,7 @@ public class CollectionProxyHandler implements InvocationHandler
 	private Object invoke( Proxy proxy, Method method, Object[] args ) throws Throwable
 	{
 		Taxonomy taxonomy = Inflection.getTaxonomy( proxy );
-		Object collection = ManualMemoryManager.getContextProxyRegistry().getObject( taxonomy, ObjectType.Object, proxy );
+		Object collection = ManualMemoryManager.getContextMemoryManager().getObject( taxonomy, ObjectType.Object, proxy );
 		List< Object > viewableArgs = getViewableObjects( taxonomy, args );
 		Method viewableMethod = collection.getClass().getMethod( method.getName(), method.getParameterTypes() );
 		viewableMethod.setAccessible( true );
@@ -64,7 +64,7 @@ public class CollectionProxyHandler implements InvocationHandler
 		for ( Object rawObject : rawObjects )
 		{
 			if ( rawObject instanceof Proxy )
-				viewableObjects.add( ManualMemoryManager.getContextProxyRegistry().getObject( taxonomy, ObjectType.Object, (Proxy)rawObject ) );
+				viewableObjects.add( ManualMemoryManager.getContextMemoryManager().getObject( taxonomy, ObjectType.Object, (Proxy)rawObject ) );
 			else
 				viewableObjects.add( rawObject );
 		}
@@ -74,7 +74,7 @@ public class CollectionProxyHandler implements InvocationHandler
 	
 	private Object getProxyObject( Taxonomy taxonomy, Object viewableObject )
 	{
-		Object proxyObject = ManualMemoryManager.getContextProxyRegistry().getObject( taxonomy, ObjectType.Proxy, viewableObject );
+		Object proxyObject = ManualMemoryManager.getContextMemoryManager().getObject( taxonomy, ObjectType.Proxy, viewableObject );
 		
 		if ( proxyObject == null )
 			proxyObject = viewableObject;
